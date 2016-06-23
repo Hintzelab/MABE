@@ -1,12 +1,12 @@
-//  MABE is a product of The Hintza Lab @ MSU
+//  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
-//         http://hintzelab.msu.edu/
+//         hintzelab.msu.edu
 //     for MABE documentation:
-//         https://github.com/ahnt/BasicMarkovBrainTemplate/wiki - for
+//         github.com/ahnt/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//          https://github.com/ahnt/BasicMarkovBrainTemplate/wiki/license
+//         github.com/ahnt/MABE/wiki/License
 
 
 
@@ -42,10 +42,8 @@ void Gate_Builder::getSomeBrainAddresses(const int& howMany, const int& howManyM
 	int i;
 	for (i = 0; i < howMany; i++) {  // for the number of addresses we need
 		addresses[i] = genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1, code, gateID);  // get an address
-		//cout << addresses[i] << "\n";
 	}
 	while (i < howManyMax) {  // leave room in the genome in case this gate gets more IO later
-		//cout << "skipping: " << i << "\n";
 		genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1);
 		i++;
 	}
@@ -149,16 +147,7 @@ void Gate_Builder::setupGates() {
 		}
 		intialGateCounts[codonOne] = (PT == nullptr) ? epsiGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES-fixedEpsilonGate_InitialCount");
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
-			
-			//DELETE WHEN FINISHED
-			string ns = (_PT == nullptr) ? "default" : _PT->getTableNameSpace();
-			cout << ns << endl;
 
-			
-			//TODO: Continue working from here 
-			//Change to add function options for epsilon
-			
-			
 			bool check; 
 
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);

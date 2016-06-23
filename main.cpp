@@ -1,12 +1,12 @@
-//  MABE is a product of The Hintza Lab @ MSU
+//  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
-//         http://hintzelab.msu.edu/
+//         hintzelab.msu.edu
 //     for MABE documentation:
-//         https://github.com/ahnt/BasicMarkovBrainTemplate/wiki - for
+//         github.com/ahnt/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//          https://github.com/ahnt/BasicMarkovBrainTemplate/wiki/license
+//         github.com/ahnt/MABE/wiki/License
 
 #include <algorithm>
 #include <memory>
@@ -33,7 +33,7 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 																		 // also writes out a config file if requested
-	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thttp://hintzelab.msu.edu/MABE\n\n" << endl;
+	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thintzelab.msu.eduMABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
 	configureDefaultsAndDocumentation();

@@ -1,12 +1,12 @@
-//  MABE is a product of The Hintza Lab @ MSU
+//  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
-//         http://hintzelab.msu.edu/
+//         hintzelab.msu.edu
 //     for MABE documentation:
-//         https://github.com/ahnt/BasicMarkovBrainTemplate/wiki - for
+//         github.com/ahnt/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//          https://github.com/ahnt/BasicMarkovBrainTemplate/wiki/license
+//         github.com/ahnt/MABE/wiki/License
 
 #ifndef __BasicMarkovBrainTemplate__Optimizer__
 #define __BasicMarkovBrainTemplate__Optimizer__
