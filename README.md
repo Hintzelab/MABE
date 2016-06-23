@@ -1,2 +1,2 @@
 # MABE
-Modular Agent Based Evolution Framwork
+Modular Agent Based Evolution Framework
