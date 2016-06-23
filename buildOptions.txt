@@ -1,0 +1,19 @@
+% World
+  + Berry
+
+% Genome
+  * Circular
+  + Multi
+  
+% Brain
+  + ConstantValues
+  * Markov
+  + Human
+  + Wire
+	
+% Optimizer
+  + GA
+
+% Archivist
+  * Default
+  + SSwD
