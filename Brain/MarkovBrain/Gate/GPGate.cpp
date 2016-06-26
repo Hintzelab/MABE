@@ -10,8 +10,9 @@
 
 #include "GPGate.h"
 
-shared_ptr<ParameterLink<double>> GPGate::constValueMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GP-constValueMin", -1.0, "for the const values, min value the genome can generate");
-shared_ptr<ParameterLink<double>> GPGate::constValueMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GP-constValueMax", 1.0, "for the const values, max value the genome can generate");
+shared_ptr<ParameterLink<double>> GPGate::constValueMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMin", -1.0, "for the const values, min value the genome can generate");
+shared_ptr<ParameterLink<double>> GPGate::constValueMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMax", 1.0, "for the const values, max value the genome can generate");
+shared_ptr<ParameterLink<string>> GPGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 /* *** GP Gate implementation *** */
 

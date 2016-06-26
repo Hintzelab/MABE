@@ -104,6 +104,9 @@ public:
 
 		virtual void writeInt(int value, int valueMin, int valueMax) override;
 		// copy contents of this handler to "to"
+
+		virtual shared_ptr<AbstractGenome::Handler> makeCopy() override;
+
 		virtual void copyTo(shared_ptr<AbstractGenome::Handler> to) override;
 		// true if handler is within length sites from end of a chromosome
 		virtual bool inTelomere(int length) override;

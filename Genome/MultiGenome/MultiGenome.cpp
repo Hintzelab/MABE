@@ -193,6 +193,15 @@ void MultiGenome::Handler::writeInt(int value, int valueMin, int valueMax) {
 	}
 }
 
+shared_ptr<AbstractGenome::Handler> MultiGenome::Handler::makeCopy() {
+	auto newGenomeHandler = make_shared<MultiGenome::Handler>(genome, readDirection);
+	newGenomeHandler->EOG = EOG;
+	newGenomeHandler->EOC = EOC;
+	newGenomeHandler->siteIndex = siteIndex;
+	newGenomeHandler->chromosomeIndex = chromosomeIndex;
+	return(newGenomeHandler);
+}
+
 void MultiGenome::Handler::copyTo(shared_ptr<AbstractGenome::Handler> to) {
 	auto castTo = dynamic_pointer_cast<MultiGenome::Handler>(to);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	castTo->readDirection = readDirection;

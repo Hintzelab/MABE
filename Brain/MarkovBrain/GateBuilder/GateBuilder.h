@@ -13,8 +13,8 @@
 
 #include "../../../Utilities/Parameters.h"
 #include "../Gate/DeterministicGate.h"
+#include "../Gate/EpsilonGate.h"
 //#include "../Gate/FeedbackGate.h"
-#include "../Gate/FixedEpsilonGate.h"
 #include "../Gate/GPGate.h"
 #include "../Gate/NeuronGate.h"
 #include "../Gate/ProbabilisticGate.h"
@@ -69,6 +69,7 @@ public:
 	//int getIOAddress(shared_ptr<AbstractGenome::Handler> genomeHandler, shared_ptr<AbstractGenome> genome, int gateID);  // extracts one brain state value address from a genome
 	static void getSomeBrainAddresses(const int& howMany, const int& howManyMax, vector<int>& addresses, shared_ptr<AbstractGenome::Handler> genomeHandler, int code, int gateID);  // extracts many brain state value addresses from a genome
 	static pair<vector<int>, vector<int>> getInputsAndOutputs(const pair<int, int> insRange, const pair<int, int>, shared_ptr<AbstractGenome::Handler> genomeHandle, int gateID);  // extracts the input and output brain state value addresses for this gate
+	static pair<vector<int>, vector<int>> getInputsAndOutputs(const string IO_ranges, shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, const string featureName = "undefined");
 
 	/* *** some c++ 11 magic to speed up translation from genome to gates *** */
 	//function<shared_ptr<Gate>(shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID)> Gate_Builder::makeGate[256];

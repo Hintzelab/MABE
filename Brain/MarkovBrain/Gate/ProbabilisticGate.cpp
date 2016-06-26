@@ -9,6 +9,7 @@
 //         github.com/ahnt/MABE/wiki/License
 
 #include "ProbabilisticGate.h"
+shared_ptr<ParameterLink<string>> ProbabilisticGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_PROBABILISTIC-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 ProbabilisticGate::ProbabilisticGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> rawTable, int _ID, shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT) {

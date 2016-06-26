@@ -18,6 +18,9 @@ using namespace std;
 
 class ProbabilisticGate: public AbstractGate {  //conventional probabilistic gate
 public:
+
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
 	vector<vector<double>> table;
 	ProbabilisticGate() = delete;
 	ProbabilisticGate(shared_ptr<ParametersTable> _PT = nullptr) :

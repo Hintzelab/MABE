@@ -101,6 +101,9 @@ public:
 		virtual double readDouble(double valueMin, double valueMax, int code = -1, int CodingRegionIndex = 0) override;
 
 		virtual void writeInt(int value, int valueMin, int valueMax) override;
+
+		virtual shared_ptr<AbstractGenome::Handler> makeCopy() override;
+
 		// copy contents of this handler to "to"
 		virtual void copyTo(shared_ptr<AbstractGenome::Handler> to) override;
 		// true if handler is within length sites from end of a chromosome

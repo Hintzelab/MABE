@@ -19,6 +19,8 @@ using namespace std;
 class DeterministicGate: public AbstractGate {
 public:
 	
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
 	vector<vector<int>> table;
 	DeterministicGate() = delete;
 	DeterministicGate(shared_ptr<ParametersTable> _PT = nullptr) :

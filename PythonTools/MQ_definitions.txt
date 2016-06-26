@@ -1,0 +1,27 @@
+
+# Lines starting with # are ignored
+
+# REPS = [FIRST REP] [LAST REP]
+REPS = 101 102
+
+# VAR = [SHORT NAME]	[REAL NAME]	[conditon1,condition2,etc.]
+# Short name is used in this file, and also determines output directory names
+VAR = TSK	WORLD_BERRY-taskSwitchingCost	1.0,3.0
+#VAR = RF1	WORLD_BERRY-rewardForFood1	0.50,1.00
+#VAR = RF2	WORLD_BERRY-rewardForFood2	0.50,0.75
+
+# EXCEPT = [SHORT NAME]=[condition],[SHORT NAME]=[condition],etc.
+# If all name/condition pairs are met for any EXCEPT, then that combination will not be run.
+EXCEPT = TSK=3.0,RF1=0.50
+#EXCEPT = TSK=3.0,RF2=0.75
+
+
+-----
+
+# JOBNAME will be appended before condition (C*) identifier - if "NONE" then job will have not JOBNAME
+JOBNAME = NONE
+
+# EXECUTABLE is the name of program to run, may include a path
+EXECUTABLE = ./MABE
+#EXECUTABLE = MABE.exe
+

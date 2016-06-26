@@ -17,7 +17,10 @@ using namespace std;
 
 class VoidGate: public DeterministicGate {
 public:
+
 	static shared_ptr<ParameterLink<double>> voidGate_ProbabilityPL;
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
 	vector<int> defaultOutput;
 	double epsilon;
 	VoidGate() = delete;

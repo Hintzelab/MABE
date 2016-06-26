@@ -10,6 +10,8 @@
 
 #include "DeterministicGate.h"
 
+shared_ptr<ParameterLink<string>> DeterministicGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DETERMINISTIC-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+
 DeterministicGate::DeterministicGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT) {
 	ID = _ID;
