@@ -24,6 +24,7 @@ class GPGate : public AbstractGate {
 
 	static shared_ptr<ParameterLink<double>> constValueMinPL;
 	static shared_ptr<ParameterLink<double>> constValueMaxPL;
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
 
 	GPGate() = delete;
 	GPGate(shared_ptr<ParametersTable> _PT = nullptr) :

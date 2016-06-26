@@ -199,7 +199,10 @@ public:
 	vector<int> getInputNodesList() {
 		return inputNodesList;
 	}
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) {
+		cout << "ERROR IN AbstractBrain::makeCopy() - You are using the abstract copy constructor for brains. You must define your own" << endl;
+		exit(1);
+	}
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Brain__) */

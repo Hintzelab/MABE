@@ -12,7 +12,8 @@
 
 /* this gate behaves like a deterministic gate with a constant externally set error which may the gate to deliver the wrong set of output values */
 
-shared_ptr<ParameterLink<double>> FixedEpsilonGate::EpsilonSourcePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FIXED_EPSILON-epsilonSource", 0.05, "if value is in [0,1), chance that an output from a FixedEpsilonGate gate will be randomized. if value is 1 or greater, will pull epsilon value from that genome site location + value. if value is negative integer, will pull epsilon value from (site at start of genome) + abs(value)");
+shared_ptr<ParameterLink<double>> FixedEpsilonGate::EpsilonSourcePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FIXEDEPSILON-epsilonSource", 0.05, "if value is in [0,1], chance that an output from a FixedEpsilonGate gate will be randomized. if < 1 or < 0, epsilon value is determined by the genome. If positive, then the genome handler will advance int(value) number of sites - 1 from the current location, before reading. If the value is negative, then int(abs(value)) indicates the absolute index of the site to be used i.e.(site at abs(value) in genome)");
+shared_ptr<ParameterLink<string>> FixedEpsilonGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FIXEDEPSILON-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 
 FixedEpsilonGate::FixedEpsilonGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, double _epsilon, shared_ptr<ParametersTable> _PT) :
@@ -33,7 +34,6 @@ FixedEpsilonGate::FixedEpsilonGate(pair<vector<int>, vector<int>> addresses, vec
 
 void FixedEpsilonGate::update(vector<double> & nodes, vector<double> & nextNodes) {
 	int input = vectorToBitToInt(nodes,inputs,true); // converts the input values into an index (true indicates to reverse order)
-
 	if (Random::P(epsilon)) {  //if chance... then return a different set of output values
 		int output = 0;
 		do {

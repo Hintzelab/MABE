@@ -29,9 +29,6 @@ using namespace std;
 class AbstractGenome {
 
 public:
-
-	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
-
 	static shared_ptr<ParameterLink<string>> genomeTypeStrPL;
 	static shared_ptr<ParameterLink<double>> alphabetSizePL;
 	static shared_ptr<ParameterLink<string>> genomeSitesTypePL;
@@ -98,6 +95,11 @@ public:
 		virtual vector<vector<int>> readTable(pair<int, int> tableSize, pair<int, int> tableMaxSize, pair<int, int> valueRange, int code = -1, int CodingRegionIndex = 0)=0;
 		virtual void advanceIndex(int distance = 1) = 0;
 
+		virtual shared_ptr<AbstractGenome::Handler> makeCopy() {
+			cout << "  ERROR :: in AbstractGenome::Handler::makeCopy() - You are using the abstract version of this function. This method has not been defined for the class you are using.\n  Exiting." << endl;
+			exit(1);
+		}
+
 		virtual void copyTo(shared_ptr<Handler> to) = 0;
 
 		virtual bool atEOG() {
@@ -124,8 +126,18 @@ public:
 	AbstractGenome() = delete;
 	AbstractGenome(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {}
 
+//	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) {
+//		cout << "  ERROR IN AbstractGenome::makeCopy() - You are using the abstract version of this this function. This method has not been defined for the class you are using.\n  Exiting." << endl;
+//		exit(1);
+//	}
+
 	virtual ~AbstractGenome() = default;
 	//virtual shared_ptr<AbstractGenome::Handler> newHandler(shared_ptr<AbstractGenome> _genome, bool _readDirection = true) override {
+
+	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) {
+		cout << "ERROR IN AbstractGenome::makeCopy() - You are using the abstract copy constructor for genomes. You must define your own" << endl;
+		exit(1);
+	}
 
 	virtual shared_ptr<AbstractGenome> makeLike() = 0;
 

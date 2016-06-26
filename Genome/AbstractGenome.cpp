@@ -15,10 +15,4 @@ shared_ptr<ParameterLink<double>> AbstractGenome::alphabetSizePL = Parameters::r
 shared_ptr<ParameterLink<string>> AbstractGenome::genomeSitesTypePL = Parameters::register_parameter("GENOME-sitesType", (string) "char", "type for sites in genome [char, int, double, bool]");  // string parameter for outputMethod;
 
 
-shared_ptr<AbstractGenome> AbstractGenome::makeCopy(shared_ptr<ParametersTable> _PT) {
-	cout << "ERROR IN AbstractGenome::makeCopy() - You are using the abstract copy constructor for genomes. You must define your own" << endl;
-	exit(1);
-}
-
-
 

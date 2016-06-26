@@ -12,7 +12,8 @@
 
 /* this gate behaves like a deterministic gate with a constant externally set error which may set a single output to 0 */
 
-shared_ptr<ParameterLink<double>> VoidGate::voidGate_ProbabilityPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-epsilonSource", 0.05, "if value is in [0,1), chance that an output from a void gate will be set to 0. if value is 1 or greater, will pull epsilon value from that genome site location + value. if value is negative integer, will pull epsilon value from (site at start of genome) + abs(value)");
+shared_ptr<ParameterLink<double>> VoidGate::voidGate_ProbabilityPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-epsilonSource", 0.05, "if value is in [0,1], chance that output will be randomized. if < 1 or < 0, epsilon value is determined by the genome. If positive, then the genome handler will advance int(value) number of sites - 1 from the current location, before reading. If the value is negative, then int(abs(value)) indicates the absolute index of the site to be used i.e.(site at abs(value) in genome");
+shared_ptr<ParameterLink<string>> VoidGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 VoidGate::VoidGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, double _epsilon, shared_ptr<ParametersTable> _PT) :
 		DeterministicGate(addresses, _table, _ID, _PT) {  // use DeterministicGate constructor to build set up everything (including a table of 0s and 1s)

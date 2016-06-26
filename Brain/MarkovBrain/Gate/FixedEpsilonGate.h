@@ -18,6 +18,7 @@ using namespace std;
 class FixedEpsilonGate: public DeterministicGate {
 public:
 	static shared_ptr<ParameterLink<double>> EpsilonSourcePL;
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
 
 	vector<int> defaultOutput;
 	double epsilon;

@@ -176,6 +176,14 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 		decomposedValue.pop_back();
 	}
 }
+template<class T>
+shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
+	auto newGenomeHandler = make_shared<CircularGenome<T>::Handler>(genome, readDirection);
+	newGenomeHandler->EOG = EOG;
+	newGenomeHandler->EOC = EOC;
+	newGenomeHandler->siteIndex = siteIndex;
+	return(newGenomeHandler);
+}
 
 template<class T>
 void CircularGenome<T>::Handler::copyTo(shared_ptr<AbstractGenome::Handler> to) {

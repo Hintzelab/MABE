@@ -15,6 +15,9 @@
 
 class TritDeterministicGate : public AbstractGate {
  public:
+
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
 	vector<vector<int>> table;
 
 	TritDeterministicGate() = delete;
