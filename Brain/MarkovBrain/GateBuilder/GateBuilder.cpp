@@ -15,8 +15,8 @@ shared_ptr<ParameterLink<bool>> Gate_Builder::usingProbGatePL = Parameters::regi
 shared_ptr<ParameterLink<int>> Gate_Builder::probGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_PROBABILISTIC-initialCount", 3, "seed genome with this many start codons");
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingDetGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DETERMINISTIC-allow", true, "set to true to enable deterministic gates?");
 shared_ptr<ParameterLink<int>> Gate_Builder::detGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DETERMINISTIC-initialCount", 6, "seed genome with this many start codons");
-shared_ptr<ParameterLink<bool>> Gate_Builder::usingEpsiGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FIXEDEPSILON-allow", false, "set to true to enable epsilon gates");
-shared_ptr<ParameterLink<int>> Gate_Builder::epsiGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FIXEDEPSILON-initialCount", 3, "seed genome with this many start codons");
+shared_ptr<ParameterLink<bool>> Gate_Builder::usingEpsiGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-allow", false, "set to true to enable epsilon gates");
+shared_ptr<ParameterLink<int>> Gate_Builder::epsiGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-initialCount", 3, "seed genome with this many start codons");
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingVoidGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-allow", false, "set to true to enable void gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::voidGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-initialCount", 3, "seed genome with this many start codons");
 
@@ -124,7 +124,7 @@ void Gate_Builder::setupGates() {
 	// more may be added, but the numbers should not change (if they do, then genomes will generate different brains!)
 	int ProbabilisticCode = 42;
 	int DeterministicCode = 43;
-	int FixedEpsilonCode = 44;
+	int EpsilonCode = 44;
 	int VoidCode = 45;
 	int GPCode = 46;
 	int TritDeterministicCode = 47;
@@ -182,24 +182,24 @@ void Gate_Builder::setupGates() {
 			return make_shared<DeterministicGate>(addresses,table,gateID, _PT);
 		});
 	}
-	if ((PT == nullptr) ? usingEpsiGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES_FIXEDEPSILON-allow")) {
-		inUseGateNames.insert("FixedEpsilon");
-		int codonOne = FixedEpsilonCode;
+	if ((PT == nullptr) ? usingEpsiGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES_EPSILON-allow")) {
+		inUseGateNames.insert("Epsilon");
+		int codonOne = EpsilonCode;
 		inUseGateTypes.insert(codonOne);
 		{
 			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
-		intialGateCounts[codonOne] = (PT == nullptr) ? epsiGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES_FIXEDEPSILON-initialCount");
+		intialGateCounts[codonOne] = (PT == nullptr) ? epsiGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES_EPSILON-initialCount");
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
-			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_FIXEDEPSILON-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_FIXEDEPSILON");
+			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_EPSILON-IO_Ranges");
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_EPSILON");
 			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {16, 4}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
-			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_FIXEDEPSILON-epsilonSource");
+			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_EPSILON-epsilonSource");
 
 			if (epsilon > 1) {
 				genomeHandler->advanceIndex((int)epsilon);
