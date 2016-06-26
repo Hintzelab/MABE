@@ -13,8 +13,8 @@
 
 #include "../../../Utilities/Parameters.h"
 #include "../Gate/DeterministicGate.h"
+#include "../Gate/EpsilonGate.h"
 //#include "../Gate/FeedbackGate.h"
-#include "../Gate/FixedEpsilonGate.h"
 #include "../Gate/GPGate.h"
 #include "../Gate/NeuronGate.h"
 #include "../Gate/ProbabilisticGate.h"

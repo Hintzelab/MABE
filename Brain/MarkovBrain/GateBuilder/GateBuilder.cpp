@@ -199,7 +199,7 @@ void Gate_Builder::setupGates() {
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_FIXEDEPSILON");
 			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {16, 4}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
-			double epsilon = (_PT == nullptr) ? FixedEpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_FIXEDEPSILON-epsilonSource");
+			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_FIXEDEPSILON-epsilonSource");
 
 			if (epsilon > 1) {
 				genomeHandler->advanceIndex((int)epsilon);
@@ -213,7 +213,7 @@ void Gate_Builder::setupGates() {
 				epsilon = cleanGenomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
 			}
 
-			return make_shared<FixedEpsilonGate>(addresses,table,gateID, epsilon, _PT);
+			return make_shared<EpsilonGate>(addresses,table,gateID, epsilon, _PT);
 		});
 	}
 	if ((PT == nullptr) ? usingVoidGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES_VOID-allow")) {
