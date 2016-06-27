@@ -27,7 +27,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run qsub files)', required=False)
 parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(will run qsub files)', required=False)
 parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC using Long Job script - default : false(will run qsub files)', required=False)
-parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_definitions.txt', help='file which defines conditions - default: MQ_definitions.txt', required=False)
+parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_conditions.txt', required=False)
 args = parser.parse_args()
 
 
@@ -115,7 +115,12 @@ def makeQsubFile(fileName):
 		'  cp -r ' + executable + ' $WORK/\n'+
 		'\n'+
 		'  # copy settings files to work directory (scratch)\n'+
-		'  cp *.cfg $WORK/\n'+
+		'  if [ -e *.cfg ]\n'+
+		'  then\n'+
+		'    cp *.cfg $WORK/\n'+
+		'  else\n'+
+		'    touch ${WORK}/settings.cfg\n'+
+		'  fi\n'+
 		'\n'+
 		'  cd $WORK\n'+
 		'\n'+
@@ -130,7 +135,7 @@ def makeQsubFile(fileName):
 		'\n'+
 		'fi\n'+
 		'\n'+
-		'longjob ./MABE -f ${PBS_O_WORKDIR}/*.cfg -p GLOBAL-outputDirectory ${PBS_O_WORKDIR}/${cond}/${rep}/ GLOBAL-randomSeed ${rep} ${params}\n'+
+		'longjob ./MABE -f ${WORK}/*.cfg -p GLOBAL-outputDirectory ${PBS_O_WORKDIR}/${cond}/${rep}/ GLOBAL-randomSeed ${rep} ${params}\n'+
 		'ret=$?\n'+
 		'\n'+
 		'qstat -f ${PBS_JOBID}\n'+

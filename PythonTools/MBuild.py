@@ -43,12 +43,12 @@ if not('Default' in options['Archivist']):
 	options['Archivist'].append('Default');
 		
 print("Building MABE with:")
-print()
+print("")
 for option in options:
 	print(option)
 	for o in options[option]:
 		print("  " + o)
-	print()
+	print("")
 
 outFile = open("modules.h", 'w')
 
