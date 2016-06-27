@@ -26,8 +26,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run qsub files)', required=False)
 parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(will run qsub files)', required=False)
-parser.add_argument('-runHPCC', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC - default : false(will run qsub files)', required=False)
-parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_definitions.txt', help='file which defines conditions - default: MQ_definitions.txt', nargs=1, required=False)
+parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC using Long Job script - default : false(will run qsub files)', required=False)
+parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_definitions.txt', help='file which defines conditions - default: MQ_definitions.txt', required=False)
 args = parser.parse_args()
 
 
@@ -84,11 +84,11 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run jobs assuming a run option has been chosen)', required=False)
 parser.add_argument('-runLocal', action='store_true', default = False, help='if set, this run option will run jobs localy - default : false(will run qsub files)', required=False)
 parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, this run option will run jobs with qsub on HPCC using Long Job - default : false(will run qsub files)', required=False)
-parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_definitions.txt', help='file which defines conditions - default: MQ_definitions.txt', nargs=1, required=False)
+parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_definitions.txt', nargs=1, required=False)
 args = parser.parse_args()
 
-def makeQsubFile():
-	outFile = open("MABE.qsub", 'w')
+def makeQsubFile(fileName):
+	outFile = open(fileName, 'w')
 	outFile.write('#!/bin/bash -login\n'+
 		'#PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb\n'+
 		'#PBS -j oe\n'+
@@ -157,11 +157,15 @@ conditions = []
 
 done = False
 
+print("excluding:")
+
 # iterate over all combinations using nested counter (indexList)
 while not done:
 	varString = ""
 	condString = ""
 	keyCount = 0
+	
+
 	# for every key, look up varName and value for that key and add to:
 	# varstring - the parameters to be passed to MABE
 	# condString - the name of the output directory and job name
@@ -192,7 +196,7 @@ while not done:
 		combinations.append(varString)
 		conditions.append(condString)
 	else :
-		print("excluding: " + condString)
+		print("  " + condString[1:-1])
 		
 	checkIndex = len(indexList)-1
 	
@@ -213,6 +217,12 @@ while not done:
 		else:
 			stillChecking = False
 
+print("")
+print("including:")
+for c in conditions:
+	print("  " + c[1:-1])
+print("")
+	
 if not (args.runLocal or args.runHPCCLJ):
 	print("")
 	print("If you wish to run, use a run option (runLocal or runHPCCLJ)")
@@ -221,14 +231,15 @@ if not (args.runLocal or args.runHPCCLJ):
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
 
+qsubFileName = "MQ.qsub"
 if (args.runHPCCLJ):
-	makeQsubFile()
+	makeQsubFile(qsubFileName)
 
 for i in range(len(combinations)):
 	for rep in reps:
 		if (args.runLocal):
 			files = glob.glob("*.cfg")
-			print("runing:")
+			print("running:")
 			print("  " + executable + " -f *.cfg -p GLOBAL-outputDirectory " + conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:])
 			if not args.noRun:
 				call(["mkdir","-p",conditions[i][1:-1] + "/" + str(rep)])
@@ -239,11 +250,11 @@ for i in range(len(combinations)):
 				realDisplayName = "C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
 			else:
 				realDisplayName = displayName + "_C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
-			print("runing:")
+			print("submitting:")
 			print("  " + realDisplayName + " :")
-			print("  qsub ./MABE.qsub -N " + realDisplayName + " -v cond=" + conditions[i][1:-1] + " rep=" + str(rep) + ' params="' + combinations[i][1:] + '"')
+			print("  qsub " + qsubFileName + " -N " + realDisplayName + " -v cond=" + conditions[i][1:-1] + " rep=" + str(rep) + ' params="' + combinations[i][1:] + '"')
 			if not args.noRun:
-				call(["qsub", "MABE.qsub", "-N", realDisplayName, "-v", "cond=" + conditions[i][1:-1] + ",rep=" + str(rep) + ",params=" + combinations[i][1:]])
+				call(["qsub", qsubFileName, "-N", realDisplayName, "-v", "cond=" + conditions[i][1:-1] + ",rep=" + str(rep) + ",params=" + combinations[i][1:]])
 
 if args.noRun:
 	print("")
