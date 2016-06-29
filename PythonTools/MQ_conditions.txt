@@ -1,5 +1,6 @@
 
 # Lines starting with # are ignored
+# Lists must not contain white space (i.e. "1,2,3" OK, "1, 2, 3" Not OK)
 
 # REPS = [FIRST REP] [LAST REP]
 REPS = 101 103
@@ -15,6 +16,8 @@ VAR = RF1	WORLD_BERRY-rewardForFood1	0.50,1.00
 EXCEPT = TSK=3.0,RF1=0.50
 #EXCEPT = TSK=3.0,RF2=0.75
 
+# list of setting files (.cfg) which you want MABE to use. files will be loaded in the order provided.
+SETTINGS = settings.cfg,settings_organism.cfg,settings_world.cfg
 
 -----
 
@@ -24,4 +27,8 @@ JOBNAME = NONE
 # EXECUTABLE is the name of program to run, may include a path
 EXECUTABLE = ./MABE
 #EXECUTABLE = MABE.exe
+
+-----
+
+# 
 

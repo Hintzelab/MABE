@@ -21,73 +21,11 @@
 
 from subprocess import call
 import glob
-
 import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run qsub files)', required=False)
-parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(will run qsub files)', required=False)
-parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC using Long Job script - default : false(will run qsub files)', required=False)
-parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_conditions.txt', required=False)
-args = parser.parse_args()
+import os.path
 
 
-variables = {}
-varNames = {}
-varList = []
-exceptions = []
-executable = "./MABE"
-
-with open(args.file) as openfileobject:
-	for line in openfileobject:
-			
-		line = line.split()
-		if (len(line) > 0):
-			if line[0] == "REPS":
-				firstRep = int(line[2])
-				lastRep = int(line[3])
-			if line[0] == "JOBNAME":
-				displayName = line[2]
-				if displayName == "NONE":
-					displayName = ""
-			if line[0] == "VAR":
-				varList.append(line[2])
-				variables[line[2]] = line[4].split(",")
-				varNames[line[2]] = line[3]
-			if line[0] == "EXCEPT":
-				exceptions.append(line[2].replace('=',',').split(','))
-			if line[0] == "EXECUTABLE":
-				executable = line[2]
-
-ex_names = []
-for ex in exceptions:
-		ex_index = 0
-		while ex_index < len(exceptions):
-			if ex[ex_index] not in ex_names:
-				ex_names.append(ex[ex_index])
-			ex_index  += 2;
-
-
-for ex_name in ex_names:
-	found_ex_name = False
-	for v in varList:
-		if v == ex_name:
-			found_ex_name = True
-	if not found_ex_name:
-		print('exception rules contain variable with name: "' + ex_name + '". But this variable is not defined! Exiting!')
-		exit()
-	
-from subprocess import call
-import glob
-
-import argparse
-parser = argparse.ArgumentParser()
-parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run jobs assuming a run option has been chosen)', required=False)
-parser.add_argument('-runLocal', action='store_true', default = False, help='if set, this run option will run jobs localy - default : false(will run qsub files)', required=False)
-parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, this run option will run jobs with qsub on HPCC using Long Job - default : false(will run qsub files)', required=False)
-parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_definitions.txt', nargs=1, required=False)
-args = parser.parse_args()
-
-def makeQsubFile(fileName):
+def makeQsubFile(fileName, cfg_files):
 	outFile = open(fileName, 'w')
 	outFile.write('#!/bin/bash -login\n'+
 		'#PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb\n'+
@@ -113,16 +51,13 @@ def makeQsubFile(fileName):
 		'\n'+
 		'  # copy executable to work directory (scratch)\n'+
 		'  cp -r ' + executable + ' $WORK/\n'+
-		'\n'+
-		'  # copy settings files to work directory (scratch)\n'+
-		'  if [ -e *.cfg ]\n'+
-		'  then\n'+
-		'    cp *.cfg $WORK/\n'+
-		'  else\n'+
-		'    touch ${WORK}/settings.cfg\n'+
-		'  fi\n'+
-		'\n'+
-		'  cd $WORK\n'+
+		'\n')
+	if (len(cfg_files)>0):
+		outFile.write('  # copy settings files to work directory (scratch)\n')
+		for f in cfg_files:
+			outFile.write('  cp ' + f + ' $WORK/\n')
+		outFile.write('\n')
+	outFile.write('  cd $WORK\n'+
 		'\n'+
 		'  # create output directory in work directory (scratch)\n'+
 		'  mkdir -p ${cond}/${rep}\n'+
@@ -143,6 +78,65 @@ def makeQsubFile(fileName):
 		'exit $ret\n')
 	outFile.close()
 
+parser = argparse.ArgumentParser()
+parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run qsub files)', required=False)
+parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(will run qsub files)', required=False)
+parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC using Long Job script - default : false(will run qsub files)', required=False)
+parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_conditions.txt', required=False)
+args = parser.parse_args()
+
+variables = {}
+varNames = {}
+varList = []
+exceptions = []
+cfg_files = []
+executable = "./MABE"
+
+with open(args.file) as openfileobject:
+	for line in openfileobject:
+			
+		line = line.split()
+		if (len(line) > 0):
+			if line[0] == "REPS":
+				firstRep = int(line[2])
+				lastRep = int(line[3])
+			if line[0] == "JOBNAME":
+				displayName = line[2]
+				if displayName == "NONE":
+					displayName = ""
+			if line[0] == "VAR":
+				varList.append(line[2])
+				variables[line[2]] = line[4].split(",")
+				varNames[line[2]] = line[3]
+			if line[0] == "EXCEPT":
+				exceptions.append(line[2].replace('=',',').split(','))
+			if line[0] == "EXECUTABLE":
+				executable = line[2]
+			if line[0] == "SETTINGS":
+				cfg_files = line[2].split(',')
+				for f in cfg_files:
+					if not(os.path.isfile(f)):
+						print('settings file: "' + f + '" seems to be missing!')
+						exit()
+
+ex_names = []
+for ex in exceptions:
+		ex_index = 0
+		while ex_index < len(exceptions):
+			if ex[ex_index] not in ex_names:
+				ex_names.append(ex[ex_index])
+			ex_index  += 2;
+
+
+for ex_name in ex_names:
+	found_ex_name = False
+	for v in varList:
+		if v == ex_name:
+			found_ex_name = True
+	if not found_ex_name:
+		print('exception rules contain variable with name: "' + ex_name + '". But this variable is not defined! Exiting!')
+		exit()
+	
 print("\nSetting up your jobs...\n")
 for v in varList:
 	print(v+" ("+varNames[v]+") = " + str(variables[v]))
@@ -227,6 +221,11 @@ print("including:")
 for c in conditions:
 	print("  " + c[1:-1])
 print("")
+
+print("the following settings files will be included:")
+for f in cfg_files:
+  print("  "+f)
+print("")
 	
 if not (args.runLocal or args.runHPCCLJ):
 	print("")
@@ -237,19 +236,20 @@ if not (args.runLocal or args.runHPCCLJ):
 # run MABE.
 
 qsubFileName = "MQ.qsub"
+
 if (args.runHPCCLJ):
-	makeQsubFile(qsubFileName)
+	makeQsubFile(qsubFileName, cfg_files)
 
 for i in range(len(combinations)):
 	for rep in reps:
 		if (args.runLocal):
-			files = glob.glob("*.cfg")
+			cfg_files_str = ' '.join(cfg_files)
 			print("running:")
-			print("  " + executable + " -f *.cfg -p GLOBAL-outputDirectory " + conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:])
+			print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:])
 			if not args.noRun:
 				call(["mkdir","-p",conditions[i][1:-1] + "/" + str(rep)])
 				params = combinations[i][1:].split()
-				call([executable, "-f"] + files + ["-p", "GLOBAL-outputDirectory" , conditions[i][1:-1] + "/" + str(rep) + "/" , "GLOBAL-randomSeed" , str(rep)] + params)
+				call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditions[i][1:-1] + "/" + str(rep) + "/" , "GLOBAL-randomSeed" , str(rep)] + params)
 		if (args.runHPCCLJ):
 			if (displayName == ""):
 				realDisplayName = "C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]

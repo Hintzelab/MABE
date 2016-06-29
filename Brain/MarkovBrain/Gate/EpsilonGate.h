@@ -32,7 +32,7 @@ public:
 	virtual ~EpsilonGate() = default;
 	virtual void update(vector<double> & states, vector<double> & nextStates) override;
 	virtual string gateType() override{
-		return "FixedEpsilon";
+		return "Epsilon";
 	}
 	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
