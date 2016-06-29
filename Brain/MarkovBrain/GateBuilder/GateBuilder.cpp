@@ -72,9 +72,9 @@ pair<vector<int>, vector<int>> Gate_Builder::getInputsAndOutputs(const pair<int,
 }
 
 // wrapper for getInputsAndOutputs - converts string with format MinIn-MaxIn/MinOut-MaxOut to two pairs and calls getInputsAndOutputs() with pairs
-pair<vector<int>, vector<int>> Gate_Builder::getInputsAndOutputs(const string IO_Ranges, shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, const string featureName) {
+pair<vector<int>, vector<int>> Gate_Builder::getInputsAndOutputs(const string IO_Ranges, int& inMax, int& outMax, shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, const string featureName) {
 	stringstream ss(IO_Ranges);
-	int inMin, inMax, outMin, outMax;
+	int inMin, outMin;
 	char c;
 
 	ss >> inMin;
@@ -152,8 +152,9 @@ void Gate_Builder::setupGates() {
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_PROBAILISTIC-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_PROBAILISTIC");
-			vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {16, 16}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_PROBAILISTIC");
+			vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {pow(2,maxIn), pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID);
 			if (genomeHandler->atEOC()) {
 				shared_ptr<ProbabilisticGate> nullObj = nullptr;
 				return nullObj;
@@ -173,8 +174,9 @@ void Gate_Builder::setupGates() {
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_DETERMINISTIC-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_DETERMINISTIC");
-			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {16, 4}, {0, 1}, AbstractGate::DATA_CODE, gateID);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_DETERMINISTIC");
+			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {pow(2,maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 			if (genomeHandler->atEOC()) {
 				shared_ptr<DeterministicGate> nullObj = nullptr;
 				return nullObj;
@@ -196,8 +198,9 @@ void Gate_Builder::setupGates() {
 
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_EPSILON-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_EPSILON");
-			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {16, 4}, {0, 1}, AbstractGate::DATA_CODE, gateID);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_EPSILON");
+			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {pow(2,maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
 			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_EPSILON-epsilonSource");
 
@@ -230,8 +233,9 @@ void Gate_Builder::setupGates() {
 
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_VOID-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_VOID");
-			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {16, 4}, {0, 1}, AbstractGate::DATA_CODE, gateID);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_VOID");
+			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {pow(2,maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
 			double epsilon = (_PT == nullptr) ? VoidGate::voidGate_ProbabilityPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_VOID-epsilonSource");
 
@@ -279,7 +283,8 @@ void Gate_Builder::setupGates() {
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_GENETICPROGRAMING-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_GENETICPROGRAMING");
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_GENETICPROGRAMING");
 			int operation = genomeHandler->readInt(0, 8, AbstractGate::DATA_CODE, gateID);
 			vector<double> constValues;
 			for (int i = 0; i < 4; i++) {
@@ -328,8 +333,9 @@ void Gate_Builder::setupGates() {
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_TRIT-IO_Ranges");
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges , genomeHandler, gateID,"BRAIN_MARKOV_GATES_TRIT");
-			vector<vector<int>> table = genomeHandler->readTable( {pow(3,addresses.first.size()), addresses.second.size()}, {81, 4}, {-1, 1}, AbstractGate::DATA_CODE, gateID);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_TRIT");
+			vector<vector<int>> table = genomeHandler->readTable( {pow(3,addresses.first.size()), addresses.second.size()}, {pow(3,maxIn), maxOut}, {-1, 1}, AbstractGate::DATA_CODE, gateID);
 			if (genomeHandler->atEOC()) {
 				shared_ptr<TritDeterministicGate> nullObj = nullptr;;
 				return nullObj;
