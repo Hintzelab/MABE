@@ -118,11 +118,6 @@ int main(int argc, const char * argv[]) {
 		cout << endl;
 	}
 
-
-	PT = Parameters::root;
-	PT->show();
-	shared_ptr<AbstractBrain> templateBrain = makeTemplateBrain(world, PT);
-
 //////////////////
 // evolution loop
 //////////////////

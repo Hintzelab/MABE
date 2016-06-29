@@ -202,7 +202,7 @@ void Gate_Builder::setupGates() {
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_EPSILON");
 			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {pow(2,maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
-			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_EPSILON-epsilonSource");
+			double epsilon = (_PT == nullptr) ? EpsilonGate::EpsilonSourcePL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_EPSILON-epsilonSource");
 
 			if (epsilon > 1) {
 				genomeHandler->advanceIndex((int)epsilon);
@@ -237,7 +237,7 @@ void Gate_Builder::setupGates() {
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_VOID");
 			vector<vector<int>> table = genomeHandler->readTable( {1 << addresses.first.size(), addresses.second.size()}, {pow(2,maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE, gateID);
 
-			double epsilon = (_PT == nullptr) ? VoidGate::voidGate_ProbabilityPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_VOID-epsilonSource");
+			double epsilon = (_PT == nullptr) ? VoidGate::voidGate_ProbabilityPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_VOID-epsilonSource");
 
 			if (epsilon > 1) {
 				genomeHandler->advanceIndex((int)epsilon);
