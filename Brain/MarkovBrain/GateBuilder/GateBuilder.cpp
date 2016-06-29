@@ -139,7 +139,7 @@ void Gate_Builder::setupGates() {
 	}
 	gateStartCodes.resize(1 << bitsPerCodon);
 
-	if ((PT == nullptr) ? usingProbGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES_PROBAILISTIC-allow")) {
+	if ((PT == nullptr) ? usingProbGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES_PROBABILISTIC-allow")) {
 		inUseGateNames.insert("Probabilistic");
 		int codonOne = ProbabilisticCode;
 		inUseGateTypes.insert(codonOne);
@@ -148,12 +148,12 @@ void Gate_Builder::setupGates() {
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
-		intialGateCounts[codonOne] = (PT == nullptr) ? probGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES_PROBAILISTIC-initialCount");
+		intialGateCounts[codonOne] = (PT == nullptr) ? probGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES_PROBABILISTIC-initialCount");
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
-			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_PROBAILISTIC-IO_Ranges");
+			string IO_Ranges = (_PT == nullptr) ? DeterministicGate::IO_RangesPL->lookup() : _PT->lookupString("BRAIN_MARKOV_GATES_PROBABILISTIC-IO_Ranges");
 			int maxIn, maxOut;
-			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_PROBAILISTIC");
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,"BRAIN_MARKOV_GATES_PROBABILISTIC");
 			vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {pow(2,maxIn), pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID);
 			if (genomeHandler->atEOC()) {
 				shared_ptr<ProbabilisticGate> nullObj = nullptr;
