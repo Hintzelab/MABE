@@ -29,10 +29,8 @@
 
 using namespace std;
 
-
-
 int main(int argc, const char * argv[]) {
-																		 // also writes out a config file if requested
+	// also writes out a config file if requested
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thintzelab.msu.eduMABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
@@ -57,8 +55,7 @@ int main(int argc, const char * argv[]) {
 		int temp = rd();
 		Random::getCommonGenerator().seed(temp);
 		cout << "Generating Random Seed\n  " << temp << endl;
-	}
-	else {
+	} else {
 		Random::getCommonGenerator().seed(Global::randomSeedPL->lookup());
 		cout << "Using Random Seed: " << Global::randomSeedPL->lookup() << endl;
 	}
@@ -75,8 +72,7 @@ int main(int argc, const char * argv[]) {
 		if (NS == "") {
 			PT = nullptr;  //Parameters::root;
 			NS = "default";
-		}
-		else {
+		} else {
 			PT = Parameters::root->getTable(NS);
 		}
 
@@ -96,7 +92,6 @@ int main(int argc, const char * argv[]) {
 			population.push_back(newOrg);  // add a new org to population using progenitors template and a new random genome
 		}
 		progenitor->kill();  // the progenitor has served it's purpose.
-
 
 		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
 
@@ -118,9 +113,6 @@ int main(int argc, const char * argv[]) {
 		cout << endl;
 	}
 
-//////////////////
-// evolution loop
-//////////////////
 	string defaultGroup = "default";
 	if (groups.find(defaultGroup) == groups.end()) {
 		cout << "Group " << defaultGroup << " not found in groups.\nExiting." << endl;
@@ -128,11 +120,14 @@ int main(int argc, const char * argv[]) {
 	}
 
 	if (Global::modePL->lookup() == "run") {
+		//////////////////
+		// run mode - evolution loop
+		//////////////////
 		bool finished = false;  // when the archivist says we are done, we can stop!
 
 		while (!finished) {
 			world->evaluate(groups[defaultGroup], AbstractWorld::groupEvaluationPL->lookup(), false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
-																														//cout << "  evaluation done\n";
+			//cout << "  evaluation done\n";
 			finished = groups[defaultGroup]->archive();  // save data, update memory and delete any unneeded data;
 														 //cout << "  archive done\n";
 			Global::update++;
@@ -144,47 +139,92 @@ int main(int argc, const char * argv[]) {
 		groups[defaultGroup]->archive(1);  // flush any data that has not been output yet
 
 	}
-	else if (Global::modePL->lookup() == "test") {
 
-		vector<shared_ptr<AbstractGenome>> mg;
-		groups[defaultGroup]->population[0]->genome->loadGenomeFile(Global::visualizePopulationFilePL->lookup(), mg);
-		cout << "file loaded";
-		int num_genomes = (int)mg.size();
-		int counter = 0;
-		while ((int)mg.size() < Global::popSizePL->lookup()) {
-			cout << ".";
-			mg.push_back(mg[counter]);
-			counter++;
-			if (counter >= num_genomes) {
-				counter = 0;
+	else if (Global::modePL->lookup() == "visualize") {
+		//////////////////
+		// visualize mode
+		//////////////////
+		cout << "  You are running MABE in visualize mode." << endl<<endl;
+		vector<shared_ptr<AbstractGenome>> testGenomes;
+		groups[defaultGroup]->population[0]->genome->loadGenomeFile(Global::visualizePopulationFilePL->lookup(), testGenomes);
+
+		int num_genomes = (int) testGenomes.size();
+
+		vector<int> IDs;
+		convertCSVListToVector(Global::visualizeOrgIDPL->lookup(),IDs);
+
+		vector<shared_ptr<Organism>> testPopulation;
+
+
+		bool padPopulation = false;
+
+		if (IDs[0] == -1) { // visualize last
+			shared_ptr<AbstractGenome> temp = testGenomes[(int) testGenomes.size() - 1];
+			testGenomes.clear();
+			testGenomes.push_back(temp);
+		} else if (IDs[0] == -2 && IDs.size() == 1) { // visualize population
+			padPopulation = true;
+		} else { // visualize given ID(s)
+			int foundCount = 0;
+			vector<shared_ptr<AbstractGenome>> subsetGenomes;
+			for (auto ID : IDs) {
+				if (ID != -2) {
+					bool found = false;
+					for (auto g : testGenomes) {
+						if (g->dataMap.Get("ID") == to_string(ID)) {
+							subsetGenomes.push_back(g);
+							foundCount++;
+							found = true;
+						}
+					}
+					if (!found) {
+						cout << "ERROR: in visualize mode, can not find genome with ID " << ID << " in file: " << Global::visualizePopulationFilePL->lookup() << ".\n  Exiting." << endl;
+						exit(1);
+					}
+				} else {
+					padPopulation = true;
+					num_genomes--;
+					foundCount++;
+				}
+			}
+			if (foundCount < (int) IDs.size()) {
+				cout << "WARRNING: in visualize mode " << (int) IDs.size() - foundCount << " genomes specified in Global::visualizeOrgID could not be found." << endl;
+			}
+			testGenomes = subsetGenomes;
+		}
+
+		if (padPopulation){
+			int index = 0;
+			if ((int) testGenomes.size() < Global::popSizePL->lookup()) {
+				cout << "  Population size is larger then the number of genomes in the file. Padding population with " << Global::popSizePL->lookup() - (int) testGenomes.size() << " extra copies." << endl;
+				while ((int) testGenomes.size() < Global::popSizePL->lookup()) {
+					testGenomes.push_back(testGenomes[index]);
+					index++;
+					cout << index << endl;
+					if (index >= num_genomes) {
+						index = 0;
+					}
+				}
+			}
+			if ((int) testGenomes.size() > Global::popSizePL->lookup()) {
+				cout << "  Population size is smaller then the number of genomes in the file. deleting genomes from head of population." << endl;
+				testGenomes.erase(testGenomes.begin(), testGenomes.begin() + ((int) testGenomes.size() - Global::popSizePL->lookup()));
 			}
 		}
-		vector<shared_ptr<Organism>> testPopulation;
-		for (auto g : mg) {
+
+		for (auto g : testGenomes) {
 			auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], g);
 			//newOrg->brain->setRecordActivity(true);
 			//newOrg->brain->setRecordFileName("wireBrain.run");
 			testPopulation.push_back(newOrg);  // add a new org to population using progenitors template and a new random genome
 		}
-		cout << "\npopulation created." << endl;
-
-		//////////////////////////////////////////////
-		// rebuild testGroup with one particular org.
-		testPopulation.clear();
-		auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], mg[0]);
-		testPopulation.push_back(newOrg);
-		//////////////////////////////////////////////
 
 		shared_ptr<Group> testGroup = make_shared<Group>(testPopulation, groups[defaultGroup]->optimizer, groups[defaultGroup]->archivist);
-		cout << "\ngroup created." << endl;
 		world->runWorld(testGroup, false, true, false);
-
 		for (auto o : testGroup->population) {
-			cout << o->score << " " << o->genome->dataMap.Get("ID") << endl;
+			cout << "  organism with ID: " << o->genome->dataMap.Get("ID") << " generated score: " << o->score << " " << endl;
 		}
-
-	}
-	else {
+	} else {
 		cout << "\n\nERROR: Unrecognized mode set in configuration!\n  \"" << Global::modePL->lookup() << "\" is not defined.\n\nExiting.\n" << endl;
 		exit(1);
 	}

@@ -21,7 +21,8 @@ MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes
 	randomizeUnconnectedOutputsType = (PT == nullptr) ? randomizeUnconnectedOutputsTypePL->lookup() : PT->lookupInt("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsType");
 	randomizeUnconnectedOutputsMax = (PT == nullptr) ? randomizeUnconnectedOutputsMaxPL->lookup() : PT->lookupDouble("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMax");
 
-	GLB = nullptr;
+	//GLB = nullptr;
+	GLB = make_shared<ClassicGateListBuilder>(PT);
 	gates = _gates;
 	// columns to be added to ave file
 	aveFileColumns.clear();

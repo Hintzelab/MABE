@@ -34,6 +34,7 @@ public:
 	static shared_ptr<ParameterLink<int>> commentIndentPL;  // minimum number of characters before comments 
 
 	static shared_ptr<ParameterLink<string>> visualizePopulationFilePL;
+	static shared_ptr<ParameterLink<string>> visualizeOrgIDPL;
 
 	static shared_ptr<ParameterLink<string>> outputDirectoryPL;  // where files will be written
 

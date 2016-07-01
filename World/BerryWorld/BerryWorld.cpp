@@ -59,6 +59,8 @@ shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListNoEatPL = Parameters::
 
 shared_ptr<ParameterLink<bool>> BerryWorld::alwaysStartOnFood1PL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysStartOnFood1", false, "if true, if true organisms will all start on food1");
 
+shared_ptr<ParameterLink<string>> BerryWorld::visualizationFileNamePL = Parameters::register_parameter("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName", (string)"worldUpdatesFile.txt", "in visualize mode, visualization data will be written to this file.");
+
 BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
 
@@ -95,6 +97,8 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	recordFoodListNoEat = (PT == nullptr) ? recordFoodListNoEatPL->lookup() : PT->lookupBool("WORLD_BERRY-recordFoodListNoEat");
 
 	alwaysStartOnFood1 = (PT == nullptr) ? alwaysStartOnFood1PL->lookup() : PT->lookupBool("WORLD_BERRY_ADVANCED-alwaysStartOnFood1");
+
+	visualizationFileName = (PT == nullptr) ? visualizationFileNamePL->lookup() : PT->lookupString("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName");
 
 	if (foodTypes < 1 || foodTypes > 8) {
 		cout << "In BerryWorld you either have too few or too many foodTypes (must be >0 and <=8)\n\nExiting\n\n";
@@ -265,7 +269,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	int orgIndex;
 
 	if (visualize) {  // save state of world before we get started.
-		BerryWorld::SaveWorldState("worldUpdatesFile.txt", grid, currentLocation, facing);
+		BerryWorld::SaveWorldState(visualizationFileName, grid, currentLocation, facing);
 	}
 
 	for (int t = 0; t < worldUpdates; t++) {  //run agent for "worldUpdates" brain updates
@@ -432,7 +436,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			}
 		}  // end world evaluation loop
 		if (visualize) {
-			BerryWorld::SaveWorldState("worldUpdatesFile.txt", grid, currentLocation, facing);
+			BerryWorld::SaveWorldState(visualizationFileName, grid, currentLocation, facing);
 		}
 	}
 
