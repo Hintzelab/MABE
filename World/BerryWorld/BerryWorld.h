@@ -82,6 +82,9 @@ public:
 	static shared_ptr<ParameterLink<bool>> recordFoodListNoEatPL;
 
 	static shared_ptr<ParameterLink<bool>> alwaysStartOnFood1PL;
+
+	static shared_ptr<ParameterLink<string>> visualizationFileNamePL;
+
 	// end parameters
 
 
@@ -119,6 +122,7 @@ public:
 
 	bool alwaysStartOnFood1;
 
+	string visualizationFileName;
 
 	int foodRatioTotal;  // sum of ratioFood for foods in use
 	vector<int> foodRatioLookup;
