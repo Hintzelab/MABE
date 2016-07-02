@@ -28,17 +28,17 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 	PltColor = (0,0,0)
 
 	if PltStyle == 'line':
-	  styleList = styleListLine
-	  PltStyle = '-'
+		styleList = styleListLine
+		PltStyle = '-'
 	if PltStyle == 'point':
-	  styleList = styleListPoint
-	  PltStyle = 'o'
+		styleList = styleListPoint
+		PltStyle = 'o'
 	if PltStyle == 'randomLine':
-	  styleList = styleListRandomLine
-	  PltStyle = '-'
+		styleList = styleListRandomLine
+		PltStyle = '-'
 	if PltStyle == 'randomPoint':
-	  styleList = styleListRandomPoint
-	  PltStyle = 'o'
+		styleList = styleListRandomPoint
+		PltStyle = 'o'
 
 	fig = plt.figure(figsize=(20,10))                                                # create a new figure
 	fig.subplots_adjust(hspace=.35)
@@ -48,7 +48,12 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 	
 	title += '    x axis = ' + XCoordinateName
 	plt.suptitle(title, fontsize=MajorFontSize, fontweight='bold')
-
+	
+	if len(NamesList) == 1:
+		Columns = 1;
+	if len(NamesList) == 2:
+		Columns = 2;
+	
 	Rows = math.ceil(float(len(NamesList))/float(Columns))      # calcualate how many rows we need
 	for conditionCount in range(len(ConditionsList)):
 		for nameCount in range(len(NamesList)):
@@ -161,32 +166,32 @@ path = args.path
 
 
 if args.repRange != [1,0] and args.repList != []:
- print ('Error in input. -repRange and -repList are mutualy exclusive, please only define one!')
- exit()
+	print ('Error in input. -repRange and -repList are mutualy exclusive, please only define one!')
+	exit()
 rangeStart = args.repRange[0]
 rangeEnd = args.repRange[1]
 if args.repRange == [1,0] and args.repList != []:
- reps = args.repList
+	reps = args.repList
 else:
- reps = range(rangeStart,rangeEnd+1)
+	reps = range(rangeStart,rangeEnd+1)
 if list(reps) == []:
- reps = ['']
+	reps = ['']
 else:
- reps = [str(i) + '/' for i in reps]
+	reps = [str(i) + '/' for i in reps]
 
 files = args.files
 
 conFileNames = args.conditions
 if args.conditionNames == ['']:
- cons = conFileNames
+	cons = conFileNames
 else:
- cons = args.conditionNames
- if (len(cons) != len(conFileNames)):
-  print ('Error in input. -conditions and -conditionNames must have the same number of arguments')
-  exit()
+	cons = args.conditionNames
+if (len(cons) != len(conFileNames)):
+	print ('Error in input. -conditions and -conditionNames must have the same number of arguments')
+	exit()
 if conFileNames != ['']:
- conFileNames = [i+'/' for i in conFileNames]
- #cons = [i+'__' for i in cons]
+	conFileNames = [i+'/' for i in conFileNames]
+	#cons = [i+'__' for i in cons]
 
 realLedgendList = ['upper right','upper left','lower right','lower left','center right','center left','lower center','upper center','center']
 abrvLedgendList = ['ur','ul','lr','ll','cr','cl','lc','uc','c']
@@ -249,7 +254,7 @@ else:
 			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file)#plt.gcf()
 
 if args.save == '':
- plt.show()
+	plt.show()
 
 ######## SAVE TO FILE
 customOptions = None
@@ -265,7 +270,7 @@ if args.save == 'png':
 		for g in allGraphs:
 			allGraphs[g].savefig(customTitle + 'MABE_Graph_' + g + '.png', dpi=100)
  #else:
-  #customGraph.savefig(customTitle + 'MABE_CustomGraph.png', dpi=100)
+	#customGraph.savefig(customTitle + 'MABE_CustomGraph.png', dpi=100)
 
 ######## SAVE TO A PDF FILE
 
@@ -277,6 +282,6 @@ if args.save == 'pdf':
 		pp.close()
 
  #else:
-  #pp = PdfPages(customTitle + 'MABE_CustomGraph.pdf')
-  #pp.savefig(customGraph)
-  #pp.close()
+	#pp = PdfPages(customTitle + 'MABE_CustomGraph.pdf')
+	#pp.savefig(customGraph)
+	#pp.close()
