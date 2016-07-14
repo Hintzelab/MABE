@@ -140,6 +140,9 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					org->ancestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
 													 // also, if this survives over intervals, it'll be pointing to self as ancestor in files (which is good)
 				}
+				if (Global::update == nextGenomeCheckPoint && writeGenomeFiles) {
+					org->trackGenome = true; // since this update is in the genome sequence, set the flag to track genome
+				}
 			}
 			if (Global::update == nextGenomeCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a genome checkpoint, advance nextGenomeCheckPoint to get ready for the next interval
 				if ((int)genomeSequence.size() > checkPointGenomeSeqIndex + 1){
@@ -170,12 +173,9 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			size_t index = 0;
 			while (index < checkpoints[nextGenomeWrite].size()) {
 				if (auto org = checkpoints[nextGenomeWrite][index].lock()) {  // this ptr is still good
-
 					org->genome->dataMap.Set("ID", org->dataMap.Get("ID"));
 					org->genome->dataMap.Set("update", to_string(nextGenomeWrite));
-
 					org->genome->dataMap.Set("sites", org->genome->genomeToStr());
-
 					org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);  // append new data to the file
 					org->genome->dataMap.Clear("sites");  // this is large, clean it up now!
 					index++;

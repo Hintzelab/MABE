@@ -40,11 +40,14 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 //	}
 
 	while (nextPopulation.size() < population.size()) {  // while we have not filled up the next generation
+		//cout << nextPopulation.size() << " < " << population.size() << endl;
 		// chance for each pick that this org survives to the next population
 		//cout << "picking p1..." << flush;
 		if ((int) nextPopulation.size() < elitismLPL->lookup()) {  // if next population has less members then elitism, then p1 is best.
+			//cout << "E" << endl;
 			p1 = best;
 		} else {  // otherwise, p1 is the best of tournamentSize random picks
+			//cout << "R" << endl;
 			p1 = Random::getIndex(population.size());
 			for (int i = 0; i < tournamentSizeLPL->lookup() - 1; i++) {
 				challanger = Random::getIndex(population.size());
@@ -67,20 +70,24 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 		if (!orgSurvived) {
 			p2 = p1;  // make these the same to prime the while loop
 			//while ((p1 == p2) || (population[p1]->gender == population[p2]->gender)) {  // keep picking until you have 2 diffrent parents with 2 diffrent genders
-			while ((p1 == p2)) {  // keep picking until you have 2 diffrent parents with 2 diffrent genders
-				//cout << p2 << " " << p1 << endl;
-				p2 = Random::getIndex(population.size());
-				//cout << "  " << p2 << " " << p1 << endl;
+			if ((int)nextPopulation.size() >= elitismLPL->lookup()) {  // if next population has less members then elitism, then p1 is best.
+				//cout << "R" << endl;
+				while ((p1 == p2)) {  // keep picking until you have 2 diffrent parents with 2 diffrent genders
+					//cout << p2 << " " << p1 << endl;
+					p2 = Random::getIndex(population.size());
+					//cout << "  " << p2 << " " << p1 << endl;
 
-				for (int i = 0; i < tournamentSizeLPL->lookup() - 1; i++) {
-					challanger = Random::getIndex(population.size());
-					//cout << "  ch = " << challanger << "\n";
-					if (Scores[challanger] > Scores[p2]) {
-						//cout << "p2 assigned" << endl;
-						p2 = challanger;
+					for (int i = 0; i < tournamentSizeLPL->lookup() - 1; i++) {
+						challanger = Random::getIndex(population.size());
+						//cout << "  ch = " << challanger << "\n";
+						if (Scores[challanger] > Scores[p2]) {
+							//cout << "p2 assigned" << endl;
+							p2 = challanger;
+						}
 					}
 				}
 			}
+			//cout << "\n " << nextPopulation.size() << " " << population.size() << endl;
 			nextPopulation.push_back(population[p1]->makeMutatedOffspringFromMany( { population[p1], population[p2] }));
 			//cout << p1 << " " << p2 << endl;
 			//nextPopulation.push_back(population[p1]->makeMutatedOffspring(population[p1]));

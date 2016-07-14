@@ -127,9 +127,11 @@ int main(int argc, const char * argv[]) {
 
 		while (!finished) {
 			world->evaluate(groups[defaultGroup], AbstractWorld::groupEvaluationPL->lookup(), false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
-			//cout << "  evaluation done\n";
+			//cout << "  evaluation done" << endl;
 			finished = groups[defaultGroup]->archive();  // save data, update memory and delete any unneeded data;
 														 //cout << "  archive done\n";
+			//cout << "  archive done" << endl;
+
 			Global::update++;
 			groups[defaultGroup]->optimize();  // update the population (reproduction and death)
 											   //cout << "  optimize done\n";

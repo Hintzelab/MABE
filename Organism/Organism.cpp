@@ -164,6 +164,9 @@ Organism::~Organism() {
  */
 void Organism::kill() {
 	alive = false;
+	if (!trackGenome) {
+		genome = nullptr;
+	}
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> parent) {
@@ -172,14 +175,14 @@ shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> par
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from) {
-	//cout << "In Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)\n";
+	//cout << "In Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
 	vector<shared_ptr<AbstractGenome>> parentGenomes;
 	for (auto p : from) {
 		parentGenomes.push_back(p->genome);
 	}
 	shared_ptr<Organism> newOrg = make_shared<Organism>(from, genome->makeMutatedGenomeFromMany(parentGenomes));
 
-	//cout << "  leaving Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)\n";
+	//cout << "  leaving Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
 	return newOrg;
 }
 

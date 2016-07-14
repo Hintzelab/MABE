@@ -212,10 +212,12 @@ template<class T> void TemplatedChromosome<T>::readChromosomeFromSS(std::strings
 template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
 	string S = "";
 
+	//S.reserve(((int)sites.size() * 2) + 10);
+
 	for (int i = 0; i < sites.size(); i++) {
-		S = S + FileManager::separator + to_string(sites[i]);
+		S.append(to_string(sites[i]) + FileManager::separator);
 	}
-	S.erase(S.begin());  // clip off the leading separator
+	S.pop_back();  // clip off the leading separator
 	return S;
 }
 

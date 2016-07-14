@@ -20,7 +20,7 @@
 
 using namespace std;
 
-class BerryWorld : public AbstractWorld {
+class BerryWorld: public AbstractWorld {
 private:
 	int outputNodesCount, inputNodesCount;
 public:
@@ -35,6 +35,8 @@ public:
 	// Parameters
 	static shared_ptr<ParameterLink<double>> TSKPL;
 	static shared_ptr<ParameterLink<int>> worldUpdatesPL;
+	static shared_ptr<ParameterLink<double>> worldUpdatesBaisedOnInitialPL;
+
 	static shared_ptr<ParameterLink<int>> foodTypesPL;
 	static shared_ptr<ParameterLink<double>> rewardForFood1PL;
 	static shared_ptr<ParameterLink<double>> rewardForFood2PL;
@@ -64,6 +66,8 @@ public:
 	static shared_ptr<ParameterLink<int>> randomWallsPL;
 
 	static shared_ptr<ParameterLink<bool>> allowMoveAndEatPL;
+	static shared_ptr<ParameterLink<bool>> alwaysEatPL;
+	static shared_ptr<ParameterLink<double>> rewardSpatialNoveltyPL;
 
 	static shared_ptr<ParameterLink<bool>> senseDownPL;
 	static shared_ptr<ParameterLink<bool>> senseFrontPL;
@@ -84,12 +88,34 @@ public:
 	static shared_ptr<ParameterLink<bool>> alwaysStartOnFood1PL;
 
 	static shared_ptr<ParameterLink<string>> visualizationFileNamePL;
+	static shared_ptr<ParameterLink<string>> mapFileListPL;
+	static shared_ptr<ParameterLink<string>> mapFileWhichMapsPL;
+
+
+	static shared_ptr<ParameterLink<bool>> relativeScoringPL;
+	static shared_ptr<ParameterLink<int>> boarderEdgePL;
+
+	static shared_ptr<ParameterLink<bool>> senseVisitedPL;
+
+	static shared_ptr<ParameterLink<string>> fixedStartXRangePL;
+	static shared_ptr<ParameterLink<string>> fixedStartYRangePL;
+	static shared_ptr<ParameterLink<int>> fixedStartFacingPL;
+
+	int relativeScoring;
+	int boarderEdge;
+	bool senseVisited;
+
+	int fixedStartXMin;
+	int fixedStartXMax;
+
+	int fixedStartYMin;
+	int fixedStartYMax;
+	int fixedStartFacing;
 
 	// end parameters
 
-
-
 	int worldUpdates;
+	double worldUpdatesBaisedOnInitial;
 
 	double TSK;
 
@@ -124,9 +150,23 @@ public:
 
 	string visualizationFileName;
 
+	bool alwaysEat;
+	double rewardSpatialNovelty;
+	vector<string> mapFileList;
+	vector<string> mapFileWhichMaps;
 	int foodRatioTotal;  // sum of ratioFood for foods in use
 	vector<int> foodRatioLookup;
 	vector<double> foodRewards;
+
+	class WorldMap {
+	public:
+		string name;
+		int sizeX, sizeY, startXMin, startXMax, startYMin, startYMax, startFacing;
+		vector<char> grid;
+		bool loadMap(ifstream& ss);
+	};
+
+	map<string,WorldMap> worldMaps;
 
 	BerryWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
@@ -213,15 +253,18 @@ public:
 	}
 
 	// return a vector of size x*y (grid) with walls with borderWalls (if borderWalls = true) and randomWalls (that many) randomly placed walls
-	vector<int> makeTestGrid() {
+	// if default > -1, fill grid with default value
+	vector<int> makeTestGrid(int defaultValue = -1) {
 		vector<int> grid = makeGrid(WorldX, WorldY);
 
 		for (int y = 0; y < WorldY; y++) {  // fill grid with food (and outer wall if needed)
 			for (int x = 0; x < WorldX; x++) {
 				if (borderWalls && (x == 0 || x == WorldX - 1 || y == 0 || y == WorldY - 1)) {
 					setGridValue(grid, { x, y }, WALL);  // place walls on edge
-				} else {
-					setGridValue(grid, { x, y }, pickFood(-1));  // place random food where there is not a wall
+				} else if (defaultValue == -1) {
+					if ((x >= boarderEdge && x <= WorldX - boarderEdge - 1) && (y >= boarderEdge && y <= WorldY - boarderEdge - 1)) {
+						setGridValue(grid, { x, y }, pickFood(-1));  // place random food where there is not a wall, if it is not in the boarder edge
+					}
 				}
 			}
 		}
@@ -254,7 +297,7 @@ public:
 
 	void printGrid(vector<int> grid, pair<int, int> loc, int facing);
 
-	virtual int requiredInputs() override{
+	virtual int requiredInputs() override {
 		return inputNodesCount;
 	}
 	virtual int requiredOutputs() override {
@@ -269,7 +312,7 @@ public:
 		return 1;
 	}
 
-	void SaveWorldState(string fileName, vector<int> grid, vector<pair<int, int>> currentLocation, vector<int> facing);
+	void SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset = false);
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__BerryWorld__) */

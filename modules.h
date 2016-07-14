@@ -13,6 +13,8 @@
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
 #include "World/BerryWorld/BerryWorld.h"
+#include "World/BridgeWorld/BridgeWorld.h"
+#include "World/FastBerryWorld/FastBerryWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/TestWorld/TestWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
@@ -23,9 +25,9 @@
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
 #include "Brain/HumanBrain/HumanBrain.h"
 #include "Brain/WireBrain/WireBrain.h"
-#include "Optimizer/GAOptimizer/GAOptimizer.h"
-#include "Optimizer/TournamentOptimizer/TournamentOptimizer.h"
 #include "Optimizer/Tournament2Optimizer/Tournament2Optimizer.h"
+#include "Optimizer/TournamentOptimizer/TournamentOptimizer.h"
+#include "Optimizer/GAOptimizer/GAOptimizer.h"
 
 #include "Archivist/DefaultArchivist.h"
 #include "Archivist/LODwAPArchivist/LODwAPArchivist.h"
@@ -39,6 +41,14 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
   if (worldType == "Berry") {
     newWorld = make_shared<BerryWorld>(PT);
+    found = true;
+    }
+  if (worldType == "Bridge") {
+    newWorld = make_shared<BridgeWorld>(PT);
+    found = true;
+    }
+  if (worldType == "FastBerry") {
+    newWorld = make_shared<FastBerryWorld>(PT);
     found = true;
     }
   if (worldType == "NumeralClassifier") {
@@ -70,16 +80,16 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
   shared_ptr<AbstractOptimizer> newOptimizer;
   bool found = false;
   string optimizerType = (PT == nullptr) ? AbstractOptimizer::Optimizer_MethodStrPL->lookup() : PT->lookupString("OPTIMIZER-optimizer");
-  if (optimizerType == "GA") {
-    newOptimizer = make_shared<GAOptimizer>(PT);
+  if (optimizerType == "Tournament2") {
+    newOptimizer = make_shared<Tournament2Optimizer>(PT);
     found = true;
     }
   if (optimizerType == "Tournament") {
     newOptimizer = make_shared<TournamentOptimizer>(PT);
     found = true;
     }
-  if (optimizerType == "Tournament2") {
-    newOptimizer = make_shared<Tournament2Optimizer>(PT);
+  if (optimizerType == "GA") {
+    newOptimizer = make_shared<GAOptimizer>(PT);
     found = true;
     }
   if (!found){
@@ -177,11 +187,11 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"Default");
   Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [Default, LODwAP, SSwD]");
 
-  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
-  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
+  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"Tournament2");
+  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [Tournament2, Tournament, GA]");
 
   Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, NumeralClassifier, Test, IPD, SOF]");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, Bridge, FastBerry, NumeralClassifier, Test, IPD, SOF]");
 }
 
 

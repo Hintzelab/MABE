@@ -100,7 +100,7 @@ void FileManager::writeToFile(const string& fileName, const string& data, const 
 		FILE.open(outputDirectory + fileName, ios::out | ios::app);  // open file in append mode
 	}
 	FILE << data << "\n";
-	FILE.close();
+    FILE.close();
 }
 
 ///////////////////////////////////////
