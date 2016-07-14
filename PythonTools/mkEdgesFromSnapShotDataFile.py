@@ -10,18 +10,13 @@ import pandas
 from ast import literal_eval
 
 
-
-import networkx as nx
-from networkx import graphviz_layout
-
-
 #nodes = [1,2,3,4,5]
 #edges = [(1,2),(4,5),(2,3),(3,1)]
 
 nodes = [-1]
 edges = []
 
-for time in np.arange(0,10010,10):
+for time in np.arange(0,1000,100):
   file_name = 'data_' + str(time) + '.csv'
   data_csv = pandas.read_csv(file_name)
   num_orgs = 0

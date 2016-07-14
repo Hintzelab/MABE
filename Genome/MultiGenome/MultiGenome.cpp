@@ -589,13 +589,13 @@ void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGeno
 
 // convert a chromosome to a string
 string MultiGenome::genomeToStr() {
-	string S = "";
+	string S = "\"[";
 
 	for (size_t c = 0; c < chromosomes.size(); c++) {
-		S = S + FileManager::separator + chromosomes[c]->chromosomeToStr();
+		S.append(chromosomes[c]->chromosomeToStr() + FileManager::separator);
 	}
-	S.erase(S.begin());  // clip off the leading separator
-	S = "\"[" + S + "]\"";
+	S.pop_back(); // clip off the traialing separator
+	S.append("]\"");
 	return S;
 }
 

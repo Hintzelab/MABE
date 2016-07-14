@@ -79,6 +79,12 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 		}
 	}
 
+	if (writeGenomeFile && find (genomeSequence.begin(), genomeSequence.end(), Global::update) != genomeSequence.end()) {
+		for (auto org : population) {  // if this update is in the genome sequence, turn on genome tracking.
+			org->trackGenome = true;
+		}
+
+	}
 	if ((Global::update % pruneInterval == 0) || (flush == 1)) {
 
 		if (files.find(DataFileName) == files.end()) {  // if file has not be initialized yet

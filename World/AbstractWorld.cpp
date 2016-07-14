@@ -26,7 +26,6 @@ void AbstractWorld::evaluate(shared_ptr<Group> group, bool groupEvaluation, bool
 	//for (size_t i = 0; i < group->population.size(); i++) {
 	//	group->population[i]->dataMap.Clear("allscore");
 	//}
-
 	if (groupEvaluation && maxOrgsAllowed() == 1){
 		cout << " ERROR! World only accepts at most one organism at a time, but groupEvaluation is on.\n Exiting."<<endl;
 	}

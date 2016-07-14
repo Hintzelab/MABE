@@ -51,6 +51,7 @@ class Organism {
 	int timeOfDeath;  // the time this organism stopped being alive (this organism may be stored for archival reasons)
 
 	bool alive;  // is this organism alive (1) or dead (0)
+	bool trackGenome = false; // if false, genome will be deleted when organism dies.
 	Organism() = delete; 
 	Organism(shared_ptr<ParametersTable> _PT = nullptr);  // make an empty organism
 	Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a nullptr to brain

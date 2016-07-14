@@ -161,7 +161,7 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 	int writeValueBase = valueMax - valueMin + 1;
 	value = value - valueMin;
 	if (writeValueBase < value) {
-		cout << "ERROR : attempting to write value to Circular Genome. \n value is too large :: (valueMax - valueMin + 1) < value!\n";
+		cout << "ERROR : attempting to write value to Circular Genome. \n value is too large :: (valueMax - valueMin + 1) < value!" << endl;
 		exit(1);
 	}
 	while (writeValueBase > genome->alphabetSize) {  // load value in alphabetSize chunks into decomposedValue
@@ -280,7 +280,7 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 template<class T>
 CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
 	setupCircularGenome(_alphabetSize, _size);
-	cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char\n";
+	cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char" << endl;
 	exit(1);
 }
 
@@ -291,7 +291,7 @@ CircularGenome<int>::CircularGenome(double _alphabetSize, int _size, shared_ptr<
 template<>
 CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
 	if (_alphabetSize != 2) {
-		cout << "ERROR: in CircularGenome constructor, alphabetSize for bool must be 2!\n";
+		cout << "ERROR: in CircularGenome constructor, alphabetSize for bool must be 2!" << endl;
 		exit(1);
 	}
 	setupCircularGenome(_size, _alphabetSize);
@@ -303,7 +303,7 @@ CircularGenome<double>::CircularGenome(double _alphabetSize, int _size, shared_p
 template<>
 CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
 	if (_alphabetSize > 256 || _alphabetSize < 2) {
-		cout << "ERROR: in CircularGenome constructor, alphabetSize for unsigned char must be 2 or greater and 256 or less!\n";
+		cout << "ERROR: in CircularGenome constructor, alphabetSize for unsigned char must be 2 or greater and 256 or less!" << endl;
 		exit(1);
 	}
 	setupCircularGenome(_size, _alphabetSize);
@@ -487,7 +487,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<A
 // in this case, each parent crosses all of its chromosomes and contributs the result as a new chromosome
 template<class T>
 shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<shared_ptr<AbstractGenome>> parents) {
-//	cout << "In Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n";
+	//cout << "In Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)" << endl;
 	// first, check to make sure that parent genomes are conpatable.
 	auto castParent0 = dynamic_pointer_cast<CircularGenome<T>>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 
@@ -502,12 +502,14 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 //	newGenome->chromosomes[newGenome->chromosomes.size() - 1]->crossover(parentChromosomes, newGenome->PT.lookup("genomecrossCount"));  // create a crossover chromosome
 
 	if (parents.size() == 0) {
-		cout << "ERROR! in CircularGenome<T>::makeMutatedGenomeFromMany crossover... attempt to cross 0 parents\nExiting!\n";
+		cout << "ERROR! in CircularGenome<T>::makeMutatedGenomeFromMany crossover... attempt to cross 0 parents\nExiting!" << endl;
 		exit(1);
 	}
 	if (parents.size() == 1) {  // if there is only one parent...
+		//cout << "one parent" << endl;
 		return castParent0->makeMutatedGenomeFrom(castParent0);
 	} else {
+		//cout << "many parent" << endl;
 
 		// extract the sites list from each parent
 		vector<vector<T>> parentSites;
@@ -521,16 +523,17 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 		for (int i = 0; i < crossCount; i++) {  // get some cross locations (% of length of chromosome)
 			crossLocations.push_back(Random::getDouble(1.0));
 		}
+
 		crossLocations.push_back(0.0);  // add start and end
 		crossLocations.push_back(1.0);
 
 		sort(crossLocations.begin(), crossLocations.end());  // sort crossLocations
 
-//			cout << "crossing: ";
-//			for (auto location:crossLocations){
-//				cout << location << "  ";
-//			}
-//			cout << "size init: " << size() << " -> ";
+		//cout << "crossing: " << flush;
+		//for (auto location:crossLocations){
+		//	cout << location << "  " << flush;
+		//}
+		//cout << "size init: " << size() << " -> " << flush;
 
 		int pick;
 		int lastPick = Random::getIndex(parents.size());
@@ -543,13 +546,14 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 			}
 			lastPick = pick;
 			// add the segment to this chromosome
-			//cout << "(" << parentSites[pick].size() << ") "<< (int)((double)parentSites[pick].size()*crossLocations[c]) << " " << (int)((double)parentSites[pick].size()*crossLocations[c+1]) << " ";
+			//cout << "(" << parentSites[pick].size() << ") "<< c << ": " << (int)((double)parentSites[pick].size()*crossLocations[c]) << " " << (int)((double)parentSites[pick].size()*crossLocations[c+1]) << " " << flush;
 			newGenome->sites.insert(newGenome->sites.end(), parentSites[pick].begin() + (int) ((double) parentSites[pick].size() * crossLocations[c]), parentSites[pick].begin() + (int) ((double) parentSites[pick].size() * crossLocations[c + 1]));
+			//cout << " ++ " << flush;
 		}
 	}
 	newGenome->mutate();
 	newGenome->recordDataMap();
-//	cout << "  Leaving Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n";
+	//cout << "  Leaving Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n" << flush;
 	return newGenome;
 }
 
@@ -610,7 +614,7 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 			genomes.push_back(newGenome);
 		}
 	} else {
-		cout << "\n\nERROR: In CircularGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting\n" << endl;
+		cout << "\n\nERROR: In CircularGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting." << endl;
 		exit(1);
 	}
 
@@ -625,14 +629,15 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 // convert a chromosome to a string
 template<class T>
 string CircularGenome<T>::genomeToStr() {
-	string S = "";
+	string S = "\"[";
+
+	S.reserve(((int)sites.size() * 2) + 10);
 
 	for (int i = 0; i < sites.size(); i++) {
-		S = S + FileManager::separator + to_string(sites[i]);
+		S.append(to_string(sites[i]) + FileManager::separator);
 	}
-
-	S.erase(S.begin());  // clip off the leading separator
-	S = "\"[" + S + "]\"";
+	S.pop_back();  // clip off the trailing separator
+	S .append("]\"");
 	return S;
 }
 
