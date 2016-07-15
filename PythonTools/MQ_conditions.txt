@@ -30,5 +30,10 @@ EXECUTABLE = ./MABE
 
 -----
 
-# 
+# HPCC
+HPCC_LONGJOB = TRUE
+HPCC_PARAMETERS = #PBS -l feature=intel16|intel14
+HPCC_PARAMETERS = #PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb
+HPCC_PARAMETERS = #PBS -j oe
+HPCC_PARAMETERS = #PBS -m ae
 
