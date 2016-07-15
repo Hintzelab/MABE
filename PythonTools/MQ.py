@@ -22,66 +22,54 @@
 from subprocess import call
 import glob
 import argparse
-import os.path
+import os
+import sys
+import pwd
+import shutil
+import datetime
 
+def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, cfg_files, workDir, conditions):
+	outFile = open(qsubFileName, 'w')
+	outFile.write('#!/bin/bash -login\n')
+	for p in HPCC_parameters:
+		outFile.write(p+'\n')
+	outFile.write('#PBS -o '+realDisplayName+'.out\n')
+        outFile.write('#PBS -N '+realDisplayName+'\n')
 
-def makeQsubFile(fileName, cfg_files):
-	outFile = open(fileName, 'w')
-	outFile.write('#!/bin/bash -login\n'+
-		'#PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb\n'+
-		'#PBS -j oe\n'+
-		'#PBS -m ae\n'+
-		'\n'+
+	outFile.write('\n'+
 		'shopt -s expand_aliases\n'+
-		'ehco working dir = $PBS_O_WORKDIR\n'+
-		'cd $PBS_O_WORKDIR\n'+
 		'module load powertools\n'+
 		'module load GNU/4.8.3\n'+
 		'\n'+
-		'\n'+
-		'# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n'+
-		'# export BLCR_WAIT_SEC=$(( 4 * 60 * 60 ) - ( 60 * 20 ))\n'+
-		'export BLCR_WAIT_SEC=$(( 30 * 60 ))\n'+
-		'export PBS_JOBSCRIPT="$0"\n'+
-		'\n'+
-		'if [ ! -f checkfile.blcr ]\n'+
-		'then\n'+
-		'  WORK=/mnt/scratch/${USER}/${PBS_JOBID}\n'+
-		'  mkdir -p ${WORK}\n'+
-		'\n'+
-		'  # copy executable to work directory (scratch)\n'+
-		'  cp -r ' + executable + ' $WORK/\n'+
+		'cd ' + workDir +
 		'\n')
-	if (len(cfg_files)>0):
-		outFile.write('  # copy settings files to work directory (scratch)\n')
-		for f in cfg_files:
-			outFile.write('  cp ' + f + ' $WORK/\n')
-		outFile.write('\n')
-	outFile.write('  cd $WORK\n'+
-		'\n'+
-		'  # create output directory in work directory (scratch)\n'+
-		'  mkdir -p ${cond}/${rep}\n'+
-		'\n'+
-		'  # create local condition directory\n'+
-		'  mkdir -p ${PBS_O_WORKDIR}/${cond}\n'+
-		'\n'+
-		'  # create local link to rep directory in work directory\n'+
-		'  ln -s $WORK/${cond}/${rep} ${PBS_O_WORKDIR}/${cond}/${rep}\n'+
-		'\n'+
-		'fi\n'+
-		'\n'+
-		'longjob ./MABE -f ${WORK}/*.cfg -p GLOBAL-outputDirectory ${PBS_O_WORKDIR}/${cond}/${rep}/ GLOBAL-randomSeed ${rep} ${params}\n'+
-		'ret=$?\n'+
-		'\n'+
+		
+	includeFileString = "";
+	if (len(cfg_files) > 0):
+		includeFileString += "-f "
+		for fileName in cfg_files:
+			includeFileString += fileName + ' '
+			
+	if HPCC_LONGJOB:
+		outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n'+
+			'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 ) - ( 60 * 20 ))\n'+
+			#'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
+			'export PBS_JOBSCRIPT="$0"\n'+
+			'\n'+
+			'longjob ./MABE ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+	else:
+		outFile.write('./MABE ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+	outFile.write('ret=$?\n\n'+
 		'qstat -f ${PBS_JOBID}\n'+
 		'\n'+
 		'exit $ret\n')
 	outFile.close()
-
+	
+	
 parser = argparse.ArgumentParser()
-parser.add_argument('-noRun', action='store_true', default = False, help='if set, will only print run commands, but not run them - default : false(will run qsub files)', required=False)
-parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(will run qsub files)', required=False)
-parser.add_argument('-runHPCCLJ', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC using Long Job script - default : false(will run qsub files)', required=False)
+parser.add_argument('-noRun', action='store_true', default = False, help='if set, will do everything (i.e. create files and directories) but launch jobs, allows you to do a dry run - default : false(will run)', required=False)
+parser.add_argument('-runLocal', action='store_true', default = False, help='if set, will run jobs localy - default : false(no action)', required=False)
+parser.add_argument('-runHPCC', action='store_true', default = False, help='if set, will run jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-file', type=str, metavar='FILE_NAME', default = 'MQ_conditions.txt', help='file which defines conditions - default: MQ_conditions.txt', required=False)
 args = parser.parse_args()
 
@@ -91,6 +79,8 @@ varList = []
 exceptions = []
 cfg_files = []
 executable = "./MABE"
+HPCC_parameters = []
+HPCC_LONGJOB = True
 
 with open(args.file) as openfileobject:
 	for line in openfileobject:
@@ -118,6 +108,14 @@ with open(args.file) as openfileobject:
 					if not(os.path.isfile(f)):
 						print('settings file: "' + f + '" seems to be missing!')
 						exit()
+			if line[0] == "HPCC_LONGJOB":
+				HPCC_LONGJOB = (line[2] == "TRUE")
+			if line[0] == "HPCC_PARAMETERS":
+				newParameter = ""
+				for i in line[2:]:
+					newParameter += i + ' '
+				HPCC_parameters.append(newParameter[:-1])
+
 
 ex_names = []
 for ex in exceptions:
@@ -227,18 +225,20 @@ for f in cfg_files:
   print("  "+f)
 print("")
 	
-if not (args.runLocal or args.runHPCCLJ):
+if not (args.runLocal or args.runHPCC):
 	print("")
-	print("If you wish to run, use a run option (runLocal or runHPCCLJ)")
+	print("If you wish to run, use a run option (runLocal or runHPCC)")
 	print("")
 
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
 
-qsubFileName = "MQ.qsub"
-
-if (args.runHPCCLJ):
-	makeQsubFile(qsubFileName, cfg_files)
+userName = pwd.getpwuid( os.getuid() )[ 0 ]
+absLocalDir = os.getcwd() # this is needed so we can get back to the launch direcotry
+localDirParts = absLocalDir.split('/')
+while localDirParts[0] != userName:
+	localDirParts = localDirParts[1:]
+localDir = '~/'+'/'.join(localDirParts[1:]) # this is the launch directory from ~/
 
 for i in range(len(combinations)):
 	for rep in reps:
@@ -250,16 +250,45 @@ for i in range(len(combinations)):
 				call(["mkdir","-p",conditions[i][1:-1] + "/" + str(rep)])
 				params = combinations[i][1:].split()
 				call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditions[i][1:-1] + "/" + str(rep) + "/" , "GLOBAL-randomSeed" , str(rep)] + params)
-		if (args.runHPCCLJ):
+		if (args.runHPCC):
+			os.chdir(absLocalDir)
+			conditionDirectoryName = "C" + str(i) + "_" + conditions[i][1:-1];
 			if (displayName == ""):
 				realDisplayName = "C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
 			else:
 				realDisplayName = displayName + "_C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
+				
+			timeNow = str(datetime.datetime.now().year)+'_'+str(datetime.datetime.now().month)+'_'+str(datetime.datetime.now().day)+'_'+str(datetime.datetime.now().hour)+'_'+str(datetime.datetime.now().minute)+'_'+str(datetime.datetime.now().second)
+			workDir = '/mnt/scratch/'+userName+'/'+realDisplayName+'_'+str(rep)+'__'+timeNow
+			outputDir = workDir+'/'+conditionDirectoryName+'/'+str(rep)+'/'
+			if os.path.exists(workDir):
+				shutil.rmtree(workDir)
+			os.makedirs(outputDir)
+			shutil.copy(executable, workDir)
+			for f in cfg_files:
+				shutil.copy(f, workDir)
+
+                        if not(os.path.exists(conditionDirectoryName)):
+				os.makedirs(conditionDirectoryName)
+
+			# create local link to rep directory in work directory
+			if os.path.exists(conditionDirectoryName+'/'+str(rep)):
+				os.unlink(conditionDirectoryName+'/'+str(rep))
+			
+			os.symlink(workDir+'/'+conditionDirectoryName+'/'+str(rep),conditionDirectoryName+'/'+str(rep))
+			
+			os.chdir(workDir)
+
+			qsubFileName = "MQ.qsub"
+
+			makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:])
+			
 			print("submitting:")
 			print("  " + realDisplayName + " :")
-			print("  qsub " + qsubFileName + " -N " + realDisplayName + " -v cond=" + conditions[i][1:-1] + " rep=" + str(rep) + ' params="' + combinations[i][1:] + '"')
+			print("  workDir = " + workDir)
+			print("  qsub " + qsubFileName)
 			if not args.noRun:
-				call(["qsub", qsubFileName, "-N", realDisplayName, "-v", "cond=" + conditions[i][1:-1] + ",rep=" + str(rep) + ",params=" + combinations[i][1:]])
+				call(["qsub", qsubFileName])
 
 if args.noRun:
 	print("")
