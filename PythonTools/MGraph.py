@@ -189,7 +189,7 @@ conFileNames = args.conditions
 if conFileNames != ['']:
 	for i in range(len(conFileNames)):
 		if conFileNames[i][-1] is not '/':
-			conFileNames[i].append('/')
+			conFileNames[i]+='/'
 
 if args.conditionNames == ['']:
 	cons = []
