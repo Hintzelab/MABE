@@ -60,6 +60,9 @@ public:
 	virtual ~LODwAPArchivist() = default;
 
 	virtual bool archive(vector<shared_ptr<Organism>> population, int flush = 0) override;
+
+	virtual bool isDataUpdate(int checkUpdate = -1) override;
+	virtual bool isGenomeUpdate(int checkUpdate = -1) override;
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__LODwAP_Archivist__) */

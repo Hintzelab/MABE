@@ -31,24 +31,6 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeGenomeFilesPL = P
 
 DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 		PT(_PT) {
-	string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
-	realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
-	if (realtimeSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_DEFAULT-realtimeSequence \"" << realtimeSequenceStr << "\".\nExiting." << endl;
-		exit(1);
-	}
-	string dataSequenceStr = (PT == nullptr) ? SS_Arch_dataSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataSequence");
-	realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
-	if (realtimeDataSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
-		exit(1);
-	}
-	string genomeIntervalStr = (PT == nullptr) ? SS_Arch_genomeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeSequence");
-	realtimeGenomeSequence = seq(genomeIntervalStr, Global::updatesPL->lookup(), true);
-	if (realtimeGenomeSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_DEFAULT-snapshotGenomeSequence \"" << genomeIntervalStr << "\".\nExiting." << endl;
-		exit(1);
-	}
 
 	writeAveFile = (PT == nullptr) ? Arch_writeAveFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeAveFile");
 	writeDominantFile = (PT == nullptr) ? Arch_writeDominantFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeDominantFile");
@@ -61,6 +43,40 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 	GenomeFilePrefix = (PT == nullptr) ? SS_Arch_GenomeFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeFilePrefix");
 	writeSnapshotDataFiles = (PT == nullptr) ? SS_Arch_writeDataFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotDataFiles");
 	writeSnapshotGenomeFiles = (PT == nullptr) ? SS_Arch_writeGenomeFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotGenomeFiles");
+
+	realtimeSequence.push_back(0);
+	realtimeDataSequence.push_back(0);
+	realtimeGenomeSequence.push_back(0);
+
+	if (writeAveFile != false || writeDominantFile != false) {
+		string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
+		realtimeSequence.clear();
+		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
+		if (realtimeSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_DEFAULT-realtimeSequence \"" << realtimeSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
+
+	if (writeSnapshotDataFiles != false) {
+		string dataSequenceStr = (PT == nullptr) ? SS_Arch_dataSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataSequence");
+		realtimeDataSequence.clear();
+		realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
+		if (realtimeDataSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
+
+	if (writeSnapshotGenomeFiles != false) {
+		string genomeIntervalStr = (PT == nullptr) ? SS_Arch_genomeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeSequence");
+		realtimeGenomeSequence.clear();
+		realtimeGenomeSequence = seq(genomeIntervalStr, Global::updatesPL->lookup(), true);
+		if (realtimeGenomeSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotGenomeSequence \"" << genomeIntervalStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
 
 	realtimeSequenceIndex = 0;
 	realtimeDataSeqIndex = 0;
@@ -155,7 +171,7 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 	string dataFileName = DataFilePrefix + "_" + to_string(Global::update) + ".csv";
 	if (files.find("snapshotData") == files.end()) {  // first make sure that the dataFile has been set up.
 			//population[0]->dataMap.Set("ancestors", "placeHolder");  // add ancestors so it will be in files (holds columns to be output for each file)
-		files["snapshotData"] = population[0]->dataMap.getKeys();  // get all keys from the valid orgs dataMap (all orgs should have the same keys in their dataMaps)
+		files["snapshotData"] = population[0]->dataMap.getKeys();		// get all keys from the valid orgs dataMap (all orgs should have the same keys in their dataMaps)
 		files["snapshotData"].push_back("snapshotAncestors");
 		//population[0]->dataMap.Clear("ancestors");
 	}
@@ -187,9 +203,9 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 		org->genome->dataMap.Set("update", Global::update);
 
 		//org->genome->dataMap.writeToFile(genomeFileName, org->genome->dataMap.getKeys());  // append new data to the file
-		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);  // append new data to the file
+		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);		// append new data to the file
 		//org->genome->dataMap.Clear("sites");  // this is large, clean it up now!
-		org->genome->dataMap.Clear("update");  // we dont' need this anymore.
+		org->genome->dataMap.Clear("update");		// we dont' need this anymore.
 	}
 }
 // save data and manage in memory data
@@ -198,20 +214,20 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 			writeRealTimeFiles(population);  // write to dominant and average files
-			if (realtimeSequenceIndex + 1 < (int)realtimeSequence.size()){
+			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}
 		}
 
 		if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) && (flush == 0) && writeSnapshotDataFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotData(population);
-			if (realtimeDataSeqIndex + 1 < (int)realtimeDataSequence.size()){
+			if (realtimeDataSeqIndex + 1 < (int) realtimeDataSequence.size()) {
 				realtimeDataSeqIndex++;
 			}
 		}
 		if ((Global::update == realtimeGenomeSequence[realtimeGenomeSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotGenomes(population);
-			if (realtimeGenomeSeqIndex + 1 < (int)realtimeGenomeSequence.size()){
+			if (realtimeGenomeSeqIndex + 1 < (int) realtimeGenomeSequence.size()) {
 				realtimeGenomeSeqIndex++;
 			}
 		}
@@ -241,4 +257,21 @@ void DefaultArchivist::processAllLists(DataMap &dm) {
 			}
 		}
 	}
+}
+
+bool DefaultArchivist::isDataUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = find(realtimeSequence.begin(),realtimeSequence.end(),checkUpdate) != realtimeSequence.end();
+	check = check || find(realtimeDataSequence.begin(),realtimeDataSequence.end(),checkUpdate) != realtimeDataSequence.end();
+	return check;
+}
+
+bool DefaultArchivist::isGenomeUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = find(realtimeGenomeSequence.begin(),realtimeGenomeSequence.end(),checkUpdate) != realtimeGenomeSequence.end();
+	return check;
 }
