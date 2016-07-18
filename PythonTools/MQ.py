@@ -34,7 +34,7 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, cfg
 	for p in HPCC_parameters:
 		outFile.write(p+'\n')
 	outFile.write('#PBS -o '+realDisplayName+'.out\n')
-        outFile.write('#PBS -N '+realDisplayName+'\n')
+	outFile.write('#PBS -N '+realDisplayName+'\n')
 
 	outFile.write('\n'+
 		'shopt -s expand_aliases\n'+
@@ -52,7 +52,7 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, cfg
 			
 	if HPCC_LONGJOB:
 		outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n'+
-			'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 ) - ( 60 * 20 ))\n'+
+			'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n'+
 			#'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
 			'export PBS_JOBSCRIPT="$0"\n'+
 			'\n'+
@@ -230,57 +230,69 @@ if not (args.runLocal or args.runHPCC):
 	print("If you wish to run, use a run option (runLocal or runHPCC)")
 	print("")
 
+
+userName = pwd.getpwuid( os.getuid() )[ 0 ] # get the user name
+print(userName)
+absLocalDir = os.getcwd() # this is needed so we can get back to the launch direcotry
+localDirParts = absLocalDir.split('/') # turn path into list so we can trim of verything before ~
+while localDirParts[0] != userName:
+	localDirParts = localDirParts[1:] # trim off parts from the front until we get the the user name
+	if len(localDirParts) == 1 and localDirParts[0] != userName:
+		print('You must be in your home area to run MQ.py.')
+		exit(1);
+localDir = '~/'+'/'.join(localDirParts[1:]) # this is the launch directory from ~/ : this command appends '~/' onto the remaining list with '/' between each element.
+
+pathToScratch = '/mnt/scratch/' # used for HPCC runs
+
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
-
-userName = pwd.getpwuid( os.getuid() )[ 0 ]
-absLocalDir = os.getcwd() # this is needed so we can get back to the launch direcotry
-localDirParts = absLocalDir.split('/')
-while localDirParts[0] != userName:
-	localDirParts = localDirParts[1:]
-localDir = '~/'+'/'.join(localDirParts[1:]) # this is the launch directory from ~/
 
 for i in range(len(combinations)):
 	for rep in reps:
 		if (args.runLocal):
-			cfg_files_str = ' '.join(cfg_files)
+			cfg_files_str = ' '.join(cfg_files) # turn cgf_files list into a space separated string
 			print("running:")
 			print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:])
+			call(["mkdir","-p",displayName + "_" + conditions[i][1:-1] + "/" + str(rep)]) # make rep directory (this will also make the condition directory if it's not here already)
 			if not args.noRun:
-				call(["mkdir","-p",conditions[i][1:-1] + "/" + str(rep)])
-				params = combinations[i][1:].split()
-				call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditions[i][1:-1] + "/" + str(rep) + "/" , "GLOBAL-randomSeed" , str(rep)] + params)
+				params = combinations[i][1:].split() # turn combinations string into a list
+				call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , displayName + "_" + conditions[i][1:-1] + "/" + str(rep) + "/" , "GLOBAL-randomSeed" , str(rep)] + params)
 		if (args.runHPCC):
-			os.chdir(absLocalDir)
-			conditionDirectoryName = "C" + str(i) + "_" + conditions[i][1:-1];
+			os.chdir(absLocalDir) # go to the local directory (after each job is launched, we are in the work directory) 
 			if (displayName == ""):
 				realDisplayName = "C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
 			else:
 				realDisplayName = displayName + "_C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
 				
+			conditionDirectoryName = realDisplayName
+				
 			timeNow = str(datetime.datetime.now().year)+'_'+str(datetime.datetime.now().month)+'_'+str(datetime.datetime.now().day)+'_'+str(datetime.datetime.now().hour)+'_'+str(datetime.datetime.now().minute)+'_'+str(datetime.datetime.now().second)
-			workDir = '/mnt/scratch/'+userName+'/'+realDisplayName+'_'+str(rep)+'__'+timeNow
-			outputDir = workDir+'/'+conditionDirectoryName+'/'+str(rep)+'/'
-			if os.path.exists(workDir):
+
+			workDir = pathToScratch+userName+'/'+realDisplayName+'_'+str(rep)+'__'+timeNow
+			
+			outputDir = workDir+'/'+conditionDirectoryName+'/'+str(rep)+'/' # this is where data files will actually be writen (on scratch)
+			
+			if os.path.exists(workDir): # if there was already a workDir, get rid of it.
 				shutil.rmtree(workDir)
 			os.makedirs(outputDir)
-			shutil.copy(executable, workDir)
+			shutil.copy(executable, workDir) # copy the executable to scratch
 			for f in cfg_files:
-				shutil.copy(f, workDir)
+				shutil.copy(f, workDir) # copy the settings files to scratch
 
-                        if not(os.path.exists(conditionDirectoryName)):
+			if not(os.path.exists(conditionDirectoryName)): # if the local conditions directory is not already here, make it
 				os.makedirs(conditionDirectoryName)
 
-			# create local link to rep directory in work directory
-			if os.path.exists(conditionDirectoryName+'/'+str(rep)):
+			if os.path.exists(conditionDirectoryName+'/'+str(rep)): # if there is already a link for this rep from the local conditions directory to scratch, remove it
 				os.unlink(conditionDirectoryName+'/'+str(rep))
+						
+
+			os.symlink(workDir+'/'+conditionDirectoryName+'/'+str(rep),conditionDirectoryName+'/'+str(rep)) # create local link from the local conditions directory to the rep directory in work directory
 			
-			os.symlink(workDir+'/'+conditionDirectoryName+'/'+str(rep),conditionDirectoryName+'/'+str(rep))
-			
-			os.chdir(workDir)
+			os.chdir(workDir) # goto the work dir (on scratch)
 
 			qsubFileName = "MQ.qsub"
 
+			# make the qsub file on scratch
 			makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:])
 			
 			print("submitting:")
@@ -288,7 +300,7 @@ for i in range(len(combinations)):
 			print("  workDir = " + workDir)
 			print("  qsub " + qsubFileName)
 			if not args.noRun:
-				call(["qsub", qsubFileName])
+				call(["qsub", qsubFileName]) # run the job
 
 if args.noRun:
 	print("")

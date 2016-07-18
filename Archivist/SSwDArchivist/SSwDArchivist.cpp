@@ -8,11 +8,10 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-
 #include "SSwDArchivist.h"
 
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string)":100", "when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_genomeSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeSequence", (string)":1000", "when to save a genome file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string) ":100", "when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_genomeSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeSequence", (string) ":1000", "when to save a genome file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_genomeDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving genomes ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
@@ -23,20 +22,6 @@ shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeGenomeFilesPL = Pa
 
 SSwDArchivist::SSwDArchivist(vector<string> aveFileColumns, shared_ptr<ParametersTable> _PT) :
 		DefaultArchivist(aveFileColumns, _PT) {
-
-	string dataSequenceStr = (PT == nullptr) ? SSwD_Arch_dataSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-dataSequence");
-	string genomeSequenceStr = (PT == nullptr) ? SSwD_Arch_genomeSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-genomeSequence");
-
-	dataSequence = seq(dataSequenceStr,Global::updatesPL->lookup(),true);
-	if (dataSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_SSWD-dataSequence \"" << dataSequenceStr << "\".\nExiting."<<endl;
-		exit(1);
-	}
-	genomeSequence = seq(genomeSequenceStr,Global::updatesPL->lookup(),true);
-	if (genomeSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_SSWD-genomeSequence \"" << genomeSequenceStr << "\".\nExiting."<<endl;
-		exit(1);
-	}
 
 	dataDelay = (PT == nullptr) ? SSwD_Arch_dataDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-dataDelay");
 	genomeDelay = (PT == nullptr) ? SSwD_Arch_genomeDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-genomeDelay");
@@ -49,6 +34,28 @@ SSwDArchivist::SSwDArchivist(vector<string> aveFileColumns, shared_ptr<Parameter
 	writeDataFiles = (PT == nullptr) ? SSwD_Arch_writeDataFilesPL->lookup() : PT->lookupBool("ARCHIVIST_SSWD-writeDataFiles");
 	writeGenomeFiles = (PT == nullptr) ? SSwD_Arch_writeGenomeFilesPL->lookup() : PT->lookupBool("ARCHIVIST_SSWD-writeGenomeFiles");
 
+	string dataSequenceStr = (PT == nullptr) ? SSwD_Arch_dataSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-dataSequence");
+	string genomeSequenceStr = (PT == nullptr) ? SSwD_Arch_genomeSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-genomeSequence");
+
+	dataSequence.push_back(0);
+	genomeSequence.push_back(0);
+
+	if (writeDataFiles != false) {
+		dataSequence.clear();
+		dataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
+		if (dataSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_SSWD-dataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
+
+	if (writeGenomeFiles != false) {
+		genomeSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
+		if (genomeSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_SSWD-genomeSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
 	nextDataWrite = dataSequence[0];
 	nextGenomeWrite = genomeSequence[0];
 	nextDataCheckPoint = dataSequence[0];
@@ -101,20 +108,20 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 			writeRealTimeFiles(population);  // write to dominant and average files
-			if (realtimeSequenceIndex + 1 < (int)realtimeSequence.size()){
+			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}
 		}
 
 		if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) && (flush == 0) && writeSnapshotDataFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotData(population);
-			if (realtimeDataSeqIndex + 1 < (int)realtimeDataSequence.size()){
+			if (realtimeDataSeqIndex + 1 < (int) realtimeDataSequence.size()) {
 				realtimeDataSeqIndex++;
 			}
 		}
 		if ((Global::update == realtimeGenomeSequence[realtimeGenomeSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotGenomes(population);
-			if (realtimeGenomeSeqIndex + 1 < (int)realtimeGenomeSequence.size()){
+			if (realtimeGenomeSeqIndex + 1 < (int) realtimeGenomeSequence.size()) {
 				realtimeGenomeSeqIndex++;
 			}
 		}
@@ -145,7 +152,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				}
 			}
 			if (Global::update == nextGenomeCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a genome checkpoint, advance nextGenomeCheckPoint to get ready for the next interval
-				if ((int)genomeSequence.size() > checkPointGenomeSeqIndex + 1){
+				if ((int) genomeSequence.size() > checkPointGenomeSeqIndex + 1) {
 					checkPointGenomeSeqIndex++;
 					nextGenomeCheckPoint = genomeSequence[checkPointGenomeSeqIndex];
 				} else {
@@ -153,7 +160,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				}
 			}
 			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a data checkpoint, advance nextDataCheckPoint to get ready for the next interval
-				if ((int)dataSequence.size() > checkPointDataSeqIndex + 1){
+				if ((int) dataSequence.size() > checkPointDataSeqIndex + 1) {
 					checkPointDataSeqIndex++;
 					nextDataCheckPoint = dataSequence[checkPointDataSeqIndex];
 				} else {
@@ -184,9 +191,9 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					checkpoints[nextGenomeWrite].pop_back();  // pop expired ptr from back of vector
 				}
 			}
-			if ((int)genomeSequence.size() > writeGenomeSeqIndex + 1){
+			if ((int) genomeSequence.size() > writeGenomeSeqIndex + 1) {
 				writeGenomeSeqIndex++;
-				nextGenomeWrite = genomeSequence[writeGenomeSeqIndex];//genomeInterval;
+				nextGenomeWrite = genomeSequence[writeGenomeSeqIndex];  //genomeInterval;
 			} else {
 				nextGenomeWrite = Global::updatesPL->lookup() + 1;
 			}
@@ -225,7 +232,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			while (index < checkpoints[nextDataWrite].size()) {
 				if (auto org = checkpoints[nextDataWrite][index].lock()) {  // this ptr is still good
 					processAllLists(org->snapShotDataMaps[nextDataWrite]);
-					org->snapShotDataMaps[nextDataWrite].Set("update",nextDataWrite);
+					org->snapShotDataMaps[nextDataWrite].Set("update", nextDataWrite);
 					org->snapShotDataMaps[nextDataWrite].writeToFile(dataFileName, files["data"]);  // append new data to the file
 					index++;  // advance to nex element
 				} else {  // this ptr is expired - cut it out of the vector
@@ -233,9 +240,9 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					checkpoints[nextDataWrite].pop_back();  // pop expired ptr from back of vector
 				}
 			}
-			if ((int)dataSequence.size() > writeDataSeqIndex + 1){
+			if ((int) dataSequence.size() > writeDataSeqIndex + 1) {
 				writeDataSeqIndex++;
-				nextDataWrite = dataSequence[writeDataSeqIndex];//genomeInterval;
+				nextDataWrite = dataSequence[writeDataSeqIndex];  //genomeInterval;
 			} else {
 				nextDataWrite = Global::updatesPL->lookup() + 1;
 			}
@@ -243,4 +250,23 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	}
 	// if enough time has passed to save all data and genomes, then we are done!
 	return ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextGenomeWrite > Global::updatesPL->lookup() || !(writeGenomeFiles)) && Global::update >= Global::updatesPL->lookup());
+}
+
+
+bool SSwDArchivist::isDataUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = DefaultArchivist::isDataUpdate(checkUpdate);
+	check = check || find(dataSequence.begin(),dataSequence.end(),checkUpdate) != dataSequence.end();
+	return check;
+}
+
+bool SSwDArchivist::isGenomeUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = DefaultArchivist::isGenomeUpdate(checkUpdate);
+	check = check || find(genomeSequence.begin(),genomeSequence.end(),checkUpdate) != genomeSequence.end();
+	return check;
 }

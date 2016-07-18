@@ -134,7 +134,8 @@ int main(int argc, const char * argv[]) {
 
 			Global::update++;
 			groups[defaultGroup]->optimize();  // update the population (reproduction and death)
-											   //cout << "  optimize done\n";
+			//cout << "  optimize done\n";
+
 			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxFitness << "" << endl;
 		}
 
@@ -146,17 +147,16 @@ int main(int argc, const char * argv[]) {
 		//////////////////
 		// visualize mode
 		//////////////////
-		cout << "  You are running MABE in visualize mode." << endl<<endl;
+		cout << "  You are running MABE in visualize mode." << endl << endl;
 		vector<shared_ptr<AbstractGenome>> testGenomes;
 		groups[defaultGroup]->population[0]->genome->loadGenomeFile(Global::visualizePopulationFilePL->lookup(), testGenomes);
 
 		int num_genomes = (int) testGenomes.size();
 
 		vector<int> IDs;
-		convertCSVListToVector(Global::visualizeOrgIDPL->lookup(),IDs);
+		convertCSVListToVector(Global::visualizeOrgIDPL->lookup(), IDs);
 
 		vector<shared_ptr<Organism>> testPopulation;
-
 
 		bool padPopulation = false;
 
@@ -195,7 +195,7 @@ int main(int argc, const char * argv[]) {
 			testGenomes = subsetGenomes;
 		}
 
-		if (padPopulation){
+		if (padPopulation) {
 			int index = 0;
 			if ((int) testGenomes.size() < Global::popSizePL->lookup()) {
 				cout << "  Population size is larger then the number of genomes in the file. Padding population with " << Global::popSizePL->lookup() - (int) testGenomes.size() << " extra copies." << endl;

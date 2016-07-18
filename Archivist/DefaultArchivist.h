@@ -106,6 +106,10 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsP
 	virtual bool archive(vector<shared_ptr<Organism>> population, int flush = 0);
 
 	virtual void processAllLists(DataMap &dm);
+
+	virtual bool isDataUpdate(int checkUpdate = -1);
+	virtual bool isGenomeUpdate(int checkUpdate = -1);
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__DefaultArchivist__) */

@@ -127,19 +127,19 @@ void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
 	} else if (initializeUniform) {
 		auto handler = _genome->newHandler(_genome);
 		int count = 0;
-		double randomValue;
+		double randomValue = 0;
 		if (valueType == 1) {
 			randomValue = Random::getDouble(valueMin, valueMax);
 		} else if (valueType == 0) {
 			randomValue = Random::getInt(valueMin, valueMax);
 		}
-		if (count == samplesPerValue) {
-			if (valueType == 1) {
-				randomValue = Random::getDouble(valueMin, valueMax);
-			} else if (valueType == 0) {
-				randomValue = Random::getInt(valueMin, valueMax);
-			}
-		}
+//		if (count == samplesPerValue) {
+//			if (valueType == 1) {
+//				randomValue = Random::getDouble(valueMin, valueMax);
+//			} else if (valueType == 0) {
+//				randomValue = Random::getInt(valueMin, valueMax);
+//			}
+//		}
 		while (!handler->atEOG()) {
 			if (count == samplesPerValue) {
 				count = 0;

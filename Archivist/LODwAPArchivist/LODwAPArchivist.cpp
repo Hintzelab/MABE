@@ -24,7 +24,17 @@ shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_dataFileConvertAllL
 LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<ParametersTable> _PT) :
 		DefaultArchivist(aveFileColumns, _PT) {
 
-	//realtimeFilesInterval = (PT == nullptr) ? Arch_realtimeFilesIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_DEFAULT-realtimeFilesInterval");
+	pruneInterval = (PT == nullptr) ? LODwAP_Arch_pruneIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-pruneInterval");
+	terminateAfter = (PT == nullptr) ? LODwAP_Arch_terminateAfterPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-terminateAfter");
+	DataFileName = (PT == nullptr) ? LODwAP_Arch_DataFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-dataFileName");
+	GenomeFileName = (PT == nullptr) ? LODwAP_Arch_GenomeFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeFileName");
+	writeDataFile = (PT == nullptr) ? LODwAP_Arch_writeDataFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeDataFile");
+	writeGenomeFile = (PT == nullptr) ? LODwAP_Arch_writeGenomeFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeGenomeFile");
+	dataFileShowAllLists = (PT == nullptr) ? LODwAP_Arch_dataFileShowAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-dataFileShowAllLists");
+	dataFileConvertAllLists = (PT == nullptr) ? LODwAP_Arch_dataFileConvertAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-dataFileConvertAllLists");
+
+	dataSequence.push_back(0);
+	genomeSequence.push_back(0);
 
 	string dataSequenceStr = (PT == nullptr) ? LODwAP_Arch_dataSequencePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-dataSequence");
 	string genomeSequenceStr = (PT == nullptr) ? LODwAP_Arch_genomeSequencePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeSequence");
@@ -39,14 +49,23 @@ LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Param
 		cout << "unable to translate ARCHIVIST_LODWAP-genomeSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
 		exit(1);
 	}
-	pruneInterval = (PT == nullptr) ? LODwAP_Arch_pruneIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-pruneInterval");
-	terminateAfter = (PT == nullptr) ? LODwAP_Arch_terminateAfterPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-terminateAfter");
-	DataFileName = (PT == nullptr) ? LODwAP_Arch_DataFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-dataFileName");
-	GenomeFileName = (PT == nullptr) ? LODwAP_Arch_GenomeFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeFileName");
-	writeDataFile = (PT == nullptr) ? LODwAP_Arch_writeDataFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeDataFile");
-	writeGenomeFile = (PT == nullptr) ? LODwAP_Arch_writeGenomeFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeGenomeFile");
-	dataFileShowAllLists = (PT == nullptr) ? LODwAP_Arch_dataFileShowAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-dataFileShowAllLists");
-	dataFileConvertAllLists = (PT == nullptr) ? LODwAP_Arch_dataFileConvertAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-dataFileConvertAllLists");
+
+	if (writeDataFile != false) {
+		dataSequence.clear();
+		dataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
+		if (dataSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_SSWD-dataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
+
+	if (writeGenomeFile != false) {
+		genomeSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
+		if (genomeSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_SSWD-genomeSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+			exit(1);
+		}
+	}
 
 	dataSeqIndex = 0;
 	genomeSeqIndex = 0;
@@ -194,4 +213,22 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 
 	// if we have reached the end of time OR we have pruned past updates (i.e. written out all data up to updates), then we ae done!
 	return (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+}
+
+bool LODwAPArchivist::isDataUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = DefaultArchivist::isDataUpdate(checkUpdate);
+	check = check || find(dataSequence.begin(),dataSequence.end(),checkUpdate) != dataSequence.end();
+	return check;
+}
+
+bool LODwAPArchivist::isGenomeUpdate(int checkUpdate){
+	if (checkUpdate == -1) {
+		checkUpdate = Global::update;
+	}
+	bool check = DefaultArchivist::isGenomeUpdate(checkUpdate);
+	check = check || find(genomeSequence.begin(),genomeSequence.end(),checkUpdate) != genomeSequence.end();
+	return check;
 }
