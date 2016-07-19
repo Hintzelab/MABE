@@ -261,10 +261,10 @@ for i in range(len(combinations)):
 			os.chdir(absLocalDir) # go to the local directory (after each job is launched, we are in the work directory) 
 			if (displayName == ""):
 				realDisplayName = "C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
+				conditionDirectoryName = "C" + str(i) + "__" + conditions[i][1:-1]
 			else:
 				realDisplayName = displayName + "_C" + str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
-				
-			conditionDirectoryName = realDisplayName
+				conditionDirectoryName = displayName + "_C" + str(i) + "__" + conditions[i][1:-1]
 				
 			timeNow = str(datetime.datetime.now().year)+'_'+str(datetime.datetime.now().month)+'_'+str(datetime.datetime.now().day)+'_'+str(datetime.datetime.now().hour)+'_'+str(datetime.datetime.now().minute)+'_'+str(datetime.datetime.now().second)
 
