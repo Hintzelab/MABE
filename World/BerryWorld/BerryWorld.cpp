@@ -247,7 +247,7 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 		outputNodesCount = 3;  // number of brain nodes used for output, 2 for move, 1 for eat
 	}
 
-	inputNodesCount = senseDown * (foodTypes + senseVisited) + ((senseFront * (foodTypes + senseVisited)) + senseWalls + senseOther) + (2 * ((senseFrontSides * (foodTypes + senseVisited)) + senseWalls + senseOther));
+	inputNodesCount = senseDown * (foodTypes + senseVisited) + ((senseFront * (foodTypes + senseVisited)) + senseWalls + senseOther) + (2 * (senseFrontSides * (foodTypes + senseVisited + senseWalls + senseOther)));
 
 	cout << "BerryWorld requires brains with at least " << inputNodesCount + outputNodesCount << " nodes.\n";
 	if (inputNodesCount == 0) {

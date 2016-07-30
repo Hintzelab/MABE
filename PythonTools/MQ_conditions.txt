@@ -16,9 +16,11 @@ VAR = RF1	WORLD_BERRY-rewardForFood1	0.50,1.00
 EXCEPT = TSK=3.0,RF1=0.50
 #EXCEPT = TSK=3.0,RF2=0.75
 
-# list of setting files (.cfg) which you want MABE to use. files will be loaded in the order provided.
+# list of setting files (.cfg) which you want MABE to load with the -f option. files will be loaded in the order provided.
 SETTINGS = settings.cfg,settings_organism.cfg,settings_world.cfg
 
+# list of files used by MABE (i.e. maps, images, etc.)
+#OTHERFILES = my_file.txt
 -----
 
 # JOBNAME will be appended before condition (C*) identifier - if "NONE" then job will have not JOBNAME
@@ -31,7 +33,7 @@ EXECUTABLE = ./MABE
 -----
 
 # HPCC
-HPCC_LONGJOB = TRUE
+HPCC_LONGJOB = FALSE
 HPCC_PARAMETERS = #PBS -l feature=intel16|intel14
 HPCC_PARAMETERS = #PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb
 HPCC_PARAMETERS = #PBS -j oe

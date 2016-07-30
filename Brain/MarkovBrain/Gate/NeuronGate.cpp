@@ -26,6 +26,204 @@ shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryErrorPL = Parameter
 shared_ptr<ParameterLink<bool>> NeuronGate::defaultThresholdFromNodePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode", false, "if true, gate will have additional input, which will be used as threshold");
 shared_ptr<ParameterLink<bool>> NeuronGate::defaultDeliveryChargeFromNodePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeFromNode", false, "if true, gate will have additional input, which will be used as deliveryCharge");
 
+void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
+	//cout << description() << endl;
+	bool fire = false;
+	// decay first
+	//cout << currentCharge;
+	currentCharge += -1 * Trit(currentCharge) * decayRate;
+	//cout << "->" << currentCharge << endl;
+	// add inputs to currCharge
+	//cout << currentCharge;
+	for (auto i : inputs) {
+		currentCharge += nodes[i];
+	}
+	//cout << "->" << currentCharge << endl;
+	// if currCharge is >= Th, fire
+	//   reduce currCharge
+
+	if (thresholdFromNode != -1) {
+		//cout << "threshold set from (" << thresholdFromNode << ") = ";
+		thresholdValue = nodes[thresholdFromNode];
+		// clip to [min,max]
+		thresholdValue = max(defaultThresholdMinPL->lookup(),min(defaultThresholdMaxPL->lookup(),thresholdValue));
+
+		//cout << thresholdValue << endl;
+	}
+
+	if (thresholdActivates) {  // fire if currCharge is greater than a positive threshold or less than a negative threshold
+		if (currentCharge > thresholdValue) {
+			fire = true;
+		}
+	} else {  // threshold represses. fire always unless currCharge is greater than a positive threshold (or less than a negative threshold)
+		if (currentCharge < thresholdValue) {  // if thresholdValue is positive
+			fire = true;
+		}
+	}
+
+    if (Global::modePL->lookup() == "visualize") {
+            string stateNow = "";
+            stateNow += to_string(ID);
+            stateNow += "," + to_string(fire);
+            stateNow += "," + to_string(inputs.size());
+            stateNow += "," + to_string(outputs.size())+",\"[";
+            for (int i = 0; i < (int)inputs.size(); i++) {
+                    stateNow += to_string(inputs[i]) + ",";
+            }
+            stateNow.pop_back();
+            stateNow += "]\",\"[";
+            for (int i = 0; i < (int)outputs.size(); i++) {
+                    stateNow += to_string(outputs[i]) + ",";
+            }
+            stateNow.pop_back();
+            stateNow += "]\"";
+            stateNow += "," + to_string(thresholdValue);
+            stateNow += "," + to_string(currentCharge);
+            stateNow += "," + to_string(dischargeBehavior);
+            stateNow += "," + to_string(decayRate);
+            stateNow += "," + to_string(deliveryCharge);
+            stateNow += "," + to_string(deliveryError);
+            stateNow += "," + to_string(thresholdActivates);
+            stateNow += "," + to_string(thresholdFromNode);
+            stateNow += "," + to_string(deliveryChargeFromNode);
+
+            FileManager::writeToFile("neuron_data.txt", stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+    }
+
+	if (fire) {
+		//cout << "Fire!" <<  endl;
+		double localDeliveryCharge = 0;
+		if (deliveryChargeFromNode == -1) {
+			localDeliveryCharge += deliveryCharge;
+		} else {
+			//cout << "charge from (" << deliveryChargeFromNode << ") = " << nodes[deliveryChargeFromNode] << endl;
+			//cout << "  " << nextnodes[outputs[0]];
+			localDeliveryCharge += nodes[deliveryChargeFromNode];
+			//cout << "  " << nextnodes[outputs[0]] << endl;
+		}
+
+		// clip to [min,max]
+		localDeliveryCharge *= (1.0 - Random::getDouble(0, deliveryError));
+		localDeliveryCharge = max(defaultDeliveryChargeMinPL->lookup(),min(defaultDeliveryChargeMaxPL->lookup(),localDeliveryCharge));
+
+		nextnodes[outputs[0]] += localDeliveryCharge;
+
+		if (dischargeBehavior == 0) {
+			currentCharge = 0;
+		}
+		if (dischargeBehavior == 1) { // "reduce" (i.e. move closer to 0) current charge, but thresholdValue amt
+			int currentChargeSign = Trit(currentCharge);
+			currentCharge = ((currentChargeSign * currentCharge) - (Trit(localDeliveryCharge) * localDeliveryCharge)) * currentChargeSign;
+		}
+		if (dischargeBehavior == 2) {
+			currentCharge = currentCharge * .5;
+		}
+	}
+}
+
+//void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
+//	//cout << description() << endl;
+//	bool fire = false;
+//	// decay first
+//	//cout << currentCharge;
+//	currentCharge += -1 * Trit(currentCharge) * decayRate;
+//	//cout << "->" << currentCharge << endl;
+//	// add inputs to currCharge
+//	//cout << currentCharge;
+//	for (auto i : inputs) {
+//		currentCharge += nodes[i];
+//	}
+//	//cout << "->" << currentCharge << endl;
+//	// if currCharge is >= Th, fire
+//	//   reduce currCharge
+//
+//	if (thresholdFromNode != -1) {
+//		//cout << "threshold set from (" << thresholdFromNode << ") = ";
+//		thresholdValue = nodes[thresholdFromNode];
+//		//cout << thresholdValue << endl;
+//	}
+//
+//	if (thresholdActivates) {  // fire if currCharge is greater than a positive threshold or less than a negative threshold
+//		//cout << "  A+  ";
+//		//cout << currentCharge << " ?? " << thresholdValue;
+//		if (((Trit(currentCharge) * currentCharge) > (Trit(thresholdValue) * thresholdValue)) && (Trit(currentCharge) == Trit(thresholdValue) || (thresholdValue == 0))) {
+//			//if (thresholdValue != 0){
+//				//cout << "    ++FIRE++";
+//				fire = true;
+//			//} // note if (Trit(thresholdValue) == 0), fire for any value currentCharge != 0;
+//		}
+//		//cout << endl;
+//	} else {  // threshold represses. fire always unless currCharge is greater than a positive threshold (or less than a negative threshold)
+//		//cout << "  R-  ";
+//		//cout << currentCharge << " ?? " << thresholdValue;
+//		if (Trit(thresholdValue) == 1 && Trit(currentCharge) == 1) {  // if thresholdValue is positive
+//			if (currentCharge < thresholdValue) {
+//				//cout << "    --FIRE--";
+//				fire = true;
+//			}
+//		} else if (Trit(thresholdValue) == -1 && Trit(currentCharge) == -1){  // if threshold is negative
+//			if (currentCharge > thresholdValue) {
+//				//cout << "    --FIRE--";
+//				fire = true;
+//			}
+//		} // Trit(thresholdValue) == 0, do nothing, threshold 0 never fires.
+//		  // if signs of thresholdValue and currentCharge do not match, do not fire!
+//		//cout << endl;
+//	}
+//
+//    if (Global::modePL->lookup() == "visualize") {
+//            string stateNow = "";
+//            stateNow += to_string(ID);
+//            stateNow += "," + to_string(fire);
+//            stateNow += "," + to_string(inputs.size());
+//            stateNow += "," + to_string(outputs.size())+",\"[";
+//            for (int i = 0; i < (int)inputs.size(); i++) {
+//                    stateNow += to_string(inputs[i]) + ",";
+//            }
+//            stateNow.pop_back();
+//            stateNow += "]\",\"[";
+//            for (int i = 0; i < (int)outputs.size(); i++) {
+//                    stateNow += to_string(outputs[i]) + ",";
+//            }
+//            stateNow.pop_back();
+//            stateNow += "]\"";
+//            stateNow += "," + to_string(thresholdValue);
+//            stateNow += "," + to_string(currentCharge);
+//            stateNow += "," + to_string(dischargeBehavior);
+//            stateNow += "," + to_string(decayRate);
+//            stateNow += "," + to_string(deliveryCharge);
+//            stateNow += "," + to_string(deliveryError);
+//            stateNow += "," + to_string(thresholdActivates);
+//            stateNow += "," + to_string(thresholdFromNode);
+//            stateNow += "," + to_string(deliveryChargeFromNode);
+//
+//            FileManager::writeToFile("neuron_data.txt", stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+//    }
+//
+//	if (fire) {
+//		//cout << "Fire!" <<  endl;
+//		double localDdeliveryCharge = 0;
+//		if (deliveryChargeFromNode == -1) {
+//			localDdeliveryCharge += deliveryCharge - Random::getDouble(0, deliveryError);
+//		} else {
+//			//cout << "charge from (" << deliveryChargeFromNode << ") = " << nodes[deliveryChargeFromNode] << endl;
+//			//cout << "  " << nextnodes[outputs[0]];
+//			localDdeliveryCharge += nodes[deliveryChargeFromNode] - Random::getDouble(0, deliveryError);
+//			//cout << "  " << nextnodes[outputs[0]] << endl;
+//		}
+//		nextnodes[outputs[0]] += localDdeliveryCharge;
+//		if (dischargeBehavior == 0) {
+//			currentCharge = 0;
+//		}
+//		if (dischargeBehavior == 1) { // "reduce" (i.e. move closer to 0) current charge, but thresholdValue amt
+//			int currentChargeSign = Trit(currentCharge);
+//			currentCharge = ((currentChargeSign * currentCharge) - (Trit(localDdeliveryCharge) * localDdeliveryCharge)) * currentChargeSign;
+//		}
+//		if (dischargeBehavior == 2) {
+//			currentCharge = currentCharge * .5;
+//		}
+//	}
+//}
 
 shared_ptr<AbstractGate> NeuronGate::makeCopy(shared_ptr<ParametersTable> _PT)
 {
