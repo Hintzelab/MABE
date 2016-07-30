@@ -54,7 +54,7 @@ shared_ptr<ParameterLink<bool>> BerryWorld::senseOtherPL = Parameters::register_
 shared_ptr<ParameterLink<int>> BerryWorld::replacementPL = Parameters::register_parameter("WORLD_BERRY-replacement", -1, "-1 = random, 0 = no replacement, 1 = replace other (note: Food0, can be replace by Food0)");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::recordConsumptionRatioPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-recordConsumptionRatio", false, "if true, record greater of red/blue+1 or blue/red+1");
-shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListPL = Parameters::register_parameter("WORLD_BERRY-recordFoodList", true, "if true, record list of food eaten");
+shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListPL = Parameters::register_parameter("WORLD_BERRY-recordFoodList", false, "if true, record list of food eaten");
 shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListEatEmptyPL = Parameters::register_parameter("WORLD_BERRY-recordFoodListEatEmpty", false, "if true, foodList will include attempts to eat 0");
 shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListNoEatPL = Parameters::register_parameter("WORLD_BERRY-recordFoodListNoEat", false, "if true, if true foodList will include no eat (-1)");
 

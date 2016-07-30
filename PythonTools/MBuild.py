@@ -17,7 +17,7 @@ else:
 	product = 'MABE'
 
 compiler='c++'
-compFlags='-Wall -std=c++11'
+compFlags='-Wall -std=c++11 -O3'
 	
 # load all lines from buildFile into lines, ignore blank lines
 file = open(args.buildFile, 'r')
