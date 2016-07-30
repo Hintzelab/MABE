@@ -78,6 +78,7 @@ varNames = {}
 varList = []
 exceptions = []
 cfg_files = []
+other_files = []
 executable = "./MABE"
 HPCC_parameters = []
 HPCC_LONGJOB = True
@@ -107,6 +108,12 @@ with open(args.file) as openfileobject:
 				for f in cfg_files:
 					if not(os.path.isfile(f)):
 						print('settings file: "' + f + '" seems to be missing!')
+						exit()
+			if line[0] == "OTHERFILES":
+				other_files = line[2].split(',')
+				for f in other_files:
+					if not(os.path.isfile(f)):
+						print('other file: "' + f + '" seems to be missing!')
 						exit()
 			if line[0] == "HPCC_LONGJOB":
 				HPCC_LONGJOB = (line[2] == "TRUE")
@@ -278,6 +285,8 @@ for i in range(len(combinations)):
 			shutil.copy(executable, workDir) # copy the executable to scratch
 			for f in cfg_files:
 				shutil.copy(f, workDir) # copy the settings files to scratch
+			for f in other_files:
+				shutil.copy(f, workDir) # copy other files to scratch
 
 			if not(os.path.exists(conditionDirectoryName)): # if the local conditions directory is not already here, make it
 				os.makedirs(conditionDirectoryName)

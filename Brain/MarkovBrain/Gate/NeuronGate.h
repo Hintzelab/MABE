@@ -78,68 +78,8 @@ public:
 	}
 
 	virtual ~NeuronGate() = default;
-	virtual void update(vector<double> & nodes, vector<double> & nextnodes) override {
-		//cout << description() << endl;
-		bool fire = false;
-		// decay first
-		//cout << currentCharge;
-		currentCharge += -1 * Trit(currentCharge) * decayRate;
-		//cout << "->" << currentCharge << endl;
-		// add inputs to currCharge
-		//cout << currentCharge;
-		for (auto i : inputs) {
-			currentCharge += nodes[i];
-		}
-		//cout << "->" << currentCharge << endl;
-		// if currCharge is >= Th, fire
-		//   reduce currCharge
 
-		if (thresholdFromNode != -1) {
-			//cout << "threshold set from (" << thresholdFromNode << ") = ";
-			thresholdValue = nodes[thresholdFromNode];
-			//cout << thresholdValue << endl;
-		}
-
-		if (thresholdActivates) {  // fire if currCharge is greater than a positive threshold or less than a negative threshold
-			if (((Trit(currentCharge) * currentCharge) > (Trit(thresholdValue) * thresholdValue)) && (Trit(currentCharge) == Trit(currentCharge))) {
-				fire = true;
-			}
-		} else {  // threshold represses. fire always unless currCharge is greater than a positive threshold (or less than a negative threshold)
-			if (Trit(thresholdValue) == 1) {  // if thresholdValue is positive
-				if (currentCharge < thresholdValue) {
-					fire = true;
-				}
-			} else {  // if threshold is negative (or 0)
-				if (currentCharge > thresholdValue) {
-					fire = true;
-				}
-			}
-		}
-
-		if (fire) {
-			//cout << "Fire!" <<  endl;
-			if (deliveryChargeFromNode == -1) {
-				nextnodes[outputs[0]] += deliveryCharge - Random::getDouble(0, deliveryError);
-			} else {
-				//cout << "charge from (" << deliveryChargeFromNode << ") = " << nodes[deliveryChargeFromNode] << endl;
-				//cout << "  " << nextnodes[outputs[0]];
-				nextnodes[outputs[0]] += nodes[deliveryChargeFromNode] - Random::getDouble(0, deliveryError);
-				//cout << "  " << nextnodes[outputs[0]] << endl;
-			}
-			if (dischargeBehavior == 0) {
-				currentCharge = 0;
-			}
-			if (dischargeBehavior == 1) {
-				int currentChargeSign = Trit(currentCharge);
-				currentCharge = (currentChargeSign * currentCharge) - (Trit(thresholdValue) * thresholdValue) * currentChargeSign;
-			}
-			if (dischargeBehavior == 2) {
-				currentCharge = currentCharge * .5;
-			}
-
-		}
-
-	}
+	virtual void update(vector<double> & nodes, vector<double> & nextnodes) override;
 
 	virtual string description() override {
 		string s = "Gate " + to_string(ID) + " is a Neuron Gate with " + to_string(inputs.size()) + " inputs (";
