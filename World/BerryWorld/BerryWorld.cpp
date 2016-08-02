@@ -196,18 +196,24 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	if (rangeHolder.size() == 1) {
 		fixedStartXMin = rangeHolder[0];
 		fixedStartXMax = rangeHolder[0];
-	} else {
+	} else if (rangeHolder.size() == 2){
 		fixedStartXMin = rangeHolder[0];
 		fixedStartXMax = rangeHolder[1];
+	} else {
+		cout << "  Bad Setting! WORLD_BERRY-fixedStartXRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartXRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartXRange")) << "\"\n  Exiting."<< endl;
+		exit(1);
 	}
 
 	convertCSVListToVector((PT == nullptr) ? fixedStartYRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartYRange"), rangeHolder);
 	if (rangeHolder.size() == 1) {
 		fixedStartYMin = rangeHolder[0];
-		fixedStartYMax = rangeHolder[1];
-	} else {
+		fixedStartYMax = rangeHolder[0];
+	} else if (rangeHolder.size() == 2){
 		fixedStartYMin = rangeHolder[0];
 		fixedStartYMax = rangeHolder[1];
+	} else {
+		cout << "  Bad Setting! WORLD_BERRY-fixedStartYRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartYRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartYRange")) << "\"\n  Exiting."<< endl;
+		exit(1);
 	}
 
 	fixedStartFacing = (PT == nullptr) ? fixedStartFacingPL->lookup() : PT->lookupInt("WORLD_BERRY-fixedStartFacing");

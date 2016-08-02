@@ -30,7 +30,7 @@ GPGate::GPGate(pair<vector<int>, vector<int>> _addresses, int _operation, vector
 }
 
 void GPGate::update(vector<double> & states, vector<double> & nextStates) {
-	double retValue = inputs[0];
+	double retValue = states[inputs[0]];
 	int index = 0;
 	size_t i, o;
 	bool writeValueAtEnd = true;
@@ -41,8 +41,10 @@ void GPGate::update(vector<double> & states, vector<double> & nextStates) {
 				nextStates[outputs[o]] = constValues[o];
 			break;
 		case 1:  // add
-			for (i = 1; i < inputs.size(); i++)
+			for (i = 1; i < inputs.size(); i++){
 				retValue += states[inputs[i]];
+			}
+
 			break;
 		case 2:  // sub
 			for (i = 1; i < inputs.size(); i++)
@@ -54,7 +56,11 @@ void GPGate::update(vector<double> & states, vector<double> & nextStates) {
 			break;
 		case 4:  // div
 			for (i = 1; i < inputs.size(); i++)
-				retValue /= states[inputs[i]];
+				if (states[inputs[i]] == 0){
+					retValue = 0;
+				} else {
+					retValue /= states[inputs[i]];
+				}
 			break;
 		case 5:  // sin
 			writeValueAtEnd = false;
@@ -74,14 +80,16 @@ void GPGate::update(vector<double> & states, vector<double> & nextStates) {
 			writeValueAtEnd = false;
 			for (o = 0; o < outputs.size(); o++) {
 				if (inputs[index] > 0.0)
-					nextStates[outputs[o]] += log(states[inputs[index]]);
+					if (states[inputs[index]] > 0){
+											nextStates[outputs[o]] += log(states[inputs[index]]);
+					}
 				index = (index + 1) % (int) inputs.size();
 			}
 			break;
 		case 8:  // exp
 			writeValueAtEnd = false;
 			for (o = 0; o < outputs.size(); o++) {
-				nextStates[outputs[o]] += exp(states[inputs[index]]);
+				nextStates[outputs[o]] += 1;//exp(states[inputs[index]]);
 				index = (index + 1) % (int) inputs.size();
 			}
 			break;
@@ -93,6 +101,7 @@ void GPGate::update(vector<double> & states, vector<double> & nextStates) {
 }
 
 string GPGate::description() {
+	cout << "in GP description" << endl;
 	string gateTypeName[9] = { "fixed constants", "+", "-", "*", "/", "Sin", "Cos", "Log", "Exp" };
 	string constString = " constants: " + to_string(constValues[0]) + " " + to_string(constValues[1]) + " "+ to_string(constValues[2]) + " " + to_string(constValues[3]) + "\n";
 	return "Gate " + to_string(ID) + " is a (" + gateTypeName[operation] + ") " + gateType() + "Gate\n" + AbstractGate::descriptionIO() + constString;
