@@ -526,15 +526,17 @@ vector<string> MultiGenome::getStats() {
 	return (dataPairs);
 }
 
+/////////////// FIX FIX FIX ////////////////////
+
 void MultiGenome::recordDataMap() {
-	dataMap.SetMany(chromosomes[0]->getFixedStats());
-	dataMap.Set("ploidy", ploidy);
-	dataMap.Set("chromosomeCount", chromosomes.size());
-	dataMap.Set("sitesCount", countSites());
-	dataMap.Clear("chromosomeLengths");
-	for (size_t c = 0; c < chromosomes.size(); c++) {
-		dataMap.Append("chromosomeLengths", chromosomes[c]->size());
-	}
+	//dataMap.SetMany(chromosomes[0]->getFixedStats());
+	//dataMap.Set("ploidy", ploidy);
+	//dataMap.Set("chromosomeCount", chromosomes.size());
+	//dataMap.Set("sitesCount", countSites());
+	//dataMap.Clear("chromosomeLengths");
+	//for (size_t c = 0; c < chromosomes.size(); c++) {
+	//	dataMap.Append("chromosomeLengths", chromosomes[c]->size());
+	//}
 }
 
 // load all genomes from a file

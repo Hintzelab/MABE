@@ -64,7 +64,7 @@ Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTabl
 	dataMap.Set("ID", ID);
 	dataMap.Set("alive", alive);
 	dataMap.Set("timeOfBirth", timeOfBirth);
-	dataMap.SetMany(genome->getStats());
+	//////dataMap.SetMany(genome->getStats());
 }
 
 Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
@@ -83,8 +83,8 @@ Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain>
 	dataMap.Set("ID", ID);
 	dataMap.Set("alive", alive);
 	dataMap.Set("timeOfBirth", timeOfBirth);
-	dataMap.SetMany(genome->getStats());
-	dataMap.SetMany(brain->getStats());
+	//////dataMap.SetMany(genome->getStats());
+	//////dataMap.SetMany(brain->getStats());
 }
 
 /*
@@ -111,8 +111,8 @@ Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome
 	dataMap.Set("ID", ID);
 	dataMap.Set("alive", alive);
 	dataMap.Set("timeOfBirth", timeOfBirth);
-	dataMap.SetMany(genome->getStats());
-	dataMap.SetMany(brain->getStats());
+	//////dataMap.SetMany(genome->getStats());
+	//////dataMap.SetMany(brain->getStats());
 }
 
 /*
@@ -144,8 +144,8 @@ Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractG
 	dataMap.Set("ID", ID);
 	dataMap.Set("alive", alive);
 	dataMap.Set("timeOfBirth", timeOfBirth);
-	dataMap.SetMany(genome->getStats());
-	dataMap.SetMany(brain->getStats());
+	//////dataMap.SetMany(genome->getStats());
+	//////dataMap.SetMany(brain->getStats());
 }
 
 int Organism::registerOrganism() {
@@ -190,19 +190,19 @@ shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Or
  * Given a genome and a key(to data that has been saved into "dataMap"
  * return a list of the value for key for genome and all genomes ancestors ordered oldest first
  */
-vector<string> Organism::GetLODItem(string key, shared_ptr<Organism> org) {
-	vector<string> list;
-	list.insert(list.begin(), org->dataMap.Get(key));  // add this organisms data to the front of the list
-	while (org->parents.size() == 1) {  // while the current org has one and only one parent
-		org = org->parents[0];  // move to the next ancestor (since there is only one parent it is the element in the first position).
-		list.insert(list.begin(), org->dataMap.Get(key));  // add that ancestors data to the front of the list
-	}
-	if (org->parents.size() > 1) {  // if more than one parent we have a problem!
-		cout << "  In Organism::GetLODItem :: ERROR! an Organism has more than one parent! Can not establish LOD (do not use getLOD with Sexual Populations).\n  If you are using LODwAP, try using SSwD instead.\n  Exiting...\n";
-		exit(1);
-	}
-	return list;
-}
+//vector<string> Organism::GetLODItem(string key, shared_ptr<Organism> org) {
+//	vector<string> list;
+//	list.insert(list.begin(), org->dataMap.Get(key));  // add this organisms data to the front of the list
+//	while (org->parents.size() == 1) {  // while the current org has one and only one parent
+//		org = org->parents[0];  // move to the next ancestor (since there is only one parent it is the element in the first position).
+//		list.insert(list.begin(), org->dataMap.Get(key));  // add that ancestors data to the front of the list
+//	}
+//	if (org->parents.size() > 1) {  // if more than one parent we have a problem!
+//		cout << "  In Organism::GetLODItem :: ERROR! an Organism has more than one parent! Can not establish LOD (do not use getLOD with Sexual Populations).\n  If you are using LODwAP, try using SSwD instead.\n  Exiting...\n";
+//		exit(1);
+//	}
+//	return list;
+//}
 
 /*
  * Given a genome return a list of Organisms containing this Organism and all if this Organisms ancestors ordered oldest first

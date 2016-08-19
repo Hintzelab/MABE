@@ -98,42 +98,48 @@ DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Par
 void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population) {
 	// write out Average data
 	if (writeAveFile) {
-		double aveValue, temp;
+		double aveValue;
 		DataMap AveMap;
 
 		for (auto key : DefaultAveFileColumns) {
-			temp = 0;
-			aveValue = 0;
-			for (auto org : population) {
-				org->dataMap.Set("update", Global::update);
-				if (org->dataMap.fieldExists(key)) {
-					stringstream ss(org->dataMap.Get(key));
-					ss >> temp;
-				} else {  // if field not found, check if there is an all()s version
-					string allKey = "all" + key;
-					//cout << allKey << endl;
-					if (org->dataMap.fieldExists(allKey)) {
-						string dataList = org->dataMap.Get(allKey);
-						//cout << dataList << endl;
-						temp = 0;
-						vector<double> values;
-						convertCSVListToVector(dataList, values);
-						for (auto v : values) {
-							temp += v;
-							//cout << key << " " << allKey << " " << v << " " << temp << endl;
-						}
-						temp /= (double) values.size();
-					} else {
-						cout << "WARNING:  In Archivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population). While \"writing ave.csv\" key \"" << key << "\" could not be found in dataMap!" << endl;
-					}
+			if (key != "update") {
+				aveValue = 0;
+				for (auto org : population) {
+//				if (org->dataMap.fieldExists(key)) {
+//					stringstream ss(org->dataMap.Get(key));
+//					ss >> temp;
+//				} else {  // if field not found, check if there is an all()s version
+//					string allKey = "all" + key;
+//					//cout << allKey << endl;
+//					if (org->dataMap.fieldExists(allKey)) {
+//						string dataList = org->dataMap.Get(allKey);
+//						//cout << dataList << endl;
+//						temp = 0;
+//						vector<double> values;
+//						convertCSVListToVector(dataList, values);
+//						for (auto v : values) {
+//							temp += v;
+//							//cout << key << " " << allKey << " " << v << " " << temp << endl;
+//						}
+//						temp /= (double) values.size();
+//					} else {
+//						cout << "WARNING:  In Archivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population). While \"writing ave.csv\" key \"" << key << "\" could not be found in dataMap!" << endl;
+//					}
+//				}
+					//aveValue += temp;
+					aveValue += org->dataMap.GetAverage(key);
 				}
-				aveValue += temp;
-				org->dataMap.Clear("update");
+				aveValue /= population.size();
+				AveMap.Set(key, aveValue);
 			}
-			aveValue /= population.size();
-			AveMap.Set(key, aveValue);
 		}
-		AveMap.writeToFile(AveFileName, DefaultAveFileColumns);
+		for (auto key : DefaultAveFileColumns) {
+			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
+		}
+		AveMap.Set("update", Global::update);
+		AveMap.setOutputBehavior("update", DataMap::FIRST);
+		AveMap.writeToFile(AveFileName, DefaultAveFileColumns, true); // write the AveMap to file with aveOnly = true (only save ave values)
+
 	}
 	// write out Dominant data
 	if (writeDominantFile) {
@@ -143,26 +149,30 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 		}
 
 		int best = findGreatestInVector(Scores);
-		DataMap DomMap;
+		//DataMap DomMap;
+//		population[best]->dataMap.Set("update", Global::update);
+//		for (auto key : population[best]->dataMap.getKeys()) {
+//			if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
+//				double temp = 0;
+//				vector<double> values;
+//				convertCSVListToVector(population[best]->dataMap.Get(key), values);
+//				for (auto v : values) {
+//					temp += v;
+//					//cout << key << " " << allKey << " " << v << " " << temp << endl;
+//				}
+//				temp /= (double) values.size();
+//				DomMap.Set(key.substr(3, key.size() - 1), temp);
+//			}
+////			if (DominantFileShowAllLists) {
+////				DomMap.Set(key, population[best]->dataMap.Get(key));
+////			}
+//		}
+		//DomMap.writeToFile(DominantFileName);
 		population[best]->dataMap.Set("update", Global::update);
-		for (auto key : population[best]->dataMap.getKeys()) {
-			if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
-				double temp = 0;
-				vector<double> values;
-				convertCSVListToVector(population[best]->dataMap.Get(key), values);
-				for (auto v : values) {
-					temp += v;
-					//cout << key << " " << allKey << " " << v << " " << temp << endl;
-				}
-				temp /= (double) values.size();
-				DomMap.Set(key.substr(3, key.size() - 1), temp);
-			}
-			if (DominantFileShowAllLists) {
-				DomMap.Set(key, population[best]->dataMap.Get(key));
-			}
-		}
+		population[best]->dataMap.setOutputBehavior("update", DataMap::AVE);
+
+		population[best]->dataMap.writeToFile(DominantFileName);
 		population[best]->dataMap.Clear("update");
-		DomMap.writeToFile(DominantFileName);
 	}
 }
 
@@ -179,10 +189,16 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 		for (auto ancestor : org->snapshotAncestors) {
 			org->dataMap.Append("snapshotAncestors", ancestor);
 		}
+		org->dataMap.setOutputBehavior("snapshotAncestors", DataMap::LIST);
+
 		org->snapshotAncestors.clear();
 		org->snapshotAncestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
+
 		org->dataMap.Set("update", Global::update);
+		org->dataMap.setOutputBehavior("update", DataMap::AVE);
+
 		org->dataMap.writeToFile(dataFileName, files["snapshotData"]);  // append new data to the file
+
 		org->dataMap.Clear("snapshotAncestors");
 		org->dataMap.Clear("update");
 	}
@@ -199,8 +215,9 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 		//FileManager::writeToFile(genomeFileName, dataString, "ID,genome");  // write data to file
 
 		org->genome->dataMap.Set("sites", org->genome->genomeToStr());
-		org->genome->dataMap.Set("ID", org->dataMap.Get("ID"));
+		org->genome->dataMap.Set("ID", org->dataMap.GetAverage("ID"));
 		org->genome->dataMap.Set("update", Global::update);
+		org->genome->dataMap.setOutputBehavior("update", DataMap::AVE);
 
 		//org->genome->dataMap.writeToFile(genomeFileName, org->genome->dataMap.getKeys());  // append new data to the file
 		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);		// append new data to the file
@@ -240,7 +257,7 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 	return (Global::update >= Global::updatesPL->lookup());
 }
 
-void DefaultArchivist::processAllLists(DataMap &dm) {
+void DefaultArchivist::processAllLists(OldDataMap &dm) {
 	vector<string> allKeys = dm.getKeys();
 	for (auto key : allKeys) {
 		if (key.substr(0, 3) == "all") {
@@ -259,19 +276,19 @@ void DefaultArchivist::processAllLists(DataMap &dm) {
 	}
 }
 
-bool DefaultArchivist::isDataUpdate(int checkUpdate){
+bool DefaultArchivist::isDataUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
-	bool check = find(realtimeSequence.begin(),realtimeSequence.end(),checkUpdate) != realtimeSequence.end();
-	check = check || find(realtimeDataSequence.begin(),realtimeDataSequence.end(),checkUpdate) != realtimeDataSequence.end();
+	bool check = find(realtimeSequence.begin(), realtimeSequence.end(), checkUpdate) != realtimeSequence.end();
+	check = check || find(realtimeDataSequence.begin(), realtimeDataSequence.end(), checkUpdate) != realtimeDataSequence.end();
 	return check;
 }
 
-bool DefaultArchivist::isGenomeUpdate(int checkUpdate){
+bool DefaultArchivist::isGenomeUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
-	bool check = find(realtimeGenomeSequence.begin(),realtimeGenomeSequence.end(),checkUpdate) != realtimeGenomeSequence.end();
+	bool check = find(realtimeGenomeSequence.begin(), realtimeGenomeSequence.end(), checkUpdate) != realtimeGenomeSequence.end();
 	return check;
 }

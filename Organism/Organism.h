@@ -63,7 +63,7 @@ class Organism {
 
 	virtual void kill();  // sets alive = 0 (on org and in dataMap)
 
-	virtual vector<string> GetLODItem(string key, shared_ptr<Organism> org);
+	//virtual vector<string> GetLODItem(string key, shared_ptr<Organism> org);
 	virtual vector<shared_ptr<Organism>> getLOD(shared_ptr<Organism> org);
 	virtual shared_ptr<Organism> getMostRecentCommonAncestor(shared_ptr<Organism> org);
 	virtual shared_ptr<Organism> getMostRecentCommonAncestor(vector<shared_ptr<Organism>> LOD);
