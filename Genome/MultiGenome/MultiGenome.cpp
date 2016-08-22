@@ -519,22 +519,27 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-vector<string> MultiGenome::getStats() {
-	vector<string> dataPairs;
-	dataPairs.push_back("genomeLength");
-	dataPairs.push_back(to_string(countSites()));
-	return (dataPairs);
+DataMap MultiGenome::getStats() {
+	DataMap dataMap;
+	dataMap.Set("genomeLength",countSites());
+	return (dataMap);
 }
 
+/////////////// FIX FIX FIX ////////////////////
+
 void MultiGenome::recordDataMap() {
-	dataMap.SetMany(chromosomes[0]->getFixedStats());
+	dataMap.Merge(chromosomes[0]->getFixedStats());
 	dataMap.Set("ploidy", ploidy);
-	dataMap.Set("chromosomeCount", chromosomes.size());
+	dataMap.setOutputBehavior("ploidy", DataMap::FIRST);
+	dataMap.Set("chromosomeCount", (int)chromosomes.size());
+	dataMap.setOutputBehavior("chromosomeCount", DataMap::FIRST);
 	dataMap.Set("sitesCount", countSites());
+	dataMap.setOutputBehavior("sitesCount", DataMap::AVE);
 	dataMap.Clear("chromosomeLengths");
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		dataMap.Append("chromosomeLengths", chromosomes[c]->size());
 	}
+	dataMap.setOutputBehavior("chromosomeLengths", DataMap::LIST);
 }
 
 // load all genomes from a file

@@ -228,20 +228,20 @@ template<class T> int TemplatedChromosome<T>::size() {
 	return (int) sites.size();
 }
 
-template<class T> vector<string> TemplatedChromosome<T>::getFixedStats() {
-	vector < string > dataPairs;
-	dataPairs.push_back("alphabetSize");
-	dataPairs.push_back(to_string(alphabetSize));
-	return (dataPairs);
+template<class T> DataMap TemplatedChromosome<T>::getFixedStats() {
+	DataMap dataMap;
+	dataMap.Set("alphabetSize",alphabetSize);
+	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
+	return (dataMap);
 }
 
-template<class T> vector<string> TemplatedChromosome<T>::getStats() {
-	vector < string > dataPairs;
-	dataPairs.push_back("alphabetSize");
-	dataPairs.push_back(to_string(alphabetSize));
-	dataPairs.push_back("size");
-	dataPairs.push_back(to_string(sites.size()));
-	return (dataPairs);
+template<class T> DataMap TemplatedChromosome<T>::getStats() {
+	DataMap dataMap;
+	dataMap.Set("alphabetSize",alphabetSize);
+	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
+	dataMap.Set("size",(int)sites.size());
+	dataMap.setOutputBehavior("alphabetSize", DataMap::AVE);
+	return (dataMap);
 }
 
 //////////////////////////////

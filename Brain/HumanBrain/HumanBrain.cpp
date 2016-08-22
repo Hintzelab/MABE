@@ -112,9 +112,9 @@ string HumanBrain::description() {
 	return S;
 }
 
-vector<string> HumanBrain::getStats() {
-	vector<string> dataPairs;
-	return (dataPairs);
+DataMap HumanBrain::getStats() {
+	DataMap dataMap;
+	return (dataMap);
 }
 
 void HumanBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {

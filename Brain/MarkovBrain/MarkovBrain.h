@@ -77,7 +77,7 @@ class MarkovBrain : public AbstractBrain {
 
 	virtual string description() override;
 	void fillInConnectionsLists();
-	virtual vector<string> getStats() override;
+	virtual DataMap getStats() override;
 
 	virtual void resetBrain() override;
 	virtual string gateList();

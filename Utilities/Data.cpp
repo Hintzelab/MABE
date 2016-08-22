@@ -25,7 +25,7 @@ string FileManager::outputDirectory = "./";
 /*
  * takes a vector of string with key value pairs. Calls set for each pair.
  */
-void DataMap::SetMany(vector<string> dataPairs) {
+void OldDataMap::SetMany(vector<string> dataPairs) {
 	if (dataPairs.size() % 2 == 1) {
 		cout << "  In DataMap::SetMany : ERROR! dataPairs vector has an odd number of elements.\n  Exiting...\n";
 		exit(1);
@@ -38,15 +38,15 @@ void DataMap::SetMany(vector<string> dataPairs) {
 /*
  * returns a string value for "key" given a map<string,string>
  */
-string DataMap::Get(const string& key) {
+string OldDataMap::Get(const string& key) {
 	return data[key];
 }
 
-bool DataMap::fieldExists(const string& key) {
+bool OldDataMap::fieldExists(const string& key) {
 	return (data.find(key) != data.end());
 }
 
-void DataMap::writeToFile(const string &fileName, const vector<string> &keys) {
+void OldDataMap::writeToFile(const string &fileName, const vector<string> &keys) {
 
 	string headerStr = "";
 	string dataStr = "";
@@ -72,7 +72,7 @@ void DataMap::writeToFile(const string &fileName, const vector<string> &keys) {
 	FileManager::writeToFile(fileName, dataStr, headerStr);  // write the data to file!
 }
 
-vector<string> DataMap::getKeys() {
+vector<string> OldDataMap::getKeys() {
 	vector<string> keys;
 	for (auto element : data) {
 		keys.push_back(element.first);

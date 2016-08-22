@@ -84,8 +84,8 @@ string ConstantValuesBrain::description() {
 	return S;
 }
 
-vector<string> ConstantValuesBrain::getStats() {
-	vector<string> dataPairs;
+DataMap ConstantValuesBrain::getStats() {
+	DataMap dataMap;
 //	dataPairs.push_back("outputValues");
 //	string valuesList = "\"[";
 //	for (int i = 0; i < nrOutNodes; i++) {
@@ -97,11 +97,9 @@ vector<string> ConstantValuesBrain::getStats() {
 //	dataPairs.push_back(to_string(valuesList));
 
 	for (int i = 0; i < nrOutNodes; i++) {
-		dataPairs.push_back("brainValue" + to_string(i));
-		dataPairs.push_back(to_string(nextNodes[outputNodesList[i]]));
+		dataMap.Set("brainValue" + to_string(i),nextNodes[outputNodesList[i]]);
 	}
-
-	return (dataPairs);
+	return (dataMap);
 }
 
 void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {

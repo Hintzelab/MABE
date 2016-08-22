@@ -30,26 +30,27 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-	// also writes out a config file if requested
+
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
-	configureDefaultsAndDocumentation();
+	configureDefaultsAndDocumentation(); // load all parameters from command line and file
 	bool saveFiles = Parameters::initializeParameters(argc, argv);  // loads command line and configFile values into registered parameters
-	// also writes out a config file if requested
 
-	if (saveFiles) {
+	// also writes out a settings files if requested
+	if (saveFiles) { // if saveFiles (save settings files) is set
 		int maxLineLength = Global::maxLineLengthPL->lookup();
 		int commentIndent = Global::commentIndentPL->lookup();
 
 		Parameters::saveSettingsFiles(maxLineLength, commentIndent, { "*" }, { { "settings_organism.cfg", { "GATE*", "GENOME*", "BRAIN*" } }, { "settings_world.cfg", { "WORLD*" } }, { "settings.cfg", { "" } } });
-		cout << "Saving config Files and Exiting." << endl;
+		cout << "Saving settings files and exiting." << endl;
 		exit(0);
 	}
 
-	// outputDirectory must exist. If outputDirectory does not exist, no error will occur, but no data will be writen.
+	// outputDirectory must exist. If outputDirectory does not exist, no error will occur, but no data will be written. THIS SHOULD BE ADDRESSED ONE DAY!
 	FileManager::outputDirectory = Global::outputDirectoryPL->lookup();
 
+	// set up random number generator
 	if (Global::randomSeedPL->lookup() == -1) {
 		random_device rd;
 		int temp = rd();
@@ -60,6 +61,7 @@ int main(int argc, const char * argv[]) {
 		cout << "Using Random Seed: " << Global::randomSeedPL->lookup() << endl;
 	}
 
+	// make world uses WORLD-worldType to determine type of world
 	auto world = makeWorld();
 
 	vector<string> groupNameSpaces;
@@ -68,81 +70,116 @@ int main(int argc, const char * argv[]) {
 	map<string, shared_ptr<Group>> groups;
 	shared_ptr<ParametersTable> PT;
 
+	// for each name space in the GLOBAL-groups create a group. if GLOBAL-groups is empty, create "default" group.
 	for (auto NS : groupNameSpaces) {
 		if (NS == "") {
-			PT = nullptr;  //Parameters::root;
+			PT = nullptr;  //nullptr is the same as Parameters::root;
 			NS = "default";
 		} else {
 			PT = Parameters::root->getTable(NS);
 		}
 
-		Global::update = -1;  // before there was time, there was a progenitor
+		Global::update = -1;  // before there was time, there was a progenitor - set time to -1 so progenitor (the root organism) will have birth time -1
 
+		// template objects are used to build progenitor
 		shared_ptr<AbstractGenome> templateGenome = makeTemplateGenome(PT);
 		shared_ptr<AbstractBrain> templateBrain = makeTemplateBrain(world, PT);
-		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenome, templateBrain);  // make a organism with a genome and brain - progenitor serves as an ancestor to all and a template organism
+
+		// make a organism with a templateGenome and templateBrain - progenitor serves as an ancestor to all and a template organism
+		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenome, templateBrain);
 
 		Global::update = 0;  // the beginning of time - now we construct the first population
 		int popSize = (PT == nullptr) ? Global::popSizePL->lookup() : PT->lookupInt("GLOBAL-popSize");
 		vector<shared_ptr<Organism>> population;
+		// add popSize organisms which look like progenitor to population
 		for (int i = 0; i < popSize; i++) {
+			// make a new genome like the template genome
 			auto newGenome = templateGenome->makeLike();
-			templateBrain->initalizeGenome(newGenome);  // use progenitors brain to prepare genome (add start codons, change ratio of site values, etc)
+			// use progenitors brain to prepare genome (i.e. add start codons, change ratio of site values, etc)
+			templateBrain->initalizeGenome(newGenome);
+			// create new organism using progenitor as template (i.e. to define type of brain) and the new genome
 			auto newOrg = make_shared<Organism>(progenitor, newGenome);
-			population.push_back(newOrg);  // add a new org to population using progenitors template and a new random genome
+			// add new organism to population
+			population.push_back(newOrg);
 		}
-		progenitor->kill();  // the progenitor has served it's purpose.
 
+		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
+		progenitor->kill();
+
+		// create an optimizer of type defined by OPTIMIZER-optimizer
 		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
 
+		// aveFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
+		// ** aveFileColumns define what will appear in the ave.csv file **
+		// the following code asks world, genomes and brains for ave file columns
 		vector<string> aveFileColumns;
 		aveFileColumns.clear();
 		aveFileColumns.push_back("update");
 		aveFileColumns.insert(aveFileColumns.end(), world->aveFileColumns.begin(), world->aveFileColumns.end());
 		aveFileColumns.insert(aveFileColumns.end(), population[0]->genome->aveFileColumns.begin(), population[0]->genome->aveFileColumns.end());
 		aveFileColumns.insert(aveFileColumns.end(), population[0]->brain->aveFileColumns.begin(), population[0]->brain->aveFileColumns.end());
-
+//		for (int i = 1; i < aveFileColumns.size(); i++) {
+//			aveFileColumns[i] = aveFileColumns[i] + "_AVE";
+//			cout << aveFileColumns[i] << " ";
+//		}
+//		cout << endl;
+		// create an archivist of type determined by ARCHIVIST-outputMethod
 		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, PT);
 
+		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[NS] = make_shared<Group>(population, optimizer, archivist);
 
+		// report on what was just built
 		if (PT == nullptr) {
 			PT = Parameters::root;
 		}
 		cout << "Group name: " << NS << "\n  " << popSize << " organisms with " << PT->lookupString("GENOME-genomeType") << "<" << PT->lookupString("GENOME-sitesType") << "> genomes and " << PT->lookupString("BRAIN-brainType") << " brains.\n  Optimizer: " << PT->lookupString("OPTIMIZER-optimizer") << "\n  Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
 		cout << endl;
+		// end of report
 	}
 
+	// this version of the code requires a default group. This is change in the future.
 	string defaultGroup = "default";
 	if (groups.find(defaultGroup) == groups.end()) {
 		cout << "Group " << defaultGroup << " not found in groups.\nExiting." << endl;
 		exit(1);
 	}
 
+	// in run mode we evolve organsims
 	if (Global::modePL->lookup() == "run") {
 		//////////////////
 		// run mode - evolution loop
 		//////////////////
-		bool finished = false;  // when the archivist says we are done, we can stop!
+		bool finished = false;  // MABE will keep running the evolution loop until the archivist sets finished to true
 
 		while (!finished) {
+
+			// evaluate population in world.
 			world->evaluate(groups[defaultGroup], AbstractWorld::groupEvaluationPL->lookup(), false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			//cout << "  evaluation done" << endl;
-			finished = groups[defaultGroup]->archive();  // save data, update memory and delete any unneeded data;
-														 //cout << "  archive done\n";
+
+			// save data, update memory and delete any unneeded data;
+			finished = groups[defaultGroup]->archive();
 			//cout << "  archive done" << endl;
 
+			// move forward in time!
 			Global::update++;
-			groups[defaultGroup]->optimize();  // update the population (reproduction and death)
+
+			// update the population (reproduction and death)
+			groups[defaultGroup]->optimize();
 			//cout << "  optimize done\n";
 
 			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxFitness << "" << endl;
 		}
 
-		groups[defaultGroup]->archive(1);  // flush any data that has not been output yet
+		// the run is finished... flush any data that has not been output yet
+		groups[defaultGroup]->archive(1);
 
 	}
 
+	// in visualize mode we load in organisms (usually genomes) and rerun them to collect addtional data
+	// this data may relate to the world, brain... or other things...
+	// this section of code is very rough...
 	else if (Global::modePL->lookup() == "visualize") {
 		//////////////////
 		// visualize mode
@@ -173,11 +210,11 @@ int main(int argc, const char * argv[]) {
 				if (ID != -2) {
 					bool found = false;
 					for (auto g : testGenomes) {
-						if (g->dataMap.Get("ID") == to_string(ID)) {
-							subsetGenomes.push_back(g);
-							foundCount++;
-							found = true;
-						}
+//						if (g->dataMap.Get("ID") == to_string(ID)) {
+//							subsetGenomes.push_back(g);
+//							foundCount++;
+//							found = true;
+//						}
 					}
 					if (!found) {
 						cout << "ERROR: in visualize mode, can not find genome with ID " << ID << " in file: " << Global::visualizePopulationFilePL->lookup() << ".\n  Exiting." << endl;
@@ -224,7 +261,7 @@ int main(int argc, const char * argv[]) {
 		shared_ptr<Group> testGroup = make_shared<Group>(testPopulation, groups[defaultGroup]->optimizer, groups[defaultGroup]->archivist);
 		world->runWorld(testGroup, false, true, false);
 		for (auto o : testGroup->population) {
-			cout << "  organism with ID: " << o->genome->dataMap.Get("ID") << " generated score: " << o->score << " " << endl;
+			cout << "  organism with ID: " << o->genome->dataMap.GetAverage("ID") << " generated score: " << o->score << " " << endl;
 		}
 	} else {
 		cout << "\n\nERROR: Unrecognized mode set in configuration!\n  \"" << Global::modePL->lookup() << "\" is not defined.\n\nExiting.\n" << endl;

@@ -151,8 +151,8 @@ public:
 	//// gets data about genome which can be added to a data map
 	//// data is in pairs of strings (key, value)
 	//// the undefined action is to return an empty vector
-	virtual vector<string> getStats() {
-		vector<string> data;
+	virtual DataMap getStats() {
+		DataMap data;
 		cout << "Warning! In AbstractGenome::getStats()...\n";
 		return data;
 	}
@@ -178,7 +178,7 @@ public:
 		vector<shared_ptr<AbstractGenome>> genomes;
 		loadGenomeFile(fileName, genomes);
 		for (auto g : genomes) {
-			if (g->dataMap.Get(key) == value) {
+			if (to_string(g->dataMap.GetAverage(key)) == value) {
 				return g;
 			}
 		}

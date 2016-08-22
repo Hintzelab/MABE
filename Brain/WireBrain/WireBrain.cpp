@@ -1052,23 +1052,23 @@ string WireBrain::description() {
 	return "WireBrain\n";
 }
 
-vector<string> WireBrain::getStats() {
-	vector<string> dataPairs;
+DataMap WireBrain::getStats() {
+	DataMap dataMap;
 
-	dataPairs.push_back("brainWidth");
-	dataPairs.push_back(to_string(width));
-	dataPairs.push_back("brainHeight");
-	dataPairs.push_back(to_string(height));
-	dataPairs.push_back("brainDepth");
-	dataPairs.push_back(to_string(depth));
+	dataMap.Set("brainWidth",width);
+	dataMap.setOutputBehavior("brainWidth", DataMap::FIRST);
+	dataMap.Set("brainHeight",height);
+	dataMap.setOutputBehavior("brainHeight", DataMap::FIRST);
+	dataMap.Set("brainDepth",depth);
+	dataMap.setOutputBehavior("brainDepth", DataMap::FIRST);
 
-	dataPairs.push_back("wireBrainWireCount");
-	dataPairs.push_back(to_string(wireAddresses.size()));
+	dataMap.Set("wireBrainWireCount",(int)wireAddresses.size());
+	dataMap.setOutputBehavior("wireBrainWireCount", DataMap::AVE);
 
-	dataPairs.push_back("wireBrainConnectionsCount");
-	dataPairs.push_back(to_string(connectionsCount));
+	dataMap.Set("wireBrainConnectionsCount",connectionsCount);
+	dataMap.setOutputBehavior("wireBrainConnectionsCount", DataMap::AVE);
 
-	return dataPairs;
+	return dataMap;
 }
 
 void WireBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {

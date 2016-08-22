@@ -128,48 +128,36 @@ void MarkovBrain::fillInConnectionsLists() {
 		}
 	}
 }
-vector<string> MarkovBrain::getStats() {
-	vector<string> dataPairs;
-
-	dataPairs.push_back("gates");
-	dataPairs.push_back(to_string(gates.size()));
-
+DataMap MarkovBrain::getStats() {
+	DataMap dataMap;
+	dataMap.Set("gates",(int)gates.size());
+	dataMap.setOutputBehavior("gates", DataMap::AVE);
 	map<string, int> gatecounts;
 	for (auto n : GLB->getInUseGateNames()) {
 		gatecounts[n + "Gates"] = 0;
 	}
 	for (auto g : gates) {
-		//auto gateConnections = g->getConnectionsLists();
-		//for (auto c : gateConnections.first){
-		//	nodesConnections[c]++;
-		//}
-		//for (auto c : gateConnections.second){
-		//	nextNodesConnections[c]++;
-		//}
 		gatecounts[g->gateType() + "Gates"]++;
 	}
 
-	string nodesConnectionsString = "\"[";
-	string nextNodesConnectionsString = "\"[";
+	for (auto n : GLB->getInUseGateNames()) {
+		dataMap.Set(n + "Gates", gatecounts[n + "Gates"]);
+		dataMap.setOutputBehavior(n + "Gates", DataMap::AVE);
+	}
+
+	vector<int> nodesConnectionsList;
+	vector<int> nextNodesConnectionsList;
 
 	for (int i = 0; i < nrOfBrainNodes; i++) {
-		nodesConnectionsString += to_string(nodesConnections[i]) + ",";
-		nextNodesConnectionsString += to_string(nextNodesConnections[i]) + ",";
+		nodesConnectionsList.push_back(nodesConnections[i]);
+		nextNodesConnectionsList.push_back(nextNodesConnections[i]);
 	}
-	nodesConnectionsString.pop_back();
-	nodesConnectionsString += "]\"";
-	dataPairs.push_back("nodesConnections");
-	dataPairs.push_back(nodesConnectionsString);
-	nextNodesConnectionsString.pop_back();
-	nextNodesConnectionsString += "]\"";
-	dataPairs.push_back("nextNodesConnections");
-	dataPairs.push_back(nextNodesConnectionsString);
+	dataMap.Set("nodesConnections", nodesConnectionsList);
+	dataMap.setOutputBehavior("nodesConnections", DataMap::LIST);
+	dataMap.Set("nextNodesConnections", nextNodesConnectionsList);
+	dataMap.setOutputBehavior("nextNodesConnections", DataMap::LIST);
 
-	for (auto n : GLB->getInUseGateNames()) {
-		dataPairs.push_back(n + "Gates");
-		dataPairs.push_back(to_string(gatecounts[n + "Gates"]));
-	}
-	return (dataPairs);
+	return (dataMap);
 }
 
 string MarkovBrain::gateList() {

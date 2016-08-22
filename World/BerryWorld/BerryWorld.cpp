@@ -728,19 +728,19 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 				if (f != 0) {  // don't count the attempts to eat empty!'
 					total_eaten += eaten[i][f];
 				}
-				string temp_name = "allfood" + to_string(f);  // make food names i.e. food1, food2, etc.
+				string temp_name = "food" + to_string(f);  // make food names i.e. food1, food2, etc.
 				group->population[i]->dataMap.Append(temp_name, eaten[i][f]);
 
 			}
 			if (recordConsumptionRatio) {  // consumption ratio displays high value of org favors one food over the other and low values if both are being consumed. works on food[0] and food[1] only
-				(eaten[i][1] > eaten[i][2]) ? group->population[i]->dataMap.Append("allconsumptionRatio", (double) eaten[i][1] / (double) (eaten[i][2] + 1)) : group->population[i]->dataMap.Append("allconsumptionRatio", (double) eaten[i][2] / (double) (eaten[i][1] + 1));
+				(eaten[i][1] > eaten[i][2]) ? group->population[i]->dataMap.Append("consumptionRatio", (double) eaten[i][1] / (double) (eaten[i][2] + 1)) : group->population[i]->dataMap.Append("consumptionRatio", (double) eaten[i][2] / (double) (eaten[i][1] + 1));
 			}
 
-			group->population[i]->dataMap.Append("alltotal", total_eaten);  // total food eaten (regardless of type)
+			group->population[i]->dataMap.Append("total", total_eaten);  // total food eaten (regardless of type)
 
-			group->population[i]->dataMap.Append("allswitches", switches[i]);
-			group->population[i]->dataMap.Append("allnovelty", novelty[i]);
-			group->population[i]->dataMap.Append("allrepeated", repeated[i]);
+			group->population[i]->dataMap.Append("switches", switches[i]);
+			group->population[i]->dataMap.Append("novelty", novelty[i]);
+			group->population[i]->dataMap.Append("repeated", repeated[i]);
 
 			if (scores[i] < 0.0) {
 				scores[i] = 0.0;
@@ -752,7 +752,21 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	for (int i = 0; i < (int) group->population.size(); i++) {
 
 		group->population[i]->score = summedScores[i] / numWorlds;
-		group->population[i]->dataMap.Append("allscore", summedScores[i] / numWorlds);
+		group->population[i]->dataMap.Append("score", summedScores[i] / numWorlds);
+
+		// set up output behaviors for entries in data map
+		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE|DataMap::LIST);
+
+		for (int f = 0; f <= foodTypes; f++) {
+			group->population[i]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
+		}
+		group->population[i]->dataMap.setOutputBehavior("total", DataMap::AVE);
+		group->population[i]->dataMap.setOutputBehavior("switches", DataMap::AVE);
+		group->population[i]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
+		group->population[i]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
+		group->population[i]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
+		group->population[i]->dataMap.setOutputBehavior("foodList",DataMap::LIST);
+
 	}
 }
 
