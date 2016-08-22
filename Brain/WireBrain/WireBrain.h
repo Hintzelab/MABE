@@ -126,7 +126,7 @@ public:
 	virtual void SaveBrainState(string fileName);
 	virtual void displayBrainState();
 	virtual string description() override;
-	virtual vector<string> getStats() override;
+	virtual DataMap getStats() override;
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) override;
 };
 

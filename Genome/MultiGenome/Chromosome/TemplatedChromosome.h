@@ -118,8 +118,8 @@ template<class T> class TemplatedChromosome : public AbstractChromosome {
 	virtual string chromosomeToStr() override;
 	virtual void resize(int size) override;
 	virtual int size() override;
-	virtual vector<string> getFixedStats() override;
-	virtual vector<string> getStats() override;
+	virtual DataMap getFixedStats() override;
+	virtual DataMap getStats() override;
 	virtual string codingRegionsToString();
 
 	//////////////////////////////

@@ -118,7 +118,11 @@ int main(int argc, const char * argv[]) {
 		aveFileColumns.insert(aveFileColumns.end(), world->aveFileColumns.begin(), world->aveFileColumns.end());
 		aveFileColumns.insert(aveFileColumns.end(), population[0]->genome->aveFileColumns.begin(), population[0]->genome->aveFileColumns.end());
 		aveFileColumns.insert(aveFileColumns.end(), population[0]->brain->aveFileColumns.begin(), population[0]->brain->aveFileColumns.end());
-
+//		for (int i = 1; i < aveFileColumns.size(); i++) {
+//			aveFileColumns[i] = aveFileColumns[i] + "_AVE";
+//			cout << aveFileColumns[i] << " ";
+//		}
+//		cout << endl;
 		// create an archivist of type determined by ARCHIVIST-outputMethod
 		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, PT);
 

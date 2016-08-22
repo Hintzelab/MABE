@@ -755,7 +755,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		group->population[i]->dataMap.Append("score", summedScores[i] / numWorlds);
 
 		// set up output behaviors for entries in data map
-		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE|DataMap::LIST|DataMap::FIRST);
+		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE|DataMap::LIST);
 
 		for (int f = 0; f <= foodTypes; f++) {
 			group->population[i]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
@@ -764,7 +764,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		group->population[i]->dataMap.setOutputBehavior("switches", DataMap::AVE);
 		group->population[i]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
 		group->population[i]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("recordConsumptionRatio", DataMap::AVE|DataMap::LIST);
+		group->population[i]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
 		group->population[i]->dataMap.setOutputBehavior("foodList",DataMap::LIST);
 
 	}

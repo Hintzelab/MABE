@@ -480,7 +480,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<A
 
 // make a mutated genome from a vector or genomes
 // inherit the ParamatersTable from the 0th parent
-// assumes all genomes have the same number of chromosomes and same ploidy
+// assumes all genomes have the same numbe000000r of chromosomes and same ploidy
 // if haploid, then all chromosomes are directly crossed (i.e. if there are 4 parents,
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
 // if ploidy > 1 then the number of parents must match ploidy (this may be extended in the future)
@@ -564,17 +564,21 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 // the undefined action is to return an empty vector
 
 template<class T>
-vector<string> CircularGenome<T>::getStats() {
-	vector<string> dataPairs;
-	dataPairs.push_back("genomeLength");
-	dataPairs.push_back(to_string(countSites()));
-	return (dataPairs);
+DataMap CircularGenome<T>::getStats() {
+	DataMap dataMap;
+	dataMap.Set("genomeLength", countSites());
+	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
+	return (dataMap);
 }
 
 template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.Set("alphabetSize", alphabetSize);
+	dataMap.setOutputBehavior("genomeLength", DataMap::FIRST);
+
 	dataMap.Set("genomeLength", countSites());
+	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
+
 }
 
 // load all genomes from a file

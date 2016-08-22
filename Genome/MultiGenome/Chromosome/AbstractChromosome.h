@@ -96,17 +96,17 @@ class AbstractChromosome {
 		return false;  // not at end of chromosome
 	}
 
-	virtual vector<string> getFixedStats() {
+	virtual DataMap getFixedStats() {
 		cout << "ERROR: getFixedStats() in AbstractChromosome was called!\n This has not been implemented yet the chromosome class you are using!\n";
 		exit(1);
-		vector<string> data;
+		DataMap data;
 		return data;
 	}
 
-	virtual vector<string> getStats() {
+	virtual DataMap getStats() {
 		cout << "ERROR: getStats() in AbstractChromosome was called!\n This has not been implemented yet the chromosome class you are using!\n";
 		exit(1);
-		vector<string> data;
+		DataMap data;
 		return data;
 	}
 

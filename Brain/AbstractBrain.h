@@ -84,7 +84,7 @@ public:
 	virtual void update() = 0;
 
 	virtual string description() = 0;  // returns a desription of this brain in it's current state
-	virtual vector<string> getStats() =0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
+	virtual DataMap getStats() = 0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
 
 	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) = 0;
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) = 0;

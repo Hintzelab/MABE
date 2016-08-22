@@ -130,7 +130,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 					aveValue += org->dataMap.GetAverage(key);
 				}
 				aveValue /= population.size();
-				AveMap.Set(key, aveValue);
+				AveMap.Set(key + "_AVE", aveValue);
 			}
 		}
 		for (auto key : DefaultAveFileColumns) {
@@ -138,7 +138,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 		}
 		AveMap.Set("update", Global::update);
 		AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(AveFileName, DefaultAveFileColumns, true); // write the AveMap to file with aveOnly = true (only save ave values)
+		AveMap.writeToFile(AveFileName); // write the AveMap to file with aveOnly = true (only save ave values)
 
 	}
 	// write out Dominant data

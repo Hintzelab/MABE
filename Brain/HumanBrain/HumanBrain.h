@@ -48,7 +48,7 @@ public:
 	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
 
 	virtual string description() override;
-	virtual vector<string> getStats() override;
+	virtual DataMap getStats() override;
 
 	virtual void resetBrain() override;
 
