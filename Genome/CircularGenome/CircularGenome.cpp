@@ -567,17 +567,13 @@ template<class T>
 DataMap CircularGenome<T>::getStats() {
 	DataMap dataMap;
 	dataMap.Set("genomeLength", countSites());
-	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
 	return (dataMap);
 }
 
 template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.Set("alphabetSize", alphabetSize);
-	dataMap.setOutputBehavior("genomeLength", DataMap::FIRST);
-
 	dataMap.Set("genomeLength", countSites());
-	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
 
 }
 

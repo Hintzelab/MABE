@@ -178,7 +178,7 @@ public:
 		vector<shared_ptr<AbstractGenome>> genomes;
 		loadGenomeFile(fileName, genomes);
 		for (auto g : genomes) {
-			if (to_string(g->dataMap.GetAverage(key)) == value) {
+			if (to_string(g->dataMap.GetIntVector(key)[0]) == value) {
 				return g;
 			}
 		}

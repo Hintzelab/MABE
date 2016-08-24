@@ -186,6 +186,7 @@ int main(int argc, const char * argv[]) {
 		//////////////////
 		cout << "  You are running MABE in visualize mode." << endl << endl;
 		vector<shared_ptr<AbstractGenome>> testGenomes;
+		cout << "loading Genomes... ";
 		groups[defaultGroup]->population[0]->genome->loadGenomeFile(Global::visualizePopulationFilePL->lookup(), testGenomes);
 
 		int num_genomes = (int) testGenomes.size();
@@ -210,11 +211,11 @@ int main(int argc, const char * argv[]) {
 				if (ID != -2) {
 					bool found = false;
 					for (auto g : testGenomes) {
-//						if (g->dataMap.Get("ID") == to_string(ID)) {
-//							subsetGenomes.push_back(g);
-//							foundCount++;
-//							found = true;
-//						}
+						if (g->dataMap.GetIntVector("ID")[0] == ID) {
+							subsetGenomes.push_back(g);
+							foundCount++;
+							found = true;
+						}
 					}
 					if (!found) {
 						cout << "ERROR: in visualize mode, can not find genome with ID " << ID << " in file: " << Global::visualizePopulationFilePL->lookup() << ".\n  Exiting." << endl;

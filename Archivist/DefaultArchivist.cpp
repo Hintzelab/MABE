@@ -215,9 +215,8 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 		//FileManager::writeToFile(genomeFileName, dataString, "ID,genome");  // write data to file
 
 		org->genome->dataMap.Set("sites", org->genome->genomeToStr());
-		org->genome->dataMap.Set("ID", org->dataMap.GetAverage("ID"));
+		org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
 		org->genome->dataMap.Set("update", Global::update);
-		org->genome->dataMap.setOutputBehavior("update", DataMap::AVE);
 
 		//org->genome->dataMap.writeToFile(genomeFileName, org->genome->dataMap.getKeys());  // append new data to the file
 		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);		// append new data to the file

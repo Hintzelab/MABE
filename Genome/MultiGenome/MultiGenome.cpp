@@ -530,11 +530,8 @@ DataMap MultiGenome::getStats() {
 void MultiGenome::recordDataMap() {
 	dataMap.Merge(chromosomes[0]->getFixedStats());
 	dataMap.Set("ploidy", ploidy);
-	dataMap.setOutputBehavior("ploidy", DataMap::FIRST);
 	dataMap.Set("chromosomeCount", (int)chromosomes.size());
-	dataMap.setOutputBehavior("chromosomeCount", DataMap::FIRST);
 	dataMap.Set("sitesCount", countSites());
-	dataMap.setOutputBehavior("sitesCount", DataMap::AVE);
 	dataMap.Clear("chromosomeLengths");
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		dataMap.Append("chromosomeLengths", chromosomes[c]->size());

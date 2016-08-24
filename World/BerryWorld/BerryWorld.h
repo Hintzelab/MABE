@@ -38,6 +38,7 @@ public:
 	static shared_ptr<ParameterLink<double>> worldUpdatesBaisedOnInitialPL;
 
 	static shared_ptr<ParameterLink<int>> foodTypesPL;
+	static shared_ptr<ParameterLink<double>> rewardForFood0PL;
 	static shared_ptr<ParameterLink<double>> rewardForFood1PL;
 	static shared_ptr<ParameterLink<double>> rewardForFood2PL;
 	static shared_ptr<ParameterLink<double>> rewardForFood3PL;
@@ -78,14 +79,23 @@ public:
 
 	static shared_ptr<ParameterLink<bool>> clearOutputsPL;
 
-	static shared_ptr<ParameterLink<int>> replacementPL;
+	static shared_ptr<ParameterLink<int>> replacementDefaultRulePL;
+	static shared_ptr<ParameterLink<int>> replacementFood0PL;
+	static shared_ptr<ParameterLink<int>> replacementFood1PL;
+	static shared_ptr<ParameterLink<int>> replacementFood2PL;
+	static shared_ptr<ParameterLink<int>> replacementFood3PL;
+	static shared_ptr<ParameterLink<int>> replacementFood4PL;
+	static shared_ptr<ParameterLink<int>> replacementFood5PL;
+	static shared_ptr<ParameterLink<int>> replacementFood6PL;
+	static shared_ptr<ParameterLink<int>> replacementFood7PL;
+	static shared_ptr<ParameterLink<int>> replacementFood8PL;
 
 	static shared_ptr<ParameterLink<bool>> recordConsumptionRatioPL;
 	static shared_ptr<ParameterLink<bool>> recordFoodListPL;
 	static shared_ptr<ParameterLink<bool>> recordFoodListEatEmptyPL;
 	static shared_ptr<ParameterLink<bool>> recordFoodListNoEatPL;
 
-	static shared_ptr<ParameterLink<bool>> alwaysStartOnFood1PL;
+	static shared_ptr<ParameterLink<int>> alwaysStartOnFoodPL;
 
 	static shared_ptr<ParameterLink<string>> visualizationFileNamePL;
 	static shared_ptr<ParameterLink<string>> mapFileListPL;
@@ -139,14 +149,15 @@ public:
 	bool senseOther;
 	bool clearOutputs;
 
-	int replacement;
+	int replacementDefaultRule;
+	vector<int> replacementRules;
 
 	bool recordConsumptionRatio;
 	bool recordFoodList;
 	bool recordFoodListEatEmpty;
 	bool recordFoodListNoEat;
 
-	bool alwaysStartOnFood1;
+	int alwaysStartOnFood;
 
 	string visualizationFileName;
 
