@@ -15,6 +15,7 @@
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
+#include <iterator>
 
 #include "../AbstractWorld.h"
 
@@ -169,15 +170,18 @@ public:
 	vector<int> foodRatioLookup;
 	vector<double> foodRewards;
 
+
+
 	class WorldMap {
 	public:
-		string name;
-		int sizeX, sizeY, startXMin, startXMax, startYMin, startYMax, startFacing;
+		shared_ptr<ParametersTable> PT;
+		string fileName;
+		string mapName;
 		vector<char> grid;
-		bool loadMap(ifstream& ss);
+		bool loadMap(ifstream& ss, const string fileName, shared_ptr<ParametersTable> parentPT);
 	};
 
-	map<string,WorldMap> worldMaps;
+	map<string,map<string,WorldMap>> worldMaps; // [fileName][mapName]
 
 	BerryWorld(shared_ptr<ParametersTable> _PT = nullptr);
 

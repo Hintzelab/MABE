@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "../Group/Group.h"
+#include "../Utilities/Utilities.h"
 #include "../Utilities/Data.h"
 #include "../Utilities/Parameters.h"
 

@@ -208,6 +208,13 @@ public:
 	virtual void show() {
 		ASSERT(false, "using abstract class method");
 	}
+	virtual shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided"){
+		ASSERT(false, "using abstract class method");
+		return nullptr;
+	}
+	virtual void setExisting(string value, string name = "none provided"){
+		ASSERT(false, "using abstract class method");
+	}
 };
 
 template<typename T>
@@ -272,7 +279,7 @@ public:
 		local = false;
 	}
 
-	virtual string getTypeName() {
+	string getTypeName() {
 		return get_var_typename(*valuePtr);
 	}
 
@@ -309,7 +316,7 @@ public:
 		return {value.str(),getTypeName()};
 	}
 
-	void show() {
+	void show() override {
 		cout << "\n        Value = ";
 		cout << *valuePtr << " (" << get_var_typename(*valuePtr) << ")";
 		if (local) {
@@ -324,6 +331,31 @@ public:
 		} else {
 			cout << "no" << endl;
 
+		}
+	}
+
+	shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided") override{
+		auto newEntry = make_shared<ParametersEntry<T>>();
+		auto tempVal = *valuePtr;
+		if (load_value(value, tempVal)){
+			newEntry->valuePtr = make_shared<T>(tempVal);
+		} else {
+			cout << "  in ParametersEntry::makelike() attempting to setup a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting"<<endl;
+			exit(1);
+		}
+		newEntry->local = true;
+
+		return newEntry;
+	}
+
+	void setExisting(string value, string name = "none provided") override{
+		auto tempVal = *valuePtr;
+		if (load_value(value, tempVal)){
+			*valuePtr = tempVal;
+			local = true;
+		} else {
+			cout << "  in ParametersEntry::setExisting() attempting to set a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting"<<endl;
+			exit(1);
 		}
 	}
 
@@ -578,7 +610,7 @@ public:
 		if (localTableNameSpace != tableNameSpace) {  // if this table is not the table we are writing to...nameSpaceToNameParts
 			if ((*parametersTablesRegistry).find(localTableNameSpace) != (*parametersTablesRegistry).end()) {  // if the table we are writing to exists...
 				return (*parametersTablesRegistry)[localTableNameSpace]->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// go to the table and set the value
-			} else {  // if the table we are writting to does not exist...
+			} else {  // if the table we are writing to does not exist...
 				return makeTable(localTableNameSpace, rootTable)->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// make the table and set value in table
 			}
 		} else {  // if this is the table we are writing to...
@@ -612,7 +644,6 @@ public:
 						checklist.push_back(*c.second);
 					}
 				}
-
 			}
 			if (_saveOnFileWrite) {
 				table[name]->setSaveOnFileWrite(true);
@@ -620,6 +651,47 @@ public:
 			//return table[name];
 		}
 	}
+
+	// setExistingParameter is used to set the value of a parameter in this table, but only if that parameter already exists.
+	// the name / value pair is string / string, and the value is converted baised on the type of the parameter as it has already been defined.
+	void setExistingParameter(string name, string value){
+		if (table.find(name) != table.end()){ // if this table has entry called name
+			table[name]->setExisting(value,name);
+		} else { // name not found in this table, check root
+			if (rootTable->table.find(name) != table.end()){ // Good, it's in the root table, we will need to add it here!
+				auto newEntry = rootTable->table[name]->makelike(value,name); // get entry from root table (this will get us the type!)
+				table[name] = newEntry; // assign it in this table
+				///// This is copied from setParameter --- it makes sure that children of this table know to look here!
+				vector<ParametersTable> checklist;  // make a checklist of all children tables from the current table
+				for (auto c : children) {
+					checklist.push_back(*c.second);
+				}
+				while (checklist.size() > 0) {
+					ParametersTable checkTable = checklist[checklist.size() - 1];  // get last element in checklist
+					checklist.pop_back();
+					if (checkTable.table.find(name) != checkTable.table.end()) {  // if this table has entry called name
+						if (!checkTable.table[name]->isLocal()) {  // if it's not local, then we need to change where it's looking
+							//checkTable.table[name]->set(name,false);
+							checkTable.table[name]->follow(table[name]);
+							for (auto c : checkTable.children) {  // and add it's children to checklist
+								checklist.push_back(*c.second);
+							}
+						}  // if isLocal we don't do anything! (if children are referencing, they are referencing here)
+					} else {  // if name is not here, add children to checklist (a child may be referencing above.)
+						for (auto c : checkTable.children) {  // and add it's children to checklist
+							checklist.push_back(*c.second);
+						}
+					}
+				}
+				///// end of copy from setParameter
+
+			} else { // This value does not exist in the system!
+				cout << "  in ParametersTable::setExistingParameter():: attempting to set parameter with name \"" << name << "\" and value \"" << value << "\", but that name is not registered! Please check the name.\n  Exiting."<<endl;
+				exit(1);
+			}
+		}
+	}
+
 // attempt to delete a value from this table also, remove any non-local children who are relying on this value.
 // if removing from root, delete all paramaters with this name in table.
 	void deleteParameter(const string& name) {

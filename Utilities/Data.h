@@ -417,22 +417,39 @@ public:
 				if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
 					if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
 						Append(key, otherDataMap.GetBoolVector(key));
-						inUse[key] = BOOL; // may have been solo - make sure it's list
+						if (boolData[key].size() == 1 && typeOfOtherKey == BOOLSOLO){
+							inUse[key] = BOOLSOLO;
+						} else {
+							inUse[key] = BOOL;
+						}
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
 						Append(key, otherDataMap.GetDoubleVector(key));
-						inUse[key] = DOUBLE; // may have been solo - make sure it's list
+						if (doubleData[key].size() == 1 && typeOfOtherKey == DOUBLESOLO){
+							inUse[key] = DOUBLESOLO;
+						} else {
+							inUse[key] = DOUBLE;
+						}
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
 						Append(key, otherDataMap.GetIntVector(key));
-						inUse[key] = INT; // may have been solo - make sure it's list
+						if (intData[key].size() == 1 && typeOfOtherKey == INTSOLO){
+							inUse[key] = INTSOLO;
+						} else {
+							inUse[key] = INT;
+						}
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
 						Append(key, otherDataMap.GetStringVector(key));
-						inUse[key] = STRING; // may have been solo - make sure it's list
+						Append(key, otherDataMap.GetIntVector(key));
+						if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO){
+							inUse[key] = STRINGSOLO;
+						} else {
+							inUse[key] = STRING;
+						}
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 				} else {

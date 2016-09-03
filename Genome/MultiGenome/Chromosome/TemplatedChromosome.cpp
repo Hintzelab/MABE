@@ -184,7 +184,7 @@ template<class T> void TemplatedChromosome<T>::fillRandom() {
 // starting with value start, fill this chromosome with acending values.
 // This function is to make testing easy.
 template<class T> void TemplatedChromosome<T>::fillAcending(int &start) {
-	for (int i = 0; i < sites.size(); i++) {
+	for (size_t i = 0; i < sites.size(); i++) {
 		sites[i] = (T)(start%(int)alphabetSize);
 		start++;
 	}
@@ -193,7 +193,7 @@ template<class T> void TemplatedChromosome<T>::fillAcending(int &start) {
 // fill all the sites of this chromosome with value.
 // This function is to make testing easy.
 template<class T> void TemplatedChromosome<T>::fillConstant(const int value) {
-	for (int i = 0; i < sites.size(); i++) {
+	for (size_t i = 0; i < sites.size(); i++) {
 		sites[i] = (T)(value%(int)alphabetSize);
 	}
 }
@@ -214,7 +214,7 @@ template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
 
 	//S.reserve(((int)sites.size() * 2) + 10);
 
-	for (int i = 0; i < sites.size(); i++) {
+	for (size_t i = 0; i < sites.size(); i++) {
 		S.append(to_string(sites[i]) + FileManager::separator);
 	}
 	S.pop_back();  // clip off the leading separator
@@ -253,7 +253,7 @@ template<class T> DataMap TemplatedChromosome<T>::getStats() {
 // but will at lease segmentSize before the end of the chromosome.
 template<class T> shared_ptr<AbstractChromosome> TemplatedChromosome<T>::getSegment(int minSize, int maxSize) {
 	int segmentSize = Random::getInt(maxSize - minSize) + minSize;
-	if (segmentSize > sites.size()) {
+	if (segmentSize > (int)sites.size()) {
 		cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
 		cout << "maxSize:minSize" << maxSize << ":" << minSize << endl;
 		cout << "ERROR: in Chromosome<T>::getSegement, segmentSize is > then sites.size()!\nExitting!" << endl;
@@ -297,7 +297,7 @@ template<class T> void TemplatedChromosome<T>::mutateDelete(int minSize, int max
 	if (size() > chromosomeSizeMin) {
 		int segmentSize = Random::getInt(maxSize - minSize) + minSize;
 		//cout << "segSize: " << segmentSize << "\tsize: " << sites.size() << "\t->\t";
-		if (segmentSize > sites.size()) {
+		if (segmentSize > (int)sites.size()) {
 			cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
 			cout << "maxSize : minSize   " << maxSize << " : " << minSize << endl;
 			cout << "ERROR: in Chromosome<T>::mutateDelete, segmentSize is > then sites.size()!\nExitting!\n";
@@ -346,7 +346,7 @@ template<class T> void TemplatedChromosome<T>::crossover(vector<shared_ptr<Abstr
 
 		int pick;
 		int lastPick = Random::getIndex(parents.size());
-		for (int c = 0; c < crossLocations.size() - 1; c++) {
+		for (size_t c = 0; c < crossLocations.size() - 1; c++) {
 			// pick a chromosome to cross with. Make sure it's not the same chromosome!
 			pick = Random::getIndex(parents.size() - 1);
 			if (pick == lastPick) {

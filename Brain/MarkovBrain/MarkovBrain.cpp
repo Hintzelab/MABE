@@ -131,7 +131,6 @@ void MarkovBrain::fillInConnectionsLists() {
 DataMap MarkovBrain::getStats() {
 	DataMap dataMap;
 	dataMap.Set("gates",(int)gates.size());
-	dataMap.setOutputBehavior("gates", DataMap::AVE);
 	map<string, int> gatecounts;
 	for (auto n : GLB->getInUseGateNames()) {
 		gatecounts[n + "Gates"] = 0;
@@ -142,7 +141,6 @@ DataMap MarkovBrain::getStats() {
 
 	for (auto n : GLB->getInUseGateNames()) {
 		dataMap.Set(n + "Gates", gatecounts[n + "Gates"]);
-		dataMap.setOutputBehavior(n + "Gates", DataMap::AVE);
 	}
 
 	vector<int> nodesConnectionsList;

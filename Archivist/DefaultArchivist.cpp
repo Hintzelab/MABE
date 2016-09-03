@@ -105,32 +105,14 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 			if (key != "update") {
 				aveValue = 0;
 				for (auto org : population) {
-//				if (org->dataMap.fieldExists(key)) {
-//					stringstream ss(org->dataMap.Get(key));
-//					ss >> temp;
-//				} else {  // if field not found, check if there is an all()s version
-//					string allKey = "all" + key;
-//					//cout << allKey << endl;
-//					if (org->dataMap.fieldExists(allKey)) {
-//						string dataList = org->dataMap.Get(allKey);
-//						//cout << dataList << endl;
-//						temp = 0;
-//						vector<double> values;
-//						convertCSVListToVector(dataList, values);
-//						for (auto v : values) {
-//							temp += v;
-//							//cout << key << " " << allKey << " " << v << " " << temp << endl;
-//						}
-//						temp /= (double) values.size();
-//					} else {
-//						cout << "WARNING:  In Archivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population). While \"writing ave.csv\" key \"" << key << "\" could not be found in dataMap!" << endl;
-//					}
-//				}
-					//aveValue += temp;
 					aveValue += org->dataMap.GetAverage(key);
 				}
 				aveValue /= population.size();
-				AveMap.Set(key + "_AVE", aveValue);
+				if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
+					AveMap.Set(key + "_AVE", aveValue);
+				} else {
+					AveMap.Set(key, aveValue);
+				}
 			}
 		}
 		for (auto key : DefaultAveFileColumns) {
@@ -149,28 +131,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 		}
 
 		int best = findGreatestInVector(Scores);
-		//DataMap DomMap;
-//		population[best]->dataMap.Set("update", Global::update);
-//		for (auto key : population[best]->dataMap.getKeys()) {
-//			if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
-//				double temp = 0;
-//				vector<double> values;
-//				convertCSVListToVector(population[best]->dataMap.Get(key), values);
-//				for (auto v : values) {
-//					temp += v;
-//					//cout << key << " " << allKey << " " << v << " " << temp << endl;
-//				}
-//				temp /= (double) values.size();
-//				DomMap.Set(key.substr(3, key.size() - 1), temp);
-//			}
-////			if (DominantFileShowAllLists) {
-////				DomMap.Set(key, population[best]->dataMap.Get(key));
-////			}
-//		}
-		//DomMap.writeToFile(DominantFileName);
 		population[best]->dataMap.Set("update", Global::update);
-		population[best]->dataMap.setOutputBehavior("update", DataMap::AVE);
-
 		population[best]->dataMap.writeToFile(DominantFileName);
 		population[best]->dataMap.Clear("update");
 	}
@@ -211,16 +172,11 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 
 	string dataString;
 	for (auto org : population) {
-		//dataString = to_string(org->ID) + FileManager::separator + "\"[" + org->genome->genomeToStr() + "]\"";  // add interval update, genome ancestors, and genome with padding to string
-		//FileManager::writeToFile(genomeFileName, dataString, "ID,genome");  // write data to file
-
 		org->genome->dataMap.Set("sites", org->genome->genomeToStr());
 		org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
 		org->genome->dataMap.Set("update", Global::update);
 
-		//org->genome->dataMap.writeToFile(genomeFileName, org->genome->dataMap.getKeys());  // append new data to the file
 		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);		// append new data to the file
-		//org->genome->dataMap.Clear("sites");  // this is large, clean it up now!
 		org->genome->dataMap.Clear("update");		// we dont' need this anymore.
 	}
 }
