@@ -72,7 +72,7 @@ shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnFoodPL = Parameters::reg
 
 shared_ptr<ParameterLink<string>> BerryWorld::visualizationFileNamePL = Parameters::register_parameter("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName", (string) "worldUpdatesFile.txt", "in visualize mode, visualization data will be written to this file.");
 shared_ptr<ParameterLink<string>> BerryWorld::mapFileListPL = Parameters::register_parameter("WORLD_BERRY-mapFileList", (string) "[]", "list of worlds in which to evaluate organism. If empty, random world will be created");
-shared_ptr<ParameterLink<string>> BerryWorld::mapFileWhichMapsPL = Parameters::register_parameter("WORLD_BERRY-mapFileWhichMaps", (string) "[random]", "if mapFileList is not empty, method and list of maps from loaded file(s). Methods are random (pick one from list), all (test with every map in each evaluation). If only method is provided, then all maps will be used.");
+shared_ptr<ParameterLink<string>> BerryWorld::mapFileWhichMapsPL = Parameters::register_parameter("WORLD_BERRY-mapFileWhichMaps", (string) "[random]", "if mapFileList is not empty, this parameter will determine which maps are seen by an organism in one evaluation.\n[random] select one random map\n[all] select all maps (from all files)\nif two values are present the first determines which files to pull maps from, the second which maps from those files\nthe options for the first position (file) are:\n  'all' (pull from all files)\n  '#' (pull from # random files - with possible repeats)\n  'u#' (pull from # unique files)\nthe options for the second position (map) are:\n  'all' (all maps in the file)\n  '#' (# random maps from file - with possible repeats)\n  'u#' (# unique maps from file)\nexample1: [all,u2] = from all files, 2 unique maps\nexample2: [2,1] one map from each two files (might be the same file twice)");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::alwaysEatPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysEat", false, "if true, brain will only have 2 outputs (0 0 : no action, 1 0 : left, 0 1 : right, 1 1 : move). Organism will always eat if food is present.");
 shared_ptr<ParameterLink<double>> BerryWorld::rewardSpatialNoveltyPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-rewardSpatialNovelty", 0.0, "reward added to score every time organism moves on a new location");
@@ -387,6 +387,17 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		}
 	}
 
+	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "random") { // if method is all, append all of the map names to worldList.
+		auto item1 = worldMaps.begin();
+		advance(item1, Random::getIndex((int) worldMaps.size()));
+		string filePick = item1->first;
+
+		auto item2 = worldMaps[filePick].begin();
+		advance(item2, Random::getIndex((int) worldMaps[filePick].size()));
+
+		worldList.push_back( { filePick, item2->first }); // add file name and map name to worldList
+	}
+
 	// if mapFileWhichMaps has 2 elements, then first, determine the file list
 	//     if [all,*], add all file names to fileList
 	//     if [u#,*], add # unique file names to fileList
@@ -428,7 +439,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		} // at this point we should have some file names.
 		for (auto fileName : fileList) { // for each file name, select maps.
 			auto file = worldMaps[fileName];
-			if (mapFileWhichMaps[1] == "all") { // i.e. [all,all]  add all maps from all of the files (same as just setting [all])
+			if (mapFileWhichMaps[1] == "all") { // fyi, [all,all]  add all maps from all of the files (same as just setting [all])
 				for (auto map : file) {
 					worldList.push_back( { fileName, map.first }); // add file name and map name to worldList
 				}
