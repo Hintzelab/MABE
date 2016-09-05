@@ -378,101 +378,101 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 
 	// make list of fileName,mapName pairs that this org (population) will visit
 
-	// if mapFileWhichMaps == [all] then add all files and all maps to worldList
-	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "all") { // if method is all, append all of the map names to worldList.
-		for (auto file : worldMaps) { // for every map in worldMaps (i.e. every file)
-			for (auto map : file.second) { // for every map in that file
-				worldList.push_back( { file.first, map.first }); // add file name and map name to worldList
+	if (mapFileList.size() != 0) {
+		if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "all") { // if method is all, append all of the map names to worldList.
+			for (auto file : worldMaps) { // for every map in worldMaps (i.e. every file)
+				for (auto map : file.second) { // for every map in that file
+					worldList.push_back( { file.first, map.first }); // add file name and map name to worldList
+				}
 			}
 		}
-	}
 
-	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "random") { // if method is all, append all of the map names to worldList.
-		auto item1 = worldMaps.begin();
-		advance(item1, Random::getIndex((int) worldMaps.size()));
-		string filePick = item1->first;
+		if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "random") { // if method is all, append all of the map names to worldList.
+			auto item1 = worldMaps.begin();
+			advance(item1, Random::getIndex((int) worldMaps.size()));
+			string filePick = item1->first;
 
-		auto item2 = worldMaps[filePick].begin();
-		advance(item2, Random::getIndex((int) worldMaps[filePick].size()));
+			auto item2 = worldMaps[filePick].begin();
+			advance(item2, Random::getIndex((int) worldMaps[filePick].size()));
 
-		worldList.push_back( { filePick, item2->first }); // add file name and map name to worldList
-	}
+			worldList.push_back( { filePick, item2->first }); // add file name and map name to worldList
+		}
 
-	// if mapFileWhichMaps has 2 elements, then first, determine the file list
-	//     if [all,*], add all file names to fileList
-	//     if [u#,*], add # unique file names to fileList
-	//     if [#,*], add # file names to fileList (with repeats)
-	// once the file list has been determined, figure out which maps to use from these files
-	// a list of pairs <fileName,mapName>, worldList, will be created, this will be used later to select maps.
-	//     if [*,all], use all maps from the indicated files
-	//     if [*,u#], use # unique maps from each file... it is possible that the same map will be repeated if a file name appears twice in fileList
-	//     if [*,#], use # unique file names to fileList
+		// if mapFileWhichMaps has 2 elements, then first, determine the file list
+		//     if [all,*], add all file names to fileList
+		//     if [u#,*], add # unique file names to fileList
+		//     if [#,*], add # file names to fileList (with repeats)
+		// once the file list has been determined, figure out which maps to use from these files
+		// a list of pairs <fileName,mapName>, worldList, will be created, this will be used later to select maps.
+		//     if [*,all], use all maps from the indicated files
+		//     if [*,u#], use # unique maps from each file... it is possible that the same map will be repeated if a file name appears twice in fileList
+		//     if [*,#], use # unique file names to fileList
 
-	if (mapFileWhichMaps.size() == 2) {
-		if (mapFileWhichMaps[0] == "all") { // pull from all files, add all file names to fileList
-			for (auto file : worldMaps) {
-				fileList.push_back(file.first);
-			}
-		} else if (mapFileWhichMaps[0][0] == 'u') { //pull some number of unique files
-			load_value(mapFileWhichMaps[0].substr(1, mapFileWhichMaps[0].size() - 1), howManyFiles);
-			if (howManyFiles > (int) worldMaps.size()) {
-				cout << "  in BerryWorld, selecting worlds from file... " << howManyFiles << " unique files are being requested, but only " << worldMaps.size() << " files have been loaded!\n  Exiting." << endl;
-				exit(1);
-			} else { // select howManyFiles unique files
-				set<int> picks;
-				while ((int) picks.size() < howManyFiles) {
-					picks.insert(Random::getIndex((int) worldMaps.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+		if (mapFileWhichMaps.size() == 2) {
+			if (mapFileWhichMaps[0] == "all") { // pull from all files, add all file names to fileList
+				for (auto file : worldMaps) {
+					fileList.push_back(file.first);
 				}
-				for (auto pick : picks) { // add each pick to worldList
+			} else if (mapFileWhichMaps[0][0] == 'u') { //pull some number of unique files
+				load_value(mapFileWhichMaps[0].substr(1, mapFileWhichMaps[0].size() - 1), howManyFiles);
+				if (howManyFiles > (int) worldMaps.size()) {
+					cout << "  in BerryWorld, selecting worlds from file... " << howManyFiles << " unique files are being requested, but only " << worldMaps.size() << " files have been loaded!\n  Exiting." << endl;
+					exit(1);
+				} else { // select howManyFiles unique files
+					set<int> picks;
+					while ((int) picks.size() < howManyFiles) {
+						picks.insert(Random::getIndex((int) worldMaps.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+					}
+					for (auto pick : picks) { // add each pick to worldList
+						auto item = worldMaps.begin();
+						advance(item, pick);
+						fileList.push_back(item->first);
+					}
+				}
+			} else { // pull some number of files, with repeats
+				load_value(mapFileWhichMaps[0], howManyFiles);
+				for (int i = 0; i < howManyFiles; i++) {
 					auto item = worldMaps.begin();
-					advance(item, pick);
+					advance(item, Random::getIndex((int) worldMaps.size()));
 					fileList.push_back(item->first);
 				}
-			}
-		} else { // pull some number of files, with repeats
-			load_value(mapFileWhichMaps[0], howManyFiles);
-			for (int i = 0; i < howManyFiles; i++) {
-				auto item = worldMaps.begin();
-				advance(item, Random::getIndex((int) worldMaps.size()));
-				fileList.push_back(item->first);
-			}
-		} // at this point we should have some file names.
-		for (auto fileName : fileList) { // for each file name, select maps.
-			auto file = worldMaps[fileName];
-			if (mapFileWhichMaps[1] == "all") { // fyi, [all,all]  add all maps from all of the files (same as just setting [all])
-				for (auto map : file) {
-					worldList.push_back( { fileName, map.first }); // add file name and map name to worldList
-				}
-			} else { // not all maps
-				if (mapFileWhichMaps[1][0] == 'u') { //pull some number of unique Maps from each file
-					load_value(mapFileWhichMaps[1].substr(1, mapFileWhichMaps[1].size() - 1), howManyMaps);
-					if (howManyMaps > (int) file.size()) {
-						cout << "  in BerryWorld, selecting worlds from file... " << howManyMaps << " unique maps are being requested, but file \"" << fileName << "\" only has " << file.size() << " maps!\n  Exiting." << endl;
-						exit(1);
-					} else { // select howManyMaps unique maps from file
-						set<int> picks;
-						while ((int) picks.size() < howManyMaps) {
-							picks.insert(Random::getIndex((int) file.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+			} // at this point we should have some file names.
+			for (auto fileName : fileList) { // for each file name, select maps.
+				auto file = worldMaps[fileName];
+				if (mapFileWhichMaps[1] == "all") { // fyi, [all,all]  add all maps from all of the files (same as just setting [all])
+					for (auto map : file) {
+						worldList.push_back( { fileName, map.first }); // add file name and map name to worldList
+					}
+				} else { // not all maps
+					if (mapFileWhichMaps[1][0] == 'u') { //pull some number of unique Maps from each file
+						load_value(mapFileWhichMaps[1].substr(1, mapFileWhichMaps[1].size() - 1), howManyMaps);
+						if (howManyMaps > (int) file.size()) {
+							cout << "  in BerryWorld, selecting worlds from file... " << howManyMaps << " unique maps are being requested, but file \"" << fileName << "\" only has " << file.size() << " maps!\n  Exiting." << endl;
+							exit(1);
+						} else { // select howManyMaps unique maps from file
+							set<int> picks;
+							while ((int) picks.size() < howManyMaps) {
+								picks.insert(Random::getIndex((int) file.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+							}
+							for (auto pick : picks) { // add each pick to worldList
+								auto item = file.begin();
+								advance(item, pick);
+								worldList.push_back( { fileName, item->first });
+							}
+							//newMapName
 						}
-						for (auto pick : picks) { // add each pick to worldList
+					} else { // select some number of random maps (with repeats)
+						load_value(mapFileWhichMaps[1], howManyMaps);
+						for (int i = 0; i < howManyMaps; i++) {
 							auto item = file.begin();
-							advance(item, pick);
+							advance(item, Random::getIndex((int) file.size()));
 							worldList.push_back( { fileName, item->first });
 						}
-						//newMapName
-					}
-				} else { // select some number of random maps (with repeats)
-					load_value(mapFileWhichMaps[1], howManyMaps);
-					for (int i = 0; i < howManyMaps; i++) {
-						auto item = file.begin();
-						advance(item, Random::getIndex((int) file.size()));
-						worldList.push_back( { fileName, item->first });
 					}
 				}
 			}
 		}
 	}
-
 
 	numWorlds = max(numWorlds, (int) worldList.size());
 	//cout << "numWorlds: " << numWorlds;
