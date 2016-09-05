@@ -135,14 +135,30 @@ void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bo
 	p1->score = P1score / (double) gL;
 	p2->score = P2score / (double) gL;
 
-	p1->dataMap.Append("allCC", (double) P1CC / (double) gL);
-	p2->dataMap.Append("allCC", (double) P2CC / (double) gL);
-	p1->dataMap.Append("allCD", (double) P1CD / (double) gL);
-	p2->dataMap.Append("allCD", (double) P2CD / (double) gL);
-	p1->dataMap.Append("allDC", (double) P1DC / (double) gL);
-	p2->dataMap.Append("allDC", (double) P2DC / (double) gL);
-	p1->dataMap.Append("allDD", (double) P1DD / (double) gL);
-	p2->dataMap.Append("allDD", (double) P2DD / (double) gL);
+	p1->dataMap.Append("score", p1->score);
+	p2->dataMap.Append("score", p2->score);
+	p1->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+	p2->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+
+	p1->dataMap.Append("CC", (double) P1CC / (double) gL);
+	p1->dataMap.setOutputBehavior("CC",DataMap::AVE);
+	p2->dataMap.Append("CC", (double) P2CC / (double) gL);
+	p2->dataMap.setOutputBehavior("CC",DataMap::AVE);
+	p1->dataMap.Append("CD", (double) P1CD / (double) gL);
+	p1->dataMap.setOutputBehavior("CD",DataMap::AVE);
+	p2->dataMap.Append("CD", (double) P2CD / (double) gL);
+	p2->dataMap.setOutputBehavior("CD",DataMap::AVE);
+	p1->dataMap.Append("DC", (double) P1DC / (double) gL);
+	p1->dataMap.setOutputBehavior("DC",DataMap::AVE);
+	p2->dataMap.Append("DC", (double) P2DC / (double) gL);
+	p2->dataMap.setOutputBehavior("DC",DataMap::AVE);
+	p1->dataMap.Append("DD", (double) P1DD / (double) gL);
+	p1->dataMap.setOutputBehavior("DD",DataMap::AVE);
+	p2->dataMap.Append("DD", (double) P2DD / (double) gL);
+	p2->dataMap.setOutputBehavior("DD",DataMap::AVE);
+
+	p1->dataMap.setOutputBehavior("moves",DataMap::LIST);
+	p2->dataMap.setOutputBehavior("moves",DataMap::LIST);
 
 }
 

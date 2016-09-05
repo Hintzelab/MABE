@@ -86,9 +86,15 @@ void SOFWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visuali
 	
 	double score = scoreMatrix[key];
 	org->score = score;
-	org->dataMap.Append("allscore", score);
-	org->dataMap.Append("allx", local_x);
-	org->dataMap.Append("ally", local_y);
+	org->dataMap.Append("score", score);
+	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+
+	org->dataMap.Append("x", local_x);
+	org->dataMap.setOutputBehavior("x", DataMap::AVE);
+
+	org->dataMap.Append("y", local_y);
+	org->dataMap.setOutputBehavior("y", DataMap::AVE);
+
 }
 
 int SOFWorld::requiredInputs() {
