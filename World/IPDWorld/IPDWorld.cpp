@@ -54,8 +54,8 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	int p1Move = C;
-	int p2Move = C;
+	bool p1Move = C;
+	bool p2Move = C;
 
 	double P1score = 0;
 	double P2score = 0;

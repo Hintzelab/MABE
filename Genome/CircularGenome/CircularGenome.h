@@ -137,7 +137,7 @@ public:
 	virtual void setupCircularGenome(int _size, double _alphabetSize);
 
 	virtual shared_ptr<AbstractGenome> makeLike() override {
-		return make_shared<CircularGenome<T>>(alphabetSize, sites.size(),PT);
+		return make_shared<CircularGenome<T>>(alphabetSize, (int)sites.size(),PT);
 	}
 
 	virtual int size();

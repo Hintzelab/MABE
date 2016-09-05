@@ -57,11 +57,11 @@ template<class T> TemplatedChromosome<T>::TemplatedChromosome(int chromosomeLeng
 
 // return a shared_ptr to a new chromosome like this one (same alphabetSize and sites.size())
 template<class T> shared_ptr<AbstractChromosome> TemplatedChromosome<T>::makeLike() {
-	return make_shared < TemplatedChromosome < T >> (sites.size(), alphabetSize);
+	return make_shared < TemplatedChromosome < T >> ((int)sites.size(), alphabetSize);
 }
 
 template<class T> shared_ptr<AbstractChromosome> TemplatedChromosome<T>::makeCopy() {
-	shared_ptr < TemplatedChromosome > newChromosome = make_shared < TemplatedChromosome < T >> (sites.size(), alphabetSize);
+	shared_ptr < TemplatedChromosome > newChromosome = make_shared < TemplatedChromosome < T >> ((int)sites.size(), alphabetSize);
 	newChromosome->sites = sites;
 	return newChromosome;
 }
@@ -79,7 +79,7 @@ template<class T> bool TemplatedChromosome<T>::readInt(int &siteIndex, int &valu
 	modulateIndex(siteIndex);
 	value = (int) sites[siteIndex];
 	codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
-	int EOC = advanceIndex(siteIndex, readDirection);  // EOC = end of chromosome
+	bool EOC = advanceIndex(siteIndex, readDirection);  // EOC = end of chromosome
 	while ((valueMax - valueMin + 1) > currentMax && !EOC) {  // we don't have enough bits of information NOTE: "!EOC" means that we stop at end of chromosome!
 		value = (value * alphabetSize) + (int) sites[siteIndex];  // next site
 		codingRegions.assignCode(code, siteIndex, CodingRegionIndex);

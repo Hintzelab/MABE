@@ -37,7 +37,7 @@ void CircularGenome<T>::Handler::resetHandler() {
 	if (readDirection) {  // if reading forward
 		siteIndex = 0;
 	} else {  // if reading backwards
-		siteIndex = genome->size() - 1;  // set to last site in last chromosome
+		siteIndex = (int)genome->size() - 1;  // set to last site in last chromosome
 	}
 	resetEOG();
 	resetEOC();
@@ -48,7 +48,7 @@ void CircularGenome<T>::Handler::resetHandlerOnChromosome() {
 	if (readDirection) {  // if reading forward
 		siteIndex = 0;
 	} else {  // if reading backwards
-		siteIndex = genome->size() - 1;  // set to last site in last chromosome
+		siteIndex = (int)genome->size() - 1;  // set to last site in last chromosome
 	}
 	resetEOC();
 }
@@ -72,7 +72,7 @@ void CircularGenome<T>::Handler::modulateIndex() {
 	} else {  //reading backwards!
 		// first see if we are past last chromosome
 		if (siteIndex < 0) {
-			siteIndex = genome->size() - 1;
+			siteIndex = (int)genome->size() - 1;
 			EOG = true;  // if we are past the last chromosome then EOG = true
 			EOC = true;
 		}
@@ -170,8 +170,8 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 		writeValueBase = writeValueBase / genome->alphabetSize;
 	}
 	decomposedValue.push_back(value);
-	while (decomposedValue.size() > 0) {  // starting with the last element in decomposedValue, copy into genome.
-		genome->sites[siteIndex] = decomposedValue[decomposedValue.size() - 1];
+	while ((int)decomposedValue.size() > 0) {  // starting with the last element in decomposedValue, copy into genome.
+		genome->sites[siteIndex] = decomposedValue[(int)decomposedValue.size() - 1];
 		advanceIndex();
 		decomposedValue.pop_back();
 	}
@@ -201,7 +201,7 @@ bool CircularGenome<T>::Handler::inTelomere(int length) {
 		return true;
 	}
 	if (readDirection) {  // if reading forward
-		return (siteIndex >= (genome->size() - length));
+		return (siteIndex >= ((int)genome->size() - length));
 	} else {
 		return (siteIndex - 1 < length);
 	}
@@ -209,7 +209,7 @@ bool CircularGenome<T>::Handler::inTelomere(int length) {
 
 template<class T>
 void CircularGenome<T>::Handler::randomize() {
-	siteIndex = Random::getIndex(genome->size());
+	siteIndex = Random::getIndex((int)genome->size());
 }
 
 template<class T>
@@ -389,7 +389,7 @@ void CircularGenome<T>::copyFrom(shared_ptr<AbstractGenome> from) {
 
 template<class T>
 int CircularGenome<T>::countSites() {
-	return sites.size();
+	return (int)sites.size();
 }
 
 template<class T>
@@ -400,20 +400,20 @@ bool CircularGenome<T>::isEmpty() {
 
 template<class T>
 void CircularGenome<T>::pointMutate() {
-	sites[Random::getIndex(sites.size())] = Random::getIndex(alphabetSize);
+	sites[Random::getIndex((int)sites.size())] = Random::getIndex(alphabetSize);
 }
 
 template<>
 void CircularGenome<double>::pointMutate() {
-	sites[Random::getIndex(sites.size())] = Random::getDouble(alphabetSize);
+	sites[Random::getIndex((int)sites.size())] = Random::getDouble(alphabetSize);
 }
 
 // apply mutations to this genome
 template<class T>
 void CircularGenome<T>::mutate() {
-	int howManyPoint = Random::getBinomial(sites.size(), mutationPointRateLPL->lookup());
-	int howManyCopy = Random::getBinomial(sites.size(), mutationCopyRateLPL->lookup());
-	int howManyDelete = Random::getBinomial(sites.size(), mutationDeleteRateLPL->lookup());
+	int howManyPoint = Random::getBinomial((int)sites.size(), mutationPointRateLPL->lookup());
+	int howManyCopy = Random::getBinomial((int)sites.size(), mutationCopyRateLPL->lookup());
+	int howManyDelete = Random::getBinomial((int)sites.size(), mutationDeleteRateLPL->lookup());
 	// do some point mutations
 	for (int i = 0; i < howManyPoint; i++) {
 		pointMutate();
@@ -430,12 +430,12 @@ void CircularGenome<T>::mutate() {
 
 		int segmentSize = Random::getInt(IMax - IMin) + IMin;
 		if (segmentSize > (int)sites.size()) {
-			cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
+			cout << "segmentSize = " << segmentSize << "  sites.size() = " << (int)sites.size() << endl;
 			cout << "maxSize:minSize" << IMax << ":" << IMin << endl;
 			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for insert is > then sites.size()!\nExitting!" << endl;
 			exit(1);
 		}
-		int segmentStart = Random::getInt(sites.size() - segmentSize);
+		int segmentStart = Random::getInt((int)sites.size() - segmentSize);
 		vector<T> segment;
 		segment.clear();
 		auto it = sites.begin();
@@ -443,7 +443,7 @@ void CircularGenome<T>::mutate() {
 
 		////insertSegment(segment);
 		it = sites.begin();
-		sites.insert(it + Random::getInt(sites.size()), segment.begin(), segment.end());
+		sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 
 		//cout << sites.size() << endl;
 	}
@@ -462,7 +462,7 @@ void CircularGenome<T>::mutate() {
 			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for delete is > then sites.size()!\nExitting!" << endl;
 			exit(1);
 		}
-		int segmentStart = Random::getInt(sites.size() - segmentSize);
+		int segmentStart = Random::getInt(((int)sites.size()) - segmentSize);
 		sites.erase(sites.begin() + segmentStart, sites.begin() + segmentStart + segmentSize);
 	}
 }
@@ -536,11 +536,11 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 		//cout << "size init: " << size() << " -> " << flush;
 
 		int pick;
-		int lastPick = Random::getIndex(parents.size());
+		int lastPick = Random::getIndex((int)parents.size());
 		newGenome->sites.clear();
-		for (size_t c = 0; c < crossLocations.size() - 1; c++) {
+		for (int c = 0; c < ((int)crossLocations.size()) - 1; c++) {
 			// pick a chromosome to cross with. Make sure it's not the same chromosome!
-			pick = Random::getIndex(parents.size() - 1);
+			pick = Random::getIndex(((int)parents.size()) - 1);
 			if (pick == lastPick) {
 				pick++;
 			}
