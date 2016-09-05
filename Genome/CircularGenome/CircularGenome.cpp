@@ -356,8 +356,8 @@ template<> inline void CircularGenome<double>::fillRandom() {
 // This function is to make testing easy.
 template<class T>
 void CircularGenome<T>::fillAcending() {
-	for (int i = 0; i < sites.size(); i++) {
-		sites[i] = i % (int) alphabetSize;
+	for (size_t i = 0; i < sites.size(); i++) {
+		sites[i] = ((int)i) % (int) alphabetSize;
 	}
 }
 
@@ -366,7 +366,7 @@ void CircularGenome<T>::fillAcending() {
 // This function is to make testing easy.
 template<class T>
 void CircularGenome<T>::fillConstant(int value) {
-	for (int i = 0; i < sites.size(); i++) {
+	for (size_t i = 0; i < sites.size(); i++) {
 		sites[i] = value;
 	}
 }
@@ -422,14 +422,14 @@ void CircularGenome<T>::mutate() {
 	int MaxGenomeSize = sizeMaxLPL->lookup();
 	int IMax = mutationCopyMaxSizeLPL->lookup();
 	int IMin = mutationCopyMinSizeLPL->lookup();
-	for (int i = 0; i < howManyCopy && (sites.size() < MaxGenomeSize); i++) {
+	for (int i = 0; (i < howManyCopy) && (((int)sites.size()) < MaxGenomeSize); i++) {
 		//chromosome->mutateCopy(PT.lookup("mutationCopyMinSize"), PT.lookup("mutationCopyMaxSize"), PT.lookup("chromosomeSizeMax"));
 
 		//cout << "size: " << sites.size() << "->";
 		////shared_ptr<Chromosome<T>> segment = dynamic_pointer_cast<Chromosome<T>>(getSegment(minSize, maxSize));
 
 		int segmentSize = Random::getInt(IMax - IMin) + IMin;
-		if (segmentSize > sites.size()) {
+		if (segmentSize > (int)sites.size()) {
 			cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
 			cout << "maxSize:minSize" << IMax << ":" << IMin << endl;
 			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for insert is > then sites.size()!\nExitting!" << endl;
@@ -451,12 +451,12 @@ void CircularGenome<T>::mutate() {
 	int MinGenomeSize = sizeMinLPL->lookup();
 	int DMax = mutationDeleteMaxSizeLPL->lookup();
 	int DMin = mutationDeleteMinSizeLPL->lookup();
-	for (int i = 0; i < howManyDelete && (sites.size() > MinGenomeSize); i++) {
+	for (int i = 0; (i < howManyDelete) && (((int)sites.size()) > MinGenomeSize); i++) {
 		//chromosome->mutateDelete(PT.lookup("mutationDeletionMinSize"), PT.lookup("mutationDeletionMaxSize"), PT.lookup("chromosomeSizeMin"));
 
 		int segmentSize = Random::getInt(DMax - DMin) + DMin;
 		//cout << "segSize: " << segmentSize << "\tsize: " << sites.size() << "\t->\t";
-		if (segmentSize > sites.size()) {
+		if (segmentSize > (int)sites.size()) {
 			cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
 			cout << "maxSize : minSize   " << DMax << " : " << DMin << endl;
 			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for delete is > then sites.size()!\nExitting!" << endl;
@@ -538,7 +538,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 		int pick;
 		int lastPick = Random::getIndex(parents.size());
 		newGenome->sites.clear();
-		for (int c = 0; c < crossLocations.size() - 1; c++) {
+		for (size_t c = 0; c < crossLocations.size() - 1; c++) {
 			// pick a chromosome to cross with. Make sure it's not the same chromosome!
 			pick = Random::getIndex(parents.size() - 1);
 			if (pick == lastPick) {
@@ -567,17 +567,13 @@ template<class T>
 DataMap CircularGenome<T>::getStats() {
 	DataMap dataMap;
 	dataMap.Set("genomeLength", countSites());
-	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
 	return (dataMap);
 }
 
 template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.Set("alphabetSize", alphabetSize);
-	dataMap.setOutputBehavior("genomeLength", DataMap::FIRST);
-
 	dataMap.Set("genomeLength", countSites());
-	dataMap.setOutputBehavior("genomeLength", DataMap::AVE);
 
 }
 
@@ -637,7 +633,7 @@ string CircularGenome<T>::genomeToStr() {
 
 	S.reserve(((int)sites.size() * 2) + 10);
 
-	for (int i = 0; i < sites.size(); i++) {
+	for (size_t i = 0; i < sites.size(); i++) {
 		S.append(to_string(sites[i]) + FileManager::separator);
 	}
 	S.pop_back();  // clip off the trailing separator

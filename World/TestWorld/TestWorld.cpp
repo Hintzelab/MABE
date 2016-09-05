@@ -41,7 +41,8 @@ void TestWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visual
 		score = 0.0;
 	}
 	org->score = score;
-	org->dataMap.Append("allscore", score);
+	org->dataMap.Append("score", score);
+	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 }
 
 int TestWorld::requiredInputs() {

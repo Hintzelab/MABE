@@ -252,6 +252,7 @@ void convertCSVListToVector(string stringData, vector<T> &returnData, const char
 		for (auto s : dataLine) {
 			bool success = load_value(s, tempValue);
 			if (!success) {
+				cout << " --- while parsing: " << stringData << " .... " << endl;
 				throw std::invalid_argument("In convertCSVListToVector() attempt to convert string to value failed\n");
 			} else {
 				returnData.push_back(tempValue);

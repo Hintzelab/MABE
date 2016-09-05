@@ -15,6 +15,7 @@ shared_ptr<ParameterLink<int>> BerryWorld::worldUpdatesPL = Parameters::register
 shared_ptr<ParameterLink<double>> BerryWorld::worldUpdatesBaisedOnInitialPL = Parameters::register_parameter("WORLD_BERRY-worldUpdatesBaisedOnInitial", 0.0, "if greater then 0 then worldUpdates will be this value * number of food in world at worldUpdate 0");
 
 shared_ptr<ParameterLink<int>> BerryWorld::foodTypesPL = Parameters::register_parameter("WORLD_BERRY-foodTypes", 2, "number of types of food");
+shared_ptr<ParameterLink<double>> BerryWorld::rewardForFood0PL = Parameters::register_parameter("WORLD_BERRY-rewardForFood0", 0.0, "reward for eating a Food0");
 shared_ptr<ParameterLink<double>> BerryWorld::rewardForFood1PL = Parameters::register_parameter("WORLD_BERRY-rewardForFood1", 1.0, "reward for eating a Food1");
 shared_ptr<ParameterLink<double>> BerryWorld::rewardForFood2PL = Parameters::register_parameter("WORLD_BERRY-rewardForFood2", 1.0, "reward for eating a Food2");
 shared_ptr<ParameterLink<double>> BerryWorld::rewardForFood3PL = Parameters::register_parameter("WORLD_BERRY-rewardForFood3", 1.0, "reward for eating a Food3");
@@ -51,18 +52,27 @@ shared_ptr<ParameterLink<bool>> BerryWorld::senseFrontSidesPL = Parameters::regi
 shared_ptr<ParameterLink<bool>> BerryWorld::senseWallsPL = Parameters::register_parameter("WORLD_BERRY-senseWalls", false, "if true, Agent can sense Walls");
 shared_ptr<ParameterLink<bool>> BerryWorld::senseOtherPL = Parameters::register_parameter("WORLD_BERRY-senseOther", false, "if true, Agents will be able to sense other agents (if there are other agents).");
 
-shared_ptr<ParameterLink<int>> BerryWorld::replacementPL = Parameters::register_parameter("WORLD_BERRY-replacement", -1, "-1 = random, 0 = no replacement, 1 = replace other (note: Food0, can be replace by Food0)");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementDefaultRulePL = Parameters::register_parameter("WORLD_BERRY-replacementDefaultRule", -1, "-1 = random, 0 = no replacement, 1 = replace other (note: Food0, can be replace by Food0)");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood0PL = Parameters::register_parameter("WORLD_BERRY-replacementFood0", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood1PL = Parameters::register_parameter("WORLD_BERRY-replacementFood1", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood2PL = Parameters::register_parameter("WORLD_BERRY-replacementFood2", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood3PL = Parameters::register_parameter("WORLD_BERRY-replacementFood3", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood4PL = Parameters::register_parameter("WORLD_BERRY-replacementFood4", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood5PL = Parameters::register_parameter("WORLD_BERRY-replacementFood5", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood6PL = Parameters::register_parameter("WORLD_BERRY-replacementFood6", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood7PL = Parameters::register_parameter("WORLD_BERRY-replacementFood7", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
+shared_ptr<ParameterLink<int>> BerryWorld::replacementFood8PL = Parameters::register_parameter("WORLD_BERRY-replacementFood8", -1, "when this type of food is replaced, replace with value, -1 = use 'replacement' value");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::recordConsumptionRatioPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-recordConsumptionRatio", false, "if true, record greater of red/blue+1 or blue/red+1");
 shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListPL = Parameters::register_parameter("WORLD_BERRY-recordFoodList", false, "if true, record list of food eaten");
 shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListEatEmptyPL = Parameters::register_parameter("WORLD_BERRY-recordFoodListEatEmpty", false, "if true, foodList will include attempts to eat 0");
 shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListNoEatPL = Parameters::register_parameter("WORLD_BERRY-recordFoodListNoEat", false, "if true, if true foodList will include no eat (-1)");
 
-shared_ptr<ParameterLink<bool>> BerryWorld::alwaysStartOnFood1PL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysStartOnFood1", false, "if true, if true organisms will all start on food1");
+shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnFoodPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysStartOnFoodOfType", -1, "if -1 organisms are placed randomly. if > -1, all organisms will start on this type of food (must be < 9)");
 
 shared_ptr<ParameterLink<string>> BerryWorld::visualizationFileNamePL = Parameters::register_parameter("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName", (string) "worldUpdatesFile.txt", "in visualize mode, visualization data will be written to this file.");
 shared_ptr<ParameterLink<string>> BerryWorld::mapFileListPL = Parameters::register_parameter("WORLD_BERRY-mapFileList", (string) "[]", "list of worlds in which to evaluate organism. If empty, random world will be created");
-shared_ptr<ParameterLink<string>> BerryWorld::mapFileWhichMapsPL = Parameters::register_parameter("WORLD_BERRY-mapFileWhichMaps", (string) "[random]", "if mapFileList is not empty, method and list of maps from loaded file(s). Methods are random (pick one from list), all (test with every map in each evaluation). If only method is provided, then all maps will be used.");
+shared_ptr<ParameterLink<string>> BerryWorld::mapFileWhichMapsPL = Parameters::register_parameter("WORLD_BERRY-mapFileWhichMaps", (string) "[random]", "if mapFileList is not empty, this parameter will determine which maps are seen by an organism in one evaluation.\n[random] select one random map\n[all] select all maps (from all files)\nif two values are present the first determines which files to pull maps from, the second which maps from those files\nthe options for the first position (file) are:\n  'all' (pull from all files)\n  '#' (pull from # random files - with possible repeats)\n  'u#' (pull from # unique files)\nthe options for the second position (map) are:\n  'all' (all maps in the file)\n  '#' (# random maps from file - with possible repeats)\n  'u#' (# unique maps from file)\nexample1: [all,u2] = from all files, 2 unique maps\nexample2: [2,1] one map from each two files (might be the same file twice)");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::alwaysEatPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysEat", false, "if true, brain will only have 2 outputs (0 0 : no action, 1 0 : left, 0 1 : right, 1 1 : move). Organism will always eat if food is present.");
 shared_ptr<ParameterLink<double>> BerryWorld::rewardSpatialNoveltyPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-rewardSpatialNovelty", 0.0, "reward added to score every time organism moves on a new location");
@@ -92,11 +102,13 @@ bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
 		cout << "in loadSS, FILE is not open!\n  Exiting." << endl;
 		exit(1);
 	}
+	//cout << "from file:  " << rawLine << endl;
 	return FILE.eof();
 }
 
-bool BerryWorld::WorldMap::loadMap(ifstream& FILE) {
-	sizeX = sizeY = startXMin = startXMax = startYMin = startYMax = startFacing = 0;
+bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT) {
+	fileName = _fileName;
+	string parameterName, parameterValue;
 	grid.resize(0);
 	string rawLine, rubbishString;
 	char charBuffer;
@@ -104,36 +116,46 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE) {
 	bool atEOF = false;
 	bool done = false;
 
-	sizeX = 0;
-	sizeY = 1;
+	int sizeX = -1;
+	int sizeY = 1;
+
 	if (FILE.is_open()) {
 		atEOF = loadLineToSS(FILE, rawLine, ss);
-		ss >> rubbishString >> name;
-		atEOF = loadLineToSS(FILE, rawLine, ss);
-		ss >> rubbishString >> startXMin >> charBuffer >> startXMax;
-		atEOF = loadLineToSS(FILE, rawLine, ss);
-		ss >> rubbishString >> startYMin >> charBuffer >> startYMax;
-		atEOF = loadLineToSS(FILE, rawLine, ss);
-		ss >> rubbishString >> startFacing;
-		atEOF = loadLineToSS(FILE, rawLine, ss);
-		ss >> charBuffer;
-		while (!ss.fail()) { // load first line of map, keep loading chars until end of line (i.e. ss.fail because char could not be read)
-			grid.push_back(charBuffer);
-			sizeX++; // set X, this X will be used for the rest of the map.
-			ss >> charBuffer;
-		}
-		while (!atEOF && !done) {
-			atEOF = loadLineToSS(FILE, rawLine, ss);
-			ss >> charBuffer;
-			if (charBuffer == '-') { // if the first char on the line is "-" then we are at the end of the mapx
-				done = true;
-			} else {
-				sizeY++; // not yet at end of map, add a row
-				for (int c = 0; c < sizeX; c++) {
-					grid.push_back(charBuffer);
-					ss >> charBuffer;
+		mapName = "";
+		ss >> rubbishString >> rubbishString >> mapName;
+
+		// now that we have the name, we can make the PT. The namespace will be based on the parents (the world) name space.
+		// PT = make_shared<ParametersTable>(parentPT->getTableNameSpace()+"::"+fileName+"__"+name,Parameters::root);
+		if (mapName != "") {
+			PT = Parameters::root->makeTable(parentPT->getTableNameSpace() + fileName.substr(0, fileName.size() - 4) + "__" + mapName + "::", Parameters::root);
+			atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
+			while (rawLine[0] == '-' && rawLine[1] == 'p' && !atEOF) {
+				ss >> rubbishString >> parameterName >> rubbishString >> parameterValue; // "-p">>name>>
+				PT->setExistingParameter(parameterName, parameterValue);
+
+				atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
+			}
+
+			while (!ss.fail()) { // load first line of map, keep loading chars until end of line (i.e. ss.fail because char could not be read)
+				grid.push_back(charBuffer);
+				sizeX++; // set X, this X will be used for the rest of the map.
+				ss >> charBuffer;
+			}
+			while (!atEOF && !done) {
+				atEOF = loadLineToSS(FILE, rawLine, ss);
+				ss >> charBuffer;
+				if (charBuffer == '*') { // if the first char on the line is "-" then we are at the end of the mapx
+					done = true;
+				} else {
+					sizeY++; // not yet at end of map, add a row
+					for (int c = 0; c < sizeX; c++) {
+						grid.push_back(charBuffer);
+						ss >> charBuffer;
+					}
 				}
 			}
+			PT->setParameter("WORLD_BERRY-worldX", sizeX);
+			PT->setParameter("WORLD_BERRY-worldY", sizeY);
 		}
 	}
 	return done;
@@ -144,7 +166,6 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 
 	worldUpdates = (PT == nullptr) ? worldUpdatesPL->lookup() : PT->lookupInt("WORLD_BERRY-worldUpdates");
 	worldUpdatesBaisedOnInitial = (PT == nullptr) ? worldUpdatesBaisedOnInitialPL->lookup() : PT->lookupDouble("WORLD_BERRY-worldUpdatesBaisedOnInitial");
-
 
 	foodTypes = (PT == nullptr) ? foodTypesPL->lookup() : PT->lookupInt("WORLD_BERRY-foodTypes");
 
@@ -169,14 +190,24 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 
 	clearOutputs = (PT == nullptr) ? clearOutputsPL->lookup() : PT->lookupBool("WORLD_BERRY-clearOutputs");
 
-	replacement = (PT == nullptr) ? replacementPL->lookup() : PT->lookupInt("WORLD_BERRY-replacement");
+	replacementDefaultRule = (PT == nullptr) ? replacementDefaultRulePL->lookup() : PT->lookupInt("WORLD_BERRY-replacementDefaultRule");
+	replacementRules.resize(9);
+	replacementRules[0] = (PT == nullptr) ? replacementFood0PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood0");
+	replacementRules[1] = (PT == nullptr) ? replacementFood1PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood1");
+	replacementRules[2] = (PT == nullptr) ? replacementFood2PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood2");
+	replacementRules[3] = (PT == nullptr) ? replacementFood3PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood3");
+	replacementRules[4] = (PT == nullptr) ? replacementFood4PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood4");
+	replacementRules[5] = (PT == nullptr) ? replacementFood5PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood5");
+	replacementRules[6] = (PT == nullptr) ? replacementFood6PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood6");
+	replacementRules[7] = (PT == nullptr) ? replacementFood7PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood7");
+	replacementRules[8] = (PT == nullptr) ? replacementFood8PL->lookup() : PT->lookupInt("WORLD_BERRY-replacementFood8");
 
 	recordConsumptionRatio = (PT == nullptr) ? recordConsumptionRatioPL->lookup() : PT->lookupBool("WORLD_BERRY_ADVANCED-recordConsumptionRatio");
 	recordFoodList = (PT == nullptr) ? recordFoodListPL->lookup() : PT->lookupBool("WORLD_BERRY-recordFoodList");
 	recordFoodListEatEmpty = (PT == nullptr) ? recordFoodListEatEmptyPL->lookup() : PT->lookupBool("WORLD_BERRY-recordFoodListEatEmpty");
 	recordFoodListNoEat = (PT == nullptr) ? recordFoodListNoEatPL->lookup() : PT->lookupBool("WORLD_BERRY-recordFoodListNoEat");
 
-	alwaysStartOnFood1 = (PT == nullptr) ? alwaysStartOnFood1PL->lookup() : PT->lookupBool("WORLD_BERRY_ADVANCED-alwaysStartOnFood1");
+	alwaysStartOnFood = (PT == nullptr) ? alwaysStartOnFoodPL->lookup() : PT->lookupInt("WORLD_BERRY_ADVANCED-alwaysStartOnFoodOfType");
 
 	visualizationFileName = (PT == nullptr) ? visualizationFileNamePL->lookup() : PT->lookupString("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName");
 
@@ -196,11 +227,11 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	if (rangeHolder.size() == 1) {
 		fixedStartXMin = rangeHolder[0];
 		fixedStartXMax = rangeHolder[0];
-	} else if (rangeHolder.size() == 2){
+	} else if (rangeHolder.size() == 2) {
 		fixedStartXMin = rangeHolder[0];
 		fixedStartXMax = rangeHolder[1];
 	} else {
-		cout << "  Bad Setting! WORLD_BERRY-fixedStartXRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartXRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartXRange")) << "\"\n  Exiting."<< endl;
+		cout << "  Bad Setting! WORLD_BERRY-fixedStartXRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartXRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartXRange")) << "\"\n  Exiting." << endl;
 		exit(1);
 	}
 
@@ -208,37 +239,41 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	if (rangeHolder.size() == 1) {
 		fixedStartYMin = rangeHolder[0];
 		fixedStartYMax = rangeHolder[0];
-	} else if (rangeHolder.size() == 2){
+	} else if (rangeHolder.size() == 2) {
 		fixedStartYMin = rangeHolder[0];
 		fixedStartYMax = rangeHolder[1];
 	} else {
-		cout << "  Bad Setting! WORLD_BERRY-fixedStartYRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartYRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartYRange")) << "\"\n  Exiting."<< endl;
+		cout << "  Bad Setting! WORLD_BERRY-fixedStartYRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartYRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartYRange")) << "\"\n  Exiting." << endl;
 		exit(1);
 	}
 
 	fixedStartFacing = (PT == nullptr) ? fixedStartFacingPL->lookup() : PT->lookupInt("WORLD_BERRY-fixedStartFacing");
 
-	//LOAD MAPS FROM FILES
+	/////////////////////////////////////////////////////////////////////////////////////
+	//  LOAD MAPS FROM FILES  ///////////////////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////
+
 	if (mapFileList.size() > 0) {
 		cout << "BerryWorld loading maps..." << endl;
-		WorldMap newMap;
 
 		for (auto fileName : mapFileList) {
+			worldMaps[fileName] = map<string, WorldMap>();
 			ifstream FILE(fileName);
 			bool goodRead = false;
 			while (!FILE.eof()) {
-				goodRead = newMap.loadMap(FILE);
+				WorldMap newMap;
+				goodRead = newMap.loadMap(FILE, fileName, PT);
 				if (goodRead) {
-					cout << "    \"" << newMap.name << "\" from file \"" << fileName << "\"" << endl;
-					if (worldMaps.find(newMap.name) == worldMaps.end()) {
-						worldMaps.insert( { newMap.name, newMap });
+					cout << "    \"" << newMap.mapName << "\" from file \"" << fileName << "\"" << endl;
+					if (worldMaps[fileName].find(newMap.mapName) == worldMaps[fileName].end()) {
+						worldMaps[fileName].insert( { newMap.mapName, newMap });
 					} else {
-						cout << "  ...while reading world maps for berry world, found multiple maps with the same name. Duplicate name \"" << newMap.name << "\" found in file \"" << fileName << "\".\n  Exiting." << endl;
+						cout << "  ...while reading world maps for berry world, found multiple maps with the same name. Duplicate name \"" << newMap.fileName + "__" + newMap.mapName << "\" found in file \"" << fileName << "\".\n  Exiting." << endl;
 						exit(1);
 					}
 				}
 			}
-			//FILE.close();
+			FILE.close();
 		}
 	}
 
@@ -281,7 +316,7 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	}
 
 	foodRewards.resize(9);  // stores reward of each type of food
-	foodRewards[0] = 0;
+	foodRewards[0] = (PT == nullptr) ? rewardForFood0PL->lookup() : PT->lookupDouble("WORLD_BERRY-rewardForFood0");
 	foodRewards[1] = (PT == nullptr) ? rewardForFood1PL->lookup() : PT->lookupDouble("WORLD_BERRY-rewardForFood1");
 	foodRewards[2] = (PT == nullptr) ? rewardForFood2PL->lookup() : PT->lookupDouble("WORLD_BERRY-rewardForFood2");
 	foodRewards[3] = (PT == nullptr) ? rewardForFood3PL->lookup() : PT->lookupDouble("WORLD_BERRY-rewardForFood3");
@@ -333,20 +368,114 @@ void BerryWorld::printGrid(vector<int> grid, pair<int, int> loc, int facing) {
 void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) {
 
 	int numWorlds = 1;
-	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "all") { // if method is all, but not worlds are listed, we must append all of the map names to mapFileWhichMaps.
-		for (auto w : worldMaps) {
-			mapFileWhichMaps.push_back(w.first);
-		}
-	}
-
-	if (worldMaps.size() > 1) { // if maps have been loaded, check to see if mapFileWhichMaps method is all. If yes, then mapFileWhichMaps.size() - 1 is number of worlds
-		if (mapFileWhichMaps.size() > 0 && mapFileWhichMaps[0] == "all") {
-			numWorlds = mapFileWhichMaps.size() - 1;
-		}
-	}
+	int howManyFiles;
+	int howManyMaps;
 
 	vector<double> summedScores(group->population.size(), 0);
 
+	vector<pair<string, string>> worldList; // make a list of worlds to test this (possibly population) organism in. If empty, a random world is generated.
+	vector<string> fileList;
+
+	// make list of fileName,mapName pairs that this org (population) will visit
+
+	// if mapFileWhichMaps == [all] then add all files and all maps to worldList
+	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "all") { // if method is all, append all of the map names to worldList.
+		for (auto file : worldMaps) { // for every map in worldMaps (i.e. every file)
+			for (auto map : file.second) { // for every map in that file
+				worldList.push_back( { file.first, map.first }); // add file name and map name to worldList
+			}
+		}
+	}
+
+	if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "random") { // if method is all, append all of the map names to worldList.
+		auto item1 = worldMaps.begin();
+		advance(item1, Random::getIndex((int) worldMaps.size()));
+		string filePick = item1->first;
+
+		auto item2 = worldMaps[filePick].begin();
+		advance(item2, Random::getIndex((int) worldMaps[filePick].size()));
+
+		worldList.push_back( { filePick, item2->first }); // add file name and map name to worldList
+	}
+
+	// if mapFileWhichMaps has 2 elements, then first, determine the file list
+	//     if [all,*], add all file names to fileList
+	//     if [u#,*], add # unique file names to fileList
+	//     if [#,*], add # file names to fileList (with repeats)
+	// once the file list has been determined, figure out which maps to use from these files
+	// a list of pairs <fileName,mapName>, worldList, will be created, this will be used later to select maps.
+	//     if [*,all], use all maps from the indicated files
+	//     if [*,u#], use # unique maps from each file... it is possible that the same map will be repeated if a file name appears twice in fileList
+	//     if [*,#], use # unique file names to fileList
+
+	if (mapFileWhichMaps.size() == 2) {
+		if (mapFileWhichMaps[0] == "all") { // pull from all files, add all file names to fileList
+			for (auto file : worldMaps) {
+				fileList.push_back(file.first);
+			}
+		} else if (mapFileWhichMaps[0][0] == 'u') { //pull some number of unique files
+			load_value(mapFileWhichMaps[0].substr(1, mapFileWhichMaps[0].size() - 1), howManyFiles);
+			if (howManyFiles > (int) worldMaps.size()) {
+				cout << "  in BerryWorld, selecting worlds from file... " << howManyFiles << " unique files are being requested, but only " << worldMaps.size() << " files have been loaded!\n  Exiting." << endl;
+				exit(1);
+			} else { // select howManyFiles unique files
+				set<int> picks;
+				while ((int) picks.size() < howManyFiles) {
+					picks.insert(Random::getIndex((int) worldMaps.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+				}
+				for (auto pick : picks) { // add each pick to worldList
+					auto item = worldMaps.begin();
+					advance(item, pick);
+					fileList.push_back(item->first);
+				}
+			}
+		} else { // pull some number of files, with repeats
+			load_value(mapFileWhichMaps[0], howManyFiles);
+			for (int i = 0; i < howManyFiles; i++) {
+				auto item = worldMaps.begin();
+				advance(item, Random::getIndex((int) worldMaps.size()));
+				fileList.push_back(item->first);
+			}
+		} // at this point we should have some file names.
+		for (auto fileName : fileList) { // for each file name, select maps.
+			auto file = worldMaps[fileName];
+			if (mapFileWhichMaps[1] == "all") { // fyi, [all,all]  add all maps from all of the files (same as just setting [all])
+				for (auto map : file) {
+					worldList.push_back( { fileName, map.first }); // add file name and map name to worldList
+				}
+			} else { // not all maps
+				if (mapFileWhichMaps[1][0] == 'u') { //pull some number of unique Maps from each file
+					load_value(mapFileWhichMaps[1].substr(1, mapFileWhichMaps[1].size() - 1), howManyMaps);
+					if (howManyMaps > (int) file.size()) {
+						cout << "  in BerryWorld, selecting worlds from file... " << howManyMaps << " unique maps are being requested, but file \"" << fileName << "\" only has " << file.size() << " maps!\n  Exiting." << endl;
+						exit(1);
+					} else { // select howManyMaps unique maps from file
+						set<int> picks;
+						while ((int) picks.size() < howManyMaps) {
+							picks.insert(Random::getIndex((int) file.size())); // keep adding numbers to picks till there are howManyMaps number in picks
+						}
+						for (auto pick : picks) { // add each pick to worldList
+							auto item = file.begin();
+							advance(item, pick);
+							worldList.push_back( { fileName, item->first });
+						}
+						//newMapName
+					}
+				} else { // select some number of random maps (with repeats)
+					load_value(mapFileWhichMaps[1], howManyMaps);
+					for (int i = 0; i < howManyMaps; i++) {
+						auto item = file.begin();
+						advance(item, Random::getIndex((int) file.size()));
+						worldList.push_back( { fileName, item->first });
+					}
+				}
+			}
+		}
+	}
+
+
+	numWorlds = max(numWorlds, (int) worldList.size());
+	//cout << "numWorlds: " << numWorlds;
 	for (int worldCount = 0; worldCount < numWorlds; worldCount++) {
 
 		vector<double> scores(group->population.size(), 0);
@@ -359,40 +488,50 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 
 		vector<int> grid;
 
-		if (worldMaps.size() == 0) {
+		if (worldList.size() == 0) {
 			grid = makeTestGrid();
 		} else {
-			WorldMap thisMap;
-			if (mapFileWhichMaps.size() == 0 || (mapFileWhichMaps[0] != "random" && mapFileWhichMaps[0] != "all")) {
-				cout << "  In BerryWorld: WORLD_BERRY-mapFileList was provided, but WORLD_BERRY-mapFileWhichMaps does not provide a method.\n  The first element in WORLD_BERRY-mapFileWhichMaps must provide a method (random or all).\n    Exiting." << endl;
-			} else if (mapFileWhichMaps.size() == 1 && mapFileWhichMaps[0] == "random") { // randomly select from all loaded maps
-				auto item = worldMaps.begin();
-				advance(item, Random::getIndex(worldMaps.size()));
-				thisMap = (*item).second;
-			} else if (mapFileWhichMaps.size() > 1 && mapFileWhichMaps[0] == "random") { // randomly select from list of loaded maps
-				string mapKey = mapFileWhichMaps[Random::getInt(1, mapFileWhichMaps.size() - 1)];
-				thisMap = worldMaps[mapKey];
-			} else if (mapFileWhichMaps.size() > 1 && mapFileWhichMaps[0] == "all") { // select map baised on loop control variable
-				string mapKey = mapFileWhichMaps[worldCount + 1];
-				thisMap = worldMaps[mapKey];
-			} else {
-				cout << "  In BerryWorld: WORLD_BERRY-mapFileList was provided, but WORLD_BERRY-mapFileWhichMaps does not provide a method.\n  The first element in WORLD_BERRY-mapFileWhichMaps must provide a method (random or all).\n    Exiting." << endl;
-			}
+
+			WorldMap thisMap = worldMaps[worldList[worldCount].first][worldList[worldCount].second];
 
 			// convert worldMap to world
-			WorldX = thisMap.sizeX;
-			WorldY = thisMap.sizeY;
-			fixedStartXMin = thisMap.startXMin;
-			fixedStartXMax = thisMap.startXMax;
-			fixedStartYMin = thisMap.startYMin;
-			fixedStartYMax = thisMap.startYMax;
-			fixedStartFacing = thisMap.startFacing;
+			WorldX = thisMap.PT->lookupInt("WORLD_BERRY-worldX");
+			WorldY = thisMap.PT->lookupInt("WORLD_BERRY-worldY");
+
+			vector<int> rangeHolder;
+			convertCSVListToVector(thisMap.PT->lookupString("WORLD_BERRY-fixedStartXRange"), rangeHolder);
+			if (rangeHolder.size() == 1) {
+				fixedStartXMin = rangeHolder[0];
+				fixedStartXMax = rangeHolder[0];
+			} else if (rangeHolder.size() == 2) {
+				fixedStartXMin = rangeHolder[0];
+				fixedStartXMax = rangeHolder[1];
+			} else {
+				cout << "  Bad Setting! WORLD_BERRY-fixedStartXRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartXRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartXRange")) << "\"\n  Exiting." << endl;
+				exit(1);
+			}
+
+			convertCSVListToVector(thisMap.PT->lookupString("WORLD_BERRY-fixedStartYRange"), rangeHolder);
+			if (rangeHolder.size() == 1) {
+				fixedStartYMin = rangeHolder[0];
+				fixedStartYMax = rangeHolder[0];
+			} else if (rangeHolder.size() == 2) {
+				fixedStartYMin = rangeHolder[0];
+				fixedStartYMax = rangeHolder[1];
+			} else {
+				cout << "  Bad Setting! WORLD_BERRY-fixedStartYRange is set to an invalid value : \"" << ((PT == nullptr) ? fixedStartYRangePL->lookup() : PT->lookupString("WORLD_BERRY-fixedStartYRange")) << "\"\n  Exiting." << endl;
+				exit(1);
+			}
+
+			fixedStartFacing = thisMap.PT->lookupInt("WORLD_BERRY-fixedStartFacing");
+			worldUpdates = thisMap.PT->lookupInt("WORLD_BERRY-worldUpdates");
+
 			grid.clear();
 			for (auto c : thisMap.grid) {
 				if (isdigit(c)) {
-					grid.push_back((int) c - (int) ('0'));
+					grid.push_back((int) c - (int) ('0')); // if it's a number, put that number here
 				} else {
-					if (c == '?') { // put a random food here
+					if (c == '?') { // if "?" put a random food here
 						grid.push_back(pickFood(-1));
 					}
 				}
@@ -430,12 +569,12 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			pair<int, int> newLocation = { Random::getIndex(WorldX), Random::getIndex(WorldY) };
 			int c = 0;
-			if (alwaysStartOnFood1 && (fixedStartXMin != -1 || fixedStartYMin != -1)) {
-				cout << "  A problem has been encounter in BerryWorld. a fixedStart value (range) has been set at the same time as alwaysStartOnFood1... please pick one or the other./n  Exiting.";
+			if (alwaysStartOnFood != -1 && (fixedStartXMin != -1 || fixedStartYMin != -1)) {
+				cout << "  A problem has been encounter in BerryWorld. a fixedStart value (range) has been set at the same time as alwaysStartOnFood... please pick one or the other./n  Exiting.";
 				exit(1);
 			}
-			if (alwaysStartOnFood1) {
-				while ((getGridValue(orgPositionsGrid, newLocation) == 1 || getGridValue(grid, newLocation) == WALL) || getGridValue(grid, newLocation) != 1) {
+			if (alwaysStartOnFood > -1) {
+				while ((getGridValue(orgPositionsGrid, newLocation) == 1 || getGridValue(grid, newLocation) == WALL) || getGridValue(grid, newLocation) != alwaysStartOnFood) {
 					newLocation = {Random::getIndex(WorldX), Random::getIndex(WorldY)};
 					c++;
 					if (c % 1000000 == 0) {
@@ -472,14 +611,11 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			setGridValue(orgPositionsGrid, newLocation, 1);
 		}
 
-		//printGrid(grid,{0,0},0);
-		//printGrid(orgPositionsGrid,{0,0},0);
-
 		// set up to track what food is eaten
-		vector<int> switches(group->population.size(), 0);  // number of times organism has switched food source
-		vector<int> lastFood(group->population.size(), -1);  //nothing has been eaten yet!
+		vector<int> switches(group->population.size(), 0);	// number of times organism has switched food source
+		vector<int> lastFood(group->population.size(), -1);	//nothing has been eaten yet!
 		vector<int> foodHereOnArrival(group->population.size(), 0);
-		vector<vector<int>> eaten;  // stores number of each type of food was eaten in total for this test. [0] stores number of times org attempted to eat on empty location
+		vector<vector<int>> eaten;	// stores number of each type of food was eaten in total for this test. [0] stores number of times org attempted to eat on empty location
 		eaten.resize(group->population.size());
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			foodHereOnArrival[i] = getGridValue(grid, currentLocation[i]);  //value of the food when we got here - needed for replacement method.
@@ -512,7 +648,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			BerryWorld::SaveWorldState(visualizationFileName, grid, visitedGrid, currentLocation, facing, true);
 		}
 
-		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0)?worldUpdates:MAXSCORE*worldUpdatesBaisedOnInitial;
+		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : MAXSCORE * worldUpdatesBaisedOnInitial;
 		for (int t = 0; t < realWorldUpdates; t++) {  //run agent for "worldUpdates" brain updates
 			orgList.clear();
 			for (int i = 0; i < (int) group->population.size(); i++) {
@@ -648,8 +784,12 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 							}
 						}
 						lastFood[orgIndex] = foodHere;  // remember the last food eaten
-						scores[orgIndex] += foodRewards[foodHere];  // you ate a food... good for you!
-						setGridValue(grid, currentLocation[orgIndex], 0);  // clear this location
+						scores[orgIndex] += foodRewards[foodHere];  // you ate a food... good for you! (or bad)
+						//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
+						setGridValue(grid, currentLocation[orgIndex], 0);					// clear this location
+					} else { // no food here!
+						scores[orgIndex] += foodRewards[foodHere]; // you ate a food... good for you! (or bad)
+						//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
 					}
 				} else {
 					if (recordFoodList && recordFoodListNoEat) {
@@ -675,24 +815,32 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 							if (getGridValue(grid, currentLocation[orgIndex]) == EMPTY) {  // if the current location is empty...
 								//cout << replacement << endl;
 								// replacement rules
-								// -1 random
-								// 0 no replacment
-								// 1 other (0 can be replaced by other)
-								if (replacement == -1 || (replacement == 1 && foodHereOnArrival[orgIndex] == EMPTY)) {  // if replacement = random (-1).or replacment other (1) and was empty..
-									setGridValue(grid, currentLocation[orgIndex], pickFood(-1));  // plant a random food
-									//cout << "replacement = -1 (random) .. ";
-								} else if (replacement == 1 && foodHereOnArrival[orgIndex] > EMPTY) {  // if replacement = other (1) and there was some food here when org got here...
-									setGridValue(grid, currentLocation[orgIndex], pickFood(foodHereOnArrival[orgIndex]));  // plant a different food when what was here
-									//cout << "replacement = 1 (other) and EMPTY.. ";
-								} else { // replacement = 0, no replacement
-									//cout << "no replace .. ";
+								// if replacementRule[food] == -1
+								//   case replacementDefaultRule
+								//     -1 random
+								//     0 no replacement
+								//     1 other (0 can be replaced by other)
+								// else replacementRules[food]
+								if (replacementRules[foodHereOnArrival[orgIndex]] == -1) {
+									if (replacementDefaultRule == -1 || (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] == EMPTY)) {  // if replacement = random (-1).or replacment other (1) and was empty..
+										setGridValue(grid, currentLocation[orgIndex], pickFood(-1));  // plant a random food
+										//cout << "replacement = -1 (random) .. ";
+									} else if (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] > EMPTY) {  // if replacement = other (1) and there was some food here when org got here...
+										setGridValue(grid, currentLocation[orgIndex], pickFood(foodHereOnArrival[orgIndex]));  // plant a different food when what was here
+										//cout << "replacement = 1 (other) and EMPTY.. ";
+									} else { // replacement = 0, no replacement
+										//cout << "no replace .. ";
+									}
+								} else { // this food type has a replacment rule
+									setGridValue(grid, currentLocation[orgIndex], replacementRules[foodHereOnArrival[orgIndex]]); // plant food based on replacement rule
 								}
+
 								//cout << "move done." << endl;
 								// if replacement = no replacement (0), no replacement/do nothing
 							}
 							setGridValue(orgPositionsGrid, currentLocation[orgIndex], 0);  // show location as not occupied.
-							setGridValue(visitedGrid, currentLocation[orgIndex], 1); // leave a marker in the visitedGrid
-							currentLocation[orgIndex] = moveOnGrid(currentLocation[orgIndex], facing[orgIndex]); // move organism
+							setGridValue(visitedGrid, currentLocation[orgIndex], 1);  // leave a marker in the visitedGrid
+							currentLocation[orgIndex] = moveOnGrid(currentLocation[orgIndex], facing[orgIndex]);  // move organism
 							setGridValue(orgPositionsGrid, currentLocation[orgIndex], 1);  // show new location as occupied.
 							if (getGridValue(visitedGrid, currentLocation[orgIndex]) == 0) { // if this is a novel location
 								novelty[orgIndex]++;
@@ -742,9 +890,9 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			group->population[i]->dataMap.Append("novelty", novelty[i]);
 			group->population[i]->dataMap.Append("repeated", repeated[i]);
 
-			if (scores[i] < 0.0) {
-				scores[i] = 0.0;
-			}
+//			if (scores[i] < 0.0) {
+//				scores[i] = 0.0;
+//			}
 
 			summedScores[i] += scores[i] / MAXSCORE;
 		}
@@ -755,7 +903,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		group->population[i]->dataMap.Append("score", summedScores[i] / numWorlds);
 
 		// set up output behaviors for entries in data map
-		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE|DataMap::LIST);
+		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
 		for (int f = 0; f <= foodTypes; f++) {
 			group->population[i]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
@@ -765,15 +913,16 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		group->population[i]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
 		group->population[i]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
 		group->population[i]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("foodList",DataMap::LIST);
+		group->population[i]->dataMap.setOutputBehavior("foodList", DataMap::LIST);
 
 	}
 }
 
 void BerryWorld::SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset) {
+
 	string stateNow = "";
 
-	if (reset){
+	if (reset) {
 		stateNow += "**\n";
 	}
 	int xCount = 0;

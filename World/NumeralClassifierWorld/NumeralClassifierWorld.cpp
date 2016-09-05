@@ -323,25 +323,32 @@ void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse
 	int total_correct = 0;
 	int total_incorrect = 0;
 	string temp_name;
+	double val;
+
 	for (int i = 0; i < 10; i++) {
 		total_correct += correct[i];
 		total_incorrect += incorrect[i];
 
-		temp_name = "allcorrect" + to_string(i);  // make food names i.e. food1, food2, etc.
-		double val;
+		temp_name = "correct" + to_string(i);  // make food names i.e. food1, food2, etc.
 		(counts[i] > 0) ? val = (double) correct[i] / (double) counts[i] : val = 0;
 		org->dataMap.Append(temp_name, val);
-		temp_name = "allincorrect" + to_string(i);  // make food names i.e. food1, food2, etc.
+		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
+
+		temp_name = "incorrect" + to_string(i);  // make food names i.e. food1, food2, etc.
 		(counts[i] < testsPreWorldEval) ? val = (double) incorrect[i] / ((double) testsPreWorldEval - counts[i]) : val = 0;
 		org->dataMap.Append(temp_name, val);
+		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
 	}
 
-	org->dataMap.Append("alltotalCorrect", total_correct);  // total food eaten (regardless of type)
-	org->dataMap.Append("alltotalIncorrect", total_incorrect);  // total food eaten (regardless of type)
+	org->dataMap.Append("totalCorrect", total_correct);  // total food eaten (regardless of type)
+	org->dataMap.Append("totalIncorrect", total_incorrect);  // total food eaten (regardless of type)
+	org->dataMap.setOutputBehavior("totalCorrect", DataMap::AVE);
+	org->dataMap.setOutputBehavior("totalCorrect", DataMap::AVE);
 
 	if (score < 0.0) {
 		score = 0.0;
 	}
 	org->score = score;
-	org->dataMap.Append("allscore", score);
+	org->dataMap.Append("score", org->score);
+	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 }

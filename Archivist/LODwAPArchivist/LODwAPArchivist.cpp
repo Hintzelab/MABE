@@ -194,7 +194,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 				//FileManager::writeToFile(GenomeFileName, dataString, "update,genome");  // write data to file
 				current->genome->dataMap.Set("sites", current->genome->genomeToStr());
 				current->genome->dataMap.Set("update", nextGenomeWrite);
-				current->genome->dataMap.Set("ID", current->dataMap.GetAverage("ID"));
+				current->genome->dataMap.Set("ID", current->dataMap.GetIntVector("ID")[0]);
 				//current->genome->dataMap.writeToFile(GenomeFileName, current->genome->dataMap.getKeys());  // append new data to the file
 				current->genome->dataMap.writeToFile(GenomeFileName, current->genome->genomeFileColumns);  // append new data to the file
 				if ((int)genomeSequence.size() > genomeSeqIndex + 1) {

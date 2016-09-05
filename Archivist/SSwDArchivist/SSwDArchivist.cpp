@@ -180,7 +180,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			size_t index = 0;
 			while (index < checkpoints[nextGenomeWrite].size()) {
 				if (auto org = checkpoints[nextGenomeWrite][index].lock()) {  // this ptr is still good
-					org->genome->dataMap.Set("ID", org->dataMap.GetAverage("ID"));
+					org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
 					org->genome->dataMap.Set("update", to_string(nextGenomeWrite));
 					org->genome->dataMap.Set("sites", org->genome->genomeToStr());
 					org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);  // append new data to the file
