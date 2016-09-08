@@ -70,7 +70,9 @@ shared_ptr<ParameterLink<bool>> BerryWorld::recordFoodListNoEatPL = Parameters::
 
 shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnFoodPL = Parameters::register_parameter("WORLD_BERRY_ADVANCED-alwaysStartOnFoodOfType", -1, "if -1 organisms are placed randomly. if > -1, all organisms will start on this type of food (must be < 9)");
 
+shared_ptr<ParameterLink<bool>> BerryWorld::saveOrgActionsPL = Parameters::register_parameter("VISUALIZATION_MODE_WORLD_BERRY-saveOrgActions", false, "in visualize mode, save organisms actions to file with name [Org->ID]_actions.txt");
 shared_ptr<ParameterLink<string>> BerryWorld::visualizationFileNamePL = Parameters::register_parameter("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName", (string) "worldUpdatesFile.txt", "in visualize mode, visualization data will be written to this file.");
+
 shared_ptr<ParameterLink<string>> BerryWorld::mapFileListPL = Parameters::register_parameter("WORLD_BERRY-mapFileList", (string) "[]", "list of worlds in which to evaluate organism. If empty, random world will be created");
 shared_ptr<ParameterLink<string>> BerryWorld::mapFileWhichMapsPL = Parameters::register_parameter("WORLD_BERRY-mapFileWhichMaps", (string) "[random]", "if mapFileList is not empty, this parameter will determine which maps are seen by an organism in one evaluation.\n[random] select one random map\n[all] select all maps (from all files)\nif two values are present the first determines which files to pull maps from, the second which maps from those files\nthe options for the first position (file) are:\n  'all' (pull from all files)\n  '#' (pull from # random files - with possible repeats)\n  'u#' (pull from # unique files)\nthe options for the second position (map) are:\n  'all' (all maps in the file)\n  '#' (# random maps from file - with possible repeats)\n  'u#' (# unique maps from file)\nexample1: [all,u2] = from all files, 2 unique maps\nexample2: [2,1] one map from each two files (might be the same file twice)");
 
@@ -209,6 +211,8 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 
 	alwaysStartOnFood = (PT == nullptr) ? alwaysStartOnFoodPL->lookup() : PT->lookupInt("WORLD_BERRY_ADVANCED-alwaysStartOnFoodOfType");
 
+	saveOrgActions = (PT == nullptr) ? saveOrgActionsPL->lookup() : PT->lookupBool("VISUALIZATION_MODE_WORLD_BERRY-saveOrgActions");
+	saveOrgActions = saveOrgActions && Global::modePL->lookup() == "visualize";
 	visualizationFileName = (PT == nullptr) ? visualizationFileNamePL->lookup() : PT->lookupString("VISUALIZATION_MODE_WORLD_BERRY-visualizationFileName");
 
 	convertCSVListToVector((PT == nullptr) ? mapFileListPL->lookup() : PT->lookupString("WORLD_BERRY-mapFileList"), mapFileList);
@@ -372,6 +376,8 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	int howManyMaps;
 
 	vector<double> summedScores(group->population.size(), 0);
+
+	DataMap dataMap;
 
 	vector<pair<string, string>> worldList; // make a list of worlds to test this (possibly population) organism in. If empty, a random world is generated.
 	vector<string> fileList;
@@ -619,6 +625,9 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 		eaten.resize(group->population.size());
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			foodHereOnArrival[i] = getGridValue(grid, currentLocation[i]);  //value of the food when we got here - needed for replacement method.
+			if (saveOrgActions) { // if saveOrgActions save the type of the food org starts on.
+				dataMap.Append(to_string(group->population[i]->ID) + "_moves", foodHereOnArrival[i]);
+			}
 			eaten[i].resize(foodTypes + 1);
 			if (recordFoodList) {
 				group->population[i]->dataMap.Append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
@@ -770,6 +779,34 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 					output2 = Bit(group->population[orgIndex]->brain->readOutput(2));
 				}
 
+				if (saveOrgActions) { // if saveOrgActions save the output.
+									  // + values in ID_moves are food
+									  // - values are actions
+					if (alwaysEat) {
+						if (output1 != 0) {
+							dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * (output1));
+							// bits   int
+							// -00 =  -0 =   no action // not recorded
+							// -01 =  -1 =   right
+							// -10 =  -2 =   left
+							// -11 =  -3 =   forward
+						}
+					} else {
+						if ((output1 << 1) + output2 != 0) {
+							dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * ((output1 << 1) + output2));
+							// bits    int
+							// -000 =  -0 =   no action // not recorded
+							// -001 =  -1 =   eat
+							// -010 =  -2 =   right
+							// -011 =  -3 =   eat
+							// -100 =  -4 =   left
+							// -101 =  -5 =   eat
+							// -110 =  -6 =   forward
+							// -111 =  -7 =   eat
+						}
+					}
+				}
+
 				if (output2 == 1) {  // if org tried to eat
 					int foodHere = getGridValue(grid, currentLocation[orgIndex]);
 					if ((recordFoodList && foodHere != 0) || (recordFoodList && recordFoodListEatEmpty)) {
@@ -849,6 +886,9 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 								repeated[orgIndex]++;
 							}
 							foodHereOnArrival[orgIndex] = getGridValue(grid, currentLocation[orgIndex]);  //value of the food when we got here - needed for replacement method.
+							if (saveOrgActions) { // if saveOrgActions save the type of the food org moves onto.
+								dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", foodHereOnArrival[orgIndex]);
+							}
 						}
 						break;
 					}
@@ -897,24 +937,130 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			summedScores[i] += scores[i] / MAXSCORE;
 		}
 	}
-	for (int i = 0; i < (int) group->population.size(); i++) {
+	for (int orgIndex = 0; orgIndex < (int) group->population.size(); orgIndex++) {
 
-		group->population[i]->score = summedScores[i] / numWorlds;
-		group->population[i]->dataMap.Append("score", summedScores[i] / numWorlds);
+		group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
+		group->population[orgIndex]->dataMap.Append("score", summedScores[orgIndex] / numWorlds);
 
 		// set up output behaviors for entries in data map
-		group->population[i]->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+		group->population[orgIndex]->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
 		for (int f = 0; f <= foodTypes; f++) {
-			group->population[i]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
+			group->population[orgIndex]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
 		}
-		group->population[i]->dataMap.setOutputBehavior("total", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("switches", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
-		group->population[i]->dataMap.setOutputBehavior("foodList", DataMap::LIST);
+		group->population[orgIndex]->dataMap.setOutputBehavior("total", DataMap::AVE);
+		group->population[orgIndex]->dataMap.setOutputBehavior("switches", DataMap::AVE);
+		group->population[orgIndex]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
+		group->population[orgIndex]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
+		group->population[orgIndex]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
+		group->population[orgIndex]->dataMap.setOutputBehavior("foodList", DataMap::LIST);
+		if (saveOrgActions) { // if saveOrgActions save the output.
+			vector<int> simplifiedMoves;
+			auto moves = dataMap.GetIntVector(to_string(group->population[orgIndex]->ID) + "_moves");
+			int movesCount = moves.size();
+			int turn;
+			int leftTurnCount = 0;
+			int rightTurnCount = 0;
+			cout << "movesCount: " << movesCount << endl;
+			for (int i = 0; i < movesCount; i++) {
+				turn = 0;
+				cout << "time: " << i << endl;
+				cout << "alwaysEat " << alwaysEat << endl;
+				if (alwaysEat) { // there will only be turns and move (0,1,2,3)
+					cout << "  AE  ";
+					while (moves[i] < 0 && i < movesCount) { // while not food (>=0) and moves left
+						cout << ".." << moves[i];
+						if (moves[i] == -3) { // move
+							cout << moves[i] << " forward " << turn << endl;
+							if (i + 1 < movesCount && moves[i + 1] < 0) { // org failed to move
+								moves[i] = 9; // 9 in the output will indicate org attempted to move
+							} else {
+								i++; // this should put us on a new food (including 0), no need to mark a move, it will be indicated by a value of 0 to 9
+							}
+						} else if (moves[i] == -1) { // right
+							turn++;
+							cout << moves[i] << " right " << turn << endl;
+							i++;
+						} else if (moves[i] == -2) { // left
+							turn--;
+							cout << moves[i] << " left " << turn << endl;
+							i++;
+							cout << moves[i] << " no action " << turn << endl;
+						} else { // no action
+							i++;
+						}
+					}
+					cout << "before: " << turn;
+					turn = (abs(turn) % 8) * ((0 < turn) - (turn < 0));
+					cout << "  after: " << turn << endl;
 
+					if (turn != 0) {
+						if (turn < 0) {
+							turn = 8 + turn;
+						}
+						if (turn == 1) {
+							rightTurnCount++;
+							simplifiedMoves.push_back(21); // soft turn
+						}
+						if (turn == 2) {
+							rightTurnCount++;
+							simplifiedMoves.push_back(22); // turn
+						}
+						if (turn == 3) {
+							rightTurnCount++;
+							simplifiedMoves.push_back(23); // hard turn
+						}
+						if (turn == 4) {
+							simplifiedMoves.push_back(40); // turn around
+						}
+						if (turn == 5) {
+							leftTurnCount++;
+							simplifiedMoves.push_back(33); // hard turn
+						}
+						if (turn == 6) {
+							leftTurnCount++;
+							simplifiedMoves.push_back(32); // turn
+						}
+						if (turn == 7) {
+							leftTurnCount++;
+							simplifiedMoves.push_back(31); // soft turn
+						}
+					}
+					if (i < movesCount) { // this must be a food (including 0)
+						simplifiedMoves.push_back(moves[i]);
+					}
+				}
+			}
+
+			// now count left and right turns and correct if needed so that 2x turns are dominant
+			for (int i = 0; i < (int) simplifiedMoves.size(); i++) {
+				if (leftTurnCount > rightTurnCount) {
+					if (simplifiedMoves[i] > 20 && simplifiedMoves[i] < 40) { // for each value that is a turn, reverse it's direction
+						if (simplifiedMoves[i] == 21) {
+							simplifiedMoves[i] = 31;
+						} else if (simplifiedMoves[i] == 22) {
+							simplifiedMoves[i] = 32;
+						} else if (simplifiedMoves[i] == 23) {
+							simplifiedMoves[i] = 33;
+						} else if (simplifiedMoves[i] == 31) {
+							simplifiedMoves[i] = 21;
+						} else if (simplifiedMoves[i] == 32) {
+							simplifiedMoves[i] = 22;
+						} else if (simplifiedMoves[i] == 33) {
+							simplifiedMoves[i] = 23;
+						}
+					}
+				}
+			}
+
+			dataMap.Set(to_string(group->population[orgIndex]->ID) + "_SimplifiedMoves", simplifiedMoves);
+
+		}
+
+	}
+
+	if (saveOrgActions) { // if saveOrgActions save the output.
+		dataMap.writeToFile("actions.txt");
 	}
 }
 
