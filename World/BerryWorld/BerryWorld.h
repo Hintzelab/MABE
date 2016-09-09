@@ -98,7 +98,9 @@ public:
 
 	static shared_ptr<ParameterLink<int>> alwaysStartOnFoodPL;
 
+	static shared_ptr<ParameterLink<bool>> saveOrgActionsPL;
 	static shared_ptr<ParameterLink<string>> visualizationFileNamePL;
+
 	static shared_ptr<ParameterLink<string>> mapFileListPL;
 	static shared_ptr<ParameterLink<string>> mapFileWhichMapsPL;
 
@@ -160,6 +162,7 @@ public:
 
 	int alwaysStartOnFood;
 
+	bool saveOrgActions;
 	string visualizationFileName;
 
 	bool alwaysEat;

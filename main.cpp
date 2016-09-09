@@ -252,8 +252,19 @@ int main(int argc, const char * argv[]) {
 			}
 		}
 
+		int IDcounter = -1;
+
+		set<int> inUseIDs;
+
 		for (auto g : testGenomes) {
 			auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], g);
+			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()){
+				newOrg->ID = IDcounter--; // assign a negative ID to indicate that this is a copy
+			} else {
+				newOrg->ID = g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!
+			}
+			inUseIDs.insert(newOrg->ID);
+
 			//newOrg->brain->setRecordActivity(true);
 			//newOrg->brain->setRecordFileName("wireBrain.run");
 			testPopulation.push_back(newOrg);  // add a new org to population using progenitors template and a new random genome

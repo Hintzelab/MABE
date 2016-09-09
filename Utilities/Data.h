@@ -300,7 +300,7 @@ public:
 			inUse[key] = DOUBLE; // set the in use to be a list rather then a solo
 		} else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) { // if this key is in data map as a string, append to vector
 			doubleData[key].push_back(value);
-			inUse[key] = DOUBLE; 
+			inUse[key] = DOUBLE;
 		} else {
 			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
 			exit(1);
@@ -417,7 +417,7 @@ public:
 				if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
 					if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
 						Append(key, otherDataMap.GetBoolVector(key));
-						if (boolData[key].size() == 1 && typeOfOtherKey == BOOLSOLO){
+						if (boolData[key].size() == 1 && typeOfOtherKey == BOOLSOLO) {
 							inUse[key] = BOOLSOLO;
 						} else {
 							inUse[key] = BOOL;
@@ -426,7 +426,7 @@ public:
 					}
 					if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
 						Append(key, otherDataMap.GetDoubleVector(key));
-						if (doubleData[key].size() == 1 && typeOfOtherKey == DOUBLESOLO){
+						if (doubleData[key].size() == 1 && typeOfOtherKey == DOUBLESOLO) {
 							inUse[key] = DOUBLESOLO;
 						} else {
 							inUse[key] = DOUBLE;
@@ -435,7 +435,7 @@ public:
 					}
 					if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
 						Append(key, otherDataMap.GetIntVector(key));
-						if (intData[key].size() == 1 && typeOfOtherKey == INTSOLO){
+						if (intData[key].size() == 1 && typeOfOtherKey == INTSOLO) {
 							inUse[key] = INTSOLO;
 						} else {
 							inUse[key] = INT;
@@ -445,7 +445,7 @@ public:
 					if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
 						Append(key, otherDataMap.GetStringVector(key));
 						Append(key, otherDataMap.GetIntVector(key));
-						if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO){
+						if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO) {
 							inUse[key] = STRINGSOLO;
 						} else {
 							inUse[key] = STRING;
@@ -616,43 +616,43 @@ public:
 
 				OB = outputBehavior[i];
 				if (OB == NONE) {
-					OB = LIST;
-				}
-				if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
-					OB = FIRST;
+					OB = LIST; // if no output behavior is assigned, make it list.
+					if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
+						OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
+					}
 				}
 				if (aveOnly) {
-					OB = OB & (AVE|FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
+					OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
 				}
 
 				if (OB & FIRST) { // save first (only?) element in vector with key as column name
 					headerStr = headerStr + FileManager::separator + i;
-					if (typeOfKey == BOOL || typeOfKey == BOOLSOLO){
-						if (GetBoolVector(i).size()>0){
+					if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+						if (GetBoolVector(i).size() > 0) {
 							dataStr = dataStr + FileManager::separator + to_string(GetBoolVector(i)[0]);
 						} else {
 							dataStr = dataStr + '0';
 							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
 						}
 					}
-					if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO){
-						if (GetDoubleVector(i).size()>0){
+					if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+						if (GetDoubleVector(i).size() > 0) {
 							dataStr = dataStr + FileManager::separator + to_string(GetDoubleVector(i)[0]);
 						} else {
 							dataStr = dataStr + '0';
 							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
 						}
 					}
-					if (typeOfKey == INT || typeOfKey == INTSOLO){
-						if (GetIntVector(i).size()>0){
+					if (typeOfKey == INT || typeOfKey == INTSOLO) {
+						if (GetIntVector(i).size() > 0) {
 							dataStr = dataStr + FileManager::separator + to_string(GetIntVector(i)[0]);
 						} else {
 							dataStr = dataStr + '0';
 							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
 						}
 					}
-					if (typeOfKey == STRING || typeOfKey == STRINGSOLO){
-						if (GetStringVector(i).size()>0){
+					if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+						if (GetStringVector(i).size() > 0) {
 							dataStr = dataStr + FileManager::separator + to_string(GetStringVector(i)[0]);
 						} else {
 							dataStr = dataStr + '0';
