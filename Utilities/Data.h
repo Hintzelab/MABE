@@ -696,6 +696,40 @@ public:
 		FileManager::writeToFile(fileName, dataStr, headerStr);  // write the data to file!
 	}
 
+
+	inline vector<string> getColumnNames(){
+		vector<string> columnNames;
+
+		for (auto element:inUse){
+			if (outputBehavior.find(element.first) == outputBehavior.end()){
+				// this element has no defined output behavior, so it will be LIST (default) or FIRST (if it's a solo value)
+				if (element.second == BOOLSOLO || element.second == DOUBLESOLO || element.second == INTSOLO || element.second == STRINGSOLO){
+					columnNames.push_back(element.first);
+				} else {
+					columnNames.push_back(element.first + "_LIST");
+				}
+			} else { // there is an output behavior defined
+				auto OB = outputBehavior[element.first];
+				if (OB & AVE) {
+					columnNames.push_back(element.first + "_AVE");
+				}
+				if (OB & SUM) {
+					cout << "  WARNING OUTPUT METHOD SUM IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & PROD) {
+					cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & STDERR) {
+					cout << "  WARNING OUTPUT METHOD STDERR IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & LIST) {
+					columnNames.push_back(element.first + "_LIST");
+				}
+
+			}
+		}
+		return columnNames;
+	}
 //	/*
 //	 * takes a vector of string with key value pairs. Calls set for each pair.
 //	 */
