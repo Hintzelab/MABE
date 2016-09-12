@@ -217,7 +217,8 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	}
 
 	// if we have reached the end of time OR we have pruned past updates (i.e. written out all data up to updates), then we ae done!
-	return (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+	finished = (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+	return finished;
 }
 
 bool LODwAPArchivist::isDataUpdate(int checkUpdate) {
