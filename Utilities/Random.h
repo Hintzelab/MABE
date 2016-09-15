@@ -26,8 +26,8 @@ using Generator=mt19937;
 inline Generator& getCommonGenerator() {
 	// to seed, do get_common_generator().seed(value);
 	static Generator common;  // This creates "common" which is a (random number) generator.
-	                          // Since it is static, it is only created the first time this function is called
-	                          // after this, each time the function is called, a reference to the same "common" is returned
+							  // Since it is static, it is only created the first time this function is called
+							  // after this, each time the function is called, a reference to the same "common" is returned
 	return common;
 }
 
@@ -69,6 +69,12 @@ inline int getBinomial(const int tests, const double probability, Generator& gen
 // Returns true with "probability" probability
 inline bool P(const double probability, Generator& gen = getCommonGenerator()) {
 	return bernoulli_distribution(probability)(gen);
+}
+
+// Returns a double drawn from a normal (Gaussian) distribution with mean "mu" and
+// standard deviation "sigma".
+inline double getNormal(const double mu, const double sigma, Generator& gen = getCommonGenerator()) {
+	return normal_distribution<>(mu, sigma)(gen);
 }
 
 }

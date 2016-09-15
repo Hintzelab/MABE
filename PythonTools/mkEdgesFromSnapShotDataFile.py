@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import math
 from matplotlib.backends.backend_pdf import PdfPages
-#import csv
+import csv
 import pandas
 
 from ast import literal_eval
@@ -16,7 +16,7 @@ from ast import literal_eval
 nodes = [-1]
 edges = []
 
-for time in np.arange(0,1000,100):
+for time in np.arange(0,2000,100):
   file_name = 'data_' + str(time) + '.csv'
   data_csv = pandas.read_csv(file_name)
   num_orgs = 0
@@ -26,8 +26,9 @@ for time in np.arange(0,1000,100):
     num_orgs = num_orgs + 1
 
   print (num_orgs)
+
   for i in range(num_orgs):
-    for a in literal_eval(data_csv['ancestors'][i]):
+    for a in literal_eval(data_csv['ancestors_LIST'][i]):
       edges.append((data_csv['ID'][i],a))
 
 f = open('workfile2.sif', 'w')
