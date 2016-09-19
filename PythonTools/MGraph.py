@@ -114,7 +114,8 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 	Rows = math.ceil(float(len(NamesList))/float(Columns))      # calcualate how many rows we need
 	for conditionCount in range(len(ConditionsList)):
 		for nameCount in range(len(NamesList)):
-			plt.tick_params(labelsize=TickFontSize)
+			#plt.tick_params(labelsize=TickFontSize)
+			#plt.ticklabel_format(useOffset=False, style='plain')
 			if not CombineData:
 				ax = plt.subplot(Rows,Columns,nameCount+1)
 				plt.title(NamesList[nameCount], fontsize=MinorFontSize) 	              # set the title for this plot
@@ -162,6 +163,9 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 				if (args.legendLineWeight > 0):
 					for legobj in leg.legendHandles:
 						legobj.set_linewidth(args.legendLineWeight)
+			plt.tick_params(labelsize=TickFontSize)
+			plt.ticklabel_format(useOffset=False, style='plain')
+
 	return plt.gcf()                                            # gcf = get current figure - return that.		
 
 plt.rcParams['figure.figsize'] = (10,8)
