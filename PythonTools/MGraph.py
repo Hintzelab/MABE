@@ -268,7 +268,7 @@ else:
 		for file in files:
 			if args.verbose:
 				print ("generating plot for: " + con + "__" + file)
-			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file)#plt.gcf()
+			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation)#plt.gcf()
 
 if args.save == '':
 	plt.show()

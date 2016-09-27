@@ -21,7 +21,7 @@
 set<string> FileManager::dataFilesCreated;
 
 string FileManager::outputDirectory = "./";
-
+map<string, vector<string>> FileManager::files;
 /*
  * takes a vector of string with key value pairs. Calls set for each pair.
  */
@@ -90,14 +90,14 @@ void FileManager::writeToFile(const string& fileName, const string& data, const 
 	bool fileClosed = true;
 	if (FileManager::dataFilesCreated.find(fileName) == FileManager::dataFilesCreated.end()) {  // if file has not be initialized yet
 		FileManager::dataFilesCreated.insert(fileName);  // make a note that file exists
-		FILE.open(outputDirectory + fileName);  // clear file contents and open in write mode
+		FILE.open(outputDirectory + "/" + fileName);  // clear file contents and open in write mode
 		fileClosed = false;
 		if (header != "") {
 			FILE << header << "\n";
 		}
 	}
 	if (fileClosed) {
-		FILE.open(outputDirectory + fileName, ios::out | ios::app);  // open file in append mode
+		FILE.open(outputDirectory + "/" + fileName, ios::out | ios::app);  // open file in append mode
 	}
 	FILE << data << "\n";
     FILE.close();

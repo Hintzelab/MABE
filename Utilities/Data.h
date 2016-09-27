@@ -99,6 +99,8 @@ public:
 
 class FileManager {
 public:
+	static map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)
+
 	static string outputDirectory;
 	static set<string> dataFilesCreated;  // list of files, this allows us to track if headers must be written
 	static const char separator = ',';
@@ -603,8 +605,10 @@ public:
 		dataStr = "";
 		dataMapType typeOfKey;
 		int OB; // holds output behavior so it can be over ridden for ave file output!
+
 		if (keys.size() > 0) {  // if keys is not empty
-			for (auto i : keys) {
+			for (int n = 0; n < int(keys.size()); n++) {
+				string i = keys[n];
 				typeOfKey = findKeyInData(i);
 				if (typeOfKey == NONE) {
 					cout << "  in DataMap::writeToFile() - key \"" << i << "\" can not be found in data map!\n  exiting." << endl;
@@ -686,13 +690,19 @@ public:
 
 	inline void writeToFile(const string &fileName, const vector<string>& keys = { }, bool aveOnly = false) {
 		//Set("score{LIST}",10.0);
+
+		if (FileManager::files.find(fileName) == FileManager::files.end()) {  // first make sure that the dataFile has been set up.
+			if (keys.size() == 0) { // if no keys are given
+				FileManager::files[fileName] = getKeys();
+			} else {
+				FileManager::files[fileName] = keys;
+			}
+		}
 		string headerStr = "";
 		string dataStr = "";
-		if (keys.size() == 0) { // if no keys are given
-			constructHeaderAndDataStrings(headerStr, dataStr, getKeys(), aveOnly); // create strings with all keys (get keys, removing {LIST} if it's there.)
-		} else {
-			constructHeaderAndDataStrings(headerStr, dataStr, keys, aveOnly); // if a list is given, use that.
-		}
+
+		constructHeaderAndDataStrings(headerStr, dataStr, FileManager::files[fileName], aveOnly); // if a list is given, use that.
+
 		FileManager::writeToFile(fileName, dataStr, headerStr);  // write the data to file!
 	}
 

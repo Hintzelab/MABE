@@ -1060,7 +1060,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	}
 
 	if (saveOrgActions) { // if saveOrgActions save the output.
-		dataMap.writeToFile("actions.txt");
+		dataMap.writeToFile(visualizationFileName+"_actions.txt");
 	}
 }
 
