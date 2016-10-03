@@ -61,7 +61,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 		}
 	}
 
-    if (Global::modePL->lookup() == "visualize") {
+    if (0){//Global::modePL->lookup() == "visualize") {
             string stateNow = "";
             stateNow += to_string(ID);
             stateNow += "," + to_string(fire);

@@ -209,7 +209,8 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 		}
 	}
 	// if we are at the end of the run
-	return (Global::update >= Global::updatesPL->lookup());
+	finished = Global::update >= Global::updatesPL->lookup();
+	return finished;
 }
 
 void DefaultArchivist::processAllLists(OldDataMap &dm) {

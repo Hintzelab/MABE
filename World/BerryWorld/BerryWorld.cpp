@@ -961,17 +961,17 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			int turn;
 			int leftTurnCount = 0;
 			int rightTurnCount = 0;
-			cout << "movesCount: " << movesCount << endl;
+			//cout << "movesCount: " << movesCount << endl;
 			for (int i = 0; i < movesCount; i++) {
 				turn = 0;
-				cout << "time: " << i << endl;
-				cout << "alwaysEat " << alwaysEat << endl;
+				//cout << "time: " << i << endl;
+				//cout << "alwaysEat " << alwaysEat << endl;
 				if (alwaysEat) { // there will only be turns and move (0,1,2,3)
-					cout << "  AE  ";
+					//cout << "  AE  ";
 					while (moves[i] < 0 && i < movesCount) { // while not food (>=0) and moves left
-						cout << ".." << moves[i];
+						//cout << ".." << moves[i];
 						if (moves[i] == -3) { // move
-							cout << moves[i] << " forward " << turn << endl;
+							//cout << moves[i] << " forward " << turn << endl;
 							if (i + 1 < movesCount && moves[i + 1] < 0) { // org failed to move
 								moves[i] = 9; // 9 in the output will indicate org attempted to move
 							} else {
@@ -979,20 +979,20 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 							}
 						} else if (moves[i] == -1) { // right
 							turn++;
-							cout << moves[i] << " right " << turn << endl;
+							//cout << moves[i] << " right " << turn << endl;
 							i++;
 						} else if (moves[i] == -2) { // left
 							turn--;
-							cout << moves[i] << " left " << turn << endl;
+							//cout << moves[i] << " left " << turn << endl;
 							i++;
-							cout << moves[i] << " no action " << turn << endl;
+							//cout << moves[i] << " no action " << turn << endl;
 						} else { // no action
 							i++;
 						}
 					}
-					cout << "before: " << turn;
+					//cout << "before: " << turn;
 					turn = (abs(turn) % 8) * ((0 < turn) - (turn < 0));
-					cout << "  after: " << turn << endl;
+					//cout << "  after: " << turn << endl;
 
 					if (turn != 0) {
 						if (turn < 0) {
@@ -1060,7 +1060,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	}
 
 	if (saveOrgActions) { // if saveOrgActions save the output.
-		dataMap.writeToFile("actions.txt");
+		dataMap.writeToFile(visualizationFileName+"_actions.txt");
 	}
 }
 

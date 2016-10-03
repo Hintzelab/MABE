@@ -249,7 +249,8 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 		}
 	}
 	// if enough time has passed to save all data and genomes, then we are done!
-	return ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextGenomeWrite > Global::updatesPL->lookup() || !(writeGenomeFiles)) && Global::update >= Global::updatesPL->lookup());
+	finished = ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextGenomeWrite > Global::updatesPL->lookup() || !(writeGenomeFiles)) && Global::update >= Global::updatesPL->lookup());
+	return finished;
 }
 
 

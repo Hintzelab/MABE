@@ -150,24 +150,25 @@ int main(int argc, const char * argv[]) {
 		//////////////////
 		// run mode - evolution loop
 		//////////////////
-		bool finished = false;  // MABE will keep running the evolution loop until the archivist sets finished to true
 
-		while (!finished) {
+		while (!groups[defaultGroup]->archivist->finished) {
 
 			// evaluate population in world.
 			world->evaluate(groups[defaultGroup], AbstractWorld::groupEvaluationPL->lookup(), false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			//cout << "  evaluation done" << endl;
 
 			// save data, update memory and delete any unneeded data;
-			finished = groups[defaultGroup]->archive();
-			//cout << "  archive done" << endl;
+			if (!groups[defaultGroup]->archivist->finished) {
+				groups[defaultGroup]->archive();
+				//cout << "  archive done" << endl;
 
-			// move forward in time!
-			Global::update++;
+				// move forward in time!
 
-			// update the population (reproduction and death)
-			groups[defaultGroup]->optimize();
-			//cout << "  optimize done\n";
+				// update the population (reproduction and death)
+				Global::update++;
+				groups[defaultGroup]->optimize();
+				//cout << "  optimize done\n";
+			}
 
 			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxFitness << "" << endl;
 		}
@@ -258,7 +259,7 @@ int main(int argc, const char * argv[]) {
 
 		for (auto g : testGenomes) {
 			auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], g);
-			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()){
+			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()) {
 				newOrg->ID = IDcounter--; // assign a negative ID to indicate that this is a copy
 			} else {
 				newOrg->ID = g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!

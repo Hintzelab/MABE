@@ -99,6 +99,8 @@ public:
 
 class FileManager {
 public:
+	static map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)
+
 	static string outputDirectory;
 	static set<string> dataFilesCreated;  // list of files, this allows us to track if headers must be written
 	static const char separator = ',';
@@ -289,7 +291,7 @@ public:
 			boolData[key].push_back(value);
 			inUse[key] = BOOL;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -302,7 +304,7 @@ public:
 			doubleData[key].push_back(value);
 			inUse[key] = DOUBLE;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -315,7 +317,7 @@ public:
 			intData[key].push_back(value);
 			inUse[key] = INT; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -328,7 +330,7 @@ public:
 			stringData[key].push_back(value);
 			inUse[key] = STRING; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -342,7 +344,7 @@ public:
 			boolData[key].insert(boolData[key].end(), value.begin(), value.end());
 			inUse[key] = BOOL; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -354,7 +356,7 @@ public:
 			doubleData[key].insert(doubleData[key].end(), value.begin(), value.end());
 			inUse[key] = DOUBLE; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -366,7 +368,7 @@ public:
 			intData[key].insert(intData[key].end(), value.begin(), value.end());
 			inUse[key] = INT; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -378,7 +380,7 @@ public:
 			stringData[key].insert(stringData[key].end(), value.begin(), value.end());
 			inUse[key] = STRING; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -603,8 +605,10 @@ public:
 		dataStr = "";
 		dataMapType typeOfKey;
 		int OB; // holds output behavior so it can be over ridden for ave file output!
+
 		if (keys.size() > 0) {  // if keys is not empty
-			for (auto i : keys) {
+			for (int n = 0; n < int(keys.size()); n++) {
+				string i = keys[n];
 				typeOfKey = findKeyInData(i);
 				if (typeOfKey == NONE) {
 					cout << "  in DataMap::writeToFile() - key \"" << i << "\" can not be found in data map!\n  exiting." << endl;
@@ -686,16 +690,56 @@ public:
 
 	inline void writeToFile(const string &fileName, const vector<string>& keys = { }, bool aveOnly = false) {
 		//Set("score{LIST}",10.0);
+
+		if (FileManager::files.find(fileName) == FileManager::files.end()) {  // first make sure that the dataFile has been set up.
+			if (keys.size() == 0) { // if no keys are given
+				FileManager::files[fileName] = getKeys();
+			} else {
+				FileManager::files[fileName] = keys;
+			}
+		}
 		string headerStr = "";
 		string dataStr = "";
-		if (keys.size() == 0) { // if no keys are given
-			constructHeaderAndDataStrings(headerStr, dataStr, getKeys(), aveOnly); // create strings with all keys (get keys, removing {LIST} if it's there.)
-		} else {
-			constructHeaderAndDataStrings(headerStr, dataStr, keys, aveOnly); // if a list is given, use that.
-		}
+
+		constructHeaderAndDataStrings(headerStr, dataStr, FileManager::files[fileName], aveOnly); // if a list is given, use that.
+
 		FileManager::writeToFile(fileName, dataStr, headerStr);  // write the data to file!
 	}
 
+
+	inline vector<string> getColumnNames(){
+		vector<string> columnNames;
+
+		for (auto element:inUse){
+			if (outputBehavior.find(element.first) == outputBehavior.end()){
+				// this element has no defined output behavior, so it will be LIST (default) or FIRST (if it's a solo value)
+				if (element.second == BOOLSOLO || element.second == DOUBLESOLO || element.second == INTSOLO || element.second == STRINGSOLO){
+					columnNames.push_back(element.first);
+				} else {
+					columnNames.push_back(element.first + "_LIST");
+				}
+			} else { // there is an output behavior defined
+				auto OB = outputBehavior[element.first];
+				if (OB & AVE) {
+					columnNames.push_back(element.first + "_AVE");
+				}
+				if (OB & SUM) {
+					cout << "  WARNING OUTPUT METHOD SUM IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & PROD) {
+					cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & STDERR) {
+					cout << "  WARNING OUTPUT METHOD STDERR IS HAS YET TO BE WRITTEN!" << endl;
+				}
+				if (OB & LIST) {
+					columnNames.push_back(element.first + "_LIST");
+				}
+
+			}
+		}
+		return columnNames;
+	}
 //	/*
 //	 * takes a vector of string with key value pairs. Calls set for each pair.
 //	 */

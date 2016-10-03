@@ -17,9 +17,13 @@ shared_ptr<ParameterLink<double>> IPDWorld::S_payOffPL = Parameters::register_pa
 shared_ptr<ParameterLink<double>> IPDWorld::T_payOffPL = Parameters::register_parameter("WORLD_IPD-T_payOff", 5.0, "Temptation Payoff - received when an organism defects, and their opponent cooperates");
 shared_ptr<ParameterLink<double>> IPDWorld::P_payOffPL = Parameters::register_parameter("WORLD_IPD-P_payOff", 1.0, "Punishment Payoff - received when both organisms defect");
 
-shared_ptr<ParameterLink<int>> IPDWorld::numCompetitorsPL = Parameters::register_parameter("WORLD_IPD-numCompetitors", -1, "number of each organism will challenge (and also be challenged by).\nTotal matches played will be 2 times this number * population size.\nIf -1, then every organism will play every other organism once.");
+shared_ptr<ParameterLink<int>> IPDWorld::numCompetitorsPL = Parameters::register_parameter("WORLD_IPD-numCompetitors", -1,
+		"number of each organism will challenge (and also be challenged by).\nTotal matches played will be 2 times this number * population size.\nIf -1, then every organism will play every other organism once.");
 
 shared_ptr<ParameterLink<bool>> IPDWorld::CPL = Parameters::register_parameter("WORLD_IPD-C", true, "How will Cooperate be represented internally (Defect will = 1 - Cooperate)");
+
+shared_ptr<ParameterLink<bool>> IPDWorld::skipFirstMovePL = Parameters::register_parameter("WORLD_IPD-skipFirstMove", true, "if true, the first move will not be scored");
+shared_ptr<ParameterLink<bool>> IPDWorld::randomFirstMovePL = Parameters::register_parameter("WORLD_IPD-randomFirstMove", false, "if true, the first move will not be scored");
 
 //shared_ptr<ParameterLink<double>> BerryWorld::TSKPL = Parameters::register_parameter("WORLD_BERRY-taskSwitchingCost", 1.4, "cost to change food sources");
 
@@ -41,6 +45,10 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	C = (PT == nullptr) ? CPL->lookup() : PT->lookupBool("WORLD_IPD-C");
 	D = 1 - C;
 
+	skipFirstMove = (PT == nullptr) ? skipFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-skipFirstMove");
+	randomFirstMove = (PT == nullptr) ? randomFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-randomFirstMove");
+
+
 	inputNodesCount = 2;  // this is first move, other players last move
 	outputNodesCount = 1;  // my move
 
@@ -50,12 +58,12 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	aveFileColumns.push_back("CC");
 	aveFileColumns.push_back("DD");
 	aveFileColumns.push_back("CD");
-	aveFileColumns.push_back("CD");
+	aveFileColumns.push_back("DC");
 }
 
 void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	bool p1Move = C;
-	bool p2Move = C;
+	bool p1Move = (randomFirstMove)?Random::getInt(0,1):C;
+	bool p2Move = (randomFirstMove)?Random::getInt(0,1):C;
 
 	double P1score = 0;
 	double P2score = 0;
@@ -68,9 +76,8 @@ void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bo
 	int P2DC = 0;
 	int P1DD = 0;
 	int P2DD = 0;
-
-	p1->dataMap.Append("moves", "X");
-	p2->dataMap.Append("moves", "X");
+	p1->dataMap.Append("moves", (string)"X");
+	p2->dataMap.Append("moves", (string)"X");
 	p1->brain->resetBrain();
 	p2->brain->resetBrain();
 	int gL = Random::getInt(roundsMax - roundsMin) + roundsMin;
@@ -100,33 +107,35 @@ void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bo
 //		cout << "P1 score: " << P1score << endl;
 //		cout << "P2 score: " << P2score << endl;
 
-		if (p1Move == C && p2Move == C) {
-			//cout << "CC" << endl;
-			P1score += R_payOff;
-			P2score += R_payOff;
-			P1CC++;
-			P2CC++;
-		}
-		if (p1Move == C && p2Move == D) {
-			//cout << "CD" << endl;
-			P1score += S_payOff;
-			P2score += T_payOff;
-			P1CD++;
-			P2DC++;
-		}
-		if (p1Move == D && p2Move == C) {
-			//cout << "DC" << endl;
-			P1score += T_payOff;
-			P2score += S_payOff;
-			P1DC++;
-			P2CD++;
-		}
-		if (p1Move == D && p2Move == D) {
-			//cout << "DD" << endl;
-			P1score += P_payOff;
-			P2score += P_payOff;
-			P1DD++;
-			P2DD++;
+		if (skipFirstMove && t != 0) { // don't count the first move
+			if (p1Move == C && p2Move == C) {
+				//cout << "CC" << endl;
+				P1score += R_payOff;
+				P2score += R_payOff;
+				P1CC++;
+				P2CC++;
+			}
+			if (p1Move == C && p2Move == D) {
+				//cout << "CD" << endl;
+				P1score += S_payOff;
+				P2score += T_payOff;
+				P1CD++;
+				P2DC++;
+			}
+			if (p1Move == D && p2Move == C) {
+				//cout << "DC" << endl;
+				P1score += T_payOff;
+				P2score += S_payOff;
+				P1DC++;
+				P2CD++;
+			}
+			if (p1Move == D && p2Move == D) {
+				//cout << "DD" << endl;
+				P1score += P_payOff;
+				P2score += P_payOff;
+				P1DD++;
+				P2DD++;
+			}
 		}
 //		cout << "P1 score: " << P1score << endl;
 //		cout << "P2 score: " << P2score << endl;
@@ -141,24 +150,24 @@ void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bo
 	p2->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
 	p1->dataMap.Append("CC", (double) P1CC / (double) gL);
-	p1->dataMap.setOutputBehavior("CC",DataMap::AVE);
+	p1->dataMap.setOutputBehavior("CC", DataMap::AVE);
 	p2->dataMap.Append("CC", (double) P2CC / (double) gL);
-	p2->dataMap.setOutputBehavior("CC",DataMap::AVE);
+	p2->dataMap.setOutputBehavior("CC", DataMap::AVE);
 	p1->dataMap.Append("CD", (double) P1CD / (double) gL);
-	p1->dataMap.setOutputBehavior("CD",DataMap::AVE);
+	p1->dataMap.setOutputBehavior("CD", DataMap::AVE);
 	p2->dataMap.Append("CD", (double) P2CD / (double) gL);
-	p2->dataMap.setOutputBehavior("CD",DataMap::AVE);
+	p2->dataMap.setOutputBehavior("CD", DataMap::AVE);
 	p1->dataMap.Append("DC", (double) P1DC / (double) gL);
-	p1->dataMap.setOutputBehavior("DC",DataMap::AVE);
+	p1->dataMap.setOutputBehavior("DC", DataMap::AVE);
 	p2->dataMap.Append("DC", (double) P2DC / (double) gL);
-	p2->dataMap.setOutputBehavior("DC",DataMap::AVE);
+	p2->dataMap.setOutputBehavior("DC", DataMap::AVE);
 	p1->dataMap.Append("DD", (double) P1DD / (double) gL);
-	p1->dataMap.setOutputBehavior("DD",DataMap::AVE);
+	p1->dataMap.setOutputBehavior("DD", DataMap::AVE);
 	p2->dataMap.Append("DD", (double) P2DD / (double) gL);
-	p2->dataMap.setOutputBehavior("DD",DataMap::AVE);
+	p2->dataMap.setOutputBehavior("DD", DataMap::AVE);
 
-	p1->dataMap.setOutputBehavior("moves",DataMap::LIST);
-	p2->dataMap.setOutputBehavior("moves",DataMap::LIST);
+	p1->dataMap.setOutputBehavior("moves", DataMap::LIST);
+	p2->dataMap.setOutputBehavior("moves", DataMap::LIST);
 
 }
 
@@ -181,11 +190,11 @@ void IPDWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, b
 			}
 		}
 	} else {
-		if (n >= (int)group->population.size()){
-			cout << "In IPDWorld, WORLD_IPD-numCompetitors is to large. must be > 0 and < population size.\nExiting."<<endl;
+		if (n >= (int) group->population.size()) {
+			cout << "In IPDWorld, WORLD_IPD-numCompetitors is to large. must be > 0 and < population size.\nExiting." << endl;
 			exit(1);
-		} else if (n == 0){
-			cout << "In IPDWorld, WORLD_IPD-numCompetitors is 0. must be > 0 and < population size.\nExiting."<<endl;
+		} else if (n == 0) {
+			cout << "In IPDWorld, WORLD_IPD-numCompetitors is 0. must be > 0 and < population size.\nExiting." << endl;
 			exit(1);
 		} else {
 			for (int i = 0; i < (int) group->population.size(); i++) {
@@ -198,13 +207,13 @@ void IPDWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, b
 			}
 		}
 	}
-	if (n == -1){
+	if (n == -1) {
 		n = (int) group->population.size() - 1; // if n == -1 the each org plays every other org
 	} else {
 		n = n * 2; // else each org plays the n orgs "before" and "after" them (in the population vector)
 	}
 	for (int i = 0; i < (int) group->population.size(); i++) {
-		group->population[i]->score = scores[i] / (double)n;
+		group->population[i]->score = scores[i] / (double) n;
 		group->population[i]->dataMap.Append("allscore", group->population[i]->score);
 
 	}
