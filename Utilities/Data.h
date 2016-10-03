@@ -291,7 +291,7 @@ public:
 			boolData[key].push_back(value);
 			inUse[key] = BOOL;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -304,7 +304,7 @@ public:
 			doubleData[key].push_back(value);
 			inUse[key] = DOUBLE;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -317,7 +317,7 @@ public:
 			intData[key].push_back(value);
 			inUse[key] = INT; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -330,7 +330,7 @@ public:
 			stringData[key].push_back(value);
 			inUse[key] = STRING; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -344,7 +344,7 @@ public:
 			boolData[key].insert(boolData[key].end(), value.begin(), value.end());
 			inUse[key] = BOOL; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -356,7 +356,7 @@ public:
 			doubleData[key].insert(doubleData[key].end(), value.begin(), value.end());
 			inUse[key] = DOUBLE; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -368,7 +368,7 @@ public:
 			intData[key].insert(intData[key].end(), value.begin(), value.end());
 			inUse[key] = INT; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
@@ -380,7 +380,7 @@ public:
 			stringData[key].insert(stringData[key].end(), value.begin(), value.end());
 			inUse[key] = STRING; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << typeOfKey << ".\n  exiting." << endl;
+			cout << "  In DataMap::Append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}

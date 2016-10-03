@@ -32,12 +32,15 @@ public:
 	static shared_ptr<ParameterLink<int>> roundsMaxPL;
 	static shared_ptr<ParameterLink<double>> R_payOffPL; // Reward
 	static shared_ptr<ParameterLink<double>> S_payOffPL; // sucker
-	static shared_ptr<ParameterLink<double>> T_payOffPL; // Teptation
+	static shared_ptr<ParameterLink<double>> T_payOffPL; // Temptation
 	static shared_ptr<ParameterLink<double>> P_payOffPL; // Punishment
 
 	static shared_ptr<ParameterLink<bool>> CPL;
 
 	static shared_ptr<ParameterLink<int>> numCompetitorsPL;
+
+	static shared_ptr<ParameterLink<bool>> skipFirstMovePL;
+	static shared_ptr<ParameterLink<bool>> randomFirstMovePL;
 
 	int roundsMin;
 	int roundsMax;
@@ -46,6 +49,9 @@ public:
 	double T_payOff; // Temptation
 	double P_payOff; // Punishment
 	int numCompetitors;
+
+	bool skipFirstMove;
+	bool randomFirstMove;
 
 	bool C;
 	bool D;
