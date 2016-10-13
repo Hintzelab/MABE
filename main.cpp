@@ -24,6 +24,7 @@
 #include "Utilities/Random.h"
 #include "Utilities/Data.h"
 #include "Utilities/Utilities.h"
+#include "Utilities/WorldUtilities.h"
 
 #include "modules.h"
 
@@ -31,6 +32,23 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 
+	int i = atoi(argv[1]);
+	int j = atoi(argv[2]);
+	int k = atoi(argv[3]);
+	int l = atoi(argv[4]);
+
+	int x;
+	for (int c = 0; c < 100; c++){
+		SensorArc(i++,j++,k,l);
+		j++;
+		cin >> x;
+		if (x == 1) {
+			l++;
+		}
+	}
+
+
+	exit(1);
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;

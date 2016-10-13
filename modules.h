@@ -13,6 +13,7 @@
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
 #include "World/BerryWorld/BerryWorld.h"
+#include "World/FSMaleTypesWorld/FSMaleTypesWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/TestWorld/TestWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
@@ -39,6 +40,10 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
   if (worldType == "Berry") {
     newWorld = make_shared<BerryWorld>(PT);
+    found = true;
+    }
+  if (worldType == "FSMaleTypes") {
+    newWorld = make_shared<FSMaleTypesWorld>(PT);
     found = true;
     }
   if (worldType == "NumeralClassifier") {
@@ -181,7 +186,7 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
 
   Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, NumeralClassifier, Test, IPD, SOF]");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, FSMaleTypes, NumeralClassifier, Test, IPD, SOF]");
 }
 
 
