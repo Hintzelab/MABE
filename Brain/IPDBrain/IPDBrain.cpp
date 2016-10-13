@@ -1,0 +1,125 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/ahnt/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/ahnt/MABE/wiki/License
+
+#include "../IPDBrain/IPDBrain.h"
+
+shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,Rand]", "list of strategies which this brain can use");
+
+
+//shared_ptr<ParameterLink<double>> IPDBrain::valueMinPL = Parameters::register_parameter("BRAIN_IPD-valueMin", 0.0, "Minmum value that brain will deliver");
+//shared_ptr<ParameterLink<double>> IPDBrain::valueMaxPL = Parameters::register_parameter("BRAIN_IPD-valueMax", 100.0, "Maximum value that brain will deliver");
+//shared_ptr<ParameterLink<int>> IPDBrain::valueTypePL = Parameters::register_parameter("BRAIN_IPD-valueType", 0, "0 = int, 1 = double");
+//shared_ptr<ParameterLink<int>> IPDBrain::samplesPerValuePL = Parameters::register_parameter("BRAIN_IPD-samplesPerValue", 1, "for each brain value, this many samples will be taken from genome and averaged");
+//
+//shared_ptr<ParameterLink<bool>> IPDBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_IPD-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
+//shared_ptr<ParameterLink<bool>> IPDBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_IPD-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
+//shared_ptr<ParameterLink<int>> IPDBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_IPD-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
+
+IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+
+	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_CONSTANT-availableStrategies"), availableStrategies);
+
+	//	valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
+//	valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
+//	samplesPerValue = (PT == nullptr) ? samplesPerValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-samplesPerValue");
+//
+//	initializeUniform = (PT == nullptr) ? initializeUniformPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeUniform");
+//	initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
+//	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
+
+// columns to be added to ave file
+	aveFileColumns.clear();
+	for (auto i:availableStrategies) {
+		aveFileColumns.push_back("brain_" + to_string(i));
+	}
+}
+
+shared_ptr<AbstractBrain> IPDBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
+
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInNodes, nrOutNodes, nrHiddenNodes);
+	auto genomeHandler = _genome->newHandler(_genome, true);
+
+	newBrain->strategy = availableStrategies[genomeHandler->readInt(0, ((int)availableStrategies.size())-1, 77, 0)];
+
+	return newBrain;
+}
+
+void IPDBrain::resetBrain() {
+	movesSelf.clear();
+	movesOther.clear();
+	internalValues.clear();
+}
+
+void IPDBrain::update() {
+	//cout << "in IPDBrain::update()" << endl;
+	int C = (PT == nullptr) ? Parameters::root->lookupBool("WORLD_IPD-C") : PT->lookupBool("WORLD_IPD-C");
+	int D = 1 - C;
+
+	movesOther.push_back(nodes[inputNodesList[1]]);
+	if (strategy == "Rand"){
+		//cout << "Rand" << endl;
+		nodes[outputNodesList[0]] = Random::getInt(0,1);
+	}
+
+	if (strategy == "AllC"){
+		//cout << "AllC" << endl;
+		nodes[outputNodesList[0]] = C;
+	}
+
+	if (strategy == "AllD"){
+		//cout << "AllD" << endl;
+		nodes[outputNodesList[0]] = D;
+
+	}
+
+	if (strategy == "TFT"){
+		//cout << "TFT" << endl;
+		nodes[outputNodesList[0]] = ((movesOther[((int)movesOther.size())-1]) == D)?D:C;
+	}
+
+	if (strategy == "WSLS"){
+		cout << "not yet written!" << endl;
+		exit(1);
+	}
+	movesSelf.push_back(nodes[outputNodesList[0]]);
+
+	//cout << "done IPDBrain::update()" << endl;
+
+}
+
+void inline IPDBrain::resetOutputs() {
+	for (auto i : outputNodesList) {
+		nodes[i] = 0.0;
+	}
+}
+
+string IPDBrain::description() {
+	string S = "IPD Brain\n";
+	return S;
+}
+
+DataMap IPDBrain::getStats() {
+	DataMap dataMap;
+
+	for (auto i : availableStrategies) {
+		if (strategy == i){
+			dataMap.Set("brain_" + i,1.0);
+		} else {
+			dataMap.Set("brain_" + i,0.0);
+		}
+	}
+	return (dataMap);
+}
+
+void IPDBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
+	_genome->fillRandom();
+}
+
