@@ -20,6 +20,7 @@
 #include "Genome/CircularGenome/CircularGenome.h"
 #include "Genome/MultiGenome/MultiGenome.h"
 #include "Brain/MarkovBrain/MarkovBrain.h"
+#include "Brain/IPDBrain/IPDBrain.h"
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
 #include "Brain/HumanBrain/HumanBrain.h"
 #include "Brain/WireBrain/WireBrain.h"
@@ -146,6 +147,10 @@ shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, sha
     newBrain = MarkovBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
     found = true;
     }
+  if (brainType == "IPD") {
+    newBrain = IPDBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    found = true;
+    }
   if (brainType == "ConstantValues") {
     newBrain = ConstantValuesBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
     found = true;
@@ -169,7 +174,7 @@ shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, sha
 //configure Defaults and Documentation
 void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("BRAIN-brainType", (string)"Markov");
-  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, ConstantValues, Human, Wire]");
+  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, IPD, ConstantValues, Human, Wire]");
 
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
   Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");
