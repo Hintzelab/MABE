@@ -1,5 +1,4 @@
 % World
-  * FSMaleTypes
   * Berry
   + NumeralClassifier
   + Test

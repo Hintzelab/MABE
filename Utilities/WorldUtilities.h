@@ -383,7 +383,7 @@ public:
 			newLocation.y = allLocations[allLocations_index * 2 + 1];
 			newLocation.distance = sqrt((pow(newLocation.x, 2) + pow(newLocation.y, 2)));
 
-			int currentLocationTree_index = ((int) locationsTree.size()); // capture this index, we will need it later
+			//int currentLocationTree_index = ((int) locationsTree.size()); // capture this index, we will need it later
 
 			locationsTree.push_back(newLocation);
 
