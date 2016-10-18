@@ -32,20 +32,22 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 
-	int i = atoi(argv[1]);
-	int j = atoi(argv[2]);
-	int k = atoi(argv[3]);
-	int l = atoi(argv[4]);
+	double i = atof(argv[1]);
+	double j = atof(argv[2]);
+	double k = atof(argv[3]);
+	double l = atof(argv[4]);
 
-	int x;
-	for (int c = 0; c < 100; c++){
-		SensorArc(i++,j++,k,l);
-		j++;
-		cin >> x;
-		if (x == 1) {
-			l++;
-		}
-	}
+	SensorArc(i,j,k,l);
+
+//	int x;
+//	for (int c = 0; c < 100; c++){
+//		SensorArc(i++,j++,k,l);
+//		j++;
+//		cin >> x;
+//		if (x == 1) {
+//			l++;
+//		}
+//	}
 
 
 	exit(1);
