@@ -61,6 +61,13 @@ public:
 
 		minWorkingAngle = min(workingAngle1, min(workingAngle2, min(workingAngle3, workingAngle4)));
 		maxWorkingAngle = max(workingAngle1, max(workingAngle2, max(workingAngle3, workingAngle4)));
+		if (maxWorkingAngle - minWorkingAngle > 180) { // this space crosses 360/0
+			vector<double> listOnums = { workingAngle1, workingAngle2, workingAngle3, workingAngle4 };
+			sort(listOnums.begin(), listOnums.end());
+			minWorkingAngle = listOnums[1];
+			maxWorkingAngle = listOnums[2];
+
+		}
 	}
 
 	void drawArc(const double& distanceMax, vector<int> allLocations) {
@@ -109,6 +116,244 @@ public:
 
 		}
 		cout << endl;
+	}
+
+	vector<double> makeVisableArcs(double angle1, double angle2, double distanceMax, vector<int> allLocations, vector<int> blockingLocations) {
+
+		int blockingCount = blockingLocations.size() / 2;
+
+		vector<double> visableArcs, tempBlockedArcs, blockedArcs;
+
+		int search_index;
+		double minWorkingAngle, maxWorkingAngle;
+
+		// get list with working angles for all blocking locations
+		for (int i = 0; i < blockingCount; i++) {
+			getWorkingAngles(blockingLocations[i * 2], blockingLocations[(i * 2) + 1], minWorkingAngle, maxWorkingAngle);
+			if (maxWorkingAngle - minWorkingAngle < 180) {
+				tempBlockedArcs.push_back(minWorkingAngle);
+				tempBlockedArcs.push_back(maxWorkingAngle);
+			} else {
+				tempBlockedArcs.push_back(0);
+				tempBlockedArcs.push_back(minWorkingAngle);
+				tempBlockedArcs.push_back(maxWorkingAngle);
+				tempBlockedArcs.push_back(360);
+			}
+		}
+
+		// blockingCount now counts number of temp arcs!
+		blockingCount = tempBlockedArcs.size() / 2;
+
+		// sort list of blocking working angles by min value
+		for (int i = 0; i < blockingCount; i++) {
+			search_index = i;
+			for (int j = i; j < blockingCount; j++) {
+				if (tempBlockedArcs[j * 2] < tempBlockedArcs[i * 2]) {
+					search_index = j;
+				}
+			}
+			swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
+			swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
+		}
+
+		//see if any blocking arcs can be combined or removed and define visable arcs
+		if (blockingCount == 0) { // nothing blocking
+			if (angle1 < angle2) {
+				visableArcs = {angle1,angle2};
+			} else {
+				visableArcs = {0,angle2,angle1,360};
+			}
+		} else if (blockingCount == 1) { // there is one blocking arc
+			if (angle1 < angle2) {
+				if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] > angle2) { // everything is blocked!
+					visableArcs.resize(0);
+				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] > angle2) { // angle1 to tempBlockedArcs[0] is visible
+					visableArcs = {angle1,tempBlockedArcs[0]};
+				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] < angle2) { // there are two visible arcs
+					visableArcs = {angle1,tempBlockedArcs[0],tempBlockedArcs[1],angle2};
+				} else if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] < angle2) { // tempBlockedArcs[1] to angle2 is visible
+					visableArcs = {tempBlockedArcs[1],angle2};
+				} else { // blocking nothing
+					visableArcs = {angle1,angle2};
+				}
+			} else { //(angle1 > angle2){
+				if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] < angle1) { // blocking nothing
+					visableArcs = {0,angle2,angle1,360};
+				} else if (tempBlockedArcs[0] < angle2 && tempBlockedArcs[1] < angle1) {
+					visableArcs = {0,tempBlockedArcs[0],angle1,360};
+				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
+					visableArcs = {0,angle2,tempBlockedArcs[1],360};
+				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
+					visableArcs = {0,tempBlockedArcs[0],tempBlockedArcs[1],360};
+				}
+				vector<double> temp = {0,0,360,360};
+				if (visableArcs == temp) { // if actually empty!
+					visableArcs.resize(0);
+				}
+			}
+
+		} else { // there is more then one blocking arc! build blockedArcs
+
+			blockedArcs.push_back(tempBlockedArcs[0]);
+
+			int j = 1;
+			for (int i = 1; i < blockingCount; i = j) {
+				while (j < blockingCount && tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)+1]) { // if the max of i - 1 is > the max of j, skip j
+					j++;
+				}
+				if (j == blockingCount) { // i - 1 covers all arcs
+					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
+				} else if (tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)]) { // arc j overlaps arc i - 1, new arc is min i - 1 to max j
+					//do nothing, we need to see if j max is the end of an arc, or if it is in j+1
+				} else { // no overlap, push max of i - 1 (to end last arc, and min of j to start new arc
+					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
+					blockedArcs.push_back(tempBlockedArcs[(j*2)]);// push min of j
+				}
+				j++;
+
+				if (j == blockingCount) { // if we happen to be on the last one, push the last value
+					blockedArcs.push_back(tempBlockedArcs[(j*2)-1]);// push max of j
+				}
+			}
+
+			// blockingCount now counts number elements (not arcs)
+			blockingCount = blockedArcs.size();
+
+			int tempVisableArcsCount;
+			vector<double> tempVisableArcs;
+			if (angle1 < angle2) {
+				tempVisableArcs = {angle1,angle2};
+				tempVisableArcsCount = 2;
+			} else {
+				tempVisableArcs = {0,angle2,angle1,360};
+				tempVisableArcsCount = 4;
+			}
+
+			// Now, start counters v and b at 0, march though visableArcs and blockedArcs
+			int v = 0;
+			int b = 0;
+
+			bool inVisArc = false;
+
+			double v1 = tempVisableArcs[v++];
+			double v2 = tempVisableArcs[v];
+
+//			while (b < blockingCount && blockedArcs[b] < v1) {
+//				b++;
+//			}
+
+			if (b == blockingCount || blockedArcs[0] > tempVisableArcs[tempVisableArcsCount-1]) {
+				visableArcs = tempVisableArcs;
+			} else {
+
+				while (v < tempVisableArcsCount && b < blockingCount) {
+
+					if (!inVisArc) { // if we are between visible arcs
+						if (blockedArcs[b] < v1) { // if this b is < the start of the next visible arc, skip it
+							b++;
+						} else if (blockedArcs[b] == v1 && b % 2 == 0) {
+							b++;
+							if (blockedArcs[b] > v1 && blockedArcs[b] < v2) {
+								visableArcs.push_back(blockedArcs[b]);
+								inVisArc = true;
+								b++;
+							}
+						} else if (b%2 == 0) { // if b is in arc, and is a start of a blocking arc
+							visableArcs.push_back(v1);// add v1 and set inVisArc true (we are now in an arc
+							inVisArc = true;
+						} else if (blockedArcs[b] < v2) { // if b in arc and it is an end, set it (the start of the visible arc is hidden
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+							inVisArc = true;
+						} else if (b%2 == 0) { // if the next blocking arc is past the end of this visible arc, add v1 and v2, the whole arc, and we are still !inVisArc
+							visableArcs.push_back(v1);
+							visableArcs.push_back(v2);
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+						} else { // this ends the current block ... this whole visual arc is not seen
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+						}
+					} else { // inVisArc
+						if (blockedArcs[b] <= v1) { // if b is not in the next vis arc, skip it
+							b++;
+						} else if (b%2 == 0 && blockedArcs[b] < v2) { // if b is the start of a blocked arc and in this vis arc, add it
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+						} else if (b%2 == 1 && blockedArcs[b] < v2) { // if b is the end of a blocked arc and in this vis arc, add it
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+						} else if (b%2 == 0 && blockedArcs[b] > v2) { // if b is the start of a blocked arc and past the end of this vis arc...
+							visableArcs.push_back(v2);// we are in the clear, just add v2...
+							inVisArc = false;// we are now between vis arcs
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+						} else if (b%2 == 1 && blockedArcs[b] >= v2) { // if b is the end of a blocked arc and past the end of this vis arc...
+							inVisArc = false;// then the last b closed this arc, skip v2. also, we are now between vis arcs
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+						}
+					}
+				}
+			}
+
+			// now check to see if there are any viable arcs left and add if needed
+			if (b == blockingCount) {
+				if (inVisArc) { // if we are in an arc currently, we need to close it out and advance
+					visableArcs.push_back(v2);
+					v++;
+					if (v < tempVisableArcsCount) { // if there are still arcs, advance and add
+						v1 = tempVisableArcs[v++];
+						v2 = tempVisableArcs[v];
+					}
+				}
+				while (v < tempVisableArcsCount) { // while there are still arcs, advance and add
+					visableArcs.push_back(v1);
+					visableArcs.push_back(v2);
+					v++;
+					if (v < tempVisableArcsCount) {
+						v1 = tempVisableArcs[v++];
+						v2 = tempVisableArcs[v];
+					}
+
+				}
+			}
+
+			cout << endl;
+
+			cout << endl;
+
+			for (auto v : blockedArcs) {
+				cout << v << "  ";
+			}
+			cout << endl;
+
+			for (auto v : tempVisableArcs) {
+				cout << v << "  ";
+			}
+			cout << endl;
+
+			for (auto v : visableArcs) {
+				cout << v << "  ";
+			}
+			cout << endl;
+
+//			int visableArcsCount = 1;
+
+		}
+		return (visableArcs);
 	}
 
 	// create a SensorArc Binary Decision Tree
@@ -215,162 +460,241 @@ public:
 
 		locationsTree.clear();
 
-		blockingLocations = {0,-1,2,0,0,1,10,-8,-1,1};
-
-		int blockingCount = blockingLocations.size() / 2;
+		blockingLocations = {0,-1,2,0,0,1,10,-8,-1,1,-2,0};
 
 		drawArc(distanceMax, blockingLocations);
 
-		//makeVisableArcs(distanceMax,allLocations,blockingLocations);
+		vector<double> visableArcs = makeVisableArcs(angle1, angle2, distanceMax, allLocations, blockingLocations);
 
-		vector<double> visableArcs, tempBlockedArcs, blockedArcs;
-
-		// get list with working angles for all blocking locations
-		for (int i = 0; i < blockingCount; i++) {
-			getWorkingAngles(blockingLocations[i * 2], blockingLocations[(i * 2) + 1], minWorkingAngle, maxWorkingAngle);
-			if (maxWorkingAngle - minWorkingAngle < 180) {
-				tempBlockedArcs.push_back(minWorkingAngle);
-				tempBlockedArcs.push_back(maxWorkingAngle);
-			} else {
-				tempBlockedArcs.push_back(0);
-				tempBlockedArcs.push_back(minWorkingAngle);
-				tempBlockedArcs.push_back(maxWorkingAngle);
-				tempBlockedArcs.push_back(360);
-			}
-		}
-
-		// blockingCount now counts number of temp arcs!
-		blockingCount = tempBlockedArcs.size() / 2;
-
-		// sort list of blocking working angles by min value
-		for (int i = 0; i < blockingCount; i++) {
-			search_index = i;
-			for (int j = i; j < blockingCount; j++) {
-				if (tempBlockedArcs[j * 2] < tempBlockedArcs[i * 2]) {
-					search_index = j;
-				}
-			}
-			swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
-			swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
-		}
-
-		//see if any blocking arcs can be combined or removed and define visable arcs
-		if (blockingCount == 0) { // nothing blocking
-			if (angle1 < angle2) {
-				visableArcs = {angle1,angle2};
-			} else {
-				visableArcs = {0,angle2,angle1,360};
-			}
-		} else if (blockingCount == 1) { // there is one blocking arc
-			if (angle1 < angle2) {
-				if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] > angle2) { // everything is blocked!
-					visableArcs.resize(0);
-				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] > angle2) { // angle1 to tempBlockedArcs[0] is visible
-					visableArcs = {angle1,tempBlockedArcs[0]};
-				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] < angle2) { // there are two visible arcs
-					visableArcs = {angle1,tempBlockedArcs[0],tempBlockedArcs[1],angle2};
-				} else if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] < angle2) { // tempBlockedArcs[1] to angle2 is visible
-					visableArcs = {tempBlockedArcs[1],angle2};
-				} else { // blocking nothing
-					visableArcs = {angle1,angle2};
-				}
-			} else { //(angle1 > angle2){
-				if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] < angle1) { // blocking nothing
-					visableArcs = {0,angle2,angle1,360};
-				} else if (tempBlockedArcs[0] < angle2 && tempBlockedArcs[1] < angle1) {
-					visableArcs = {0,tempBlockedArcs[0],angle1,360};
-				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
-					visableArcs = {0,angle2,tempBlockedArcs[1],360};
-				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
-					visableArcs = {0,tempBlockedArcs[0],tempBlockedArcs[1],360};
-				}
-				vector<double> temp = {0,0,360,360};
-				if (visableArcs == temp) { // if actually empty!
-					visableArcs.resize(0);
-				}
-			}
-
-		} else { // there is more then one blocking arc! build blockedArcs
-			blockedArcs.push_back(tempBlockedArcs[0]);
-
-			int j = 1;
-			for (int i = 1; i < blockingCount; i = j) {
-				while (j < blockingCount && tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)+1]) { // if the max of i - 1 is > the max of j, skip j
-					j++;
-				}
-				if (j == blockingCount) { // i - 1 covers all arcs
-					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
-				} else if (tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)]) { // arc j overlaps arc i - 1, new arc is min i - 1 to max j
-					//do nothing, we need to see if j max is the end of an arc, or if it is in j+1
-				} else { // no overlap, push max of i - 1 (to end last arc, and min of j to start new arc
-					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
-					blockedArcs.push_back(tempBlockedArcs[(j*2)]);// push min of j
-				}
-				j++;
-
-				if (j == blockingCount) { // if we happen to be on the last one, push the last value
-					blockedArcs.push_back(tempBlockedArcs[(j*2)-1]);// push max of j
-				}
-			}
-
-			for (auto v : blockedArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
-
-			// blockingCount now counts number of arcs!
-			blockingCount = blockedArcs.size() / 2;
-
-			int tempVisableArcsCount;
-			vector<double> tempVisableArcs;
-			if (angle1 < angle2) {
-				tempVisableArcs = {angle1,angle2};
-				tempVisableArcsCount = 1;
-			} else {
-				tempVisableArcs = {0,angle2,angle1,360};
-				tempVisableArcsCount = 2;
-			}
-
-			// Now, start counters v and b at 0, march though visableArcs and blockedArcs
-			int v = 0;
-			int b = 0;
-
-			while (blockedArcs[(b*2) + 1] < tempVisableArcs[v*2]) { // get past any blocking arcs before the visible arcs
-				b+=2;
-			}
-			while (v < tempVisableArcsCount || b < blockingCount) {
-				if(blockedArcs[b*2] < tempVisableArcs[v*2]) { // if the min of the blocked arc is < the min of the visible arc then start at the max of the blocked arc
-					visableArcs.push_back(blockedArcs[b*2]+1);
-					b+=2;
-				} else if (blockedArcs[b*2] < tempVisableArcs[(v*2)+1]) { // else if the min of the blocked arc is in the visible arc, start visible arc and then put in blockd arc
-					visableArcs.push_back(tempVisableArcs[v*2]);
-					visableArcs.push_back(blockedArcs[b*2]);
-					visableArcs.push_back(blockedArcs[b*2]+1);
-					b+=2;
-				} else { // min of blocked arc is past max of visible arc. push max of visible arc
-					visableArcs.push_back(tempVisableArcs[(v*2)+1]);
-					v+=2;
-				}
-				if (v < tempVisableArcsCount) {
-					while (b < blockingCount && blockedArcs[(b*2) + 1] < tempVisableArcs[v*2]) { // get past any blocking arcs before the visible arcs
-						b+=2;
-					}
-				}
-			}
-
-			for (auto v : tempVisableArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
-
-			for (auto v : visableArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
-
-//			int visableArcsCount = 1;
-
-		}
+		//int blockingCount = blockingLocations.size() / 2;
+//		vector<double> visableArcs, tempBlockedArcs, blockedArcs;
+//
+//		// get list with working angles for all blocking locations
+//		for (int i = 0; i < blockingCount; i++) {
+//			getWorkingAngles(blockingLocations[i * 2], blockingLocations[(i * 2) + 1], minWorkingAngle, maxWorkingAngle);
+//			if (maxWorkingAngle - minWorkingAngle < 180) {
+//				tempBlockedArcs.push_back(minWorkingAngle);
+//				tempBlockedArcs.push_back(maxWorkingAngle);
+//			} else {
+//				tempBlockedArcs.push_back(0);
+//				tempBlockedArcs.push_back(minWorkingAngle);
+//				tempBlockedArcs.push_back(maxWorkingAngle);
+//				tempBlockedArcs.push_back(360);
+//			}
+//		}
+//
+//		// blockingCount now counts number of temp arcs!
+//		blockingCount = tempBlockedArcs.size() / 2;
+//
+//		// sort list of blocking working angles by min value
+//		for (int i = 0; i < blockingCount; i++) {
+//			search_index = i;
+//			for (int j = i; j < blockingCount; j++) {
+//				if (tempBlockedArcs[j * 2] < tempBlockedArcs[i * 2]) {
+//					search_index = j;
+//				}
+//			}
+//			swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
+//			swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
+//		}
+//
+//		//see if any blocking arcs can be combined or removed and define visable arcs
+//		if (blockingCount == 0) { // nothing blocking
+//			if (angle1 < angle2) {
+//				visableArcs = {angle1,angle2};
+//			} else {
+//				visableArcs = {0,angle2,angle1,360};
+//			}
+//		} else if (blockingCount == 1) { // there is one blocking arc
+//			if (angle1 < angle2) {
+//				if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] > angle2) { // everything is blocked!
+//					visableArcs.resize(0);
+//				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] > angle2) { // angle1 to tempBlockedArcs[0] is visible
+//					visableArcs = {angle1,tempBlockedArcs[0]};
+//				} else if (tempBlockedArcs[0] > angle1 && tempBlockedArcs[1] < angle2) { // there are two visible arcs
+//					visableArcs = {angle1,tempBlockedArcs[0],tempBlockedArcs[1],angle2};
+//				} else if (tempBlockedArcs[0] < angle1 && tempBlockedArcs[1] < angle2) { // tempBlockedArcs[1] to angle2 is visible
+//					visableArcs = {tempBlockedArcs[1],angle2};
+//				} else { // blocking nothing
+//					visableArcs = {angle1,angle2};
+//				}
+//			} else { //(angle1 > angle2){
+//				if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] < angle1) { // blocking nothing
+//					visableArcs = {0,angle2,angle1,360};
+//				} else if (tempBlockedArcs[0] < angle2 && tempBlockedArcs[1] < angle1) {
+//					visableArcs = {0,tempBlockedArcs[0],angle1,360};
+//				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
+//					visableArcs = {0,angle2,tempBlockedArcs[1],360};
+//				} else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
+//					visableArcs = {0,tempBlockedArcs[0],tempBlockedArcs[1],360};
+//				}
+//				vector<double> temp = {0,0,360,360};
+//				if (visableArcs == temp) { // if actually empty!
+//					visableArcs.resize(0);
+//				}
+//			}
+//
+//		} else { // there is more then one blocking arc! build blockedArcs
+//
+//			blockedArcs.push_back(tempBlockedArcs[0]);
+//
+//			int j = 1;
+//			for (int i = 1; i < blockingCount; i = j) {
+//				while (j < blockingCount && tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)+1]) { // if the max of i - 1 is > the max of j, skip j
+//					j++;
+//				}
+//				if (j == blockingCount) { // i - 1 covers all arcs
+//					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
+//				} else if (tempBlockedArcs[(i*2)-1] >= tempBlockedArcs[(j*2)]) { // arc j overlaps arc i - 1, new arc is min i - 1 to max j
+//					//do nothing, we need to see if j max is the end of an arc, or if it is in j+1
+//				} else { // no overlap, push max of i - 1 (to end last arc, and min of j to start new arc
+//					blockedArcs.push_back(tempBlockedArcs[(i*2)-1]);// push max of i - 1
+//					blockedArcs.push_back(tempBlockedArcs[(j*2)]);// push min of j
+//				}
+//				j++;
+//
+//				if (j == blockingCount) { // if we happen to be on the last one, push the last value
+//					blockedArcs.push_back(tempBlockedArcs[(j*2)-1]);// push max of j
+//				}
+//			}
+//
+//			// blockingCount now counts number elements (not arcs)
+//			blockingCount = blockedArcs.size();
+//
+//			int tempVisableArcsCount;
+//			vector<double> tempVisableArcs;
+//			if (angle1 < angle2) {
+//				tempVisableArcs = {angle1,angle2};
+//				tempVisableArcsCount = 2;
+//			} else {
+//				tempVisableArcs = {0,angle2,angle1,360};
+//				tempVisableArcsCount = 4;
+//			}
+//
+//			// Now, start counters v and b at 0, march though visableArcs and blockedArcs
+//			int v = 0;
+//			int b = 0;
+//
+//			bool inVisArc = false;
+//
+//			double v1 = tempVisableArcs[v++];
+//			double v2 = tempVisableArcs[v];
+//
+////			while (b < blockingCount && blockedArcs[b] < v1) {
+////				b++;
+////			}
+//
+//			if (b == blockingCount || blockedArcs[0] > tempVisableArcs[tempVisableArcsCount-1]) {
+//				visableArcs = tempVisableArcs;
+//			} else {
+//
+//				while (v < tempVisableArcsCount && b < blockingCount) {
+//
+//					if (!inVisArc) { // if we are between visible arcs
+//						if (blockedArcs[b] < v1) { // if this b is < the start of the next visible arc, skip it
+//							b++;
+//						} else if (blockedArcs[b] == v1 && b % 2 == 0) {
+//							b++;
+//							if (blockedArcs[b] > v1 && blockedArcs[b] < v2) {
+//								visableArcs.push_back(blockedArcs[b]);
+//								inVisArc = true;
+//								b++;
+//							}
+//						} else if (b%2 == 0) { // if b is in arc, and is a start of a blocking arc
+//							visableArcs.push_back(v1);// add v1 and set inVisArc true (we are now in an arc
+//							inVisArc = true;
+//						} else if (blockedArcs[b] < v2) { // if b in arc and it is an end, set it (the start of the visible arc is hidden
+//							visableArcs.push_back(blockedArcs[b]);
+//							b++;
+//							inVisArc = true;
+//						} else if (b%2 == 0) { // if the next blocking arc is past the end of this visible arc, add v1 and v2, the whole arc, and we are still !inVisArc
+//							visableArcs.push_back(v1);
+//							visableArcs.push_back(v2);
+//							v++;
+//							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+//								v1 = tempVisableArcs[v++];
+//								v2 = tempVisableArcs[v];
+//							}
+//						} else { // this ends the current block ... this whole visual arc is not seen
+//							v++;
+//							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+//								v1 = tempVisableArcs[v++];
+//								v2 = tempVisableArcs[v];
+//							}
+//						}
+//					} else { // inVisArc
+//						if (blockedArcs[b] <= v1) { // if b is not in the next vis arc, skip it
+//							b++;
+//						} else if (b%2 == 0 && blockedArcs[b] < v2) { // if b is the start of a blocked arc and in this vis arc, add it
+//							visableArcs.push_back(blockedArcs[b]);
+//							b++;
+//						} else if (b%2 == 1 && blockedArcs[b] < v2) { // if b is the end of a blocked arc and in this vis arc, add it
+//							visableArcs.push_back(blockedArcs[b]);
+//							b++;
+//						} else if (b%2 == 0 && blockedArcs[b] > v2) { // if b is the start of a blocked arc and past the end of this vis arc...
+//							visableArcs.push_back(v2);// we are in the clear, just add v2...
+//							inVisArc = false;// we are now between vis arcs
+//							v++;
+//							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+//								v1 = tempVisableArcs[v++];
+//								v2 = tempVisableArcs[v];
+//							}
+//						} else if (b%2 == 1 && blockedArcs[b] >= v2) { // if b is the end of a blocked arc and past the end of this vis arc...
+//							inVisArc = false;// then the last b closed this arc, skip v2. also, we are now between vis arcs
+//							v++;
+//							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+//								v1 = tempVisableArcs[v++];
+//								v2 = tempVisableArcs[v];
+//							}
+//						}
+//					}
+//				}
+//			}
+//
+//			// now check to see if there are any viable arcs left and add if needed
+//			if (b == blockingCount) {
+//				if (inVisArc) { // if we are in an arc currently, we need to close it out and advance
+//					visableArcs.push_back(v2);
+//					v++;
+//					if (v < tempVisableArcsCount) { // if there are still arcs, advance and add
+//						v1 = tempVisableArcs[v++];
+//						v2 = tempVisableArcs[v];
+//					}
+//				}
+//				while (v < tempVisableArcsCount) { // while there are still arcs, advance and add
+//					visableArcs.push_back(v1);
+//					visableArcs.push_back(v2);
+//					v++;
+//					if (v < tempVisableArcsCount) {
+//						v1 = tempVisableArcs[v++];
+//						v2 = tempVisableArcs[v];
+//					}
+//
+//				}
+//			}
+//
+//			cout << endl;
+//
+//			cout << endl;
+//
+//			for (auto v : blockedArcs) {
+//				cout << v << "  ";
+//			}
+//			cout << endl;
+//
+//			for (auto v : tempVisableArcs) {
+//				cout << v << "  ";
+//			}
+//			cout << endl;
+//
+//			for (auto v : visableArcs) {
+//				cout << v << "  ";
+//			}
+//			cout << endl;
+//
+////			int visableArcsCount = 1;
+//
+//		}
 
 		makeLocationsTree(allLocations, blockingLocations, allLocations_index);
 	}
