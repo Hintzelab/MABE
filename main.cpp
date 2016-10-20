@@ -37,7 +37,29 @@ int main(int argc, const char * argv[]) {
 	double k = atof(argv[3]);
 	double l = atof(argv[4]);
 
-	SensorArc(i,j,k,l);
+	Sensor sensor(i, j, k, l, 1, true);
+
+	for (auto a : sensor.angles){
+		a.second->drawArc(k);
+	}
+
+	vector<int> grid = {0,0,0,0,0,0,0,0,0,0,
+						0,1,1,1,1,1,1,1,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,2,2,2,2,2,2,1,0,
+						0,1,1,1,1,1,1,1,1,0,
+						0,0,0,0,0,0,0,0,0,0
+	};
+
+	int orgx = 5;
+	int orgy = 5;
+
+	int orgf = 0;
+
 
 //	int x;
 //	for (int c = 0; c < 100; c++){

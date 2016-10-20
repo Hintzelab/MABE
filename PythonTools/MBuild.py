@@ -8,6 +8,7 @@ parser.add_argument('-buildFile', type=str, metavar='FILE', default = 'buildOpti
 parser.add_argument('-windows', action='store_true', default = False, help='add this flag if you are on a windows computer', required=False)
 parser.add_argument('-noCleanup', action='store_true', default = False, help='add this flag if you want to keep the .o files', required=False)
 parser.add_argument('-noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile', required=False)
+parser.add_argument('-pg', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 
 args = parser.parse_args()
 
@@ -18,6 +19,8 @@ else:
 
 compiler='c++'
 compFlags='-Wall -std=c++11 -O3'
+if (args.pg):
+	compFlags =  compFlags + ' -pg'
 	
 # load all lines from buildFile into lines, ignore blank lines
 file = open(args.buildFile, 'r')
