@@ -28,7 +28,7 @@ import pwd
 import shutil
 import datetime
 
-def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, cfg_files, workDir, conditions):
+def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
 	outFile = open(qsubFileName, 'w')
 	outFile.write('#!/bin/bash -login\n')
 	for p in HPCC_parameters:
@@ -56,9 +56,9 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, cfg
 			#'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
 			'export PBS_JOBSCRIPT="$0"\n'+
 			'\n'+
-			'longjob ./MABE ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+			'longjob ' + executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
 	else:
-		outFile.write('./MABE ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+		outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
 	outFile.write('ret=$?\n\n'+
 		'qstat -f ${PBS_JOBID}\n'+
 		'\n'+
@@ -302,7 +302,7 @@ for i in range(len(combinations)):
 			qsubFileName = "MQ.qsub"
 
 			# make the qsub file on scratch
-			makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:])
+			makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:])
 			
 			print("submitting:")
 			print("  " + realDisplayName + " :")

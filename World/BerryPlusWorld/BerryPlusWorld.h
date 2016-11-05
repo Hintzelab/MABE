@@ -8,35 +8,45 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__BerryWorld__
-#define __BasicMarkovBrainTemplate__BerryWorld__
+#ifndef __BasicMarkovBrainTemplate__BerryWorldPlus__
+#define __BasicMarkovBrainTemplate__BerryWorldPlus__
 
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iterator>
+#include "../../Utilities/WorldUtilities.h"
 
 #include "../AbstractWorld.h"
 
 using namespace std;
 
-class BerryWorld: public AbstractWorld {
+class BerryPlusWorld: public AbstractWorld {
 private:
 	int outputNodesCount, inputNodesCount;
 public:
-	static const int numberOfDirections = 8;
-	const int xm[8] = { 0, 1, 1, 1, 0, -1, -1, -1 };  //these are directions
-	const int ym[8] = { -1, -1, 0, 1, 1, 1, 0, -1 };
-	const char facingDisplay[8] = { 94, 47, 62, 92, 118, 47, 60, 92 };
+	int numberOfDirections;
+	Sensor sensor;
+	double sensorArc; // total size of the arc (i.e. 90 would create an are from -45 to 45 degrees)
+	double sensorFarClipping; // how far can sensor see?
+	double sensorNearClipping; // ignore everything closer then this
+	bool wallsBlockSensor;
+	int sensorCount; // number of sensors
+	vector<int> sensorPositions; // which sensors to use (relative to direction)
+	// if numberOfDirections = 8, sensorCount = 3, and sensorPositions = -1,0,1
+	// then there would be a forward, a 45 degree left and a 45 degree right sensor
+
+	vector<double> deltaX; // offset in X and Y for each direction (precalculated in constructor)
+	vector<double> deltaY;
 
 	const int EMPTY = 0;
 	const int WALL = 9;
+	const char facingDisplay[8] = { 94, 47, 62, 92, 118, 47, 60, 92 };
 
 	// Parameters
 	static shared_ptr<ParameterLink<double>> TSKPL;
 	static shared_ptr<ParameterLink<int>> worldUpdatesPL;
-	static shared_ptr<ParameterLink<double>> worldUpdatesBaisedOnInitialPL;
 
 	static shared_ptr<ParameterLink<int>> foodTypesPL;
 	static shared_ptr<ParameterLink<double>> rewardForFood0PL;
@@ -71,11 +81,7 @@ public:
 	static shared_ptr<ParameterLink<bool>> alwaysEatPL;
 	static shared_ptr<ParameterLink<double>> rewardSpatialNoveltyPL;
 
-	static shared_ptr<ParameterLink<bool>> senseDownPL;
-	static shared_ptr<ParameterLink<bool>> senseFrontPL;
-	static shared_ptr<ParameterLink<bool>> senseFrontSidesPL;
 	static shared_ptr<ParameterLink<bool>> senseWallsPL;
-
 	static shared_ptr<ParameterLink<bool>> senseOtherPL;
 
 	static shared_ptr<ParameterLink<bool>> clearOutputsPL;
@@ -105,7 +111,6 @@ public:
 	static shared_ptr<ParameterLink<string>> mapFileWhichMapsPL;
 
 
-	static shared_ptr<ParameterLink<bool>> relativeScoringPL;
 	static shared_ptr<ParameterLink<int>> boarderEdgePL;
 
 	static shared_ptr<ParameterLink<bool>> senseVisitedPL;
@@ -114,7 +119,6 @@ public:
 	static shared_ptr<ParameterLink<string>> fixedStartYRangePL;
 	static shared_ptr<ParameterLink<int>> fixedStartFacingPL;
 
-	int relativeScoring;
 	int boarderEdge;
 	bool senseVisited;
 
@@ -128,7 +132,6 @@ public:
 	// end parameters
 
 	int worldUpdates;
-	double worldUpdatesBaisedOnInitial;
 
 	double TSK;
 
@@ -144,9 +147,6 @@ public:
 
 	bool allowMoveAndEat;
 
-	bool senseDown;
-	bool senseFront;
-	bool senseFrontSides;
 	bool senseWalls;
 
 	bool senseOther;
@@ -186,14 +186,14 @@ public:
 
 	map<string,map<string,WorldMap>> worldMaps; // [fileName][mapName]
 
-	BerryWorld(shared_ptr<ParametersTable> _PT = nullptr);
+	BerryPlusWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
 	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) override;
 
 	// if lastfood < 0, do not consider last food, pick randomly
 	// if
 	int pickFood(int lastfood) {
-		//cout << "In BerryWorld::pickFood(int lastfood)\n";
+		//cout << "In BerryWorldPlus::pickFood(int lastfood)\n";
 		int lookup, counter, pick;
 		if (lastfood < 0) {  // if lastfood is < 0 (or was 0) then return a random food
 			lookup = Random::getInt(1, foodRatioTotal);  // get a random int [1,sum of food ratios]
@@ -205,11 +205,11 @@ public:
 			}
 		} else {  // if given a last food, pick a food that is not that.
 			if (lastfood > foodTypes) {
-				cout << "ERROR: In BerryWorld::pickFood() - lastfood > foodTypes (i.e. last food eaten is not in foodTypes!)\nExiting.\n\n";
+				cout << "ERROR: In BerryWorldPlus::pickFood() - lastfood > foodTypes (i.e. last food eaten is not in foodTypes!)\nExiting.\n\n";
 				exit(1);
 			}
 			if (foodRatioTotal - foodRatioLookup[lastfood] == 0) {
-				cout << "ERROR: In BerryWorld::pickFood() : lastfood is not <= 0, and foodTypes = 1.\nThere is only one foodType! Pick can not be a different foodType\n\nExiting";
+				cout << "ERROR: In BerryWorldPlus::pickFood() : lastfood is not <= 0, and foodTypes = 1.\nThere is only one foodType! Pick can not be a different foodType\n\nExiting";
 				exit(1);
 			}
 			lookup = Random::getInt(1, foodRatioTotal - foodRatioLookup[lastfood]);  // get a random int [1,sum of food ratios] but leave out the ratio of last food
@@ -228,40 +228,46 @@ public:
 				counter += foodRatioLookup[pick];  // add this new picks ratio to counter
 			}
 		}
-		//cout << "  Leaving BerryWorld::pickFood(int lastfood)\n";
+		//cout << "  Leaving BerryWorldPlus::pickFood(int lastfood)\n";
 		return pick;
 
 	}
 
-	// convert x,y into a grid index
-	int getGridIndexFromXY(pair<int, int> loc) {
-		return loc.first + (loc.second * WorldX);
-	}
-
-	// return value on grid at index
-	int getGridValue(const vector<int> &grid, int index) {
-		return grid[index];
-	}
-
-	// return the value on grid at x,y
-	int getGridValue(const vector<int> &grid, pair<int, int> loc) {
-		return getGridValue(grid, getGridIndexFromXY(loc));
-	}
+//	// convert x,y into a grid index
+//	int getGridIndexFromXY(pair<int, int> loc) {
+//		return loc.first + (loc.second * WorldX);
+//	}
+//
+//	// return value on grid at index
+//	int getGridValue(const vector<int> &grid, int index) {
+//		return grid[index];
+//	}
+//
+//	// return the value on grid at x,y
+//	int getGridValue(const vector<int> &grid, pair<int, int> loc) {
+//		return getGridValue(grid, getGridIndexFromXY(loc));
+//	}
 
 	// takes x,y and updates them by moving one step in facing
-	pair<int, int> moveOnGrid(pair<int, int> loc, int facing) {
-		return {loopMod((loc.first + xm[facing]), WorldX), loopMod((loc.second + ym[facing]), WorldY)};
+	pair<double, double> moveOnGrid(pair<double, double> loc, int facing) {
+//		cout << "\n -----------------------"<<endl;
+//		cout << loc.first << "," << loc.second << endl;
+//		cout << deltaX[facing] << "," << deltaY[facing] << endl;
+//		cout << loc.first + deltaX[facing] << "," << loc.second + deltaY[facing] << endl;
+//		cout << loopModDouble((loc.first + deltaX[facing]), WorldX) << "," << loopModDouble((loc.second + deltaY[facing]), WorldY) << endl;
+
+		return {loopModDouble((loc.first + deltaX[facing]), WorldX), loopModDouble((loc.second + deltaY[facing]), WorldY)};
 	}
 
 	// update value at index in grid
-	void setGridValue(vector<int> &grid, int index, int value) {
-		grid[index] = value;
-	}
+//	void setGridValue(vector<int> &grid, int index, int value) {
+//		grid[index] = value;
+//	}
 
 	// update value at x,y in grid
-	void setGridValue(vector<int> &grid, pair<int, int> loc, int value) {
-		setGridValue(grid, getGridIndexFromXY(loc), value);
-	}
+//	void setGridValue(vector<int> &grid, pair<int, int> loc, int value) {
+//		setGridValue(grid, getGridIndexFromXY(loc), value);
+//	}
 
 	// return a vector of size x*y
 	vector<int> makeGrid(int x, int y) {
@@ -272,48 +278,48 @@ public:
 
 	// return a vector of size x*y (grid) with walls with borderWalls (if borderWalls = true) and randomWalls (that many) randomly placed walls
 	// if default > -1, fill grid with default value
-	vector<int> makeTestGrid(int defaultValue = -1) {
-		vector<int> grid = makeGrid(WorldX, WorldY);
+	Vector2d<int> makeTestGrid(int defaultValue = -1) {
+		Vector2d<int> grid(WorldX, WorldY);
 
 		for (int y = 0; y < WorldY; y++) {  // fill grid with food (and outer wall if needed)
 			for (int x = 0; x < WorldX; x++) {
 				if (borderWalls && (x == 0 || x == WorldX - 1 || y == 0 || y == WorldY - 1)) {
-					setGridValue(grid, { x, y }, WALL);  // place walls on edge
+					grid(x, y ) = WALL;  // place walls on edge
 				} else if (defaultValue == -1) {
 					if ((x >= boarderEdge && x <= WorldX - boarderEdge - 1) && (y >= boarderEdge && y <= WorldY - boarderEdge - 1)) {
-						setGridValue(grid, { x, y }, pickFood(-1));  // place random food where there is not a wall, if it is not in the boarder edge
+						grid( x, y ) = pickFood(-1);  // place random food where there is not a wall, if it is not in the boarder edge
 					}
 				}
 			}
 		}
 
 		if ((randomWalls >= WorldX * WorldY) && !borderWalls) {
-			cout << "In BerryWorld::makeTestGrid() To many random walls... exiting!" << endl;
+			cout << "In BerryWorldPlus::makeTestGrid() To many random walls... exiting!" << endl;
 			exit(1);
 		}
 		if ((randomWalls >= (WorldX - 2) * (WorldY - 2)) && borderWalls) {
-			cout << "In BerryWorld::makeTestGrid() To many random walls... exiting!" << endl;
+			cout << "In BerryWorldPlus::makeTestGrid() To many random walls... exiting!" << endl;
 			exit(1);
 		}
 
 		for (int i = 0; i < randomWalls; i++) {  // add random walls
 			if (borderWalls) {
-				setGridValue(grid, { Random::getInt(1, WorldX - 2), Random::getInt(1, WorldY - 2) }, WALL);  // if borderWalls than don't place random walls on the outer edge
+				grid(Random::getInt(1, WorldX - 2), Random::getInt(1, WorldY - 2)) = WALL;  // if borderWalls than don't place random walls on the outer edge
 			} else {
-				setGridValue(grid, { Random::getIndex(WorldX), Random::getIndex(WorldY) }, WALL);  // place walls anywhere
+				grid(Random::getIndex(WorldX), Random::getIndex(WorldY)) = WALL;  // place walls anywhere
 			}
 		}
 		return grid;
 	}
 
-	inline int turnLeft(int facing) {
-		return (facing < 1) ? numberOfDirections - 1 : facing - 1;
+	inline int turnLeft(int facing, int offset = 1) {
+		return loopMod(facing - offset,numberOfDirections);
 	}
-	inline int turnRight(int facing) {
-		return ((facing >= (numberOfDirections - 1)) ? 0 : facing + 1);
+	inline int turnRight(int facing, int offset = 1) {
+		return loopMod(facing + offset,numberOfDirections);
 	}
 
-	void printGrid(vector<int> grid, pair<int, int> loc, int facing);
+	void printGrid(Vector2d<int> grid, pair<double, double> loc, int facing);
 
 	virtual int requiredInputs() override {
 		return inputNodesCount;
@@ -330,7 +336,7 @@ public:
 		return 1;
 	}
 
-	void SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset = false);
+	void SaveWorldState(string fileName, Vector2d<int> grid, Vector2d<int> vistedGrid, vector<pair<double, double>> currentLocation, vector<int> facing, bool reset = false);
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__BerryWorld__) */
+#endif /* defined(__BasicMarkovBrainTemplate__BerryWorldPlus__) */

@@ -28,6 +28,7 @@ void AbstractWorld::evaluate(shared_ptr<Group> group, bool groupEvaluation, bool
 	//}
 	if (groupEvaluation && maxOrgsAllowed() == 1){
 		cout << " ERROR! World only accepts at most one organism at a time, but groupEvaluation is on.\n Exiting."<<endl;
+		exit(1);
 	}
 	if (groupEvaluation) {
 		for (int r = 0; r < repeatsPL->lookup(); r++) {

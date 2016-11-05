@@ -32,49 +32,6 @@ using namespace std;
 
 int main(int argc, const char * argv[]) {
 
-	double i = atof(argv[1]);
-	double j = atof(argv[2]);
-	double k = atof(argv[3]);
-	double l = atof(argv[4]);
-
-	Sensor sensor(i, j, k, l, 1, true);
-
-	for (auto a : sensor.angles){
-		a.second->drawArc(k);
-	}
-
-	vector<int> grid = {0,0,0,0,0,0,0,0,0,0,
-						0,1,1,1,1,1,1,1,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,2,2,2,2,2,2,1,0,
-						0,1,1,1,1,1,1,1,1,0,
-						0,0,0,0,0,0,0,0,0,0
-	};
-
-	int orgx = 5;
-	int orgy = 5;
-
-	int orgf = 0;
-
-
-//	int x;
-//	for (int c = 0; c < 100; c++){
-//		SensorArc(i++,j++,k,l);
-//		j++;
-//		cin >> x;
-//		if (x == 1) {
-//			l++;
-//		}
-//	}
-
-
-	exit(1);
-
-
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
