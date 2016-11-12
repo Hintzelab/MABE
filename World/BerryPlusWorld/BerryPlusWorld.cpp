@@ -10,6 +10,21 @@
 
 #include "BerryPlusWorld.h"
 
+shared_ptr<ParameterLink<int>> BerryPlusWorld::numberOfDirectionsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-numberOfDirections", 36, "number of rotational positions");
+
+shared_ptr<ParameterLink<int>> BerryPlusWorld::visionSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorDistanceMax", 7, "how far can orgs see?");
+shared_ptr<ParameterLink<int>> BerryPlusWorld::visionSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorArcSize", 10, "how wide is a vision arc (degrees)");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::visionSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorPositions", (string) "[-4,-2,0,2,4]", "what directions can org see?");
+
+shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorDistanceMax", 3, "how far can orgs smell?");
+shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorArcSize", 360, "how wide is a smell arc (degrees)");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::smellSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorPositions", (string) "[1]", "what directions can org smell?");
+
+shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostMovePL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostMove", 1.0, "time it takes to move");
+shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostTurnPL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostTurn", 0.1, "time it takes to turn");
+shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostEatPL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostEat", 0.25, "time it takes to eat");
+shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostNoActionPL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostNoAction", 0.25, "time it takes to do nothing");
+
 shared_ptr<ParameterLink<double>> BerryPlusWorld::TSKPL = Parameters::register_parameter("WORLD_BERRY_PLUS-taskSwitchingCost", 1.4, "cost to change food sources");
 shared_ptr<ParameterLink<int>> BerryPlusWorld::worldUpdatesPL = Parameters::register_parameter("WORLD_BERRY_PLUS-worldUpdates", 400, "amount of time a brain is tested");
 
@@ -90,6 +105,9 @@ shared_ptr<ParameterLink<string>> BerryPlusWorld::fixedStartYRangePL = Parameter
 		"range for start location for organism (i.e. [x] for a fixed value, [x,y] to place in range), [-1] = random");
 shared_ptr<ParameterLink<int>> BerryPlusWorld::fixedStartFacingPL = Parameters::register_parameter("WORLD_BERRY_PLUS-fixedStartFacing", -1, "start facing direction (range 0-7) for organism, -1 = random");
 
+shared_ptr<ParameterLink<bool>> BerryPlusWorld::relativeScoringPL = Parameters::register_parameter("WORLD_BERRY_PLUS_ADVANCED-relativeScoring", false,
+		"score will be divided by the value of the positively scoring food on the initial map (useful when replacement = 0)");
+
 bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT) {
 	fileName = _fileName;
 	string parameterName, parameterValue;
@@ -100,7 +118,7 @@ bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, s
 	bool atEOF = false;
 	bool done = false;
 
-	int sizeX = -1;
+	int sizeX = 0;
 	int sizeY = 1;
 
 	if (FILE.is_open()) {
@@ -120,6 +138,7 @@ bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, s
 				atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
 			}
 
+			ss >> charBuffer;
 			while (!ss.fail()) { // load first line of map, keep loading chars until end of line (i.e. ss.fail because char could not be read)
 				grid.push_back(charBuffer);
 				sizeX++; // set X, this X will be used for the rest of the map.
@@ -128,7 +147,7 @@ bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, s
 			while (!atEOF && !done) {
 				atEOF = loadLineToSS(FILE, rawLine, ss);
 				ss >> charBuffer;
-				if (charBuffer == '*') { // if the first char on the line is "-" then we are at the end of the mapx
+				if (charBuffer == '*') { // if the first char on the line is "*" then we are at the end of the mapx
 					done = true;
 				} else {
 					sizeY++; // not yet at end of map, add a row
@@ -142,33 +161,66 @@ bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, s
 			PT->setParameter("WORLD_BERRY_PLUS-worldY", sizeY);
 		}
 	}
+	if (1) {
+		for (int i = 0; i < sizeX; i++) {
+			grid[i] = '9';
+			grid[(sizeX * (sizeY - 1)) + i] = '9';
+			cout << i << "   " << (sizeX * (sizeY - 1)) + i << endl;
+		}
+		for (int i = 1; i < sizeY - 1; i++) {
+			grid[i * sizeX] = '9';
+			grid[(i * sizeX) + sizeX - 1] = '9';
+		}
+	}
+	for (int i = 0; i < sizeY; i++) {
+		for (int j = 0; j < sizeX; j++) {
+			cout << grid[(i * sizeX) + j] << " ";
+		}
+		cout << endl;
+	}
 	return done;
 }
 
 BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
 
-	numberOfDirections = 36;
+	numberOfDirections = (PT == nullptr) ? numberOfDirectionsPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-numberOfDirections");
 
-	sensorFarClipping = 8;
-	sensorNearClipping = 1;
-	sensorArc = 10;
+	visionSensorDistanceMax = (PT == nullptr) ? visionSensorDistanceMaxPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-visionSensorDistanceMax");
+	visionSensorArcSize = (PT == nullptr) ? visionSensorArcSizePL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-visionSensorArcSize");
+
+	convertCSVListToVector((PT == nullptr) ? visionSensorPositionsStringPL->lookup() : PT->lookupString("WORLD_BERRY_PLUS-visionSensorPositions"), visionSensorPositions);
+
+	smellSensorDistanceMax = (PT == nullptr) ? smellSensorDistanceMaxPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-smellSensorDistanceMax");
+	smellSensorArcSize = (PT == nullptr) ? smellSensorArcSizePL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-smellSensorArcSize");
+
+	convertCSVListToVector((PT == nullptr) ? smellSensorPositionsStringPL->lookup() : PT->lookupString("WORLD_BERRY_PLUS-smellSensorPositions"), smellSensorPositions);
+
+	timeCostMove = (PT == nullptr) ? timeCostMovePL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-timeCostMove");
+	timeCostTurn = (PT == nullptr) ? timeCostTurnPL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-timeCostTurn");
+	timeCostEat = (PT == nullptr) ? timeCostEatPL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-timeCostEat");
+	timeCostNoAction = (PT == nullptr) ? timeCostNoActionPL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-timeCostNoAction");
+	bool wallsBlockSensor = true;
+
+	Sensor newSensor(visionSensorArcSize * -.5, visionSensorArcSize * .5, visionSensorDistanceMax, 1, numberOfDirections, wallsBlockSensor);
+	visionSensor = newSensor;
+
 	wallsBlockSensor = true;
 
-	Sensor newSensor(sensorArc * -.5, sensorArc * .5, sensorFarClipping, sensorNearClipping, numberOfDirections, wallsBlockSensor);
-	sensor = newSensor;
+	Sensor newSensor2(smellSensorArcSize * -.5, smellSensorArcSize * .5, smellSensorDistanceMax, 1, numberOfDirections, wallsBlockSensor);
+	smellSensor = newSensor2;
 
-	sensorPositions = {-4,-2,0,2,4};
-	sensorCount = (int)sensorPositions.size();
+	visionSensorCount = (int) visionSensorPositions.size();
+	smellSensorCount = (int) smellSensorPositions.size();
 	deltaX.resize(numberOfDirections);
 	deltaY.resize(numberOfDirections);
 
 	for (int i = 0; i < numberOfDirections; i++) {
-		int tempi = ((numberOfDirections-i)+(numberOfDirections/2))%numberOfDirections;
+		int tempi = ((numberOfDirections - i) + (numberOfDirections / 2)) % numberOfDirections;
 		deltaX[i] = sin(tempi * (360 / (double) numberOfDirections) * (3.14159 / 180.0));
 		deltaY[i] = cos(tempi * (360 / (double) numberOfDirections) * (3.14159 / 180.0));
 		cout << "   " << i << "    move deltas     " << deltaX[i] << "," << deltaY[i] << endl;
-		sensor.angles[i]->drawArc();
+		visionSensor.angles[i]->drawArc();
 	}
 
 	worldUpdates = (PT == nullptr) ? worldUpdatesPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-worldUpdates");
@@ -252,6 +304,8 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 
 	fixedStartFacing = (PT == nullptr) ? fixedStartFacingPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-fixedStartFacing");
 
+	relativeScoring = (PT == nullptr) ? relativeScoringPL->lookup() : PT->lookupBool("WORLD_BERRY_PLUS_ADVANCED-relativeScoring");
+
 	/////////////////////////////////////////////////////////////////////////////////////
 	//  LOAD MAPS FROM FILES  ///////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -291,9 +345,9 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 		outputNodesCount = 3;  // number of brain nodes used for output, 2 for move, 1 for eat
 	}
 
-	inputNodesCount = (sensorCount * (foodTypes + senseWalls + senseOther)) + foodTypes + senseVisited;
-	// for each sensor arc, everything that can be detected
-	// for here, food and one more if senseVisted
+	inputNodesCount = (visionSensorCount * (foodTypes + senseWalls + senseOther)); // vision sensor
+	inputNodesCount += (smellSensorCount * (foodTypes + senseWalls + senseOther)); // smell sensor
+	inputNodesCount += foodTypes + senseVisited; // down sensor and visited
 
 	cout << "BerryPlusWorld requires brains with at least " << inputNodesCount + outputNodesCount << " nodes.\n";
 	if (inputNodesCount == 0) {
@@ -360,7 +414,7 @@ void BerryPlusWorld::printGrid(Vector2d<int> grid, pair<double, double> loc, int
 	cout << "facing = " << facing << "  FD = " << FD << endl;
 	for (int y = 0; y < WorldY; y++) {
 		for (int x = 0; x < WorldX; x++) {
-			if ((x == (int)(loc.first)) && (y == (int)(loc.second))) {
+			if ((x == (int) (loc.first)) && (y == (int) (loc.second))) {
 				cout << facingDisplay[FD] << " ";
 			} else {
 				if (grid(x, y) == WALL) {
@@ -493,7 +547,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 
 		vector<double> scores(group->population.size(), 0);
 		int MAXSCORE = 1; // scores will be divided by MAXSCORE. If relativeScoring is true MAXSCORE will be set (see relativeScoring/MAXSCORE below)
-		//int FOODCOUNT = 0; // used if modulateWorldTime is set
+		int FOODCOUNT = 0; // used if modulateWorldTime is set
 
 		vector<int> novelty(group->population.size(), 0);
 		vector<int> repeated(group->population.size(), 0);
@@ -553,16 +607,19 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 			grid.assign(rawMap);
 		}
 
-//		if (relativeScoring) {
-//			MAXSCORE = 0;
-//			for (auto v : grid) {
-//				if (v > 0 && v != WALL && foodRewards[v] > 0) {
-//					MAXSCORE += foodRewards[v];
-//					FOODCOUNT++;
-//				}
-//			}
-//		}
+		if (relativeScoring) {
+			MAXSCORE = 0;
+			for (int i = 0; i < grid.y(); i++) {
+				for (int j = 0; j < grid.x(); j++) {
+					if (grid(i, j) > 0 && grid(i, j) != WALL && foodRewards[grid(i, j)] > 0) {
+						MAXSCORE += foodRewards[grid(i, j)];
+						FOODCOUNT++;
+					}
+				}
+			}
+		}
 
+		//cout << relativeScoring << "   ---------<>---------   " << MAXSCORE << endl;
 		Vector2d<int> orgPositionsGrid(WorldX, WorldY);
 
 		Vector2d<int> visitedGrid(WorldX, WorldY);
@@ -673,15 +730,13 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 
 		//		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : MAXSCORE * worldUpdatesBaisedOnInitial;
 		int realWorldUpdates = worldUpdates;
-
-		for (int t = 0; t < realWorldUpdates; t++) {  //run agent for "worldUpdates" brain updates
-			//cout << "world update = " << t << endl;
+		double global_t = 0;
+		while (global_t++ < realWorldUpdates) {  //run agent for "worldUpdates" brain updates
+			//cout << "world update = " << global_t << endl;
 			orgList.clear();
 			for (int i = 0; i < (int) group->population.size(); i++) {
 				orgList.push_back(i);
 			}
-
-			//cout << "A" << endl;
 
 			while (orgList.size() > 0) {
 				orgListIndex = Random::getIndex(orgList.size());
@@ -689,81 +744,102 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 				orgList[orgListIndex] = orgList[orgList.size() - 1];
 				orgList.pop_back();
 
-				nodesAssignmentCounter = 0;  // get ready to start assigning inputs
-				//cout << "B" << endl;
+				double t = 0;
+				while (t < 1.0) {
+					//cout << "Local time: " << t << "    " << orgIndex << endl;
+					nodesAssignmentCounter = 0;  // get ready to start assigning inputs
 
-				int sensorFacing;
-				// for each sensor, collect data and set inputs
-				// << "currLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << endl;
-				//cout << "currFacing:   " << facing[orgIndex] << endl;
+					int sensorFacing;
+					// for each sensor, collect data and set inputs
+					// << "currLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << endl;
+					//cout << "currFacing:   " << facing[orgIndex] << endl;
 
-				int sensorX = (int) (currentLocation[orgIndex].first);
-				int sensorY = (int) (currentLocation[orgIndex].second);
+					int sensorX = (int) (currentLocation[orgIndex].first);
+					int sensorY = (int) (currentLocation[orgIndex].second);
 
-				//cout << "    sensorLocation " << sensorX << "," << sensorY << endl << endl;
+					//cout << "    sensorLocation " << sensorX << "," << sensorY << endl << endl;
 
-				for (int i = 0; i < sensorCount; i++) {
-					sensorFacing = loopMod(facing[orgIndex] + sensorPositions[i],numberOfDirections);
-					//cout << " ** sensor # " << i << endl;
-					//cout << "    sensorFacing" << sensorFacing << endl;
-					//grid.showGrid();
+					for (int i = 0; i < visionSensorCount; i++) {
+						sensorFacing = loopMod(facing[orgIndex] + visionSensorPositions[i], numberOfDirections);
+						//cout << " ** sensor # " << i << endl;
+						//cout << "    sensorFacing" << sensorFacing << endl;
+						//grid.showGrid();
 //					for (auto v : values){
 //						cout << "  " << v << endl;
 //					}
-					sensor.senseTotals(grid, sensorX, sensorY, sensorFacing, values, WALL);
+						visionSensor.senseTotals(grid, sensorX, sensorY, sensorFacing, values, WALL);
 
+						for (int food = 0; food < foodTypes; food++) {
+							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
+							cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
+						}
+						if (senseWalls) {
+							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
+							//cout << "    walls " << values[10] << endl;
+						}
+						//cout << endl;
+					}
+					for (int i = 0; i < smellSensorCount; i++) {
+						sensorFacing = loopMod(facing[orgIndex] + smellSensorPositions[i], numberOfDirections);
+						//cout << " ** sensor # " << i << endl;
+						//cout << "    sensorFacing" << sensorFacing << endl;
+						//grid.showGrid();
+//					for (auto v : values){
+//						cout << "  " << v << endl;
+//					}
+						smellSensor.senseTotals(grid, sensorX, sensorY, sensorFacing, values, WALL);
+
+						for (int food = 0; food < foodTypes; food++) {
+							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
+							//cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
+						}
+						if (senseWalls) {
+							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
+							//cout << "    walls " << values[10] << endl;
+						}
+						//cout << endl;
+					}
+
+					// tell org what it's on
 					for (int food = 0; food < foodTypes; food++) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
-						//cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
+						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, grid(currentLocation[orgIndex]) == (food + 1));
 					}
-					if (senseWalls) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
-						//cout << "    walls " << values[10] << endl;
+
+					if (senseVisited) {
+						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedGrid(currentLocation[orgIndex]));
 					}
-					//cout << endl;
-				}
-				//cout << "C" << endl;
 
-				// tell org what it's on
-				group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (double) grid(currentLocation[orgIndex]));
-				//cout << "D" << endl;
-
-				if (senseVisited) {
-					group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedGrid(currentLocation[orgIndex]));
-				}
-				//cout << "E" << endl;
-
-				if (debug) {
-					cout << "\n----------------------------\n";
-					cout << "\ngeneration update: " << Global::update << "  world update: " << t << "\n";
-					cout << "currentLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  :  " << facing[orgIndex] << "\n";
-					cout << "inNodes: ";
-					for (int i = 0; i < inputNodesCount; i++) {
-						cout << group->population[orgIndex]->brain->readInput(i) << " ";
+					if (debug) {
+						cout << "\n----------------------------\n";
+						cout << "\ngeneration update: " << Global::update << "  world update: " << t << "\n";
+						cout << "currentLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  :  " << facing[orgIndex] << "\n";
+						cout << "inNodes: ";
+						for (int i = 0; i < inputNodesCount; i++) {
+							cout << group->population[orgIndex]->brain->readInput(i) << " ";
+						}
+						cout << "\nlast outNodes: ";
+						for (int i = 0; i < outputNodesCount; i++) {
+							cout << group->population[orgIndex]->brain->readOutput(i) << " ";
+						}
+						cout << "\n\n  -- brain update --\n\n";
 					}
-					cout << "\nlast outNodes: ";
-					for (int i = 0; i < outputNodesCount; i++) {
-						cout << group->population[orgIndex]->brain->readOutput(i) << " ";
+
+					// inputNodesCount is now set to the first output Brain State Address. we will not move it until the next world update!
+					if (clearOutputs) {
+						group->population[orgIndex]->brain->resetOutputs();
 					}
-					cout << "\n\n  -- brain update --\n\n";
-				}
 
-				// inputNodesCount is now set to the first output Brain State Address. we will not move it until the next world update!
-				if (clearOutputs) {
-					group->population[orgIndex]->brain->resetOutputs();
-				}
+					group->population[orgIndex]->brain->update();  // just run the update!
 
-				group->population[orgIndex]->brain->update();  // just run the update!
-
-				// set output values
-				// output1 has info about the first 2 output bits these [00 eat, 10 left, 01 right, 11 move]
-				output1 = Bit(group->population[orgIndex]->brain->readOutput(0)) + (Bit(group->population[orgIndex]->brain->readOutput(1)) << 1);
-				// output 2 has info about the 3rd output bit, which either does nothing, or is eat.
-				if (alwaysEat) {
-					output2 = 1;
-				} else {
-					output2 = Bit(group->population[orgIndex]->brain->readOutput(2));
-				}
+					// set output values
+					// output1 has info about the first 2 output bits these [00 eat, 10 left, 01 right, 11 move]
+					output1 = Bit(group->population[orgIndex]->brain->readOutput(0)) + (Bit(group->population[orgIndex]->brain->readOutput(1)) << 1);
+					// output 2 has info about the 3rd output bit, which either does nothing, or is eat.
+					if (alwaysEat) {
+						output2 = 1;
+					} else {
+						output2 = Bit(group->population[orgIndex]->brain->readOutput(2));
+					}
 
 //				if (saveOrgActions) { // if saveOrgActions save the output.
 //									  // + values in ID_moves are food
@@ -793,105 +869,116 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 //					}
 //				}
 
-				if (output2 == 1) {  // if org tried to eat
-					int foodHere = grid(currentLocation[orgIndex]);
-					if ((recordFoodList && foodHere != 0) || (recordFoodList && recordFoodListEatEmpty)) {
-						group->population[orgIndex]->dataMap.Append("foodList", foodHere);  // record that org ate food (or tried to at any rate)
-					}
-					eaten[orgIndex][foodHere]++;  // track the number of each berry eaten, including 0s
-					if (foodHere != EMPTY) {  // eat food here (if there is food here)
-						if (lastFood[orgIndex] != -1) {  // if some food has already been eaten
-							if (lastFood[orgIndex] != foodHere) {  // if this food is different then the last food eaten
-								scores[orgIndex] -= TSK;  // pay the task switch cost
-								switches[orgIndex]++;
-							}
+					if (output2 == 1) {  // if org tried to eat
+						//cout << "E  " << endl;
+						t += timeCostEat;
+						int foodHere = grid(currentLocation[orgIndex]);
+						if ((recordFoodList && foodHere != 0) || (recordFoodList && recordFoodListEatEmpty)) {
+							group->population[orgIndex]->dataMap.Append("foodList", foodHere);  // record that org ate food (or tried to at any rate)
 						}
-						lastFood[orgIndex] = foodHere;  // remember the last food eaten
-						scores[orgIndex] += foodRewards[foodHere];  // you ate a food... good for you! (or bad)
-						//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
-						grid(currentLocation[orgIndex]) = 0;					// clear this location
-					} else { // no food here!
-						scores[orgIndex] += foodRewards[foodHere]; // you ate a food... good for you! (or bad)
-						//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
-					}
-				} else {
-					if (recordFoodList && recordFoodListNoEat) {
-						group->population[orgIndex]->dataMap.Append("foodList", -1);  // record that org did not try to eat this time
-					}
-				}
-
-				if ((output2 == 0) || (allowMoveAndEat == 1)) {  // if we did not eat or we allow moving and eating in the same world update
-					switch (output1) {
-					case 0:  //nothing
-						break;
-					case 1:  //turn left
-						facing[orgIndex] = turnLeft(facing[orgIndex]);
-						scores[orgIndex] += rewardForTurn;
-						break;
-					case 2:  //turn right
-						facing[orgIndex] = turnRight(facing[orgIndex]);
-						scores[orgIndex] += rewardForTurn;
-						break;
-					case 3:  //move forward
-						pair<double,double> targetLocation = moveOnGrid(currentLocation[orgIndex], facing[orgIndex]);
-						bool noMove = (int)currentLocation[orgIndex].first == (int)targetLocation.first && (int)currentLocation[orgIndex].second == (int)targetLocation.second;
-						//cout << "HERE!" << endl;
-						if ( ( grid(targetLocation) != WALL && orgPositionsGrid(targetLocation) != 1 ) || noMove) { // if the proposed move is not a wall and is not occupied by another org
-							scores[orgIndex] += rewardForMove;
-							if (grid(currentLocation[orgIndex]) == EMPTY || noMove) {  // if the current location is empty...
-								//cout << replacement << endl;
-								// replacement rules
-								// if replacementRule[food] == -1
-								//   case replacementDefaultRule
-								//     -1 random
-								//     0 no replacement
-								//     1 other (0 can be replaced by other)
-								// else replacementRules[food]
-								if (replacementRules[foodHereOnArrival[orgIndex]] == -1) {
-									if (replacementDefaultRule == -1 || (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] == EMPTY)) {  // if replacement = random (-1).or replacment other (1) and was empty..
-										grid(currentLocation[orgIndex]) = pickFood(-1);  // plant a random food
-										//cout << "replacement = -1 (random) .. ";
-									} else if (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] > EMPTY) {  // if replacement = other (1) and there was some food here when org got here...
-										grid(currentLocation[orgIndex]) = pickFood(foodHereOnArrival[orgIndex]);  // plant a different food when what was here
-										//cout << "replacement = 1 (other) and EMPTY.. ";
-									} else { // replacement = 0, no replacement
-										//cout << "no replace .. ";
-									}
-								} else { // this food type has a replacment rule
-									grid(currentLocation[orgIndex]) = replacementRules[foodHereOnArrival[orgIndex]]; // plant food based on replacement rule
+						eaten[orgIndex][foodHere]++;  // track the number of each berry eaten, including 0s
+						if (foodHere != EMPTY) {  // eat food here (if there is food here)
+							if (lastFood[orgIndex] != -1) {  // if some food has already been eaten
+								if (lastFood[orgIndex] != foodHere) {  // if this food is different then the last food eaten
+									scores[orgIndex] -= TSK;  // pay the task switch cost
+									switches[orgIndex]++;
 								}
-
-								//cout << "move done." << endl;
-								// if replacement = no replacement (0), no replacement/do nothing
 							}
-							orgPositionsGrid(currentLocation[orgIndex]) = 0;  // show location as not occupied.
-							visitedGrid(currentLocation[orgIndex]) = 1;  // leave a marker in the visitedGrid
-							currentLocation[orgIndex] = targetLocation;  // move organism
-							orgPositionsGrid(currentLocation[orgIndex]) = 1;  // show new location as occupied.
-							if (visitedGrid(currentLocation[orgIndex]) == 0) { // if this is a novel location
-								novelty[orgIndex]++;
-								scores[orgIndex] += rewardSpatialNovelty;
-							} else { // if anyone has been here before
-								repeated[orgIndex]++;
-							}
-							foodHereOnArrival[orgIndex] = grid(currentLocation[orgIndex]);  //value of the food when we got here - needed for replacement method.
-							if (saveOrgActions) { // if saveOrgActions save the type of the food org moves onto.
-								dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", foodHereOnArrival[orgIndex]);
-							}
+							lastFood[orgIndex] = foodHere;  // remember the last food eaten
+							scores[orgIndex] += foodRewards[foodHere];  // you ate a food... good for you! (or bad)
+							//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
+							grid(currentLocation[orgIndex]) = 0;					// clear this location
+						} else { // no food here!
+							scores[orgIndex] += foodRewards[foodHere]; // you ate a food... good for you! (or bad)
+							//cout << "  ate food: " << foodHere << " reward: " << foodRewards[foodHere] << " total score: " << scores[orgIndex] << endl;
 						}
-						break;
+					} else {
+						if (recordFoodList && recordFoodListNoEat) {
+							group->population[orgIndex]->dataMap.Append("foodList", -1);  // record that org did not try to eat this time
+						}
 					}
-				}
 
-				if (debug) {
-					for (int i = 0; i < outputNodesCount; i++) {
-						cout << Bit(group->population[orgIndex]->brain->readOutput(i)) << " ";
+					if ((output2 == 0) || (allowMoveAndEat == 1)) {  // if we did not eat or we allow moving and eating in the same world update
+						switch (output1) {
+						case 0:  //nothing
+							//cout << "N  " << endl;
+							t += timeCostNoAction;
+							break;
+						case 1:  //turn left
+							//cout << "L";
+							facing[orgIndex] = turnLeft(facing[orgIndex]);
+							scores[orgIndex] += rewardForTurn;
+							t += timeCostTurn;
+							break;
+						case 2:  //turn right
+							//cout << "R  " << endl;
+							facing[orgIndex] = turnRight(facing[orgIndex]);
+							scores[orgIndex] += rewardForTurn;
+							t += timeCostTurn;
+							break;
+						case 3:  //move forward
+							//cout << "M  " << endl;
+							t += timeCostMove;
+							pair<double, double> targetLocation = moveOnGrid(currentLocation[orgIndex], facing[orgIndex]);
+							bool noMove = (int) currentLocation[orgIndex].first == (int) targetLocation.first && (int) currentLocation[orgIndex].second == (int) targetLocation.second;
+							//cout << "HERE!" << endl;
+							if ((grid(targetLocation) != WALL && orgPositionsGrid(targetLocation) != 1) || noMove) { // if the proposed move is not a wall and is not occupied by another org
+								scores[orgIndex] += rewardForMove;
+								if (grid(currentLocation[orgIndex]) == EMPTY || noMove) {  // if the current location is empty...
+									//cout << replacement << endl;
+									// replacement rules
+									// if replacementRule[food] == -1
+									//   case replacementDefaultRule
+									//     -1 random
+									//     0 no replacement
+									//     1 other (0 can be replaced by other)
+									// else replacementRules[food]
+									if (replacementRules[foodHereOnArrival[orgIndex]] == -1) {
+										if (replacementDefaultRule == -1 || (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] == EMPTY)) {  // if replacement = random (-1).or replacment other (1) and was empty..
+											grid(currentLocation[orgIndex]) = pickFood(-1);  // plant a random food
+											//cout << "replacement = -1 (random) .. ";
+										} else if (replacementDefaultRule == 1 && foodHereOnArrival[orgIndex] > EMPTY) {  // if replacement = other (1) and there was some food here when org got here...
+											grid(currentLocation[orgIndex]) = pickFood(foodHereOnArrival[orgIndex]);  // plant a different food when what was here
+											//cout << "replacement = 1 (other) and EMPTY.. ";
+										} else { // replacement = 0, no replacement
+											//cout << "no replace .. ";
+										}
+									} else { // this food type has a replacment rule
+										grid(currentLocation[orgIndex]) = replacementRules[foodHereOnArrival[orgIndex]]; // plant food based on replacement rule
+									}
+
+									//cout << "move done." << endl;
+									// if replacement = no replacement (0), no replacement/do nothing
+								}
+								orgPositionsGrid(currentLocation[orgIndex]) = 0;  // show location as not occupied.
+								visitedGrid(currentLocation[orgIndex]) = 1;  // leave a marker in the visitedGrid
+								currentLocation[orgIndex] = targetLocation;  // move organism
+								orgPositionsGrid(currentLocation[orgIndex]) = 1;  // show new location as occupied.
+								if (visitedGrid(currentLocation[orgIndex]) == 0) { // if this is a novel location
+									novelty[orgIndex]++;
+									scores[orgIndex] += rewardSpatialNovelty;
+								} else { // if anyone has been here before
+									repeated[orgIndex]++;
+								}
+								foodHereOnArrival[orgIndex] = grid(currentLocation[orgIndex]);  //value of the food when we got here - needed for replacement method.
+								if (saveOrgActions) { // if saveOrgActions save the type of the food org moves onto.
+									dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", foodHereOnArrival[orgIndex]);
+								}
+							}
+							break;
+						}
 					}
-					cout << "output1: " << output1 << "  output2: " << output2 << "\n";
-					cout << "\n  -- world update --\n\n";
-					printGrid(grid, currentLocation[orgIndex], facing[orgIndex]);
-					cout << "last eaten: " << lastFood[orgIndex] << " here: " << grid(currentLocation[orgIndex]) << "\nloc: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  facing: " << facing[orgIndex] << "\n";
-					cout << "score: " << scores[orgIndex] << " switches: " << switches[orgIndex] << "\n";
+
+					if (debug) {
+						for (int i = 0; i < outputNodesCount; i++) {
+							cout << Bit(group->population[orgIndex]->brain->readOutput(i)) << " ";
+						}
+						cout << "output1: " << output1 << "  output2: " << output2 << "\n";
+						cout << "\n  -- world update --\n\n";
+						printGrid(grid, currentLocation[orgIndex], facing[orgIndex]);
+						cout << "last eaten: " << lastFood[orgIndex] << " here: " << grid(currentLocation[orgIndex]) << "\nloc: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  facing: " << facing[orgIndex] << "\n";
+						cout << "score: " << scores[orgIndex] << " switches: " << switches[orgIndex] << "\n";
+					}
 				}
 			}  // end world evaluation loop
 			if (visualize) {
@@ -1056,7 +1143,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 }
 
 void BerryPlusWorld::SaveWorldState(string fileName, Vector2d<int> grid, Vector2d<int> vistedGrid, vector<pair<double, double>> currentLocation, vector<int> facing, bool reset) {
-	cout << WorldX << "    " << WorldY << endl;
+	//cout << WorldX << "    " << WorldY << endl;
 	string stateNow = "";
 
 	if (reset) {

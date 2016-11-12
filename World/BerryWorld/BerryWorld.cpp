@@ -102,7 +102,7 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, share
 	bool atEOF = false;
 	bool done = false;
 
-	int sizeX = -1;
+	int sizeX = 0;
 	int sizeY = 1;
 
 	if (FILE.is_open()) {
@@ -121,6 +121,8 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, share
 
 				atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
 			}
+
+			ss >> charBuffer;
 
 			while (!ss.fail()) { // load first line of map, keep loading chars until end of line (i.e. ss.fail because char could not be read)
 				grid.push_back(charBuffer);

@@ -94,7 +94,13 @@ public:
 			cout << endl;
 		}
 	}
+	int x(){
+		return C;
+	}
 
+	int y(){
+		return R;
+	}
 };
 
 // Vector3d is wraps a vector<T> and provides x,y,z style access
@@ -188,6 +194,18 @@ public:
 				cout << endl;
 			}
 		}
+	}
+
+	int x(){
+		return C;
+	}
+
+	int y(){
+		return R;
+	}
+
+	int z(){
+		return B;
 	}
 
 };

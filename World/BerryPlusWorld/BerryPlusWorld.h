@@ -26,14 +26,11 @@ class BerryPlusWorld: public AbstractWorld {
 private:
 	int outputNodesCount, inputNodesCount;
 public:
-	int numberOfDirections;
-	Sensor sensor;
-	double sensorArc; // total size of the arc (i.e. 90 would create an are from -45 to 45 degrees)
-	double sensorFarClipping; // how far can sensor see?
-	double sensorNearClipping; // ignore everything closer then this
-	bool wallsBlockSensor;
-	int sensorCount; // number of sensors
-	vector<int> sensorPositions; // which sensors to use (relative to direction)
+	Sensor visionSensor;
+	Sensor smellSensor;
+	int visionSensorCount;
+	int smellSensorCount;
+
 	// if numberOfDirections = 8, sensorCount = 3, and sensorPositions = -1,0,1
 	// then there would be a forward, a 45 degree left and a 45 degree right sensor
 
@@ -45,6 +42,21 @@ public:
 	const char facingDisplay[8] = { 94, 47, 62, 92, 118, 47, 60, 92 };
 
 	// Parameters
+	static shared_ptr<ParameterLink<int>> numberOfDirectionsPL;
+
+	static shared_ptr<ParameterLink<int>> visionSensorDistanceMaxPL;
+	static shared_ptr<ParameterLink<int>> visionSensorArcSizePL;
+	static shared_ptr<ParameterLink<string>> visionSensorPositionsStringPL;
+
+	static shared_ptr<ParameterLink<int>> smellSensorDistanceMaxPL;
+	static shared_ptr<ParameterLink<int>> smellSensorArcSizePL;
+	static shared_ptr<ParameterLink<string>> smellSensorPositionsStringPL;
+
+	static shared_ptr<ParameterLink<double>> timeCostMovePL;
+	static shared_ptr<ParameterLink<double>> timeCostTurnPL;
+	static shared_ptr<ParameterLink<double>> timeCostEatPL;
+	static shared_ptr<ParameterLink<double>> timeCostNoActionPL;
+
 	static shared_ptr<ParameterLink<double>> TSKPL;
 	static shared_ptr<ParameterLink<int>> worldUpdatesPL;
 
@@ -118,6 +130,9 @@ public:
 	static shared_ptr<ParameterLink<string>> fixedStartXRangePL;
 	static shared_ptr<ParameterLink<string>> fixedStartYRangePL;
 	static shared_ptr<ParameterLink<int>> fixedStartFacingPL;
+	static shared_ptr<ParameterLink<bool>> relativeScoringPL;
+
+	int relativeScoring;
 
 	int boarderEdge;
 	bool senseVisited;
@@ -132,6 +147,22 @@ public:
 	// end parameters
 
 	int worldUpdates;
+
+	int numberOfDirections;
+
+	int visionSensorDistanceMax;
+	int visionSensorArcSize;
+	vector<int> visionSensorPositions;
+
+	int smellSensorDistanceMax;
+	int smellSensorArcSize;
+	vector<int> smellSensorPositions;
+
+	double timeCostMove;
+	double timeCostTurn;
+	double timeCostEat;
+	double timeCostNoAction;
+
 
 	double TSK;
 
