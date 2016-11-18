@@ -183,6 +183,9 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
 bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+	if (finished){
+		return finished;
+	}
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 			writeRealTimeFiles(population);  // write to dominant and average files
@@ -209,7 +212,7 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 		}
 	}
 	// if we are at the end of the run
-	finished = Global::update >= Global::updatesPL->lookup();
+	finished =Global::update >= Global::updatesPL->lookup();
 	return finished;
 }
 

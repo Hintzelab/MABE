@@ -104,6 +104,10 @@ void SSwDArchivist::cleanup() {
 
 bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
 
+	if (finished && !flush){
+		return finished;
+	}
+
 	if (flush != 1) {
 
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
@@ -249,7 +253,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 		}
 	}
 	// if enough time has passed to save all data and genomes, then we are done!
-	finished = ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextGenomeWrite > Global::updatesPL->lookup() || !(writeGenomeFiles)) && Global::update >= Global::updatesPL->lookup());
+	finished = finished || ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextGenomeWrite > Global::updatesPL->lookup() || !(writeGenomeFiles)) && Global::update >= Global::updatesPL->lookup());
 	return finished;
 }
 
