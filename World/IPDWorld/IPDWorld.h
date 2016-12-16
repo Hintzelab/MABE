@@ -23,11 +23,16 @@ using namespace std;
 class IPDWorld : public AbstractWorld {
 private:
 	int outputNodesCount, inputNodesCount;
+
+	int numRounds;
+	int currentUpdate;
+
 public:
 	// Parameters
 	//static shared_ptr<ParameterLink<double>> TSKPL;
 	// end parameters
 
+	static shared_ptr<ParameterLink<bool>> roundsFixedPerGenerationPL;
 	static shared_ptr<ParameterLink<int>> roundsMinPL;
 	static shared_ptr<ParameterLink<int>> roundsMaxPL;
 	static shared_ptr<ParameterLink<double>> R_payOffPL; // Reward
@@ -41,7 +46,9 @@ public:
 
 	static shared_ptr<ParameterLink<bool>> skipFirstMovePL;
 	static shared_ptr<ParameterLink<bool>> randomFirstMovePL;
+	static shared_ptr<ParameterLink<bool>> saveMovesListPL;
 
+	bool roundsFixedPerGeneration;
 	int roundsMin;
 	int roundsMax;
 	double R_payOff; // Reward
@@ -52,6 +59,7 @@ public:
 
 	bool skipFirstMove;
 	bool randomFirstMove;
+	bool saveMovesList;
 
 	bool C;
 	bool D;

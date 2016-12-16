@@ -771,7 +771,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 
 						for (int food = 0; food < foodTypes; food++) {
 							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
-							cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
+							//cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
 						}
 						if (senseWalls) {
 							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
