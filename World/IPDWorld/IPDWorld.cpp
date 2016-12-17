@@ -169,31 +169,31 @@ void IPDWorld::runWorldDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bo
 
 	p1->dataMap.Append("score", p1->score);
 	p2->dataMap.Append("score", p2->score);
-	p1->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
-	p2->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+	//p1->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+	//p2->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
 	p1->dataMap.Append("CC", (double) P1CC / (double) numRounds);
-	p1->dataMap.setOutputBehavior("CC", DataMap::AVE);
+	//p1->dataMap.setOutputBehavior("CC", DataMap::AVE);
 	p2->dataMap.Append("CC", (double) P2CC / (double) numRounds);
-	p2->dataMap.setOutputBehavior("CC", DataMap::AVE);
+	//p2->dataMap.setOutputBehavior("CC", DataMap::AVE);
 
 	p1->dataMap.Append("CD", (double) P1CD / (double) numRounds);
-	p1->dataMap.setOutputBehavior("CD", DataMap::AVE);
+	//p1->dataMap.setOutputBehavior("CD", DataMap::AVE);
 	p2->dataMap.Append("CD", (double) P2CD / (double) numRounds);
-	p2->dataMap.setOutputBehavior("CD", DataMap::AVE);
+	//p2->dataMap.setOutputBehavior("CD", DataMap::AVE);
 
 	p1->dataMap.Append("DC", (double) P1DC / (double) numRounds);
-	p1->dataMap.setOutputBehavior("DC", DataMap::AVE);
+	//p1->dataMap.setOutputBehavior("DC", DataMap::AVE);
 	p2->dataMap.Append("DC", (double) P2DC / (double) numRounds);
-	p2->dataMap.setOutputBehavior("DC", DataMap::AVE);
+	//p2->dataMap.setOutputBehavior("DC", DataMap::AVE);
 
 	p1->dataMap.Append("DD", (double) P1DD / (double) numRounds);
-	p1->dataMap.setOutputBehavior("DD", DataMap::AVE);
+	//p1->dataMap.setOutputBehavior("DD", DataMap::AVE);
 	p2->dataMap.Append("DD", (double) P2DD / (double) numRounds);
-	p2->dataMap.setOutputBehavior("DD", DataMap::AVE);
+	//p2->dataMap.setOutputBehavior("DD", DataMap::AVE);
 
-	p1->dataMap.setOutputBehavior("moves", DataMap::LIST);
-	p2->dataMap.setOutputBehavior("moves", DataMap::LIST);
+	//p1->dataMap.setOutputBehavior("moves", DataMap::LIST);
+	//p2->dataMap.setOutputBehavior("moves", DataMap::LIST);
 
 }
 
@@ -223,11 +223,10 @@ void IPDWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, b
 			cout << "In IPDWorld, WORLD_IPD-numCompetitors is 0. must be > 0 and < population size.\nExiting." << endl;
 			exit(1);
 		} else {
-			cout << "A" << endl;
 			for (int i = 0; i < (int) group->population.size(); i++) {
 				for (int j = i + 1; j <= i + n; j++) {
 					int competitorIndex = j % (int) group->population.size();
-					cout << i << " plays " << competitorIndex << endl;
+					//cout << i << " plays " << competitorIndex << endl;
 					IPDWorld::runWorldDuel(group->population[i], group->population[competitorIndex], analyse, visualize, debug);
 					scores[i] += group->population[i]->score;
 					scores[competitorIndex] += group->population[competitorIndex]->score;
@@ -242,7 +241,7 @@ void IPDWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, b
 	}
 	for (int i = 0; i < (int) group->population.size(); i++) {
 		group->population[i]->score = scores[i] / (double) n;
-		group->population[i]->dataMap.Append("allscore", group->population[i]->score);
+		//group->population[i]->dataMap.Append("allscore", group->population[i]->score);
 	}
 }
 

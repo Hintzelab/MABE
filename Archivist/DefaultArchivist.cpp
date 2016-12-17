@@ -108,19 +108,24 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 					aveValue += org->dataMap.GetAverage(key);
 				}
 				aveValue /= population.size();
-				if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
-					AveMap.Set(key + "_AVE", aveValue);
+				if (population[0]->dataMap.isKeySolo(key)){
+					AveMap.Set(key,aveValue);
 				} else {
-					AveMap.Set(key, aveValue);
+					AveMap.Append(key,aveValue);
 				}
+				//if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
+					//AveMap.Set(key + "_AVE", aveValue);
+				//} else {
+					//AveMap.Set(key, aveValue);
+				//}
 			}
 		}
-		for (auto key : DefaultAveFileColumns) {
-			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
-		}
+//		for (auto key : DefaultAveFileColumns) {
+//			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
+//		}
 		AveMap.Set("update", Global::update);
-		AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(AveFileName); // write the AveMap to file with aveOnly = true (only save ave values)
+		//AveMap.setOutputBehavior("update", DataMap::FIRST);
+		AveMap.writeToFile(AveFileName,{},true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
 	// write out Dominant data
@@ -216,24 +221,24 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 	return finished;
 }
 
-void DefaultArchivist::processAllLists(OldDataMap &dm) {
-	vector<string> allKeys = dm.getKeys();
-	for (auto key : allKeys) {
-		if (key.substr(0, 3) == "all") {
-			if (find(allKeys.begin(), allKeys.end(), key.substr(3, key.size() - 1)) == allKeys.end()) {
-				double temp = 0;
-				vector<double> values;
-				convertCSVListToVector(dm.Get(key), values);
-				for (auto v : values) {
-					temp += v;
-					//cout << key << " " << allKey << " " << v << " " << temp << endl;
-				}
-				temp /= (double) values.size();
-				dm.Set(key.substr(3, key.size() - 1), temp);
-			}
-		}
-	}
-}
+//void DefaultArchivist::processAllLists(OldDataMap &dm) {
+//	vector<string> allKeys = dm.getKeys();
+//	for (auto key : allKeys) {
+//		if (key.substr(0, 3) == "all") {
+//			if (find(allKeys.begin(), allKeys.end(), key.substr(3, key.size() - 1)) == allKeys.end()) {
+//				double temp = 0;
+//				vector<double> values;
+//				convertCSVListToVector(dm.Get(key), values);
+//				for (auto v : values) {
+//					temp += v;
+//					//cout << key << " " << allKey << " " << v << " " << temp << endl;
+//				}
+//				temp /= (double) values.size();
+//				dm.Set(key.substr(3, key.size() - 1), temp);
+//			}
+//		}
+//	}
+//}
 
 bool DefaultArchivist::isDataUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {

@@ -30,72 +30,72 @@
 
 using namespace std;
 
-class OldDataMap {
-private:
-	map<string, string> data;
-
-public:
-
-	OldDataMap() = default;
-
-	OldDataMap(shared_ptr<OldDataMap> source) {
-		data = source->data;
-	}
-
-	/*
-	 * sets a value at "key" to a DataMap.data
-	 * Template Functions must be in a header
-	 */
-	template<typename Type>
-	void Set(const string &key, const Type& value) {  // sets a value in a DataMap with "key"
-		data[key] = to_string(value);
-	}
-
-	// Clear a field in a DataMap
-	void Clear(const string &key) {
-		data.erase(key);
-	}
-
-	// Clear add data in a DataMap
-	void ClearMap() {
-		data.clear();
-	}
-	string Get(const string &key);  // retrieve the string from a dataMap with "key"
-	bool fieldExists(const string &key);  // return true if a data map contains "key"
-
-	void writeToFile(const string &fileName, const vector<string>& keys = { });  // write from this DataMap to fileName the data associated with keys
-	vector<string> getKeys();
-	//void clear();
-
-	/*
-	 * takes a vector of string with key value pairs. Calls set for each pair.
-	 */
-	void SetMany(vector<string> dataPairs);
-
-	/*
-	 * appends a value at "key" to a DataMap.data
-	 * Template Functions must be in a header
-	 */
-	template<typename Type>
-	void Append(const string &key, const Type &value) {
-		// is this value in the DataMap already?
-		if (data.find(key) == data.end()) {  // if this key is not already in the DataMap
-			data[key] = "\"[" + to_string(value) + "]\"";
-		} else {  // the key already exists
-			if ((data[key][0] == '\"') && (data[key][1] = '[')) {  // if this key is already associated with a list
-				string workingString = data[key];
-				workingString.pop_back();  // strip off trailing ']"'
-				workingString.pop_back();  // strip off trailing ']"'
-				workingString = workingString + "," + to_string(value) + "]\"";  // add ",value]"
-				data[key] = workingString;  // put new list back in DataMap
-			} else {  // this key exists, but the associated element is not a list
-				cout << "  In DataMap::Append(key, value)\n  ERROR: attempted to append to a non list DataMap entry. \n    Exiting!\n";
-				exit(1);
-			}
-		}
-	}
-
-};
+//class OldDataMap {
+//private:
+//	map<string, string> data;
+//
+//public:
+//
+//	OldDataMap() = default;
+//
+//	OldDataMap(shared_ptr<OldDataMap> source) {
+//		data = source->data;
+//	}
+//
+//	/*
+//	 * sets a value at "key" to a DataMap.data
+//	 * Template Functions must be in a header
+//	 */
+//	template<typename Type>
+//	void Set(const string &key, const Type& value) {  // sets a value in a DataMap with "key"
+//		data[key] = to_string(value);
+//	}
+//
+//	// Clear a field in a DataMap
+//	void Clear(const string &key) {
+//		data.erase(key);
+//	}
+//
+//	// Clear add data in a DataMap
+//	void ClearMap() {
+//		data.clear();
+//	}
+//	string Get(const string &key);  // retrieve the string from a dataMap with "key"
+//	bool fieldExists(const string &key);  // return true if a data map contains "key"
+//
+//	void writeToFile(const string &fileName, const vector<string>& keys = { });  // write from this DataMap to fileName the data associated with keys
+//	vector<string> getKeys();
+//	//void clear();
+//
+//	/*
+//	 * takes a vector of string with key value pairs. Calls set for each pair.
+//	 */
+//	void SetMany(vector<string> dataPairs);
+//
+//	/*
+//	 * appends a value at "key" to a DataMap.data
+//	 * Template Functions must be in a header
+//	 */
+//	template<typename Type>
+//	void Append(const string &key, const Type &value) {
+//		// is this value in the DataMap already?
+//		if (data.find(key) == data.end()) {  // if this key is not already in the DataMap
+//			data[key] = "\"[" + to_string(value) + "]\"";
+//		} else {  // the key already exists
+//			if ((data[key][0] == '\"') && (data[key][1] = '[')) {  // if this key is already associated with a list
+//				string workingString = data[key];
+//				workingString.pop_back();  // strip off trailing ']"'
+//				workingString.pop_back();  // strip off trailing ']"'
+//				workingString = workingString + "," + to_string(value) + "]\"";  // add ",value]"
+//				data[key] = workingString;  // put new list back in DataMap
+//			} else {  // this key exists, but the associated element is not a list
+//				cout << "  In DataMap::Append(key, value)\n  ERROR: attempted to append to a non list DataMap entry. \n    Exiting!\n";
+//				exit(1);
+//			}
+//		}
+//	}
+//
+//};
 
 class FileManager {
 public:
@@ -146,11 +146,24 @@ public:
 	}
 
 	// find key in this data map and return type (NONE = not found)
-	inline dataMapType findKeyInData(const string& key) {
+	inline dataMapType findKeyInData(const string& key, bool printType = false) {
+		if (printType){
+			cout << key << "is of type " << inUse[key] << endl;
+		}
 		if (inUse.find(key) != inUse.end()) {
 			return inUse[key];
 		} else {
 			return NONE;
+		}
+	}
+
+	// find key in this data map and return type (NONE = not found)
+	inline bool isKeySolo(const string& key) {
+		if (inUse.find(key) != inUse.end()) {
+			return ((findKeyInData(key) == BOOLSOLO) || (findKeyInData(key) == DOUBLESOLO) || (findKeyInData(key) == INTSOLO) || (findKeyInData(key) == STRINGSOLO));
+		} else {
+			cout << "  ERROR :: in DataMap::isKeySolo, key name " << key << " is not defined in DataMap. Exiting!" << endl;
+			exit(1);
 		}
 	}
 
@@ -619,12 +632,19 @@ public:
 				// therefore if we apply that mask the the outputBehavior, we can see if that type of output is needed.
 
 				OB = outputBehavior[i];
-				if (OB == NONE) {
+				if (OB == NONE && typeOfKey == STRING) {
 					OB = LIST; // if no output behavior is assigned, make it list.
 					if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
 						OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
 					}
 				}
+				if (OB == NONE && typeOfKey != STRING) {
+					OB = LIST | AVE; // if no output behavior is assigned, make it list.
+					if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
+						OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
+					}
+				}
+
 				if (aveOnly) {
 					OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
 				}
