@@ -22,8 +22,8 @@ shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::
 //shared_ptr<ParameterLink<bool>> IPDBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_IPD-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
 //shared_ptr<ParameterLink<int>> IPDBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_IPD-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
 
-IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
 	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_CONSTANT-availableStrategies"), availableStrategies);
 
@@ -44,7 +44,7 @@ IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_p
 
 shared_ptr<AbstractBrain> IPDBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
 
-	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInNodes, nrOutNodes, nrHiddenNodes);
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues);
 	auto genomeHandler = _genome->newHandler(_genome, true);
 
 	newBrain->strategy = availableStrategies[genomeHandler->readInt(0, ((int)availableStrategies.size())-1, 77, 0)];
@@ -52,7 +52,10 @@ shared_ptr<AbstractBrain> IPDBrain::makeBrainFromGenome(shared_ptr<AbstractGenom
 	return newBrain;
 }
 
-void IPDBrain::resetBrain() {
+void IPDBrain::resetBrain(){
+
+	AbstractBrain::resetBrain();
+
 	movesSelf.clear();
 	movesOther.clear();
 	internalValues.clear();
@@ -63,42 +66,36 @@ void IPDBrain::update() {
 	int C = (PT == nullptr) ? Parameters::root->lookupBool("WORLD_IPD-C") : PT->lookupBool("WORLD_IPD-C");
 	int D = 1 - C;
 
-	movesOther.push_back(nodes[inputNodesList[1]]);
+	movesOther.push_back(inputValues[1]);
 	if (strategy == "Rand"){
 		//cout << "Rand" << endl;
-		nodes[outputNodesList[0]] = Random::getInt(0,1);
+		outputValues[0] = Random::getInt(0,1);
 	}
 
 	if (strategy == "AllC"){
 		//cout << "AllC" << endl;
-		nodes[outputNodesList[0]] = C;
+		outputValues[0] = C;
 	}
 
 	if (strategy == "AllD"){
 		//cout << "AllD" << endl;
-		nodes[outputNodesList[0]] = D;
+		outputValues[0] = D;
 
 	}
 
 	if (strategy == "TFT"){
 		//cout << "TFT" << endl;
-		nodes[outputNodesList[0]] = ((movesOther[((int)movesOther.size())-1]) == D)?D:C;
+		outputValues[0] = ((movesOther[((int)movesOther.size())-1]) == D)?D:C;
 	}
 
 	if (strategy == "WSLS"){
 		cout << "not yet written!" << endl;
 		exit(1);
 	}
-	movesSelf.push_back(nodes[outputNodesList[0]]);
+	movesSelf.push_back(outputValues[0]);
 
 	//cout << "done IPDBrain::update()" << endl;
 
-}
-
-void inline IPDBrain::resetOutputs() {
-	for (auto i : outputNodesList) {
-		nodes[i] = 0.0;
-	}
 }
 
 string IPDBrain::description() {

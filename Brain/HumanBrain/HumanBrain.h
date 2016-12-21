@@ -39,7 +39,7 @@ public:
 
 	HumanBrain() = delete;
 
-	HumanBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = Parameters::root);
+	HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = Parameters::root);
 
 	virtual ~HumanBrain() = default;
 
@@ -55,8 +55,8 @@ public:
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
 };
 
-inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> PT = Parameters::root) {
-	return make_shared<HumanBrain>(ins, outs, hidden, PT);
+inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
+	return make_shared<HumanBrain>(ins, outs, PT);
 }
 
 

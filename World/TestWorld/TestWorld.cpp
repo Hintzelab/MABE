@@ -30,7 +30,7 @@ void TestWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visual
 	org->brain->setInput(0, 1);  // give the brain a constant 1 (for wire brain)
 	org->brain->update();
 	double score = 0.0;
-	for (int i = 0; i < org->brain->nrOutNodes; i++) {
+	for (int i = 0; i < org->brain->nrOutputValues; i++) {
 		if (mode == 0) {
 			score += Bit(org->brain->readOutput(i));
 		} else {

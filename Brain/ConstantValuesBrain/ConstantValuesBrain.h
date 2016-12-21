@@ -49,7 +49,7 @@ public:
 
 	ConstantValuesBrain() = delete;
 
-	ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 
 	virtual ~ConstantValuesBrain() = default;
 
@@ -66,8 +66,8 @@ public:
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
 };
 
-inline shared_ptr<AbstractBrain> ConstantValuesBrain_brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> PT) {
-	return make_shared<ConstantValuesBrain>(ins, outs, hidden, PT);
+inline shared_ptr<AbstractBrain> ConstantValuesBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<ConstantValuesBrain>(ins, outs, PT);
 }
 
 #endif /* defined(__BasicMarkovBrainTemplate__ConstantValuesBrain__) */

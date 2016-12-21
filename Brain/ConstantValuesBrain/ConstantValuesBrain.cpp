@@ -19,8 +19,8 @@ shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeUniformPL = Param
 shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
 shared_ptr<ParameterLink<int>> ConstantValuesBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
 
-ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 	valueMin = (PT == nullptr) ? valueMinPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMin");
 	valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
 	valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
@@ -32,18 +32,18 @@ ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, int _n
 
 // columns to be added to ave file
 	aveFileColumns.clear();
-	for (int i = 0; i < nrOutNodes; i++) {
+	for (int i = 0; i < nrOutputValues; i++) {
 		aveFileColumns.push_back("brainValue" + to_string(i));
 	}
 }
 
 shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
-	shared_ptr<ConstantValuesBrain> newBrain = make_shared<ConstantValuesBrain>(nrInNodes, nrOutNodes, nrHiddenNodes);
+	shared_ptr<ConstantValuesBrain> newBrain = make_shared<ConstantValuesBrain>(nrInputValues, nrOutputValues);
 	auto genomeHandler = _genome->newHandler(_genome, true);
 
 	double tempValue;
 
-	for (int i = 0; i < nrOutNodes; i++) {
+	for (int i = 0; i < nrOutputValues; i++) {
 		tempValue = 0;
 		for (int j = 0; j < samplesPerValue; j++) {
 			if (valueType == 0) {
@@ -56,12 +56,10 @@ shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrainFromGenome(shared_ptr<Ab
 			}
 		}
 		if (valueType == 0) {
-			newBrain->nodes[outputNodesList[i]] = int(tempValue / samplesPerValue);
-			newBrain->nextNodes[outputNodesList[i]] = int(tempValue / samplesPerValue);
+			newBrain->outputValues[i] = int(tempValue / samplesPerValue);
 		}
 		if (valueType == 1) {
-			newBrain->nodes[outputNodesList[i]] = tempValue / samplesPerValue;
-			newBrain->nextNodes[outputNodesList[i]] = tempValue / samplesPerValue;
+			newBrain->outputValues[i] = tempValue / samplesPerValue;
 		}
 	}
 	return newBrain;
@@ -96,8 +94,8 @@ DataMap ConstantValuesBrain::getStats() {
 //
 //	dataPairs.push_back(to_string(valuesList));
 
-	for (int i = 0; i < nrOutNodes; i++) {
-		dataMap.Set("brainValue" + to_string(i),nextNodes[outputNodesList[i]]);
+	for (int i = 0; i < nrOutputValues; i++) {
+		dataMap.Set("brainValue" + to_string(i),outputValues[i]);
 	}
 	return (dataMap);
 }

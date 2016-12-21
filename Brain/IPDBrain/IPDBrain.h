@@ -55,7 +55,7 @@ public:
 
 	IPDBrain() = delete;
 
-	IPDBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 
 	virtual ~IPDBrain() = default;
 
@@ -67,13 +67,13 @@ public:
 	virtual DataMap getStats() override;
 
 	virtual void resetBrain() override;
-	virtual void resetOutputs() override;
+	//virtual void resetOutputs() override;
 
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
 };
 
-inline shared_ptr<AbstractBrain> IPDBrain_brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> PT) {
-	return make_shared<IPDBrain>(ins, outs, hidden, PT);
+inline shared_ptr<AbstractBrain> IPDBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<IPDBrain>(ins, outs, PT);
 }
 
 #endif /* defined(__BasicMarkovBrainTemplate__IPDBrain__) */

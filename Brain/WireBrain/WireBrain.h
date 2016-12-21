@@ -57,6 +57,8 @@ class WireBrain: public AbstractBrain {
 	static shared_ptr<ParameterLink<int>> wiregenesSquiggleWireMaxLengthPL;
 	static shared_ptr<ParameterLink<string>> wiregenesSquiggleWireDirectionsPL;
 
+	static shared_ptr<ParameterLink<int>> hiddenValuesPL;
+
 	bool allowNegativeCharge;
 	int defaultWidth;
 	int defaultHeight;
@@ -85,6 +87,10 @@ class WireBrain: public AbstractBrain {
 	int wiregenesSquiggleWireMaxLength;
 	string wiregenesSquiggleWireDirections;
 
+
+	vector<double> nodes;
+	vector<double> nextNodes;
+
 	int CHARGE;  // = 2 + *decayDuration;
 	int NEGCHARGE;  // = CHARGE * -1;
 
@@ -112,9 +118,11 @@ public:
 
 	int connectionsCount;
 
-	WireBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	int nrValues;
+
+	WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~WireBrain() = default;
 
 	virtual void initalize();
@@ -130,8 +138,8 @@ public:
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) override;
 };
 
-inline shared_ptr<AbstractBrain> WireBrain_brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> PT) {
-	return make_shared<WireBrain>(ins, outs, hidden, PT);
+inline shared_ptr<AbstractBrain> WireBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<WireBrain>(ins, outs, PT);
 }
 
 #endif /* defined(__BasicMarkovBrainTemplate__WireBrain__) */
