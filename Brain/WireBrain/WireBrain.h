@@ -29,6 +29,8 @@ using namespace std;
 
 class WireBrain: public AbstractBrain {
 
+	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
+
 	static shared_ptr<ParameterLink<bool>> allowNegativeChargePL;
 	static shared_ptr<ParameterLink<int>> defaultWidthPL;
 	static shared_ptr<ParameterLink<int>> defaultHeightPL;

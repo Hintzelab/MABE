@@ -52,7 +52,7 @@ MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNode
 
 	readParameters();
 
-	makeNodeMap(nodeMap, Global::bitsPerBrainAddressPL->lookup(), nrNodes);
+	makeNodeMap(nodeMap, Gate_Builder::bitsPerBrainAddressPL->lookup(), nrNodes);
 
 	// columns to be added to ave file
 	aveFileColumns.clear();
@@ -207,7 +207,7 @@ int MarkovBrain::numGates() {
 }
 
 void MarkovBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
-	int codonMax = (1 << Global::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->lookup()) - 1;
 	_genome->fillRandom();
 
 	auto genomeHandler = _genome->newHandler(_genome);

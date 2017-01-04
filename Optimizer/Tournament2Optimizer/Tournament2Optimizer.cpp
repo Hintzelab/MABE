@@ -12,6 +12,10 @@
 
 using namespace std;
 
+shared_ptr<ParameterLink<string>> Tournament2Optimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-optimizeValue", (string) "score", "value to optimize");
+shared_ptr<ParameterLink<int>> Tournament2Optimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
+shared_ptr<ParameterLink<int>> Tournament2Optimizer::tournamentSizePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-tournamentSize", 5, "number of organisms considered in each tournament?");
+
 void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	vector<shared_ptr<Organism>> nextPopulation;
 	set<shared_ptr<Organism>> survivors;
@@ -22,10 +26,10 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 
 	vector<double> Scores;
 	for (auto org : population) {
-		Scores.push_back(org->score);
+		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
 	}
 	int best = findGreatestInVector(Scores);
-	maxFitness = Scores[best];
+	maxScore = Scores[best];
 
 //	{  // check to make sure there are at least 2 genders.
 //		bool same = true;

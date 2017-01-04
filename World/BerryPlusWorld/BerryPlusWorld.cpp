@@ -108,6 +108,12 @@ shared_ptr<ParameterLink<int>> BerryPlusWorld::fixedStartFacingPL = Parameters::
 shared_ptr<ParameterLink<bool>> BerryPlusWorld::relativeScoringPL = Parameters::register_parameter("WORLD_BERRY_PLUS_ADVANCED-relativeScoring", false,
 		"score will be divided by the value of the positively scoring food on the initial map (useful when replacement = 0)");
 
+
+shared_ptr<ParameterLink<int>> BerryPlusWorld::repeatsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-repeats", 3, "Number of times to test each Organism per generation");
+shared_ptr<ParameterLink<bool>> BerryPlusWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY_PLUS-groupEvaluation", false, "if true, evaluate population concurrently");
+
+
+
 bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT) {
 	fileName = _fileName;
 	string parameterName, parameterValue;
@@ -305,6 +311,10 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 	fixedStartFacing = (PT == nullptr) ? fixedStartFacingPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-fixedStartFacing");
 
 	relativeScoring = (PT == nullptr) ? relativeScoringPL->lookup() : PT->lookupBool("WORLD_BERRY_PLUS_ADVANCED-relativeScoring");
+
+
+	repeats = (PT == nullptr) ? repeatsPL->lookup() : PT->lookupInt("WORLD_BERRY_PLUS-repeats");
+	groupEvaluation = (PT == nullptr) ? groupEvaluationPL->lookup() : PT->lookupBool("WORLD_BERRY_PLUS-groupEvaluation");
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//  LOAD MAPS FROM FILES  ///////////////////////////////////////////////////////////
@@ -1016,21 +1026,12 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 	}
 	for (int orgIndex = 0; orgIndex < (int) group->population.size(); orgIndex++) {
 
-		group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
+		//group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
 		group->population[orgIndex]->dataMap.Append("score", summedScores[orgIndex] / numWorlds);
-
-		// set up output behaviors for entries in data map
-		group->population[orgIndex]->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
 		for (int f = 0; f <= foodTypes; f++) {
 			group->population[orgIndex]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
 		}
-		group->population[orgIndex]->dataMap.setOutputBehavior("total", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("switches", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("foodList", DataMap::LIST);
 
 //		if (saveOrgActions) { // if saveOrgActions save the output.
 //			vector<int> simplifiedMoves;

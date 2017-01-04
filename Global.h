@@ -40,9 +40,9 @@ public:
 
 	static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
 
-	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
-	// i.e. ceil(bitsPerBrainAddress/8) = number of genome sites used
-	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
+//	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
+//	// i.e. ceil(bitsPerBrainAddress/8) = number of genome sites used
+//	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
 
 	//////////
 	// Below are non configurable values (not set directly by Parameters.h methods)

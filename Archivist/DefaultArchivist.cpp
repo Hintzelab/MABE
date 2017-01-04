@@ -132,7 +132,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 	if (writeDominantFile) {
 		vector<double> Scores;
 		for (auto org : population) {
-			Scores.push_back(org->score);
+			Scores.push_back(org->dataMap.GetAverage("score"));
 		}
 
 		int best = findGreatestInVector(Scores);

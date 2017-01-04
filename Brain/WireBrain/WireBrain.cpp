@@ -40,6 +40,8 @@ shared_ptr<ParameterLink<string>> WireBrain::wiregenesSquiggleWireDirectionsPL =
 
 shared_ptr<ParameterLink<int>> WireBrain::hiddenValuesPL = Parameters::register_parameter("BRAIN_WIRE-hiddenNodes", 8, "number of hidden values (allows for memory)");  // string parameter for outputMethod;
 
+shared_ptr<ParameterLink<int>> WireBrain::bitsPerCodonPL = Parameters::register_parameter("BRAIN_WIRE-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
+
 WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes,  _PT) {
 
@@ -117,6 +119,8 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 
 	vector<pair<int, int>> wormholeList;
 
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
+
 	if (!genome->isEmpty()) {
 		if (genomeDecodingMethod == "bitmap") {
 			// load genome into allCells
@@ -149,12 +153,13 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 				int featureCount = 0;
 
 				int testSite1Value, testSite2Value;
-				testSite1Value = genomeHandler->readInt(0, 255);
-				testSite2Value = genomeHandler->readInt(0, 255);
+
+				testSite1Value = genomeHandler->readInt(0, codonMax);
+				testSite2Value = genomeHandler->readInt(0, codonMax);
 				while (!translation_Complete) {
 					if (genomeHandler->atEOG()) {  // if genomeIndex > testIndex, testIndex has wrapped and we are done translating
 						translation_Complete = true;
-					} else if (testSite1Value + testSite2Value == 255) {  // if we found a possible start codon...
+					} else if (testSite1Value + testSite2Value == codonMax) {  // if we found a possible start codon...
 						if (testSite1Value == 42 && wiregenesAllowSimpleWires) {  // record a wire feature
 
 							int possibleDirections;  // if cardinalOnly, only 6 possible directions, if diagonalsAlso then 26 possible directions
@@ -169,11 +174,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							simpleWireFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -187,11 +192,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 						} else if (testSite1Value == 43 && wiregenesAllowWormholes) {  // record a wormhole
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							wormholeFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -217,11 +222,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							squiggleWireFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -238,12 +243,12 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 						}
 					}
 					genomeHandler->toggleReadDirection();
-					genomeHandler->readInt(0, 255);  // move back 2 start codon values
-					genomeHandler->readInt(0, 255);
+					genomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+					genomeHandler->readInt(0, codonMax);
 					genomeHandler->toggleReadDirection();
 					genomeHandler->advanceIndex();  // advance 1 index (might not be equal to a start codeon value (i.e. if we are reading from a bit genome)
-					testSite1Value = genomeHandler->readInt(0, 255);
-					testSite2Value = genomeHandler->readInt(0, 255);
+					testSite1Value = genomeHandler->readInt(0, codonMax);
+					testSite2Value = genomeHandler->readInt(0, codonMax);
 				}
 			}
 
@@ -1083,7 +1088,7 @@ DataMap WireBrain::getStats() {
 }
 
 void WireBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
-	int codonMax = (1 << Global::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
 
 	if (genomeDecodingMethod == "bitmap") {
 		auto genomeHandler = _genome->newHandler(_genome);

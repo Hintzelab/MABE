@@ -37,7 +37,7 @@ class Organism {
 	shared_ptr<AbstractBrain> brain;
 	shared_ptr<ParametersTable> PT; 
 
-	double score;
+	//double score;
 
 	int offspringCount;
 

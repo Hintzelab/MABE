@@ -28,9 +28,6 @@ private:
 	int currentUpdate;
 
 public:
-	// Parameters
-	//static shared_ptr<ParameterLink<double>> TSKPL;
-	// end parameters
 
 	static shared_ptr<ParameterLink<bool>> roundsFixedPerGenerationPL;
 	static shared_ptr<ParameterLink<int>> roundsMinPL;
@@ -66,8 +63,8 @@ public:
 
 	IPDWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
-	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) override;
-	virtual void runWorldDuel(shared_ptr<Organism> player1, shared_ptr<Organism> player2, bool analyse, bool visualize, bool debug);
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override;
+	virtual void runDuel(shared_ptr<Organism> player1, shared_ptr<Organism> player2, bool analyse, bool visualize, bool debug);
 
 	virtual int requiredInputs() override{
 		return inputNodesCount;
@@ -75,16 +72,6 @@ public:
 	virtual int requiredOutputs() override {
 		return outputNodesCount;
 	}
-
-	virtual int maxOrgsAllowed() override {
-		return -1;
-	}
-
-	virtual int minOrgsAllowed() override {
-		return 1;
-	}
-
-	//void SaveWorldState(string fileName, vector<int> grid, vector<pair<int, int>> currentLocation, vector<int> facing);
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__IPDWorld__) */

@@ -114,6 +114,13 @@ public:
 	static shared_ptr<ParameterLink<string>> fixedStartYRangePL;
 	static shared_ptr<ParameterLink<int>> fixedStartFacingPL;
 
+
+	static shared_ptr<ParameterLink<int>> repeatsPL;
+	static shared_ptr<ParameterLink<bool>> groupEvaluationPL;
+
+	int repeats;
+	bool groupEvaluation;
+
 	int relativeScoring;
 	int boarderEdge;
 	bool senseVisited;
@@ -188,7 +195,39 @@ public:
 
 	BerryWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
-	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) override;
+
+	// old evaluate with group eval (keep for now so we can move it into berry world
+
+	void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override {
+		//vector<double> scores(groups["default"]->population.size(), 0);
+		int groupSize = groups["default"]->population.size();
+		if (groupEvaluation) {
+			for (int r = 0; r < repeats; r++) {
+				runWorld(groups["default"], analyse, visualize, debug);
+//				for (int i = 0; i < groupSize; i++) {
+//					scores[i] += groups["default"]->population[i]->score;
+//				}
+			}
+		} else {
+			vector<shared_ptr<Organism>> soloPopulation;
+			shared_ptr<Group> soloGroup = make_shared<Group>(soloPopulation, groups["default"]->optimizer, groups["default"]->archivist);
+			for (int i = 0; i < groupSize; i++) {
+				soloGroup->population.clear();
+				soloGroup->population.push_back(groups["default"]->population[i]);
+				for (int r = 0; r < repeats; r++) {
+					runWorld(soloGroup, analyse, visualize, debug);
+					//scores[i] += groups["default"]->population[i]->score;
+				}
+			}
+		}
+//		for (size_t i = 0; i < groups["default"]->population.size(); i++) {
+//			groups["default"]->population[i]->score = scores[i] / repeatsPL->lookup();
+//		}
+	}
+
+
+
+	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug);
 
 	// if lastfood < 0, do not consider last food, pick randomly
 	// if
@@ -320,14 +359,6 @@ public:
 	}
 	virtual int requiredOutputs() override {
 		return outputNodesCount;
-	}
-
-	virtual int maxOrgsAllowed() override {
-		return -1;
-	}
-
-	virtual int minOrgsAllowed() override {
-		return 1;
 	}
 
 	void SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset = false);

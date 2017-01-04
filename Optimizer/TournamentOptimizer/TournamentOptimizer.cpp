@@ -16,6 +16,10 @@
 
 using namespace std;
 
+shared_ptr<ParameterLink<string>> TournamentOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-optimizeValue", (string) "score", "value to optimize");
+shared_ptr<ParameterLink<int>> TournamentOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
+shared_ptr<ParameterLink<int>> TournamentOptimizer::tournamentSizePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-tournamentSize", 5, "number of organisms considered in each tournament?");
+
 /*
  * Tournament::makeNextGeneration(vector<Genome*> population, vector<double> W)
  * create a new generation one genome at a time
@@ -28,11 +32,11 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 
 	vector<double> Scores;
 	for (auto org : population) {
-		Scores.push_back(org->score);
+		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
 	}
 
 	int best = findGreatestInVector(Scores);
-	maxFitness = Scores[best];
+	maxScore = Scores[best];
 
 	while (nextPopulation.size() < population.size()) {
 		int winner, challanger;

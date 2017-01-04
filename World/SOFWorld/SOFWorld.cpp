@@ -57,7 +57,7 @@ AbstractWorld(_PT) {
 }
 
 // score is number of outputs set to 1 (i.e. output > 0) squared
-void SOFWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) {
+void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
 	
 	
 	org->brain->resetBrain();
@@ -85,16 +85,15 @@ void SOFWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visuali
 	double key = (x*local_y) + local_x;
 	
 	double score = scoreMatrix[key];
-	org->score = score;
+
+	if(debug){
+		cout << local_x << "," << local_y << "  :  " << score << endl;
+	}
+
+	//org->score = score;
 	org->dataMap.Append("score", score);
-	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
-
 	org->dataMap.Append("x", local_x);
-	org->dataMap.setOutputBehavior("x", DataMap::AVE);
-
 	org->dataMap.Append("y", local_y);
-	org->dataMap.setOutputBehavior("y", DataMap::AVE);
-
 }
 
 int SOFWorld::requiredInputs() {
@@ -102,11 +101,5 @@ int SOFWorld::requiredInputs() {
 }
 int SOFWorld::requiredOutputs() {
 	return 2;
-}
-int SOFWorld::maxOrgsAllowed()  {
-	return 1;
-}
-int SOFWorld::minOrgsAllowed()  {
-	return 1;
 }
 

@@ -31,6 +31,10 @@ class MarkovBrain : public AbstractBrain {
 	vector<shared_ptr<AbstractGate>> gates;
 
  public:
+
+//	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
+//	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
+
 	static shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
 	static shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
 	static shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMaxPL;

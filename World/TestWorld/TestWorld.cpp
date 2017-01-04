@@ -12,11 +12,13 @@
 
 shared_ptr<ParameterLink<int>> TestWorld::modePL = Parameters::register_parameter("WORLD_TEST-mode", 0, "0 = bit outputs before adding, 1 = add outputs");
 shared_ptr<ParameterLink<int>> TestWorld::numberOfOutputsPL = Parameters::register_parameter("WORLD_TEST-numberOfOutputs", 10, "number of outputs in this world");
+shared_ptr<ParameterLink<int>> TestWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEST-evaluationsPerGeneration", 1, "Number of times to test each Genome per generation (useful with non-deterministic brains)");
 
 TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
 	mode = (PT == nullptr) ? modePL->lookup() : PT->lookupInt("WORLD_TEST-mode");
 	numberOfOutputs = (PT == nullptr) ? numberOfOutputsPL->lookup() : PT->lookupInt("WORLD_TEST-numberOfOutputs");
+	evaluationsPerGeneration = (PT == nullptr) ? evaluationsPerGenerationPL->lookup() : PT->lookupInt("WORLD_TEST-evaluationsPerGeneration");
 
 	// columns to be added to ave file
 	aveFileColumns.clear();
@@ -24,25 +26,25 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 // score is number of outputs set to 1 (i.e. output > 0) squared
-void TestWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) {
-
-	org->brain->resetBrain();
-	org->brain->setInput(0, 1);  // give the brain a constant 1 (for wire brain)
-	org->brain->update();
-	double score = 0.0;
-	for (int i = 0; i < org->brain->nrOutputValues; i++) {
-		if (mode == 0) {
-			score += Bit(org->brain->readOutput(i));
-		} else {
-			score += org->brain->readOutput(i);
+void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+	for (int r = 0; r < evaluationsPerGeneration; r++) {
+		org->brain->resetBrain();
+		org->brain->setInput(0, 1);  // give the brain a constant 1 (for wire brain)
+		org->brain->update();
+		double score = 0.0;
+		for (int i = 0; i < org->brain->nrOutputValues; i++) {
+			if (mode == 0) {
+				score += Bit(org->brain->readOutput(i));
+			}
+			else {
+				score += org->brain->readOutput(i);
+			}
 		}
+		if (score < 0.0) {
+			score = 0.0;
+		}
+		org->dataMap.Append("score", score);
 	}
-	if (score < 0.0) {
-		score = 0.0;
-	}
-	org->score = score;
-	org->dataMap.Append("score", score);
-	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 }
 
 int TestWorld::requiredInputs() {
@@ -51,10 +53,3 @@ int TestWorld::requiredInputs() {
 int TestWorld::requiredOutputs() {
 	return numberOfOutputs;
 }
-int TestWorld::maxOrgsAllowed() {
-	return 1;
-}
-int TestWorld::minOrgsAllowed() {
-	return 1;
-}
-

@@ -16,6 +16,10 @@
 
 using namespace std;
 
+shared_ptr<ParameterLink<string>> GAOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "score", "value to optimize");
+shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_GA-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
+
+
 /*
  * GA::makeNextGeneration(vector<Genome*> population, vector<double> W)
  * create a new generation one genome at a time for each next population genome, select a random number
@@ -29,22 +33,23 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 
 	vector<double> Scores;
 	for (auto org : population) {
-		Scores.push_back(org->score);
+		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
+
 	}
 
 	int best = findGreatestInVector(Scores);
-	maxFitness = Scores[best];
+	maxScore = Scores[best];
 
 	//now to roulette wheel selection:
 	while (nextPopulation.size() < population.size()) {
 		int who;
-		if ((int) nextPopulation.size() < elitismLPL->lookup()) {
+		if (elitismLPL->lookup()) {
 			who = best;
 		} else {
-			if (maxFitness > 0.0) {  // if anyone has fitness > 0
+			if (maxScore > 0.0) {  // if anyone has fitness > 0
 				do {
 					who = Random::getIndex(population.size());  //keep choosing a random genome from population until we get one that's good enough
-				} while (pow(1.05, Random::getDouble(1)) > pow(1.05, (Scores[who] / maxFitness)));
+				} while (pow(1.05, Random::getDouble(1)) > pow(1.05, (Scores[who] / maxScore)));
 			} else {
 				who = Random::getIndex(population.size());  // otherwise, just pick a random genome from population
 			}

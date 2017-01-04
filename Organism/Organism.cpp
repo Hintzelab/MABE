@@ -266,7 +266,7 @@ shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
 	newOrg->genome = genome->makeCopy(); 
 	newOrg->dataMap = dataMap; 
 	newOrg->snapShotDataMaps = snapShotDataMaps;
-	newOrg->score = score;
+	//newOrg->score = score;
 	newOrg->offspringCount = offspringCount;
 	newOrg->parents = parents;
 	for (auto parent : parents) {

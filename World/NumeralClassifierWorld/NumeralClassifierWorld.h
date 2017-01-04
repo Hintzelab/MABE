@@ -58,7 +58,7 @@ public:
 
 	NumeralClassifierWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
-	virtual void runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) override;
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
 
 	virtual int requiredInputs() override {
 		return inputNodesCount;
@@ -66,13 +66,6 @@ public:
 	virtual int requiredOutputs() override {
 		return outputNodesCount;
 	}
-	virtual int maxOrgsAllowed() override {
-		return 1;
-	}
-	virtual int minOrgsAllowed() override {
-		return 1;
-	}
-
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__NumeralClassifierWorld__) */

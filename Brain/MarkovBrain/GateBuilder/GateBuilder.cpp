@@ -33,16 +33,19 @@ shared_ptr<ParameterLink<int>> Gate_Builder::tritDeterministicGateInitialCountPL
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingNeuronGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allow", false, "set to true to enable Neuron gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 3, "seed genome with this many start codons");
 
+shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerBrainAddressPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerBrainAddress", 8, "how many bits are evaluated to determine the brain addresses");
+shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerCodonPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
+
 // *** General tools for All Gates ***
 
 // Gets "howMany" addresses, advances the genome_index buy "howManyMax" addresses and updates "codingRegions" with the addresses being used.
 void Gate_Builder::getSomeBrainAddresses(const int& howMany, const int& howManyMax, vector<int>& addresses, shared_ptr<AbstractGenome::Handler> genomeHandler, int code, int gateID) {
 	int i;
 	for (i = 0; i < howMany; i++) {  // for the number of addresses we need
-		addresses[i] = genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1, code, gateID);  // get an address
+		addresses[i] = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, code, gateID);  // get an address
 	}
 	while (i < howManyMax) { // leave room in the genome in case this gate gets more IO later
-		genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1);
+		genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1);
 		i++;
 	}
 }
@@ -132,7 +135,7 @@ void Gate_Builder::setupGates() {
 	//	int FeedbackCode = 49;
 	//	int ThresholdCode = 50;
 
-	int bitsPerCodon = Global::bitsPerCodonPL->lookup();
+	int bitsPerCodon = bitsPerCodonPL->lookup();
 	makeGate.resize(1 << bitsPerCodon);
 	for (int i = 0; i < (1 << bitsPerCodon); i++) {
 		AddGate(i, nullptr);
@@ -361,7 +364,7 @@ void Gate_Builder::setupGates() {
 
 			getSomeBrainAddresses(numInputs, defaultNumInputsMax, inputs, genomeHandler, AbstractGate::IN_ADDRESS_CODE, gateID);
 
-			int output = genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::OUT_ADDRESS_CODE, gateID);
+			int output = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::OUT_ADDRESS_CODE, gateID);
 
 			int dischargeBehavior = (_PT == nullptr) ? NeuronGate::defaultDischargeBehaviorPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-dischargeBehavior");
 			if (dischargeBehavior == -1) {
@@ -386,11 +389,11 @@ void Gate_Builder::setupGates() {
 			int DeliveryChargeFromNode = -1;
 			bool defaultThresholdFromNode = (_PT == nullptr) ? NeuronGate::defaultThresholdFromNodePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
 			if (defaultThresholdFromNode) {
-				ThresholdFromNode = genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+				ThresholdFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
 			bool defaultDeliveryChargeFromNode = (_PT == nullptr) ? NeuronGate::defaultDeliveryChargeFromNodePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
 			if (defaultDeliveryChargeFromNode) {
-				DeliveryChargeFromNode = genomeHandler->readInt(0, (1 << Global::bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+				DeliveryChargeFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
 			if (genomeHandler->atEOC()) {
 				shared_ptr<NeuronGate> nullObj = nullptr;;

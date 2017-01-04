@@ -16,7 +16,7 @@ from ast import literal_eval
 nodes = [-1]
 edges = []
 
-for time in np.arange(0,17000,100):
+for time in np.arange(0,2000,100):
   file_name = 'data_' + str(time) + '.csv'
   data_csv = pandas.read_csv(file_name)
   num_orgs = 0
