@@ -1,3 +1,4 @@
+///123
 //  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
 //         hintzelab.msu.edu
@@ -30,9 +31,28 @@
 
 using namespace std;
 
+//void senseTotals(Vector2d<int>& worldgrid,  int& orgx,  int& orgy,  int& orgf,  Sensor& sensor, vector<int>& values){
+//
+//	bool blocked = false;
+//	int currentIndex = 0;
+//
+//	while (currentIndex != -1){
+//		//cout << currentIndex << "  :  " << sensor.angles[orgf]->cX(currentIndex) << "," << sensor.angles[orgf]->cY(currentIndex) << "  " << sensor.angles[orgf]->cX(currentIndex) + orgx << "," << sensor.angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx,sensor.angles[orgf]->cY(currentIndex) + orgy) << endl;
+//		values[worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy)]++;
+//		blocked = worldgrid(sensor.angles[orgf]->cX(currentIndex)+orgx, sensor.angles[orgf]->cY(currentIndex)+orgy) == 5;
+//
+//		worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy) += 10;
+//
+//		currentIndex = sensor.angles[orgf]->advanceIndex(currentIndex, blocked);
+//	}
+//
+//}
+
+
 int main(int argc, const char * argv[]) {
 
-	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n" << "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
+	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
+			<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
 	configureDefaultsAndDocumentation(); // load all parameters from command line and file
@@ -134,18 +154,20 @@ int main(int argc, const char * argv[]) {
 		if (PT == nullptr) {
 			PT = Parameters::root;
 		}
-		cout << "Group name: " << NS << "\n  " << popSize << " organisms with " << PT->lookupString("GENOME-genomeType") << "<" << PT->lookupString("GENOME-sitesType") << "> genomes and " << PT->lookupString("BRAIN-brainType") << " brains.\n  Optimizer: " << PT->lookupString("OPTIMIZER-optimizer") << "\n  Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
+		cout << "Group name: " << NS << "\n  " << popSize << " organisms with " << PT->lookupString("GENOME-genomeType") << "<" << PT->lookupString("GENOME-sitesType") << "> genomes and " << PT->lookupString("BRAIN-brainType") << " brains.\n  Optimizer: "
+				<< PT->lookupString("OPTIMIZER-optimizer") << "\n  Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
 		cout << endl;
 		// end of report
 	}
 
-	// this version of the code requires a default group. This is change in the future.
+	// this versVector2d<int> worldgrid(10, 10);ion of the code requires a default group. This is change in the future.
 	string defaultGroup = "default";
 	if (groups.find(defaultGroup) == groups.end()) {
 		cout << "Group " << defaultGroup << " not found in groups.\nExiting." << endl;
 		exit(1);
 	}
 
+	//exit(1);
 	// in run mode we evolve organsims
 	if (Global::modePL->lookup() == "run") {
 		//////////////////
@@ -153,9 +175,8 @@ int main(int argc, const char * argv[]) {
 		//////////////////
 
 		while (!groups[defaultGroup]->archivist->finished) {
-
 			// evaluate population in world.
-			world->evaluate(groups[defaultGroup], AbstractWorld::groupEvaluationPL->lookup(), false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+			world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			//cout << "  evaluation done" << endl;
 
 			// save data, update memory and delete any unneeded data;
@@ -171,7 +192,7 @@ int main(int argc, const char * argv[]) {
 				//cout << "  optimize done\n";
 			}
 
-			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxFitness << "" << endl;
+			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxScore << "" << endl;
 		}
 
 		// the run is finished... flush any data that has not been output yet
@@ -273,9 +294,13 @@ int main(int argc, const char * argv[]) {
 		}
 
 		shared_ptr<Group> testGroup = make_shared<Group>(testPopulation, groups[defaultGroup]->optimizer, groups[defaultGroup]->archivist);
-		world->runWorld(testGroup, false, true, false);
+
+		groups.clear();
+		groups["default"] = testGroup;
+		world->evaluate(groups, false, true, false);
+
 		for (auto o : testGroup->population) {
-			cout << "  organism with ID: " << o->genome->dataMap.GetAverage("ID") << " generated score: " << o->score << " " << endl;
+			cout << "  organism with ID: " << o->genome->dataMap.GetAverage("ID") << " generated score: " << o->dataMap.GetAverage("score") << " " << endl;
 		}
 	} else {
 		cout << "\n\nERROR: Unrecognized mode set in configuration!\n  \"" << Global::modePL->lookup() << "\" is not defined.\n\nExiting.\n" << endl;
