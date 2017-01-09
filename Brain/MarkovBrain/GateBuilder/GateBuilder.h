@@ -47,6 +47,9 @@ public:
 	static shared_ptr<ParameterLink<bool>> usingNeuronGatePL;
 	static shared_ptr<ParameterLink<int>> neuronGateInitialCountPL;
 
+	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
+	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
+
 	set<int> inUseGateTypes;
 	set<string> inUseGateNames;
 	vector<vector<int>> gateStartCodes;
@@ -57,6 +60,7 @@ public:
 
 	//Gate_Builder() = default;
 	Gate_Builder(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT){
+
 		setupGates();
 	}
 

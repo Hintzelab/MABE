@@ -15,12 +15,19 @@
 
 using namespace std;
 
+
+
 class GAOptimizer : public AbstractOptimizer {
  public:
+	static shared_ptr<ParameterLink<string>> optimizeValuePL;
+	static shared_ptr<ParameterLink<int>> elitismPL;
+
+	shared_ptr<ParameterLink<string>> optimizeValueLPL;
 	shared_ptr<ParameterLink<int>> elitismLPL;
 
 	GAOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : AbstractOptimizer(_PT) {
-		elitismLPL = (PT == nullptr) ? AbstractOptimizer::elitismPL : Parameters::getIntLink("OPTIMIZER-elitism", PT);
+		optimizeValueLPL = (PT == nullptr) ? optimizeValuePL : Parameters::getStringLink("OPTIMIZER_GA-optimizeValue", PT);
+		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_GA-elitism", PT);
 	}
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
 };

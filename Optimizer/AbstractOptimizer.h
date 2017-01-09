@@ -29,14 +29,11 @@ class AbstractOptimizer {
 
 	static shared_ptr<ParameterLink<string>> Optimizer_MethodStrPL;
 
-	static shared_ptr<ParameterLink<int>> elitismPL;
-	static shared_ptr<ParameterLink<int>> tournamentSizePL;
-
  public:
 	const shared_ptr<ParametersTable> PT;
-	double maxFitness;
+	double maxScore;
 	AbstractOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
-		maxFitness = 0;
+		maxScore = 0;
 	}
 	virtual ~AbstractOptimizer() = default;
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;

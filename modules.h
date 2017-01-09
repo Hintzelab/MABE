@@ -12,13 +12,13 @@
 
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
+#include "World/BerryPlusWorld/BerryPlusWorld.h"
 #include "World/BerryWorld/BerryWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/TestWorld/TestWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
 #include "World/SOFWorld/SOFWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
-#include "Genome/MultiGenome/MultiGenome.h"
 #include "Brain/MarkovBrain/MarkovBrain.h"
 #include "Brain/IPDBrain/IPDBrain.h"
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
@@ -38,6 +38,10 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   shared_ptr<AbstractWorld> newWorld;
   bool found = false;
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
+  if (worldType == "BerryPlus") {
+    newWorld = make_shared<BerryPlusWorld>(PT);
+    found = true;
+    }
   if (worldType == "Berry") {
     newWorld = make_shared<BerryWorld>(PT);
     found = true;
@@ -125,10 +129,6 @@ shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT = n
     newGenome = CircularGenome_genomeFactory(PT);
     found = true;
     }
-  if (genomeType == "Multi") {
-    newGenome = MultiGenome_genomeFactory(PT);
-    found = true;
-    }
   if (found == false){
     cout << "  ERROR! could not find GENOME-genomeType \"" << genomeType << "\".\n  Exiting." << endl;
     exit(1);
@@ -142,25 +142,24 @@ shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, sha
   shared_ptr<AbstractBrain> newBrain;
   bool found = false;
   string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");
-  int hiddenNodes = (PT == nullptr) ? AbstractBrain::hiddenNodesPL->lookup() : PT->lookupInt("BRAIN-hiddenNodes");
   if (brainType == "Markov") {
-    newBrain = MarkovBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    newBrain = MarkovBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (brainType == "IPD") {
-    newBrain = IPDBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    newBrain = IPDBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (brainType == "ConstantValues") {
-    newBrain = ConstantValuesBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    newBrain = ConstantValuesBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (brainType == "Human") {
-    newBrain = HumanBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    newBrain = HumanBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (brainType == "Wire") {
-    newBrain = WireBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);
+    newBrain = WireBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (found == false){
@@ -177,7 +176,7 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, IPD, ConstantValues, Human, Wire]");
 
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
-  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");
+  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular]");
 
   Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"Default");
   Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [Default, LODwAP, SSwD]");
@@ -185,8 +184,8 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
 
-  Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, NumeralClassifier, Test, IPD, SOF]");
+  Parameters::root->setParameter("WORLD-worldType", (string)"BerryPlus");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [BerryPlus, Berry, NumeralClassifier, Test, IPD, SOF]");
 }
 
 

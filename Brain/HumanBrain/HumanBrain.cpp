@@ -13,8 +13,8 @@
 shared_ptr<ParameterLink<bool>> HumanBrain::useActionMapPL = Parameters::register_parameter("BRAIN_HUMAN-useActionMap", false, "if true, an action map will be used to translate user input");
 shared_ptr<ParameterLink<string>> HumanBrain::actionMapFileNamePL = Parameters::register_parameter("BRAIN_HUMAN-actionMapFileName", (string) "actionMap.txt", "if useActionMap = true, use this file");
 
-HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 	useActionMap = (PT == nullptr) ? useActionMapPL->lookup() : PT->lookupBool("BRAIN_HUMAN-useActionMap");
 	actionMapFileName = (PT == nullptr) ? actionMapFileNamePL->lookup() : PT->lookupString("BRAIN_HUMAN-actionMapFileName");
 
@@ -32,7 +32,7 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shar
 				std::stringstream ss(rawLine);
 				ss >> readChar;  // pull one char, this will be the key to the map
 				action.clear();
-				for (int i = 0; i < nrOutNodes; i++) {  // pull one double for each output
+				for (int i = 0; i < nrOutputValues; i++) {  // pull one double for each output
 					ss >> readDouble;  // read one double
 					action.push_back(readDouble);
 				}
@@ -50,7 +50,7 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shar
 }
 
 shared_ptr<AbstractBrain> HumanBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
-	shared_ptr<HumanBrain> newBrain = make_shared<HumanBrain>(nrInNodes, nrOutNodes, nrHiddenNodes);
+	shared_ptr<HumanBrain> newBrain = make_shared<HumanBrain>(nrInputValues, nrOutputValues);
 	return newBrain;
 }
 
@@ -60,16 +60,16 @@ void HumanBrain::resetBrain() {
 
 void HumanBrain::update() {
 	cout << "Inputs: ";
-	for (int i = 0; i < nrInNodes; i++) {
-		cout << nodes[inputNodesList[i]] << " ";
+	for (int i = 0; i < nrInputValues; i++) {
+		cout << inputValues[i] << " ";
 	}
 	cout << "\nLast Outputs: ";
-	for (int i = 0; i < nrOutNodes; i++) {
-		cout << nodes[outputNodesList[i]] << " ";
+	for (int i = 0; i < nrOutputValues; i++) {
+		cout << outputValues[i] << " ";
 	}
 	cout << endl;
 
-	nextNodes.assign(nrOfBrainNodes, 0.0);
+	outputValues.assign(nrOutputValues, 0.0);
 	char key;
 	if (useActionMap) {
 		cout << "please enter action (* for options): ";
@@ -91,20 +91,18 @@ void HumanBrain::update() {
 			cin >> key;
 		}
 		// if we get here, we have a good key, move it into outputs
-		for (int i = 0; i < nrOutNodes; i++) {  // pull one double for each output
-			nextNodes[outputNodesList[i]] = actionMap[key][i];
+		for (int i = 0; i < nrOutputValues; i++) {  // pull one double for each output
+			outputValues[i] = actionMap[key][i];
 		}
 	} else {  // not using action map
 		cout << "please enter outputs (separated by space): ";
 		string inputString;
 		getline(cin, inputString);
 		stringstream ss(inputString);
-		for (int i = 0; i < nrOutNodes; i++) {  // pull one double for each output
-			ss >> nextNodes[outputNodesList[i]];
+		for (int i = 0; i < nrOutputValues; i++) {  // pull one double for each output
+			ss >> outputValues[i];
 		}
 	}
-
-	swap(nodes, nextNodes);
 }
 
 string HumanBrain::description() {

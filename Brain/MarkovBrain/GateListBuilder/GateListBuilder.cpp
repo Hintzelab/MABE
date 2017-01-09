@@ -14,7 +14,7 @@
 vector<shared_ptr<AbstractGate>> ClassicGateListBuilder::buildGateListAndGetAllValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, vector<int> &genomeHeadValues, int genomeHeadValuesCount, vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT) {
 
 	vector<shared_ptr<AbstractGate>> gates;
-	int codonMax = (1 << Global::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->lookup()) - 1;
 	bool mustReadAll = codonMax > genome->getAlphabetSize();
 
 	bool translation_Complete = false;

@@ -15,9 +15,11 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <set>
 #include <vector>
+#include "VectorNd.h"
 
 #include "Utilities.h"
 
@@ -27,19 +29,29 @@ class SensorArc {
 public:
 	class Location {
 	public:
+		int index;
+		int locationID;
 		int x;
 		int y;
 		int blockedIndex;
 		int clearIndex;
 		double distance;
+		bool blockingOnly;
+		int locationsCount;
 
 		double minWorkingAngle;
 		double maxWorkingAngle;
 
 	};
 
+	vector<int> allLocations;
+	vector<int> edgeLocations;
+	vector<int> blockingOnlyIndexes;
 	vector<Location> locationsTree;
-	float workingAngle;
+	double distanceMin, distanceMax;
+	double angle1, angle2;
+	bool calculateBlocking;
+	int locationsCount;
 
 	inline double getworkingAngle(const double& x, const double& y) {
 		double pi = 3.1415926535897932384626433832795028841971693993751058209749445923078164062862089986280348253421170679;
@@ -48,7 +60,14 @@ public:
 
 	// find the angles from origin for all four corners of a 1 x 1 square centered on x,y
 	// return the min and max angles (i.e. the arc this square covers)
-	inline void getWorkingAngles(const double& x, const double& y, double& minWorkingAngle, double& maxWorkingAngle) {
+	// if size > 1 then evaluate locations within size distance and combine arcs
+	inline void getWorkingAngles(const double& x, const double& y, double& minWorkingAngle, double& maxWorkingAngle, int size = 1) {
+		if (size != 1) {
+			cout << " in getWorkingAngles : size has not been implemented yet..." << endl;
+			exit(0);
+			// the idea here is to allow for blobing, for locations that are farther away, if they are blocking, they will block more area. This should reduce the size
+			// of the trees and allow for farther vision (which is less accurate at distance). i.e. size = some factor of distance.
+		}
 		double x1 = x - .5;
 		double x2 = x + .5;
 		double y1 = y - .5;
@@ -61,9 +80,16 @@ public:
 
 		minWorkingAngle = min(workingAngle1, min(workingAngle2, min(workingAngle3, workingAngle4)));
 		maxWorkingAngle = max(workingAngle1, max(workingAngle2, max(workingAngle3, workingAngle4)));
+		if (maxWorkingAngle - minWorkingAngle > 180) { // this space crosses 360/0
+			vector<double> listOfNums = { workingAngle1, workingAngle2, workingAngle3, workingAngle4 };
+			sort(listOfNums.begin(), listOfNums.end());
+			minWorkingAngle = listOfNums[1];
+			maxWorkingAngle = listOfNums[2];
+		}
+		//cout << x << "," << y << " === " << x1 << "," << y1 360 << "   " << x2 << "," << y2 << "   covers   " << minWorkingAngle << "," << maxWorkingAngle << endl;
 	}
 
-	void drawArc(const double& distanceMax, vector<int> allLocations) {
+	void drawArc() {
 
 		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
 			int Y = abs(y);
@@ -111,119 +137,15 @@ public:
 		cout << endl;
 	}
 
-	// create a SensorArc Binary Decision Tree
-	// the arc will be from angle1 to angle2 (order matters) and will extend distance from the origin
-	SensorArc(double angle1, double angle2, double distanceMax, double distanceMin) {
-		vector<int> allLocations;
-		int locationsCount;
-
-		double distanceMaxSquared = pow(distanceMax, 2);
-		double distanceMinSquared = pow(distanceMin, 2);
-
-		double minWorkingAngle, maxWorkingAngle;
-
-		bool check;
-
-		if (angle1 == -180 && angle2 == 180) {
-			angle1 = 0;
-			angle2 = 360;
-		} else {
-			// conversion to get values between 0 and 360 with 0 degrees up
-			angle1 += 180 - 90;
-			angle2 += 180 - 90;
-			angle1 = loopMod(angle1, 360);
-			angle2 = loopMod(angle2, 360);
-		}
-
-		// first get a list of locations
-
-		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
-			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
-				check = false;
-
-				getWorkingAngles(x, y, minWorkingAngle, maxWorkingAngle);
-
-				// if any corner is in between angles, set check to true
-				if (angle1 <= angle2) {
-					//cout << minWorkingAngle << "  " << maxWorkingAngle << "    " << angle1 << "  " << angle2 << endl;
-					if (minWorkingAngle > angle1 && minWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-					//cout << "min" << endl;
-						check = true;
-					} else if (maxWorkingAngle > angle1 && maxWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-					//cout << "max" << endl;
-						check = true;
-					} else if (maxWorkingAngle - minWorkingAngle <= 180) {
-						if (minWorkingAngle < angle1 && maxWorkingAngle > angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
-							//cout << "mid" << endl;
-							check = true;
-						}
-					} else { // maxWorkingAngle - minWorkingAngle > 180
-						if ((minWorkingAngle > angle1 || maxWorkingAngle < angle2) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
-							//cout << "outside" << endl;
-							check = true;
-						}
-					}
-				} else { //angle1 > angle2
-					if ((minWorkingAngle < angle2 || minWorkingAngle > angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-						check = true;
-					} else if ((maxWorkingAngle < angle2 || maxWorkingAngle > angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-						check = true;
-					} else if (maxWorkingAngle - minWorkingAngle <= 180) {
-						if ((minWorkingAngle < angle2 && maxWorkingAngle > angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
-							check = true;
-						}
-					} else { // maxWorkingAngle - minWorkingAngle > 180
-						if ((minWorkingAngle > angle2 || maxWorkingAngle < angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
-							check = true;
-						}
-					}
-				}
-
-				if (check) { // if any of the corners are between the angles, add that point to allLocations
-					allLocations.push_back(x);
-					allLocations.push_back(y);
-				}
-
-			}
-		}
-
-		locationsCount = allLocations.size() / 2;
-
-		// now we have a list of locations, sort the list
-		int search_index;
-
-		for (int i = 0; i < locationsCount; i++) { // for every location
-			search_index = i;
-			for (int j = i + 1; j < locationsCount; j++) { // for every location after i
-				if ((pow(allLocations[j * 2], 2) + pow(allLocations[j * 2 + 1], 2)) < (pow(allLocations[search_index * 2], 2) + pow(allLocations[search_index * 2 + 1], 2))) {
-					search_index = j; // if the location of j is closer, j is now closest
-				}
-			}
-			// swap closest pair to current
-			swap(allLocations[i * 2], allLocations[search_index * 2]);
-			swap(allLocations[i * 2 + 1], allLocations[search_index * 2 + 1]);
-		}
-
-		drawArc(distanceMax, allLocations);
-
-		// now build the locationsTree!
-
-		int allLocations_index = 0;
-
-		vector<int> blockingLocations; // list with x and y blocked locations
-		// each location to be tested will be tested vs this list
-
-		locationsTree.clear();
-
-		blockingLocations = {0,-1,2,0,0,1,10,-8,-1,1};
+	//return all of the visible arcs between angle1 and angle2 (i.e. removing arcs blocked by blocking locations.
+	vector<double> makeVisableArcs(vector<int> blockingLocations) {
 
 		int blockingCount = blockingLocations.size() / 2;
 
-		drawArc(distanceMax, blockingLocations);
-
-		//makeVisableArcs(distanceMax,allLocations,blockingLocations);
-
 		vector<double> visableArcs, tempBlockedArcs, blockedArcs;
+
+		int search_index;
+		double minWorkingAngle, maxWorkingAngle;
 
 		// get list with working angles for all blocking locations
 		for (int i = 0; i < blockingCount; i++) {
@@ -246,15 +168,18 @@ public:
 		for (int i = 0; i < blockingCount; i++) {
 			search_index = i;
 			for (int j = i; j < blockingCount; j++) {
-				if (tempBlockedArcs[j * 2] < tempBlockedArcs[i * 2]) {
+				if (tempBlockedArcs[j * 2] < tempBlockedArcs[search_index * 2]) {
 					search_index = j;
 				}
 			}
+			//cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
 			swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
+			//cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
+			//cout << endl << endl << endl;
 			swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
 		}
 
-		//see if any blocking arcs can be combined or removed and define visable arcs
+		//see if any blocking arcs can be combined or removed and define visible arcs
 		if (blockingCount == 0) { // nothing blocking
 			if (angle1 < angle2) {
 				visableArcs = {angle1,angle2};
@@ -291,6 +216,7 @@ public:
 			}
 
 		} else { // there is more then one blocking arc! build blockedArcs
+			//cout << "in more then one blocking arc!" << endl;
 			blockedArcs.push_back(tempBlockedArcs[0]);
 
 			int j = 1;
@@ -313,100 +239,630 @@ public:
 				}
 			}
 
-			for (auto v : blockedArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
+			//cout << "arcs have been combined!" << endl;
 
-			// blockingCount now counts number of arcs!
-			blockingCount = blockedArcs.size() / 2;
+			// blockingCount now counts number elements (not arcs)
+			blockingCount = blockedArcs.size();
 
 			int tempVisableArcsCount;
 			vector<double> tempVisableArcs;
 			if (angle1 < angle2) {
 				tempVisableArcs = {angle1,angle2};
-				tempVisableArcsCount = 1;
+				tempVisableArcsCount = 2;
 			} else {
 				tempVisableArcs = {0,angle2,angle1,360};
-				tempVisableArcsCount = 2;
+				tempVisableArcsCount = 4;
 			}
+
+			//cout << "done creating tempVisibleArcs : " << tempVisableArcsCount << endl;
+
+//			for (int i = 0; i < (int)tempVisableArcs.size(); i++){
+//				cout << tempVisableArcs[i] << " ";
+//			}
+//			cout << endl;
+//
+//			for (int i = 0; i < (int)blockedArcs.size(); i++){
+//				cout << blockedArcs[i] << " ";
+//			}
+//			cout << endl;
 
 			// Now, start counters v and b at 0, march though visableArcs and blockedArcs
 			int v = 0;
 			int b = 0;
 
-			while (blockedArcs[(b*2) + 1] < tempVisableArcs[v*2]) { // get past any blocking arcs before the visible arcs
-				b+=2;
-			}
-			while (v < tempVisableArcsCount || b < blockingCount) {
-				if(blockedArcs[b*2] < tempVisableArcs[v*2]) { // if the min of the blocked arc is < the min of the visible arc then start at the max of the blocked arc
-					visableArcs.push_back(blockedArcs[b*2]+1);
-					b+=2;
-				} else if (blockedArcs[b*2] < tempVisableArcs[(v*2)+1]) { // else if the min of the blocked arc is in the visible arc, start visible arc and then put in blockd arc
-					visableArcs.push_back(tempVisableArcs[v*2]);
-					visableArcs.push_back(blockedArcs[b*2]);
-					visableArcs.push_back(blockedArcs[b*2]+1);
-					b+=2;
-				} else { // min of blocked arc is past max of visible arc. push max of visible arc
-					visableArcs.push_back(tempVisableArcs[(v*2)+1]);
-					v+=2;
-				}
-				if (v < tempVisableArcsCount) {
-					while (b < blockingCount && blockedArcs[(b*2) + 1] < tempVisableArcs[v*2]) { // get past any blocking arcs before the visible arcs
-						b+=2;
+			bool inVisArc = false;
+
+			double v1 = tempVisableArcs[v++];
+			double v2 = tempVisableArcs[v];
+
+//  not needed, let the while loop below handle this...
+//			while (b < blockingCount && blockedArcs[b] < v1) {
+//				b++;
+//			}
+
+			if (b == blockingCount || blockedArcs[0] > tempVisableArcs[tempVisableArcsCount-1]) {
+				visableArcs = tempVisableArcs;
+			} else {
+
+				while (v < tempVisableArcsCount && b < blockingCount) {
+
+					if (!inVisArc) { // if we are between visible arcs
+						if (blockedArcs[b] < v1) { // if this b is < the start of the next visible arc, skip it
+							b++;
+							//cout << "+"<<endl;
+						} else if (blockedArcs[b] == v1 && b % 2 == 0) { // if this b is the start of the next visible arc, skip it and..
+							b++;
+							if (blockedArcs[b] > v1 && blockedArcs[b] < v2) { // if the next b is inside the next visible arc, this b closes an arc...
+								visableArcs.push_back(blockedArcs[b]);// add this as a closer
+								inVisArc = true;// this b opens a visible arc
+								b++;
+								//cout << "++"<<endl;
+							}
+							//cout << "+++"<<endl;
+						} else if (b%2 == 0) { // if b is in arc, and is a start of a blocking arc
+							visableArcs.push_back(v1);// add v1 and set inVisArc true (we are now in an arc
+							inVisArc = true;
+							//cout << "++++"<<endl;
+						} else if (blockedArcs[b] < v2) { // if b in arc and it is an end, set it (the start of the visible arc is hidden
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+							inVisArc = true;
+							//cout << "+++++"<<endl;
+						} else if (b%2 == 0) { // if the next blocking arc is past the end of this visible arc, add v1 and v2, the whole arc, and we are still !inVisArc
+							visableArcs.push_back(v1);
+							visableArcs.push_back(v2);
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+							//cout << "++++-+"<<endl;
+						} else { // this ends the current block ... this whole visual arc is not seen
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+							}
+						}
+						// << "++++--+"<<endl;
+					} else { // inVisArc
+//						cout << "++++---+"<<endl;
+//						cout << "    " << b << " " << v1 << " " << v2 << endl;
+//						cout << "    " << blockedArcs[b] << endl;
+//						cout << endl;
+//						for (int i = 0; i < (int)blockedArcs.size(); i++){
+//							cout << blockedArcs[i] << " ";
+//						}
+//						cout << endl;
+//						cout << endl;
+						if (blockedArcs[b] <= v1) { // if b is not in the next vis arc, skip it
+							b++;
+							//cout << "aaa"<<endl;
+						} else if (b%2 == 0 && blockedArcs[b] < v2) { // if b is the start of a blocked arc and in this vis arc, add it
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+							//cout << "bbb"<<endl;
+						} else if (b%2 == 1 && blockedArcs[b] < v2) { // if b is the end of a blocked arc and in this vis arc, add it
+							visableArcs.push_back(blockedArcs[b]);
+							b++;
+						} else if (b%2 == 0 && blockedArcs[b] >= v2) { // if b is the start of a blocked arc and past (or at!) the end of this vis arc...
+							visableArcs.push_back(v2);// we are in the clear, just add v2...
+							inVisArc = false;// we are now between vis arcs
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+								//cout << "ccc"<<endl;
+							}
+							//cout << "ddd"<<endl;
+						} else if (b%2 == 1 && blockedArcs[b] >= v2) { // if b is the end of a blocked arc and past the end of this vis arc...
+							inVisArc = false;// then the last b closed this arc, skip v2. also, we are now between vis arcs
+							v++;
+							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
+								v1 = tempVisableArcs[v++];
+								v2 = tempVisableArcs[v];
+								//cout << "eee"<<endl;
+							}
+							//cout << "fff"<<endl;
+						}
 					}
 				}
 			}
 
-			for (auto v : tempVisableArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
+			//cout << "merge of tempVis and blocking done" << endl;
 
-			for (auto v : visableArcs) {
-				cout << v << "  ";
-			}
-			cout << endl;
+			// now check to see if there are any viable arcs left and add if needed
+			if (b == blockingCount) {
+				if (inVisArc) { // if we are in an arc currently, we need to close it out and advance
+					visableArcs.push_back(v2);
+					v++;
+					if (v < tempVisableArcsCount) { // if there are still arcs, advance and add
+						v1 = tempVisableArcs[v++];
+						v2 = tempVisableArcs[v];
+					}
+				}
+				while (v < tempVisableArcsCount) { // while there are still arcs, advance and add
+					visableArcs.push_back(v1);
+					visableArcs.push_back(v2);
+					v++;
+					if (v < tempVisableArcsCount) {
+						v1 = tempVisableArcs[v++];
+						v2 = tempVisableArcs[v];
+					}
 
-//			int visableArcsCount = 1;
+				}
+			}
+			//cout << "check for extra vis arcs done" << endl;
 
 		}
-
-		makeLocationsTree(allLocations, blockingLocations, allLocations_index);
+		return (visableArcs);
 	}
 
-	void makeLocationsTree(const vector<int>& allLocations, vector<int> blockedLocations, int allLocations_index) {
-		if (allLocations_index < (int) allLocations.size()) { // if we have not passed the last element in allLocations...
-				// if not blocked, add current location to locationsTree
+	// given the x and y of a location (square), is that square visible (in visibleArcs)
+	bool isLocationVisible(const vector<double>& visableArcs, const int& x, const int& y) {
+		double minWorkingAngle, maxWorkingAngle, arc1, arc2;
+		getWorkingAngles(x, y, minWorkingAngle, maxWorkingAngle);
+
+//		cout << x << "," << y << "   " << minWorkingAngle << "," << maxWorkingAngle << endl;
+//		for (int i = 0; i < (int)visableArcs.size();i++){
+//			cout << visableArcs[i] << " ";
+//		}
+//		cout << endl;
+
+		bool visible = false;
+		for (int i = 0; i < ((int) visableArcs.size()) / 2; i++) {
+			arc1 = visableArcs[i * 2];
+			arc2 = visableArcs[(i * 2) + 1];
+
+			if ((minWorkingAngle > arc1 && minWorkingAngle < arc2) || (maxWorkingAngle > arc1 && maxWorkingAngle < arc2)) { // if either of the min or max are in this visible arc...
+				visible = true;
+			} else {
+				if (maxWorkingAngle - minWorkingAngle <= 180) { // else if the min and max do not cross 0/360 and contain a visible arc...
+					if (minWorkingAngle <= arc1 && maxWorkingAngle >= arc2) {
+						visible = true;
+					}
+				} else { // if min and max do cross 360 and...
+					if (minWorkingAngle + 360 > arc2 && maxWorkingAngle <= arc1) { // if the max to min + 360 (super arc?) contains a visible arc...
+						visible = true;
+					} else if (minWorkingAngle >= arc2 && maxWorkingAngle - 360 < arc1) { // if the max - 360 to min (super arc in the negative?) contains a visible arc...
+						visible = true;
+					}
+				}
+			}
+		}
+		//cout << "   " << visible << endl;
+		return (visible);
+	}
+
+	// make binary decision tree
+	void makeLocationsTree(vector<int> blockingLocations, int allLocations_index) {
+		//cout << "+1+" << endl;
+		if (allLocations_index < locationsCount) { // if we have not passed the last element in allLocations...
+												   // if not blocked, add current location to locationsTree
 			Location newLocation;
+			int currentLocationTree_index = ((int) locationsTree.size()); // capture this index, we will need it later
+			bool isABlockingOnlyLocation = (calculateBlocking) ? find(blockingOnlyIndexes.begin(), blockingOnlyIndexes.end(), allLocations_index) != blockingOnlyIndexes.end() : false;
+			newLocation.index = currentLocationTree_index;
+			newLocation.locationID = allLocations_index;
 			newLocation.x = allLocations[allLocations_index * 2];
-			newLocation.y = allLocations[allLocations_index * 2 + 1];
+			newLocation.y = allLocations[(allLocations_index * 2) + 1];
 			newLocation.distance = sqrt((pow(newLocation.x, 2) + pow(newLocation.y, 2)));
-
-			//int currentLocationTree_index = ((int) locationsTree.size()); // capture this index, we will need it later
-
+			newLocation.blockingOnly = isABlockingOnlyLocation;
+			/////////////////
 			locationsTree.push_back(newLocation);
+			allLocations_index++;
+			int tempAllLocations_index = allLocations_index; // capture this (address of next location) for use in blocking
 
 			// now check locations from allLocations (starting at allLocations_index+1) till a visible location is found, if non is found, mark newLocation.clearIndex = -1
 			// else newLocation.clearIndex = currentLocationTree_index+1; // this is where to go if this location is clear
 			// then call makeLocationsTree(allLocations, blockedLocations, index of non-blocked location)
 
-			// once we come back, if there are still locations in allLocations
+			vector<double> visableArcs = makeVisableArcs(blockingLocations);
 
-			// add this location to blocked
-			// (yes, this is a repeat)
-			// now check locations from allLocations (starting at allLocations_index+1) till a visible location is found, if non is found, mark newLocation.blockIndex = -1
-			// else newLocation.blockIndex = locationsTree.size(); // this is where to go if this location is blocked, i.e. to the end of the locationTree
-			// then call makeLocationsTree(allLocations, blockedLocations, index of non-blocked location, locationsTree_index)
+			//cout << allLocations.size() << endl;
+
+			while (allLocations_index < locationsCount && // there are still locations
+					!isLocationVisible(visableArcs, allLocations[allLocations_index * 2], allLocations[(allLocations_index * 2) + 1])) { // and this location is not blocked
+				//calculateBlocking && isABlockingOnlyLocation))) { // or if this location is blocking only, but we are not calculating blocking
+				allLocations_index++; // skip this location
+				//cout << "index = " << allLocations_index << endl;
+			}
+			//cout << "+2+" << endl;
+
+			// we should now either be done, or have a visible location
+
+			if (allLocations_index == locationsCount) {
+				locationsTree[currentLocationTree_index].clearIndex = -1; // with this location clear, there are no other clear locations, we are at a leaf node
+			} else { // else we have a visible location, add it to the tree
+				locationsTree[currentLocationTree_index].clearIndex = currentLocationTree_index + 1;
+				makeLocationsTree(blockingLocations, allLocations_index);
+			}
+			//cout << "+3+" << endl;
+
+			// once we come back ...
+
+			if (!calculateBlocking) {
+				//cout << "+XX+" << endl;
+				if (allLocations_index < locationsCount) {
+					locationsTree[currentLocationTree_index].blockedIndex = currentLocationTree_index + 1;
+				} else {
+					locationsTree[currentLocationTree_index].blockedIndex = -1;
+				}
+			} else { // continue here if we need to precalculate blocking
+					 // add this location to blockingLocations
+				//cout << "+YY+" << endl;
+				blockingLocations.push_back(locationsTree[currentLocationTree_index].x);
+				blockingLocations.push_back(locationsTree[currentLocationTree_index].y);
+
+				//cout << "here1?" << endl;
+				visableArcs = makeVisableArcs(blockingLocations);
+				//cout << "here2?" << endl;
+
+//				cout << locationsTree[currentLocationTree_index].x << "   " << locationsTree[currentLocationTree_index].y << endl;
+//				for (auto v : blockingLocations){
+//					cout << v << " ";
+//				}
+//				cout << endl;
+//
+//				for (auto v : visableArcs){
+//					cout << v << " ";
+//				}
+//				cout << endl;
+//				cout << "+ZZ+" << endl;
+
+				// (yes, this is a repeat)
+				// now check locations from allLocations (starting at allLocations_index+1) till a visible location is found, if non is found, mark newLocation.blockIndex = -1
+				// else newLocation.blockIndex = locationsTree.size(); // this is where to go if this location is blocked, i.e. to the end of the locationTree
+				// then call makeLocationsTree(allLocations, blockedLocations, index of non-blocked location, locationsTree_index)
+
+				allLocations_index = tempAllLocations_index;
+				while (allLocations_index < locationsCount && !isLocationVisible(visableArcs, allLocations[allLocations_index * 2], allLocations[(allLocations_index * 2) + 1])) {
+					// while there are locations on allLocations and they are not visible...
+					allLocations_index++;
+				}
+				//cout << "+AA+" << endl;
+
+				// we should now either be done, or have a visible location
+
+				if (allLocations_index == locationsCount) {
+					//cout << "+BB+" << endl;
+					locationsTree[currentLocationTree_index].blockedIndex = -1; // with this location clear, there are no other clear locations, we are at a leaf node
+				} else { // else we have a visible location, add it to the tree
+					//cout << "+CC+" << endl;
+					locationsTree[currentLocationTree_index].blockedIndex = (int) locationsTree.size();
+					makeLocationsTree(blockingLocations, allLocations_index);
+				}
+			}
+			//cout << "+4+" << endl;
 
 		}
 	}
 
+	// create a SensorArc Binary Decision Tree
+	// the arc will be from angle1 to angle2 (order matters) and will extend distance from the origin, locations closer then distanceMin are not seen
+	// if noBlocking, then
+	SensorArc(double _angle1, double _angle2, double _distanceMax, double _distanceMin, bool calculateBlocking) :
+			angle1(_angle1), angle2(_angle2), calculateBlocking(calculateBlocking) {
+		//vector<int> allLocations;
+
+		distanceMax = _distanceMax;
+		distanceMin = _distanceMin;
+
+		double distanceMaxSquared = pow(distanceMax, 2);
+		double distanceMinSquared = pow(distanceMin, 2);
+
+		double minWorkingAngle, maxWorkingAngle;
+
+		bool check;
+
+		//cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "  blocking: " << calculateBlocking << ")" << endl;
+		if (abs(angle1 - angle2) == 360) { // if arc is exactly 360 degrees
+			angle1 = 0;
+			angle2 = 360;
+		} else {
+			// conversion to get values between 0 and 360 with 0 degrees up
+			angle1 += 90;
+			angle2 += 90;
+			angle1 = loopMod(angle1, 360);
+			angle2 = loopMod(angle2, 360);
+		}
+
+		//cout << "adjusted angles " << angle1 << " " << angle2 << endl;
+		// first get a list of locations
+		//cout << "-2-" << endl;
+
+		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
+			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
+				check = false;
+
+				getWorkingAngles(x, y, minWorkingAngle, maxWorkingAngle);
+
+				// if any corner is in between angles, set check to true
+				if (angle1 <= angle2) {
+					//cout << minWorkingAngle << "  " << maxWorkingAngle << "    " << angle1 << "  " << angle2 << endl;
+					if (minWorkingAngle > angle1 && minWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
+					//cout << "min" << endl;
+						check = true;
+					} else if (maxWorkingAngle > angle1 && maxWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
+					//cout << "max" << endl;
+						check = true;
+					} else if (maxWorkingAngle - minWorkingAngle <= 180) {
+						if (minWorkingAngle <= angle1 && maxWorkingAngle >= angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location contains the whole visible arc
+						//cout << "mid" << endl;
+							check = true;
+						}
+					} else { // maxWorkingAngle - minWorkingAngle > 180
+						if ((minWorkingAngle > angle1 || maxWorkingAngle < angle2) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
+							//cout << "outside" << endl;
+							check = true;
+						} else if (minWorkingAngle == angle1 && maxWorkingAngle == angle2) {
+							check = true;
+						}
+					}
+				} else { //angle1 > angle2
+					if ((minWorkingAngle < angle2 || minWorkingAngle > angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
+						check = true;
+					} else if ((maxWorkingAngle < angle2 || maxWorkingAngle > angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
+						check = true;
+					} else if (maxWorkingAngle - minWorkingAngle <= 180) {
+						if ((minWorkingAngle <= angle2 && maxWorkingAngle >= angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
+							check = true;
+						}
+					} else { // maxWorkingAngle - minWorkingAngle > 180
+						if ((minWorkingAngle > angle2 && maxWorkingAngle < angle1) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
+							check = true;
+						} else if (minWorkingAngle == angle2 && maxWorkingAngle == angle1) {
+							check = true;
+						}
+					}
+				}
+
+				if (check || (x == 0 && y == 0 && distanceMin == 0)) { // if any of the corners are between the angles, add that point to allLocations
+					allLocations.push_back(x);
+					allLocations.push_back(y);
+				}
+
+			}
+		}
+		//cout << "-3-" << endl;
+
+		locationsCount = allLocations.size() / 2;
+
+		// find out how far away the most distant location is (don't bother taking the sqrt)
+
+		double maxDistance = 0;
+		for (int i = 0; i < locationsCount; i++) { // for every location
+			if ((pow(allLocations[i * 2], 2) + pow(allLocations[i * 2 + 1], 2)) > maxDistance) {
+				maxDistance = pow(allLocations[i * 2], 2) + pow(allLocations[i * 2 + 1], 2); // if the location of j is closer, j is now closest
+			}
+		}
+
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+// THIS CODE IS NOT NEEDED SINCE WE ARE GOING TO USE angle1 and angle2 when determining visible
+//		if (calculateBlocking) {
+//			// Now add the boarder locations - locations adjacent to arc locations and closer then the farthest location
+//
+//			vector<int> offsetsX = { 0, 1, 0, -1 };
+//			vector<int> offsetsY = { 1, 0, -1, 0 };
+//			int testX, testY;
+//			bool includeLocation;
+//			//cout << "-4-" << endl;
+//
+//			for (auto f : allLocations) {
+//				cout << f << " ";
+//			}
+//			cout << endl;
+//			edgeLocations.clear();
+//			for (int i = 0; i < locationsCount; i++) { // for every location
+//				for (int l = 0; l < 4; l++) {
+//					testX = allLocations[i * 2] + offsetsX[l];
+//					testY = allLocations[i * 2 + 1] + offsetsY[l];
+//					//cout << "+++++ " << testX <<","<< testY << endl;
+//					//cout << pow(testX, 2) + pow(testY, 2) <<  " " << maxDistance << " " << distanceMin << endl;
+//					includeLocation = true;
+//					if (pow(testX, 2) + pow(testY, 2) >= maxDistance || pow(testX, 2) + pow(testY, 2) < distanceMin) {
+//						includeLocation = false;
+//					} else {
+//						for (int j = 0; j < locationsCount; j++) { // for every location in allLocations
+//							if (testX == allLocations[j * 2] && testY == allLocations[j * 2 + 1]) {
+//								//cout << testX << "," << testY << "   " << allLocations[j * 2] << "," << allLocations[j * 2 + 1] << endl;
+//								includeLocation = false;
+//								//j = locationsCount;
+//							}
+//						}
+//						for (int j = 0; j < ((int) edgeLocations.size()) / 2; j++) { // for every location in extraLocations - the locations we are adding to insure proper blocking)
+//							if (testX == edgeLocations[j * 2] && testY == edgeLocations[j * 2 + 1]) {
+//								includeLocation = false;
+//								//j = (int) edgeLocations.size();
+//							}
+//						}
+//					}
+//					if (includeLocation) {
+//						edgeLocations.push_back(testX);
+//						edgeLocations.push_back(testY);
+//						//cout << "   ++ " << testX << "," << testY << endl;
+//					}
+//				}
+//			}
+//			//cout << "-5-" << endl;
+//
+//			//combine edge and all locations into all
+//			//cout << allLocations.size() / 2 << endl;
+//			//cout << edgeLocations.size() / 2 << endl;
+//
+//			allLocations.insert(allLocations.end(), edgeLocations.begin(), edgeLocations.end());
+//
+//		}
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////
+
+		locationsCount = allLocations.size() / 2;
+		//cout << locationsCount << endl;
+
+		// now we have a list of locations, sort the list
+		int search_index;
+
+		for (int i = 0; i < locationsCount; i++) { // for every location
+			search_index = i;
+			for (int j = i + 1; j < locationsCount; j++) { // for every location after i
+				if ((pow(allLocations[j * 2], 2) + pow(allLocations[j * 2 + 1], 2)) < (pow(allLocations[search_index * 2], 2) + pow(allLocations[search_index * 2 + 1], 2))) {
+					search_index = j; // if the location of j is closer, j is now closest
+				}
+			}
+			// swap closest pair to current
+			swap(allLocations[i * 2], allLocations[search_index * 2]);
+			swap(allLocations[i * 2 + 1], allLocations[search_index * 2 + 1]);
+		}
+		//cout << "-6-" << endl;
+
+		// make blockingOnlyIndexes
+
+		for (int i = 0; i < locationsCount; i++) { // for every location
+			for (int j = 0; j < (int) edgeLocations.size() / 2; j++) { // for all edge locations
+				if (allLocations[i * 2] == edgeLocations[j * 2] && allLocations[i * 2 + 1] == edgeLocations[j * 2 + 1]) {
+					// this is an edge locations, add i (this index) to blockingOnlyIndexes
+					//cout << "----   " << allLocations[i * 2] << "," << allLocations[i * 2 + 1] << endl;
+					blockingOnlyIndexes.push_back(i);
+				}
+			}
+		}
+		//cout << "-7-" << endl;
+
+		// make a new list of indexes for the edge locations
+
+		// test to show allLocations and edgeLocations
+
+		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
+			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
+				int type = 0;
+				for (int i = 0; i < locationsCount; i++) {
+					if (x == allLocations[i * 2] && y == allLocations[i * 2 + 1]) {
+						type = 1;
+					}
+				}
+				for (int i = 0; i < ((int) edgeLocations.size()) / 2; i++) { // for every location
+					if (x == edgeLocations[i * 2] && y == edgeLocations[i * 2 + 1]) {
+						type = 2;
+					}
+				}
+				if (type == 0) {
+					cout << "  ";
+				} else if (type == 1) {
+					cout << " +";
+				} else {
+					cout << " -";
+				}
+			}
+			cout << endl;
+		}
+
+		// now build the locationsTree!
+
+		int allLocations_index = 0;
+
+		vector<int> blockingLocations;
+
+		locationsTree.clear();
+		blockingLocations.clear();
+
+		//int allLocationsSize = allLocations.size() / 2;
+
+		makeLocationsTree(blockingLocations, allLocations_index);
+		//cout << "-8-" << endl;
+
+	}
+
+	int advanceIndex(int currentIndex, bool blocked = false) {
+		if (blocked) {
+			currentIndex = locationsTree[currentIndex].blockedIndex;
+		} else {
+			currentIndex = locationsTree[currentIndex].clearIndex;
+		}
+		return currentIndex;
+	}
+
+	int cX(const int& currentIndex) {
+		return locationsTree[currentIndex].x;
+	}
+
+	int cY(const int& currentIndex) {
+		return locationsTree[currentIndex].y;
+	}
+
+	bool isBlockingOnly(const int& currentIndex) {
+		return locationsTree[currentIndex].blockingOnly;
+	}
 };
 
-class sensorArray {
+class Sensor {
+public:
+	int resolution; // how many angles to precalculate
 
-	vector<SensorArc> sensors;
+	map<int, shared_ptr<SensorArc>> angles;
+
+	Sensor() {
+		resolution = 0;
+	}
+
+	Sensor(double angle1, double angle2, double distanceMax, double distanceMin, int _resolution, bool calculateBlocking) {
+		resolution = _resolution;
+		double resolutionOffset = 360.0 / resolution;
+		//cout << resolutionOffset << " --------------------------- " << endl;
+		cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "     resolution: " << resolution << "  blocking: " << calculateBlocking << ")" << endl;
+		for (int i = 0; i < resolution; i++) {
+			cout << "   building arc # " << i << endl;
+			angles[i] = make_shared<SensorArc>((i * resolutionOffset) + angle1, (i * resolutionOffset) + angle2, distanceMax, distanceMin, calculateBlocking);
+		}
+	}
+
+	void senseTotals(Vector2d<int>& worldgrid, int& orgx, int& orgy, int& orgf, vector<int>& values, int blocker = -1, bool wrap = false) {
+
+		bool blocked = false;
+		int currentIndex = 0;
+
+		fill(values.begin(), values.end(), 0);
+
+		int currentX; // = loopMod(this->angles[orgf]->cX(currentIndex) + orgx,worldgrid.x());
+		int currentY; // = loopMod(this->angles[orgf]->cY(currentIndex) + orgy,worldgrid.y());
+
+		if (wrap) {
+
+			while (currentIndex != -1) {
+				//cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
+				//<< this->angles[orgf]->cX(currentIndex) + orgx << "," << this->angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(this->angles[orgf]->cX(currentIndex) + orgx, this->angles[orgf]->cY(currentIndex) + orgy) << endl;
+				currentX = loopMod(this->angles[orgf]->cX(currentIndex) + orgx,worldgrid.x());
+				currentY = loopMod(this->angles[orgf]->cY(currentIndex) + orgy,worldgrid.y());
+				blocked = worldgrid(currentX, currentY) == blocker;
+				//if (!this->angles[orgf]->isBlockingOnly(currentIndex)) {
+				values[worldgrid(currentX, currentY)]++;
+				//} //else {
+				//cout << " isBlockingOnly" << endl;
+				//}
+				//cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
+				currentIndex = this->angles[orgf]->advanceIndex(currentIndex, blocked);
+				//cout << " nextIndex: " << currentIndex << endl;
+			}
+		} else {
+			while (currentIndex != -1) {
+				//cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
+				//<< this->angles[orgf]->cX(currentIndex) + orgx << "," << this->angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(this->angles[orgf]->cX(currentIndex) + orgx, this->angles[orgf]->cY(currentIndex) + orgy) << endl;
+				currentX = this->angles[orgf]->cX(currentIndex) + orgx,worldgrid.x();
+				currentY = this->angles[orgf]->cY(currentIndex) + orgy,worldgrid.y();
+				blocked = worldgrid(currentX, currentY) == blocker;
+				//if (!this->angles[orgf]->isBlockingOnly(currentIndex)) {
+				values[worldgrid(currentX, currentY)]++;
+				//} //else {
+				//cout << " isBlockingOnly" << endl;
+				//}
+				//cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
+				currentIndex = this->angles[orgf]->advanceIndex(currentIndex, blocked);
+				//cout << " nextIndex: " << currentIndex << endl;
+			}
+		}
+	}
 
 };
 

@@ -12,6 +12,7 @@
 #define __BasicMarkovBrainTemplate__Utilities__
 
 #include <algorithm>
+#include <cctype>
 #include <fstream>
 #include <iostream>
 #include <map>
@@ -81,6 +82,19 @@ inline vector<string> nameSpaceToNameParts(const string& nameSpace) {
 inline int loopMod(const int numerator, const int denominator) {
 	return ((numerator % denominator) + denominator) % denominator;
 }
+
+
+inline double loopModDouble(const double numerator, const double denominator) {
+	double n = numerator;
+	while (n < 0){
+		n+=denominator;
+	}
+	while (n >= denominator){
+		n-=denominator;
+	}
+	return n;
+}
+
 // returns 1 if "d" is greater than 0, else return 0
 template<typename Type>
 inline int Bit(Type d) {
@@ -113,7 +127,7 @@ inline vector<string> parseCSVLine(string rawLine, const char separator = ',') {
 				dataEntry.push_back(c);  // else just append c to the back of dataEntry
 			}
 		} else {  // if not in quote
-			if (!isblank(c)) {
+			if (!isspace(c)) {
 				if (c == '\"') {  // we have just entered some quoted text, just read everything until the next quote
 					inQuote = true;
 				} else {  // we are not inQuote and this c is not whitespace
@@ -155,6 +169,9 @@ inline map<string, vector<string>> readFromCSVFile(const string& fileName, const
 			dataLine = parseCSVLine(rawLine, separator);
 			if (firstLine) {  // this is the first line, dataLine contains the keys... use them to build the map and loopUpTable
 				for (auto key : dataLine) {
+					if (isspace(key.back())){
+						key.pop_back();
+					}
 					lookUpTable.push_back(key);  // add the key so we can make sure we assign the right values to the right columns
 					data[key] = {};  // add an empty vector for each key into the map data
 				}
@@ -464,5 +481,26 @@ inline vector<int> seq(const string seqStr, int defaultMax = -1, bool addZero = 
 
 	return seq;
 }
+
+// load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
+// if the line is not empty/comment, clean ss and load line.
+// rawLine is the string version of the same data as ss
+inline bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
+	rawLine.resize(0);
+	if (FILE.is_open() && !FILE.eof()) {
+		while ((rawLine.size() == 0 || rawLine[0] == '#') && !FILE.eof()) {
+			getline(FILE, rawLine);
+		}
+		ss.clear();
+		ss.str(string());
+		ss << rawLine;
+	} else if (!FILE.eof()) {
+		cout << "in loadSS, FILE is not open!\n  Exiting." << endl;
+		exit(1);
+	}
+	//cout << "from file:  " << rawLine << endl;
+	return FILE.eof();
+}
+
 
 #endif // __BasicMarkovBrainTemplate__Utilities__

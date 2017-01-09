@@ -33,12 +33,10 @@ public:
 	
 	SOFWorld(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~SOFWorld() = default;
-	virtual void runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) override;
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) override;
 
 	virtual int requiredInputs() override;
 	virtual int requiredOutputs() override;
-	virtual int maxOrgsAllowed() override;
-	virtual int minOrgsAllowed() override;
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__WorldSOF__) */

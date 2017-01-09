@@ -108,26 +108,31 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 					aveValue += org->dataMap.GetAverage(key);
 				}
 				aveValue /= population.size();
-				if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
-					AveMap.Set(key + "_AVE", aveValue);
+				if (population[0]->dataMap.isKeySolo(key)){
+					AveMap.Set(key,aveValue);
 				} else {
-					AveMap.Set(key, aveValue);
+					AveMap.Append(key,aveValue);
 				}
+				//if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
+					//AveMap.Set(key + "_AVE", aveValue);
+				//} else {
+					//AveMap.Set(key, aveValue);
+				//}
 			}
 		}
-		for (auto key : DefaultAveFileColumns) {
-			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
-		}
+//		for (auto key : DefaultAveFileColumns) {
+//			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
+//		}
 		AveMap.Set("update", Global::update);
-		AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(AveFileName); // write the AveMap to file with aveOnly = true (only save ave values)
+		//AveMap.setOutputBehavior("update", DataMap::FIRST);
+		AveMap.writeToFile(AveFileName,{},true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
 	// write out Dominant data
 	if (writeDominantFile) {
 		vector<double> Scores;
 		for (auto org : population) {
-			Scores.push_back(org->score);
+			Scores.push_back(org->dataMap.GetAverage("score"));
 		}
 
 		int best = findGreatestInVector(Scores);
@@ -183,6 +188,9 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
 bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+	if (finished){
+		return finished;
+	}
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 			writeRealTimeFiles(population);  // write to dominant and average files
@@ -209,28 +217,28 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 		}
 	}
 	// if we are at the end of the run
-	finished = Global::update >= Global::updatesPL->lookup();
+	finished =Global::update >= Global::updatesPL->lookup();
 	return finished;
 }
 
-void DefaultArchivist::processAllLists(OldDataMap &dm) {
-	vector<string> allKeys = dm.getKeys();
-	for (auto key : allKeys) {
-		if (key.substr(0, 3) == "all") {
-			if (find(allKeys.begin(), allKeys.end(), key.substr(3, key.size() - 1)) == allKeys.end()) {
-				double temp = 0;
-				vector<double> values;
-				convertCSVListToVector(dm.Get(key), values);
-				for (auto v : values) {
-					temp += v;
-					//cout << key << " " << allKey << " " << v << " " << temp << endl;
-				}
-				temp /= (double) values.size();
-				dm.Set(key.substr(3, key.size() - 1), temp);
-			}
-		}
-	}
-}
+//void DefaultArchivist::processAllLists(OldDataMap &dm) {
+//	vector<string> allKeys = dm.getKeys();
+//	for (auto key : allKeys) {
+//		if (key.substr(0, 3) == "all") {
+//			if (find(allKeys.begin(), allKeys.end(), key.substr(3, key.size() - 1)) == allKeys.end()) {
+//				double temp = 0;
+//				vector<double> values;
+//				convertCSVListToVector(dm.Get(key), values);
+//				for (auto v : values) {
+//					temp += v;
+//					//cout << key << " " << allKey << " " << v << " " << temp << endl;
+//				}
+//				temp /= (double) values.size();
+//				dm.Set(key.substr(3, key.size() - 1), temp);
+//			}
+//		}
+//	}
+//}
 
 bool DefaultArchivist::isDataUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {

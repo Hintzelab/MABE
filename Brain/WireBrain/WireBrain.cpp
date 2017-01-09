@@ -38,8 +38,12 @@ shared_ptr<ParameterLink<int>> WireBrain::wiregenesSquiggleWireMinLengthPL = Par
 shared_ptr<ParameterLink<int>> WireBrain::wiregenesSquiggleWireMaxLengthPL = Parameters::register_parameter("BRAIN_WIRE_WIREGENE-squiggleWireMaxLength", 10, "maximum length of a SquiggleWire (if 1, it will look just like a SimpleWire). Wires that would project outside of brain are clipped");
 shared_ptr<ParameterLink<string>> WireBrain::wiregenesSquiggleWireDirectionsPL = Parameters::register_parameter("BRAIN_WIRE_WIREGENE-squiggleWireDirections", (string) "cardinalOnly", "cardinalOnly (wires project in 6 square directions) vs diagonalsAlso (wires project on diagonals also)");
 
-WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes,  _PT) {
+shared_ptr<ParameterLink<int>> WireBrain::hiddenValuesPL = Parameters::register_parameter("BRAIN_WIRE-hiddenNodes", 8, "number of hidden values (allows for memory)");  // string parameter for outputMethod;
+
+shared_ptr<ParameterLink<int>> WireBrain::bitsPerCodonPL = Parameters::register_parameter("BRAIN_WIRE-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
+
+WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		AbstractBrain(_nrInNodes, _nrOutNodes,  _PT) {
 
 	allowNegativeCharge =  (PT == nullptr) ? allowNegativeChargePL->lookup() : PT->lookupBool("BRAIN_WIRE-allowNegativeCharge");
 	defaultWidth =  (PT == nullptr) ? defaultWidthPL->lookup() : PT->lookupInt("BRAIN_WIRE-size_width");
@@ -69,6 +73,9 @@ WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared
 	wiregenesSquiggleWireMaxLength =  (PT == nullptr) ? wiregenesSquiggleWireMaxLengthPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-squiggleWireMaxLength");
 	wiregenesSquiggleWireDirections =  (PT == nullptr) ? wiregenesSquiggleWireDirectionsPL->lookup() : PT->lookupString("BRAIN_WIRE_WIREGENE-squiggleWireDirections");
 
+	int nrHiddenValues = (PT == nullptr) ? hiddenValuesPL->lookup() : PT->lookupInt("BRAIN_WIRE-hiddenValues");
+
+	nrValues = nrInputValues + nrOutputValues + nrHiddenValues;
 	width = defaultWidth;
 	height = defaultHeight;
 	depth = defaultDepth;
@@ -78,10 +85,13 @@ WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared
 	CHARGE = 2 + decayDuration;
 	NEGCHARGE = CHARGE * -1;
 
+	nodes.resize(nrValues);
+	nextNodes.resize(nrValues);
+
 }
 
-WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		WireBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
 	initalize();
 
 	if ((int) genome.size() < width * depth * height) {
@@ -97,8 +107,8 @@ WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes
 	connectPruneAndSetAveColumns( { });  //call with empty wormhole list
 }
 
-WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT) :
-		WireBrain(_nrInNodes, _nrOutNodes, _nrHiddenNodes, _PT) {
+WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
 	//cout << "in WireBrain(shared_ptr<AbstractGenome> genome, int _nrOfNodes)" << endl;
 	initalize();
 
@@ -108,6 +118,8 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 	vector<vector<int>> wormholeFeatures;
 
 	vector<pair<int, int>> wormholeList;
+
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
 
 	if (!genome->isEmpty()) {
 		if (genomeDecodingMethod == "bitmap") {
@@ -141,12 +153,13 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 				int featureCount = 0;
 
 				int testSite1Value, testSite2Value;
-				testSite1Value = genomeHandler->readInt(0, 255);
-				testSite2Value = genomeHandler->readInt(0, 255);
+
+				testSite1Value = genomeHandler->readInt(0, codonMax);
+				testSite2Value = genomeHandler->readInt(0, codonMax);
 				while (!translation_Complete) {
 					if (genomeHandler->atEOG()) {  // if genomeIndex > testIndex, testIndex has wrapped and we are done translating
 						translation_Complete = true;
-					} else if (testSite1Value + testSite2Value == 255) {  // if we found a possible start codon...
+					} else if (testSite1Value + testSite2Value == codonMax) {  // if we found a possible start codon...
 						if (testSite1Value == 42 && wiregenesAllowSimpleWires) {  // record a wire feature
 
 							int possibleDirections;  // if cardinalOnly, only 6 possible directions, if diagonalsAlso then 26 possible directions
@@ -161,11 +174,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							simpleWireFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -179,11 +192,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 						} else if (testSite1Value == 43 && wiregenesAllowWormholes) {  // record a wormhole
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							wormholeFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -209,11 +222,11 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 
 							genomeHandler->copyTo(featureGenomeHandler);  // make a copy of the genome handler so we can remeber where we are
 							featureGenomeHandler->toggleReadDirection();
-							featureGenomeHandler->readInt(0, 255);  // move back 2 start codon values
-							featureGenomeHandler->readInt(0, 255);
+							featureGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+							featureGenomeHandler->readInt(0, codonMax);
 							featureGenomeHandler->toggleReadDirection();  // reverse the read direction again
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);  // mark start codon in genomes coding region
-							featureGenomeHandler->readInt(0, 255, START_CODE, featureCount);
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);  // mark start codon in genomes coding region
+							featureGenomeHandler->readInt(0, codonMax, START_CODE, featureCount);
 
 							squiggleWireFeatures.push_back( { featureGenomeHandler->readInt(0, width - 1, LOCATION_CODE),  // X
 							featureGenomeHandler->readInt(0, height - 1, LOCATION_CODE),  // Y
@@ -230,12 +243,12 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 						}
 					}
 					genomeHandler->toggleReadDirection();
-					genomeHandler->readInt(0, 255);  // move back 2 start codon values
-					genomeHandler->readInt(0, 255);
+					genomeHandler->readInt(0, codonMax);  // move back 2 start codon values
+					genomeHandler->readInt(0, codonMax);
 					genomeHandler->toggleReadDirection();
 					genomeHandler->advanceIndex();  // advance 1 index (might not be equal to a start codeon value (i.e. if we are reading from a bit genome)
-					testSite1Value = genomeHandler->readInt(0, 255);
-					testSite2Value = genomeHandler->readInt(0, 255);
+					testSite1Value = genomeHandler->readInt(0, codonMax);
+					testSite2Value = genomeHandler->readInt(0, codonMax);
 				}
 			}
 
@@ -481,7 +494,7 @@ WireBrain::WireBrain(shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrO
 }
 
 shared_ptr<AbstractBrain> WireBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
-	shared_ptr<WireBrain> newBrain = make_shared<WireBrain>(_genome, nrInNodes, nrOutNodes, nrHiddenNodes,PT);
+	shared_ptr<WireBrain> newBrain = make_shared<WireBrain>(_genome, nrInputValues, nrOutputValues, PT);
 	return newBrain;
 }
 
@@ -490,14 +503,14 @@ void WireBrain::initalize() {
 	nextAllCells.resize(width * depth * height);
 	neighbors.resize(width * depth * height);
 
-	nodesAddresses.resize(nrOfBrainNodes);
-	nodesNextAddresses.resize(nrOfBrainNodes);
+	nodesAddresses.resize(nrValues);
+	nodesNextAddresses.resize(nrValues);
 
 	if (cacheResults) {
-		inputLookUpTable.resize(pow(2, nrOfBrainNodes));  // set lookup tables to be large enough to handle all possible input combinations
+		inputLookUpTable.resize(pow(2, nrValues));  // set lookup tables to be large enough to handle all possible input combinations
 		inputCount.clear();  // insure that the input counts are all 0.
-		inputCount.resize(pow(2, nrOfBrainNodes));
-		for (int i = 0; i < pow(2, nrOfBrainNodes); i++) {
+		inputCount.resize(pow(2, nrValues));
+		for (int i = 0; i < pow(2, nrValues); i++) {
 			inputCount[i] = 0;
 		}
 
@@ -507,11 +520,11 @@ void WireBrain::initalize() {
 		}
 	}
 	// establish I/O
-	if ((width * depth * height) < (nrOfBrainNodes * worldConnectionsSeparation)) {
+	if ((width * depth * height) < (nrValues * worldConnectionsSeparation)) {
 		cout << "ERROR: WireBrain requires a bigger brain width * depth * height must be >= (nrOfNodes * worldConnectionsSeparation)!\nExiting\n" << endl;
 		exit(1);
 	}
-	for (int i = 0; i < nrOfBrainNodes; i++) {
+	for (int i = 0; i < nrValues; i++) {
 		nodesAddresses[i] = worldConnectionsSeparation * i;
 		nodesNextAddresses[i] = ((width * depth * height) - 1) - (worldConnectionsSeparation * i);
 	}
@@ -761,7 +774,7 @@ void WireBrain::chargeUpdate() {
 
 	// if constantInputs, rechage the inputs
 	if (constantInputs) {
-		for (int i = 0; i < nrOfBrainNodes; i++) {  // for each input cell
+		for (int i = 0; i < nrValues; i++) {  // for each input cell
 			//evalCount++;
 			if (nodes[i] != 0) {  // if this node is on
 				if (allCells[nodesAddresses[i]] != HOLLOW) {  // if the connected location is uncharged wireAddresses...
@@ -773,7 +786,7 @@ void WireBrain::chargeUpdate() {
 	}
 	// read and accumulate outputs
 	// NOTE: output cells can go into charge/decay sets
-	for (int i = 0; i < nrOfBrainNodes; i++) {
+	for (int i = 0; i < nrValues; i++) {
 		//cout << i << " " << nodesNextAddresses[i] << " " << nodesNext[i] <<endl;
 		nextNodes[i] = nextNodes[i] + (allCells[nodesNextAddresses[i]] == CHARGE);
 		//cout << i << " " << nodesNextAddresses[i] << " " << nodesNext[i] <<endl;
@@ -837,7 +850,7 @@ void WireBrain::chargeUpdateTrit() {
 
 	// if constantInputs, rechage the inputs
 	if (constantInputs) {
-		for (int i = 0; i < nrOfBrainNodes; i++) {  // for each input cell
+		for (int i = 0; i < nrValues; i++) {  // for each input cell
 			//evalCount++;
 			if (nodes[i] != 0) {  // if this node is on
 				if (allCells[nodesAddresses[i]] != HOLLOW) {  // if the connected location is uncharged wireAddresses...
@@ -849,7 +862,7 @@ void WireBrain::chargeUpdateTrit() {
 	}
 	// read and accumulate outputs
 	// NOTE: output cells can go into charge/decay sets
-	for (int i = 0; i < nrOfBrainNodes; i++) {
+	for (int i = 0; i < nrValues; i++) {
 		//cout << i << " " << nodesNextAddresses[i] << " " << nodesNext[i] <<endl;
 		nextNodes[i] = nextNodes[i] + allCells[nodesNextAddresses[i]];
 		//cout << i << " " << nodesNextAddresses[i] << " " << nodesNext[i] <<endl;
@@ -857,6 +870,11 @@ void WireBrain::chargeUpdateTrit() {
 }
 
 void WireBrain::update() {
+
+	for (int i = 0; i < nrInputValues; i++){
+		nodes[i] = inputValues[i];
+	}
+
 	//cout << "in update()"<<endl;
 
 	/// first see if we we already know this input
@@ -872,7 +890,7 @@ void WireBrain::update() {
 		long inputLookUpValue = 0;
 		//cout << "\nInput nodes: ";
 
-		for (int i = 0; i < nrOfBrainNodes; i++) {  // load inputs into inputLookUpValue
+		for (int i = 0; i < nrValues; i++) {  // load inputs into inputLookUpValue
 			inputLookUpValue = Bit(nodes[i]) + (inputLookUpValue << 1);
 			//cout << nodes[i];
 		}
@@ -880,7 +898,7 @@ void WireBrain::update() {
 		if (inputCount[inputLookUpValue] >= cacheResultsCount) {  // if we have seen this value at least cacheResultsCount
 			long outputValue = inputLookUpTable[inputLookUpValue][Random::getIndex(cacheResultsCount)];  // pull a stored value randomly
 			//cout << "                                                                     outputValue: " << outputValue << " = ";
-			for (int i = nrOfBrainNodes - 1; i > -1; i--) {  // load outputValue into nodesNext
+			for (int i = nrValues - 1; i > -1; i--) {  // load outputValue into nodesNext
 				nextNodes[i] = outputValue & 1;  // get right most bit
 				outputValue = outputValue >> 1;  // clip off right most bit
 				//cout << nodesNext[i];
@@ -890,7 +908,7 @@ void WireBrain::update() {
 			for (auto w : wireAddresses) {  // clear out any wire that is charged or decay from last update
 				allCells[w] = 1;
 			}
-			for (int i = 0; i < nrOfBrainNodes; i++) {  // set up inputs and outputs
+			for (int i = 0; i < nrValues; i++) {  // set up inputs and outputs
 				nextNodes[i] = 0;  // reset all nodesNext
 				if (!allowNegativeCharge) {
 					if (Bit(nodes[i]) == 1 && allCells[nodesAddresses[i]] == WIRE) {  // for each node if it is on and connects to wire
@@ -922,7 +940,7 @@ void WireBrain::update() {
 			// set lookup table value!
 			//////
 			long outputValue = 0;
-			for (int i = 0; i < nrOfBrainNodes; i++) {  // load outputs into outputValue
+			for (int i = 0; i < nrValues; i++) {  // load outputs into outputValue
 				outputValue = nextNodes[i] + (outputValue << 1);
 			}
 			inputLookUpTable[inputLookUpValue].push_back(outputValue);  // push outputValue into the lookup table
@@ -934,7 +952,7 @@ void WireBrain::update() {
 		for (auto w : wireAddresses) {  // clear out anything that is charged or decay from last update
 			allCells[w] = 1;
 		}
-		for (int i = 0; i < nrOfBrainNodes; i++) {  // set up inputs and outputs
+		for (int i = 0; i < nrValues; i++) {  // set up inputs and outputs
 			nextNodes[i] = 0;  // reset nodesNext
 			if (nodes[i] == 1 && allCells[nodesAddresses[i]] == WIRE) {  // if this node is on and connects to wire
 				allCells[nodesAddresses[i]] = CHARGE;
@@ -946,7 +964,10 @@ void WireBrain::update() {
 		}
 	}
 
-	nodes = nextNodes;  // update nodes
+	swap(nodes, nextNodes);
+	for (int i = 0; i < nrOutputValues; i++){
+		outputValues[i] = nodes[nrInputValues+i];
+	}
 
 }
 
@@ -993,7 +1014,7 @@ void WireBrain::SaveBrainState(string fileName) {
 }
 
 void WireBrain::displayBrainState() {
-	for (int i = 0; i < nrOfBrainNodes; i++) {
+	for (int i = 0; i < nrValues; i++) {
 		int l = nodesAddresses[i];
 		int cellX = (l % (width * height)) % width;  // find this cells x,y,z location in brain
 		int cellY = (l % (width * height)) / width;
@@ -1035,7 +1056,7 @@ void WireBrain::displayBrainState() {
 		}
 
 	}
-	for (int i = 0; i < nrOfBrainNodes; i++) {
+	for (int i = 0; i < nrValues; i++) {
 		int l = nodesNextAddresses[i];
 		int cellX = (l % (width * height)) % width;  // find this cells x,y,z location in brain
 		int cellY = (l % (width * height)) / width;
@@ -1056,23 +1077,18 @@ DataMap WireBrain::getStats() {
 	DataMap dataMap;
 
 	dataMap.Set("brainWidth",width);
-	dataMap.setOutputBehavior("brainWidth", DataMap::FIRST);
 	dataMap.Set("brainHeight",height);
-	dataMap.setOutputBehavior("brainHeight", DataMap::FIRST);
 	dataMap.Set("brainDepth",depth);
-	dataMap.setOutputBehavior("brainDepth", DataMap::FIRST);
 
 	dataMap.Set("wireBrainWireCount",(int)wireAddresses.size());
-	dataMap.setOutputBehavior("wireBrainWireCount", DataMap::AVE);
 
 	dataMap.Set("wireBrainConnectionsCount",connectionsCount);
-	dataMap.setOutputBehavior("wireBrainConnectionsCount", DataMap::AVE);
 
 	return dataMap;
 }
 
 void WireBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
-	int codonMax = (1 << Global::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
 
 	if (genomeDecodingMethod == "bitmap") {
 		auto genomeHandler = _genome->newHandler(_genome);

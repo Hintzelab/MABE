@@ -25,19 +25,23 @@ public:
 
 	static shared_ptr<ParameterLink<int>> modePL;
 	static shared_ptr<ParameterLink<int>> numberOfOutputsPL;
+	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
 
 	int mode;
 	int numberOfOutputs;
-
+	int evaluationsPerGeneration;
 
 	TestWorld(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~TestWorld() = default;
-	virtual void runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) override;
+
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
 
 	virtual int requiredInputs() override;
 	virtual int requiredOutputs() override;
-	virtual int maxOrgsAllowed() override;
-	virtual int minOrgsAllowed() override;
+
+
+	//virtual int maxOrgsAllowed() override;
+	//virtual int minOrgsAllowed() override;
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__WorldTest__) */

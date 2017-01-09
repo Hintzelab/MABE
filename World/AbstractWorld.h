@@ -24,13 +24,9 @@ using namespace std;
 
 class AbstractWorld {
 public:
-	static shared_ptr<ParameterLink<int>> repeatsPL;
 	static shared_ptr<ParameterLink<bool>> debugPL;
-
-	static shared_ptr<ParameterLink<bool>> groupEvaluationPL;
-
 	static shared_ptr<ParameterLink<string>> worldTypePL;
-
+	
 	const shared_ptr<ParametersTable> PT;
 
 	vector<string> aveFileColumns;
@@ -41,20 +37,11 @@ public:
 	virtual ~AbstractWorld() = default;
 	virtual int requiredInputs() = 0;
 	virtual int requiredOutputs() = 0;
-
-	// new stuff
-	virtual void evaluate(shared_ptr<Group> group, bool groupEvaluation = 0, bool analyse = 0, bool visualize = 0, bool debug = 0);
-	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) {
-		runWorldSolo(group->population[0], analyse, visualize, debug);
-	}
-	virtual void runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) {
-		cout << "  AbstractWorld::runWorldSolo : a call was made to the abstract function runWorldSolo. Your world must impliment runWorldSolo.\n  Exiting.";
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0);
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+		cout << "  chosen world does not define evaluateSolo()! Exiting." << endl;
 		exit(1);
-	}
-
-	virtual int maxOrgsAllowed() = 0;
-	virtual int minOrgsAllowed() = 0;
-
+	};
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__World__) */

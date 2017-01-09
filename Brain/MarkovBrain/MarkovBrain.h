@@ -31,13 +31,24 @@ class MarkovBrain : public AbstractBrain {
 	vector<shared_ptr<AbstractGate>> gates;
 
  public:
+
+//	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
+//	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
+
 	static shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
 	static shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
 	static shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMaxPL;
+	static shared_ptr<ParameterLink<int>> hiddenNodesPL;
 
 	bool randomizeUnconnectedOutputs;
 	bool randomizeUnconnectedOutputsType;
 	double randomizeUnconnectedOutputsMax;
+	int hiddenNodes;
+
+	vector<double> nodes;
+	vector<double> nextNodes;
+
+	int nrNodes;
 
 	shared_ptr<AbstractGateListBuilder> GLB;
 	vector<int> nodesConnections, nextNodesConnections;
@@ -62,12 +73,15 @@ class MarkovBrain : public AbstractBrain {
 
 	MarkovBrain() = delete;
 
-	MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 
-	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, shared_ptr<AbstractGenome> genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~MarkovBrain() = default;
+
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
+
+	void readParameters();
 
 	virtual void update() override;
 
@@ -89,8 +103,8 @@ class MarkovBrain : public AbstractBrain {
 
 };
 
-inline shared_ptr<AbstractBrain> MarkovBrain_brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> PT) {
-	return make_shared<MarkovBrain>(make_shared<ClassicGateListBuilder>(PT), ins, outs, hidden, PT);
+inline shared_ptr<AbstractBrain> MarkovBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<MarkovBrain>(make_shared<ClassicGateListBuilder>(PT), ins, outs, PT);
 }
 
 #endif /* defined(__BasicMarkovBrainTemplate__MarkovBrain__) */

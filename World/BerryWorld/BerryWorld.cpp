@@ -88,25 +88,13 @@ shared_ptr<ParameterLink<string>> BerryWorld::fixedStartXRangePL = Parameters::r
 shared_ptr<ParameterLink<string>> BerryWorld::fixedStartYRangePL = Parameters::register_parameter("WORLD_BERRY-fixedStartYRange", (string) "[-1]", "range for start location for organism (i.e. [x] for a fixed value, [x,y] to place in range), [-1] = random");
 shared_ptr<ParameterLink<int>> BerryWorld::fixedStartFacingPL = Parameters::register_parameter("WORLD_BERRY-fixedStartFacing", -1, "start facing direction (range 0-7) for organism, -1 = random");
 
+
+shared_ptr<ParameterLink<int>> BerryWorld::repeatsPL = Parameters::register_parameter("WORLD_BERRY-repeats", 3, "Number of times to test each Organism per generation");
+shared_ptr<ParameterLink<bool>> BerryWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY-groupEvaluation", false, "if true, evaluate population concurrently");
+
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
 // if the line is not empty/comment, clean ss and load line.
 // rawLine is the string version of the same data as ss
-bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
-	rawLine.resize(0);
-	if (FILE.is_open() && !FILE.eof()) {
-		while ((rawLine.size() == 0 || rawLine[0] == '#') && !FILE.eof()) {
-			getline(FILE, rawLine);
-		}
-		ss.clear();
-		ss.str(string());
-		ss << rawLine;
-	} else if (!FILE.eof()) {
-		cout << "in loadSS, FILE is not open!\n  Exiting." << endl;
-		exit(1);
-	}
-	//cout << "from file:  " << rawLine << endl;
-	return FILE.eof();
-}
 
 bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT) {
 	fileName = _fileName;
@@ -118,7 +106,7 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, share
 	bool atEOF = false;
 	bool done = false;
 
-	int sizeX = -1;
+	int sizeX = 0;
 	int sizeY = 1;
 
 	if (FILE.is_open()) {
@@ -137,6 +125,8 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, share
 
 				atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
 			}
+
+			ss >> charBuffer;
 
 			while (!ss.fail()) { // load first line of map, keep loading chars until end of line (i.e. ss.fail because char could not be read)
 				grid.push_back(charBuffer);
@@ -252,6 +242,11 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	}
 
 	fixedStartFacing = (PT == nullptr) ? fixedStartFacingPL->lookup() : PT->lookupInt("WORLD_BERRY-fixedStartFacing");
+
+
+	repeats = (PT == nullptr) ? repeatsPL->lookup() : PT->lookupInt("WORLD_BERRY-repeats");
+	groupEvaluation = (PT == nullptr) ? groupEvaluationPL->lookup() : PT->lookupBool("WORLD_BERRY-groupEvaluation");
+
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//  LOAD MAPS FROM FILES  ///////////////////////////////////////////////////////////
@@ -939,21 +934,11 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	}
 	for (int orgIndex = 0; orgIndex < (int) group->population.size(); orgIndex++) {
 
-		group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
+		//group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
 		group->population[orgIndex]->dataMap.Append("score", summedScores[orgIndex] / numWorlds);
 
 		// set up output behaviors for entries in data map
-		group->population[orgIndex]->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 
-		for (int f = 0; f <= foodTypes; f++) {
-			group->population[orgIndex]->dataMap.setOutputBehavior("food" + to_string(f), DataMap::AVE);
-		}
-		group->population[orgIndex]->dataMap.setOutputBehavior("total", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("switches", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("novelty", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("repeated", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("consumptionRatio", DataMap::AVE);
-		group->population[orgIndex]->dataMap.setOutputBehavior("foodList", DataMap::LIST);
 		if (saveOrgActions) { // if saveOrgActions save the output.
 			vector<int> simplifiedMoves;
 			auto moves = dataMap.GetIntVector(to_string(group->population[orgIndex]->ID) + "_moves");

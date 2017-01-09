@@ -109,14 +109,16 @@ NumeralClassifierWorld::NumeralClassifierWorld(shared_ptr<ParametersTable> _PT) 
 	aveFileColumns.push_back("score");
 
 	for (int i = 0; i < 10; i++) {
-		aveFileColumns.push_back("correct" + to_string(i));
-		aveFileColumns.push_back("incorrect" + to_string(i));
+		aveFileColumns.push_back(to_string(i) + "_correct");
+		aveFileColumns.push_back(to_string(i) + "_incorrect");
 	}
 	aveFileColumns.push_back("totalCorrect");
 	aveFileColumns.push_back("totalIncorrect");
 }
 
-void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) {
+
+void NumeralClassifierWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug){
+//void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse, bool visualize, bool debug) {
 	// numeralClassifierWorld assumes there will only ever be one agent being tested at a time. It uses org by default.
 	double score = 0.0;
 	int currentX, currentY;  // = { Random::getIndex(28), Random::getIndex(28) };  // place organism somewhere in the world
@@ -138,7 +140,16 @@ void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse
 	// make sure the brain does not have values from last run
 	org->brain->resetBrain();
 	for (int test = 0; test < testsPreWorldEval; test++) {  //run agent for "worldUpdates" brain updates
-		numeralPick = Random::getIndex(10);  // pick a number
+		bool goodNumber = false;
+		while (!goodNumber) {
+			goodNumber = true;
+			numeralPick = Random::getIndex(10);  // pick a number
+			for (int check = 0; check < 10; check++) {
+				if (counts[check] < counts[numeralPick]) {
+					goodNumber = false;
+				}
+			}
+		}
 		counts[numeralPick]++;
 		whichNumeral = Random::getIndex(numeralData[numeralPick].size() / (28 * 28));
 		currentX = Random::getIndex(28);  // place organism somewhere in the world
@@ -311,9 +322,17 @@ void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse
 		}
 	}  // end of world loop
 
+//	for (int i = 0; i < 10; i++) {
+//		cout << counts[i] << ",";
+//	}
+
+//	cout << endl;
+
 	for (int i = 0; i < 10; i++) {
-		score += (double) correct[i];
-		score -= ((double) incorrect[i]) / 10.0;
+		double c = (counts[i] == 0) ? 1.0 : (double)counts[i];
+		
+		score += pow(   (((double) correct[i])/c) - (((double)incorrect[i]) / ((double)testsPreWorldEval - c))  ,   2   );
+		//score -= ((double) incorrect[i]) / 10.0;
 	}
 
 	if (score < 0.0) {
@@ -329,12 +348,12 @@ void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse
 		total_correct += correct[i];
 		total_incorrect += incorrect[i];
 
-		temp_name = "correct" + to_string(i);  // make food names i.e. food1, food2, etc.
+		temp_name = to_string(i) + "_correct";  // make food names i.e. food1, food2, etc.
 		(counts[i] > 0) ? val = (double) correct[i] / (double) counts[i] : val = 0;
 		org->dataMap.Append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
 
-		temp_name = "incorrect" + to_string(i);  // make food names i.e. food1, food2, etc.
+		temp_name = to_string(i) + "_incorrect";  // make food names i.e. food1, food2, etc.
 		(counts[i] < testsPreWorldEval) ? val = (double) incorrect[i] / ((double) testsPreWorldEval - counts[i]) : val = 0;
 		org->dataMap.Append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
@@ -348,7 +367,7 @@ void NumeralClassifierWorld::runWorldSolo(shared_ptr<Organism> org, bool analyse
 	if (score < 0.0) {
 		score = 0.0;
 	}
-	org->score = score;
-	org->dataMap.Append("score", org->score);
-	org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
+	//org->score = score;
+	org->dataMap.Append("score", score);
+	//org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 }

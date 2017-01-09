@@ -77,6 +77,10 @@ LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Param
 }
 
 bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+	if (finished && !flush){
+		return finished;
+	}
+
 	if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 		writeRealTimeFiles(population);  // write to dominant and average files
 		if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
@@ -217,7 +221,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	}
 
 	// if we have reached the end of time OR we have pruned past updates (i.e. written out all data up to updates), then we ae done!
-	finished = (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+	finished = finished || (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
 	return finished;
 }
 
