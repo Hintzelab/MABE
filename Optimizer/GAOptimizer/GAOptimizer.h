@@ -30,6 +30,11 @@ class GAOptimizer : public AbstractOptimizer {
 		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_GA-elitism", PT);
 	}
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+
+	virtual string maxValueName() override {
+		return(optimizeValueLPL->lookup());
+	}
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__GA_Optimizer__) */

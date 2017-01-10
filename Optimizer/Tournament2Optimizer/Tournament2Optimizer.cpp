@@ -25,11 +25,17 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 	bool orgSurvived = 0;
 
 	vector<double> Scores;
+	double aveScore = 0;
+
 	for (auto org : population) {
 		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
+		aveScore += Scores.back();
 	}
+
+	aveScore /= population.size();
+
 	int best = findGreatestInVector(Scores);
-	maxScore = Scores[best];
+	double maxScore = Scores[best];
 
 //	{  // check to make sure there are at least 2 genders.
 //		bool same = true;
@@ -105,5 +111,6 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 		}
 	}
 	population = nextPopulation;
+	cout << "max(" << optimizeValueLPL->lookup() << ") = " << maxScore << "\tave(" << optimizeValueLPL->lookup() << ") = " << aveScore;
 }
 

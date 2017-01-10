@@ -12,15 +12,14 @@
 
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
-#include "World/BerryPlusWorld/BerryPlusWorld.h"
 #include "World/BerryWorld/BerryWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/TestWorld/TestWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
 #include "World/SOFWorld/SOFWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
+#include "Genome/MultiGenome/MultiGenome.h"
 #include "Brain/MarkovBrain/MarkovBrain.h"
-#include "Brain/IPDBrain/IPDBrain.h"
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
 #include "Brain/HumanBrain/HumanBrain.h"
 #include "Brain/WireBrain/WireBrain.h"
@@ -38,10 +37,6 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   shared_ptr<AbstractWorld> newWorld;
   bool found = false;
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
-  if (worldType == "BerryPlus") {
-    newWorld = make_shared<BerryPlusWorld>(PT);
-    found = true;
-    }
   if (worldType == "Berry") {
     newWorld = make_shared<BerryWorld>(PT);
     found = true;
@@ -96,20 +91,20 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
 
 
 //create an archivist
-shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<ParametersTable> PT = Parameters::root){
+shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, string maxValueName, shared_ptr<ParametersTable> PT = Parameters::root){
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
   string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");
   if (archivistType == "Default") {
-    newArchivist = make_shared<DefaultArchivist>(aveFileColumns, PT);
+    newArchivist = make_shared<DefaultArchivist>(aveFileColumns, maxValueName, PT);
     found = true;
     }
   if (archivistType == "LODwAP") {
-    newArchivist = make_shared<LODwAPArchivist>(aveFileColumns, PT);
+    newArchivist = make_shared<LODwAPArchivist>(aveFileColumns, maxValueName, PT);
     found = true;
     }
   if (archivistType == "SSwD") {
-    newArchivist = make_shared<SSwDArchivist>(aveFileColumns, PT);
+    newArchivist = make_shared<SSwDArchivist>(aveFileColumns, maxValueName, PT);
     found = true;
     }
   if (!found){
@@ -129,6 +124,10 @@ shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT = n
     newGenome = CircularGenome_genomeFactory(PT);
     found = true;
     }
+  if (genomeType == "Multi") {
+    newGenome = MultiGenome_genomeFactory(PT);
+    found = true;
+    }
   if (found == false){
     cout << "  ERROR! could not find GENOME-genomeType \"" << genomeType << "\".\n  Exiting." << endl;
     exit(1);
@@ -144,10 +143,6 @@ shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, sha
   string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");
   if (brainType == "Markov") {
     newBrain = MarkovBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
-    found = true;
-    }
-  if (brainType == "IPD") {
-    newBrain = IPDBrain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);
     found = true;
     }
   if (brainType == "ConstantValues") {
@@ -173,10 +168,10 @@ shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, sha
 //configure Defaults and Documentation
 void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("BRAIN-brainType", (string)"Markov");
-  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, IPD, ConstantValues, Human, Wire]");
+  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, ConstantValues, Human, Wire]");
 
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
-  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular]");
+  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");
 
   Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"Default");
   Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [Default, LODwAP, SSwD]");
@@ -184,8 +179,8 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
 
-  Parameters::root->setParameter("WORLD-worldType", (string)"BerryPlus");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [BerryPlus, Berry, NumeralClassifier, Test, IPD, SOF]");
+  Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, NumeralClassifier, Test, IPD, SOF]");
 }
 
 

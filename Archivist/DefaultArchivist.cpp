@@ -85,9 +85,10 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 	finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<ParametersTable> _PT) :
+DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, string _maxValueName, shared_ptr<ParametersTable> _PT) :
 		DefaultArchivist(_PT) {
 	convertCSVListToVector(AveFileColumnNames, DefaultAveFileColumns);
+	MaxValueName = _maxValueName;
 	if (DefaultAveFileColumns.size() <= 0) {
 		DefaultAveFileColumns = aveFileColumns;
 	}
@@ -132,7 +133,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 	if (writeDominantFile) {
 		vector<double> Scores;
 		for (auto org : population) {
-			Scores.push_back(org->dataMap.GetAverage("score"));
+			Scores.push_back(org->dataMap.GetAverage(MaxValueName));
 		}
 
 		int best = findGreatestInVector(Scores);

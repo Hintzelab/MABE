@@ -19,7 +19,6 @@ using namespace std;
 shared_ptr<ParameterLink<string>> GAOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "score", "value to optimize");
 shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_GA-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
 
-
 /*
  * GA::makeNextGeneration(vector<Genome*> population, vector<double> W)
  * create a new generation one genome at a time for each next population genome, select a random number
@@ -32,13 +31,17 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	vector<shared_ptr<Organism>> nextPopulation;
 
 	vector<double> Scores;
+	double aveScore = 0;
+
 	for (auto org : population) {
 		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
-
+		aveScore += Scores.back();
 	}
 
+	aveScore /= population.size();
+
 	int best = findGreatestInVector(Scores);
-	maxScore = Scores[best];
+	double maxScore = Scores[best];
 
 	//now to roulette wheel selection:
 	while (nextPopulation.size() < population.size()) {
@@ -61,5 +64,7 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
 	}
 	population = nextPopulation;
+	cout << "max(" << optimizeValueLPL->lookup() << ") = " << maxScore << "\tave(" << optimizeValueLPL->lookup() << ") = " << aveScore;
+
 }
 

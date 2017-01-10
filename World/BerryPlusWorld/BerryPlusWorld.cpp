@@ -12,13 +12,13 @@
 
 shared_ptr<ParameterLink<int>> BerryPlusWorld::numberOfDirectionsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-numberOfDirections", 36, "number of rotational positions");
 
-shared_ptr<ParameterLink<int>> BerryPlusWorld::visionSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorDistanceMax", 7, "how far can orgs see?");
+shared_ptr<ParameterLink<int>> BerryPlusWorld::visionSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorDistanceMax", 5, "how far can orgs see?");
 shared_ptr<ParameterLink<int>> BerryPlusWorld::visionSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorArcSize", 10, "how wide is a vision arc (degrees)");
-shared_ptr<ParameterLink<string>> BerryPlusWorld::visionSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorPositions", (string) "[-4,-2,0,2,4]", "what directions can org see?");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::visionSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorPositions", (string) "[-2,-1,0,1,2]", "what directions can org see?");
 
-shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorDistanceMax", 3, "how far can orgs smell?");
-shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorArcSize", 360, "how wide is a smell arc (degrees)");
-shared_ptr<ParameterLink<string>> BerryPlusWorld::smellSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorPositions", (string) "[1]", "what directions can org smell?");
+shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorDistanceMax", 2, "how far can orgs smell?");
+shared_ptr<ParameterLink<int>> BerryPlusWorld::smellSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorArcSize", 180, "how wide is a smell arc (degrees)");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::smellSensorPositionsStringPL = Parameters::register_parameter("WORLD_BERRY_PLUS-smellSensorPositions", (string) "[0,9,18,27]", "what directions can org smell?");
 
 shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostMovePL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostMove", 1.0, "time it takes to move");
 shared_ptr<ParameterLink<double>> BerryPlusWorld::timeCostTurnPL = Parameters::register_parameter("WORLD_BERRY_PLUS-timeCostTurn", 0.1, "time it takes to turn");
