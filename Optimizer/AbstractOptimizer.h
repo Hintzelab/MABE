@@ -28,15 +28,20 @@ class AbstractOptimizer {
 
 
 	static shared_ptr<ParameterLink<string>> Optimizer_MethodStrPL;
+	static shared_ptr<ParameterLink<string>> reportNamesPL;
 
  public:
 	const shared_ptr<ParametersTable> PT;
-	double maxScore;
+
 	AbstractOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
-		maxScore = 0;
+
 	}
+
 	virtual ~AbstractOptimizer() = default;
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
+	virtual string maxValueName() {
+		return("score");
+	}
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Optimizer__) */

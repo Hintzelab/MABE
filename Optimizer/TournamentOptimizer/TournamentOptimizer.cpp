@@ -31,12 +31,17 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 	vector<shared_ptr<Organism>> nextPopulation;
 
 	vector<double> Scores;
+	double aveScore = 0;
+
 	for (auto org : population) {
 		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
+		aveScore += Scores.back();
 	}
 
+	aveScore /= population.size();
+
 	int best = findGreatestInVector(Scores);
-	maxScore = Scores[best];
+	double maxScore = Scores[best];
 
 	while (nextPopulation.size() < population.size()) {
 		int winner, challanger;
@@ -70,6 +75,7 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 //		population.pop_back();
 //	}
 	population = nextPopulation;
+	cout << "max(" << optimizeValueLPL->lookup() << ") = " << maxScore << "\tave(" << optimizeValueLPL->lookup() << ") = " << aveScore;
 	//cout << "Leaving TournamentOptimizer::makeNextGeneration\n";
 
 

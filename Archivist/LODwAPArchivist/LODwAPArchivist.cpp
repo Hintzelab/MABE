@@ -21,8 +21,8 @@ shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeGenomeFilePL =
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_dataFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileShowAllLists", true, "if true, lists named 'all'* in data map will be saved");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_dataFileConvertAllListsPL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileConvertAllLists", true, "if true, lists named 'all'* in data map will be averaged and added to file");
 
-LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<ParametersTable> _PT) :
-		DefaultArchivist(aveFileColumns, _PT) {
+LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, string maxValueName, shared_ptr<ParametersTable> _PT) :
+		DefaultArchivist(aveFileColumns, maxValueName, _PT) {
 
 	pruneInterval = (PT == nullptr) ? LODwAP_Arch_pruneIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-pruneInterval");
 	terminateAfter = (PT == nullptr) ? LODwAP_Arch_terminateAfterPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-terminateAfter");

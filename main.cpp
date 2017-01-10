@@ -145,7 +145,7 @@ int main(int argc, const char * argv[]) {
 //		}
 //		cout << endl;
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, PT);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->maxValueName(), PT);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[NS] = make_shared<Group>(population, optimizer, archivist);
@@ -180,6 +180,7 @@ int main(int argc, const char * argv[]) {
 			//cout << "  evaluation done" << endl;
 
 			// save data, update memory and delete any unneeded data;
+			cout << "update: " << Global::update << "   ";
 			if (!groups[defaultGroup]->archivist->finished) {
 				groups[defaultGroup]->archive();
 				//cout << "  archive done" << endl;
@@ -187,12 +188,13 @@ int main(int argc, const char * argv[]) {
 				// move forward in time!
 
 				// update the population (reproduction and death)
+
 				Global::update++;
 				groups[defaultGroup]->optimize();
 				//cout << "  optimize done\n";
 			}
+			cout << endl;
 
-			cout << "update: " << Global::update - 1 << "   maxFitness: " << groups[defaultGroup]->optimizer->maxScore << "" << endl;
 		}
 
 		// the run is finished... flush any data that has not been output yet
