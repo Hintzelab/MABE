@@ -12,7 +12,7 @@
 #define __MABE__Parameters__
 
 #include "Utilities.h"
-#include "AssertWithMessage.h"
+//#include "AssertWithMessage.h"
 #include <type_traits>
 
 #include <algorithm>
@@ -137,83 +137,98 @@ public:
 	virtual ~AbstractParametersEntry() = default;
 
 	virtual const bool getBool() {
-		ASSERT(false, "using abstract class method");
-		return (false);
+		cout << "  In AbstractParametersEntry::getBool() - using abstract class method.\n  Exiting!"<< endl;
+		exit(1);
 	}
 	virtual const string getString() {
-		ASSERT(false, "using abstract class method");
-		return ("");
+		cout << "  In AbstractParametersEntry::getString() - using abstract class method.\n  Exiting!"<< endl;
+		exit(1);
 	}
 	virtual const int getInt() {
-		ASSERT(false, "using abstract class method");
-		return (0);
+		cout << "  In AbstractParametersEntry::getInt() - using abstract class method.\n  Exiting!"<< endl;
+		exit(1);
 	}
 	virtual const double getDouble() {
-		ASSERT(false, "using abstract class method");
-		return (0);
+		cout << "  In AbstractParametersEntry::getDouble() - using abstract class method.\n  Exiting!"<< endl;
+		exit(1);
 	}
 
 	virtual const void get(bool& value, string name = "") {
-		ASSERT(false, "using abstract class method for get(bool) \"" + name + "\" - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for bool with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual const void get(string& value, string name = "") {
-		ASSERT(false, "using abstract class method for get(string) \"" + name + "\" - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for string with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual const void get(int& value, string name = "") {
-		ASSERT(false, "using abstract class method for get(int) \"" + name + "\" - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for int with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual const void get(double& value, string name = "") {
-		ASSERT(false, "using abstract class method for get(double) \"" + name + "\" - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for double with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 
 	virtual void set(const bool & val, bool _local = true) {
-		ASSERT(false, "using abstract class method for set(bool) - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::set(value) - using abstract class method for set(bool) - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void set(const string & val, bool _local = true) {
-		ASSERT(false, "using abstract class method for set(string) - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::set(value) - using abstract class method for set(string) - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void set(const int & val, bool _local = true) {
-		ASSERT(false, "using abstract class method for set(int) - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::set(value) - using abstract class method for set(int) - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void set(const double & val, bool _local = true) {
-		ASSERT(false, "using abstract class method for set(double) - suggests a type mismatch in parameter types.");
+		cout << "  In AbstractParametersEntry::set(value) - using abstract class method for set(double) - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
+		exit(1);
 	}
 
 	virtual void getValuePtr(shared_ptr<bool> &ptr) {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::getValuePtr(bool) - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void getValuePtr(shared_ptr<string> &ptr) {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::getValuePtr(string) - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void getValuePtr(shared_ptr<int> &ptr) {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::getValuePtr(int) - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void getValuePtr(shared_ptr<double> &ptr) {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::getValuePtr(double) - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void follow(shared_ptr<AbstractParametersEntry> &ptr) {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::follow() - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 
 	virtual string getTypeName() {
-		ASSERT(false, "using abstract class method");
-		return "";
+		cout << "  In AbstractParametersEntry::getTypeName() - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 
 	virtual pair<string, string> getStringValuePair() {
-		ASSERT(false, "using abstract class method");
-		return {"",""};
+		cout << "  In AbstractParametersEntry::getStringValuePair() - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 
 	virtual void show() {
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::show() - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided"){
-		ASSERT(false, "using abstract class method");
-		return nullptr;
+		cout << "  In AbstractParametersEntry::makelike() - using abstract class method,\n  Exiting!" << endl;
+		exit(1);
 	}
 	virtual void setExisting(string value, string name = "none provided"){
-		ASSERT(false, "using abstract class method");
+		cout << "  In AbstractParametersEntry::setExisting() - using abstract class method.\n  Exiting!" << endl;
+		exit(1);
 	}
 };
 
@@ -238,22 +253,22 @@ public:
 	}
 
 	const bool getBool() override {
-		ASSERT(0, ("in ParametersEntry::GetBool() value associated with this ParamatersEntry is not bool"));
+		cout << "  In ParametersEntry::GetBool() value associated with this ParamatersEntry is not bool.\n  Exiting!" << endl;
 		exit(1);
 	}
 
 	const string getString() override {
-		ASSERT(0, ("in ParametersEntry::GetString() value associated with this ParamatersEntry is not string"));
+		cout << "  In ParametersEntry::getString() value associated with this ParamatersEntry is not string.\n  Exiting!" << endl;
 		exit(1);
 	}
 
 	const int getInt() override {
-		ASSERT(0, ("in ParametersEntry::GetInt() value associated with this ParamatersEntry is not int"));
+		cout << "  In ParametersEntry::getInt() value associated with this ParamatersEntry is not int.\n  Exiting!" << endl;
 		exit(1);
 	}
 
 	const double getDouble() override {
-		ASSERT(0, ("in ParametersEntry::GetDouble() value associated with this ParamatersEntry is not double"));
+		cout << "  In ParametersEntry::getDouble() value associated with this ParamatersEntry is not double.\n  Exiting!" << endl;
 		exit(1);
 	}
 
@@ -267,14 +282,27 @@ public:
 	}
 
 	void getValuePtr(shared_ptr<T> &ptr) override {
-		ASSERT(valuePtr != nullptr, "in ParametersEntry(shared_ptr<T> &ptr) :: Attempt to get shared pointer from broken pointer!");
+		if (ptr == nullptr){
+			//ASSERT(valuePtr != nullptr, "in ParametersEntry(shared_ptr<T> &ptr) :: Attempt to get shared pointer from broken pointer!");
+			cout << "  In ParametersEntry::getValuePtr() - Attempt to get shared pointer from broken pointer!\n  Exiting!" << endl;
+			exit(1);
+		}
+
 		ptr = valuePtr;
 	}
 
 	void follow(shared_ptr<AbstractParametersEntry> &ptr) override {
-		ASSERT(ptr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: ptr = nullptr");
+		if (ptr == nullptr){
+			//ASSERT(ptr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: ptr = nullptr");
+			cout << "  In ParametersEntry::follow() - ptr is a nullptr" << endl;
+			exit(1);
+		}
 		shared_ptr<ParametersEntry<T>> castParametersEntry = dynamic_pointer_cast<ParametersEntry<T>>(ptr);
-		ASSERT(castParametersEntry->valuePtr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: value in ptr = nullptr");
+		if(castParametersEntry->valuePtr == nullptr){
+			//ASSERT(castParametersEntry->valuePtr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: value in ptr = nullptr");
+			cout << "  In ParametersEntry::follow() - value in ptr is a nullptr" << endl;
+			exit(1);
+		}
 		valuePtr = castParametersEntry->valuePtr;
 		local = false;
 	}
@@ -483,7 +511,11 @@ public:
 
 	// looks for a table with name space _tableNameSpace; if not found error out.
 	shared_ptr<ParametersTable> lookupTable(const string& _tableNameSpace) {
-		ASSERT ((*parametersTablesRegistry).find(_tableNameSpace) != (*parametersTablesRegistry).end() , ("ERROR! :: Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting!\n"));
+		if ((*parametersTablesRegistry).find(_tableNameSpace) == (*parametersTablesRegistry).end()){
+			//ASSERT ((*parametersTablesRegistry).find(_tableNameSpace) != (*parametersTablesRegistry).end() , ("ERROR! :: Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting!\n"));
+			cout << "  In ParametersTable::lookupTable()  - Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting! " << endl;
+			exit(1);
+		}
 		return (*parametersTablesRegistry)[_tableNameSpace];
 	}
 
@@ -547,7 +579,11 @@ public:
 				searchTable = rootTable;
 			}
 			searchTable = findTableWithNamedParameter(name, searchTable);  // find the name in the closest ancestor table with named parameter
-			ASSERT (searchTable != nullptr,"  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!");
+			if (searchTable == nullptr){
+				//ASSERT (searchTable != nullptr,"  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!");
+				cout << "  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!" << endl;
+				exit(1);
+			}
 			searchTable->table[name]->get(value,name);// assign value
 			////table[name] = make_shared<ParametersEntry<T>>(value,false);// create new entry with value and local = false
 			table[name] = make_shared<ParametersEntry<T>>();
@@ -577,25 +613,41 @@ public:
 	}
 
 	inline bool lookupBool(const string& name, const string& _tableNameSpace) {
-		ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+			cout << "  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			exit(1);
+		}
 		bool value;
 		(*parametersTablesRegistry)[_tableNameSpace]->lookup(name, value);
 		return value;
 	}
 	inline string lookupString(const string& name, const string& _tableNameSpace) {
-		ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupString(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupstring(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+			cout << "  ERROR! :: in ParametersTable::lookupstring(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			exit(1);
+		}
 		string value;
 		(*parametersTablesRegistry)[_tableNameSpace]->lookup(name, value);
 		return value;
 	}
 	inline int lookupInt(const string& name, const string& _tableNameSpace) {
-		ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+			cout << "  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			exit(1);
+		}
 		int value;
 		(*parametersTablesRegistry)[_tableNameSpace]->lookup(name, value);
 		return value;
 	}
 	inline double lookupDouble(const string& name, const string& _tableNameSpace) {
-		ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
+			cout << "  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			exit(1);
+		}
 		double value;
 		(*parametersTablesRegistry)[_tableNameSpace]->lookup(name, value);
 		return value;
@@ -695,7 +747,11 @@ public:
 // attempt to delete a value from this table also, remove any non-local children who are relying on this value.
 // if removing from root, delete all paramaters with this name in table.
 	void deleteParameter(const string& name) {
-		ASSERT((table.find(name) != table.end()), "  ERROR! :: attempt to remove non-existent \"" << tableNameSpace << name << "\". Exiting");
+		if (table.find(name) == table.end()){
+			//ASSERT((table.find(name) != table.end()), "  ERROR! :: attempt to remove non-existent \"" << tableNameSpace << name << "\". Exiting");
+			cout << "  ERROR! In ParametersTable::deleteParameter(name) - attempt to remove non-existent \"" << tableNameSpace << name << "\". Exiting" << endl;
+			exit(1);
+		}
 		if (tableNameSpace == "") {  // if we are in the root table
 			(*parameterDocumentation).erase(name);
 			// remove parameter from all children
