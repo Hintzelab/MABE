@@ -26,30 +26,47 @@
 #include "Utilities/Data.h"
 #include "Utilities/Utilities.h"
 #include "Utilities/WorldUtilities.h"
+#include "Utilities/MTree.h"
 
 #include "modules.h"
 
 using namespace std;
 
-//void senseTotals(Vector2d<int>& worldgrid,  int& orgx,  int& orgy,  int& orgf,  Sensor& sensor, vector<int>& values){
-//
-//	bool blocked = false;
-//	int currentIndex = 0;
-//
-//	while (currentIndex != -1){
-//		//cout << currentIndex << "  :  " << sensor.angles[orgf]->cX(currentIndex) << "," << sensor.angles[orgf]->cY(currentIndex) << "  " << sensor.angles[orgf]->cX(currentIndex) + orgx << "," << sensor.angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx,sensor.angles[orgf]->cY(currentIndex) + orgy) << endl;
-//		values[worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy)]++;
-//		blocked = worldgrid(sensor.angles[orgf]->cX(currentIndex)+orgx, sensor.angles[orgf]->cY(currentIndex)+orgy) == 5;
-//
-//		worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy) += 10;
-//
-//		currentIndex = sensor.angles[orgf]->advanceIndex(currentIndex, blocked);
-//	}
-//
-//}
-
-
 int main(int argc, const char * argv[]) {
+
+
+	shared_ptr<DataMap> dataMap = make_shared<DataMap>();
+	dataMap->Set("score",100);
+	cout << "test" << endl;
+	cout<<dataMap->GetAverage("score")<<endl;
+
+
+	shared_ptr<Abstract_MTree> const1 = make_shared<CONST_MTree>(11);
+	shared_ptr<Abstract_MTree> const2 = make_shared<fromDataMap_MTree>("score");
+	vector<shared_ptr<Abstract_MTree>> MTreeList;
+
+	MTreeList.push_back(const1);
+	MTreeList.push_back(const2);
+
+	shared_ptr<Abstract_MTree> mooCow = make_shared<SUM_MTree>(MTreeList);
+
+	vector<double> result;
+
+	result = mooCow->eval();
+
+	cout << "result:" << endl;
+	for (auto r:result){
+		cout << "  " << r << endl;
+	}
+
+
+
+
+
+	exit(0);
+
+
+
 
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
 			<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
