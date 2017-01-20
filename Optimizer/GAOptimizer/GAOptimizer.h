@@ -19,20 +19,19 @@ using namespace std;
 
 class GAOptimizer : public AbstractOptimizer {
  public:
-	static shared_ptr<ParameterLink<string>> optimizeValuePL;
+	static shared_ptr<ParameterLink<string>> optimizeFormulaPL;
 	static shared_ptr<ParameterLink<int>> elitismPL;
 
-	shared_ptr<ParameterLink<string>> optimizeValueLPL;
 	shared_ptr<ParameterLink<int>> elitismLPL;
 
 	GAOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : AbstractOptimizer(_PT) {
-		optimizeValueLPL = (PT == nullptr) ? optimizeValuePL : Parameters::getStringLink("OPTIMIZER_GA-optimizeValue", PT);
+		optimizeFormula = (PT == nullptr) ? stringToMTree(optimizeFormulaPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_GA-optimizeValue"));
 		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_GA-elitism", PT);
 	}
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
-		return(optimizeValueLPL->lookup());
+		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_GA-optimizeValue");
 	}
 
 };

@@ -33,41 +33,6 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
-
-
-	shared_ptr<DataMap> dataMap = make_shared<DataMap>();
-	dataMap->Set("score",100);
-	cout << "test" << endl;
-	cout<<dataMap->GetAverage("score")<<endl;
-
-
-	shared_ptr<Abstract_MTree> const1 = make_shared<CONST_MTree>(11);
-	shared_ptr<Abstract_MTree> const2 = make_shared<fromDataMap_MTree>("score");
-	vector<shared_ptr<Abstract_MTree>> MTreeList;
-
-	MTreeList.push_back(const1);
-	MTreeList.push_back(const2);
-
-	shared_ptr<Abstract_MTree> mooCow = make_shared<SUM_MTree>(MTreeList);
-
-	vector<double> result;
-
-	result = mooCow->eval();
-
-	cout << "result:" << endl;
-	for (auto r:result){
-		cout << "  " << r << endl;
-	}
-
-
-
-
-
-	exit(0);
-
-
-
-
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
 			<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
@@ -162,7 +127,7 @@ int main(int argc, const char * argv[]) {
 //		}
 //		cout << endl;
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->maxValueName(), PT);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[NS] = make_shared<Group>(population, optimizer, archivist);
@@ -303,7 +268,7 @@ int main(int argc, const char * argv[]) {
 			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()) {
 				newOrg->ID = IDcounter--; // assign a negative ID to indicate that this is a copy
 			} else {
-				newOrg->ID = g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!
+				newOrg->ID = (int)g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!
 			}
 			inUseIDs.insert(newOrg->ID);
 

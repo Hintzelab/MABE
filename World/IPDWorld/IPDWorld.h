@@ -58,8 +58,8 @@ public:
 	bool randomFirstMove;
 	bool saveMovesList;
 
-	bool C;
-	bool D;
+	int C;
+	int D;
 
 	IPDWorld(shared_ptr<ParametersTable> _PT = nullptr);
 

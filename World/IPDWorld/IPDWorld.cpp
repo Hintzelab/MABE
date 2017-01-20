@@ -45,7 +45,7 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	numCompetitors = (PT == nullptr) ? numCompetitorsPL->lookup() : PT->lookupInt("WORLD_IPD-numCompetitors");
 
 	C = (PT == nullptr) ? CPL->lookup() : PT->lookupBool("WORLD_IPD-C");
-	D = 1 - C;
+	D = !C;
 
 	skipFirstMove = (PT == nullptr) ? skipFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-skipFirstMove");
 	randomFirstMove = (PT == nullptr) ? randomFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-randomFirstMove");
@@ -69,8 +69,8 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 
 void IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	bool p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
-	bool p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
+	int p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
+	int p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 
 	double P1score = 0;
 	double P2score = 0;

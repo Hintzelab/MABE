@@ -364,7 +364,7 @@ void BerryWorld::printGrid(vector<int> grid, pair<int, int> loc, int facing) {
 	cout << "\n";
 }
 
-void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) {
+void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, int debug) {
 
 	int numWorlds = 1;
 	int howManyFiles;
@@ -480,7 +480,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 	for (int worldCount = 0; worldCount < numWorlds; worldCount++) {
 
 		vector<double> scores(group->population.size(), 0);
-		int MAXSCORE = 1; // scores will be divided by MAXSCORE. If relativeScoring is true MAXSCORE will be set (see relativeScoring/MAXSCORE below)
+		double MAXSCORE = 1; // scores will be divided by MAXSCORE. If relativeScoring is true MAXSCORE will be set (see relativeScoring/MAXSCORE below)
 		int FOODCOUNT = 0; // used if modulateWorldTime is set
 
 		vector<int> novelty(group->population.size(), 0);
@@ -652,7 +652,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize,
 			BerryWorld::SaveWorldState(visualizationFileName, grid, visitedGrid, currentLocation, facing, true);
 		}
 
-		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : MAXSCORE * worldUpdatesBaisedOnInitial;
+		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : (int)MAXSCORE * worldUpdatesBaisedOnInitial;
 		for (int t = 0; t < realWorldUpdates; t++) {  //run agent for "worldUpdates" brain updates
 			orgList.clear();
 			for (int i = 0; i < (int) group->population.size(); i++) {
