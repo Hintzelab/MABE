@@ -21,6 +21,7 @@
 #include <string>
 #include <sstream>
 #include <stdlib.h>
+#include <cstring>
 #include <string>
 #include <map>
 #include <unordered_map>
@@ -498,7 +499,6 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 		}
 		// check for'('
 		else if (formula[index] == '(') {
-			char op = 'x';
 			index++; // move past '('
 			int nesting = 1;
 			vector<string> argStrings;
@@ -564,7 +564,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 					string arg;
 					vector<shared_ptr<Abstract_MTree>> args;
 					int argsIndex = 0;
-					while (argsIndex < argsString.size()) {
+					while (argsIndex < (int)argsString.size()) {
 
 						if (argsString[argsIndex] == ',') {
 							args.push_back(stringToMTree(arg));
