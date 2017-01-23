@@ -37,6 +37,13 @@ public:
 	virtual ~AbstractWorld() = default;
 	virtual int requiredInputs() = 0;
 	virtual int requiredOutputs() = 0;
+	virtual bool requireGenome(){
+		return false;
+	}
+	virtual bool requireBrain(){
+		return true;
+	}
+
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0);
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
 		cout << "  chosen world does not define evaluateSolo()! Exiting." << endl;

@@ -84,9 +84,30 @@ int main(int argc, const char * argv[]) {
 
 		Global::update = -1;  // before there was time, there was a progenitor - set time to -1 so progenitor (the root organism) will have birth time -1
 
-		// template objects are used to build progenitor
-		shared_ptr<AbstractGenome> templateGenome = makeTemplateGenome(PT);
-		shared_ptr<AbstractBrain> templateBrain = makeTemplateBrain(world, PT);
+		// create an optimizer of type defined by OPTIMIZER-optimizer
+		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
+
+		bool needBrain;
+		bool needGenome = false;
+
+		// make a template brain (but only if world or optimizer requires
+		needBrain = world->requireBrain() | optimizer->requireBrain();
+		shared_ptr<AbstractBrain> templateBrain;
+		if (needBrain){
+			templateBrain = makeTemplateBrain(world, PT);
+			needGenome = templateBrain->requireGenome();
+		} else {
+			templateBrain = nullptr;
+		}
+
+		// make a template genome (but only if world, optimizer or brain requires)
+		needGenome = needGenome | world->requireGenome() | optimizer->requireGenome();
+		shared_ptr<AbstractGenome> templateGenome;
+		if (needGenome) {
+			templateGenome = makeTemplateGenome(PT);
+		} else {
+			templateGenome = nullptr;
+		}
 
 		// make a organism with a templateGenome and templateBrain - progenitor serves as an ancestor to all and a template organism
 		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenome, templateBrain);
@@ -108,9 +129,6 @@ int main(int argc, const char * argv[]) {
 
 		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
 		progenitor->kill();
-
-		// create an optimizer of type defined by OPTIMIZER-optimizer
-		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
 
 		// aveFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
 		// ** aveFileColumns define what will appear in the ave.csv file **

@@ -44,6 +44,14 @@ class AbstractOptimizer {
 	virtual string maxValueName() {
 		return("score");
 	}
+
+	virtual bool requireGenome(){
+		return false;
+	}
+	virtual bool requireBrain(){
+		return false;
+	}
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Optimizer__) */

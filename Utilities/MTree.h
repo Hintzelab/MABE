@@ -38,14 +38,40 @@ public:
 
 	shared_ptr<ParametersTable> PT;
 
-	enum OPERATIONS {
-		CONTAINER, MANY, CONST, fromDataMap, fromParameterTable, SUM, MULT, SUBTRACT, DIVIDE, SIN, COS
-	};
+//	enum OPERATIONS {
+//		CONTAINER, MANY, CONST, fromDataMap, fromParameterTable, SUM, MULT, SUBTRACT, DIVIDE, SIN, COS
+//	};
 
 	Abstract_MTree() = default;
 	virtual ~Abstract_MTree() = default;
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) = 0;
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) = 0;
+	virtual vector<double> eval(DataMap& dataMap) {
+		vector<vector<double>> placeholder = {};
+		return eval(dataMap, nullptr, placeholder);
+	}
+	virtual vector<double> eval(shared_ptr<ParametersTable> PT) {
+		DataMap dataMap;
+		vector<vector<double>> placeholder = {};
+		return eval(dataMap, PT, placeholder);
+	}
+	virtual vector<double> eval(vector<vector<double>>& vectorData) {
+		DataMap dataMap;
+		return eval(dataMap, nullptr, vectorData);
+	}
+
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT) {
+		vector<vector<double>> placeholder = {};
+		return eval(dataMap, PT, placeholder);
+	}
+	virtual vector<double> eval(DataMap& dataMap, vector<vector<double>>& vectorData) {
+		return eval(dataMap, nullptr, vectorData);
+	}
+	virtual vector<double> eval(shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) {
+		DataMap dataMap;
+		return eval(dataMap, PT, vectorData);
+	}
+
 	//virtual shared_ptr<Abstract_MTree> makeCopy() {};
 	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) = 0;
 	virtual void show(int indent = 0) {
@@ -66,7 +92,7 @@ public:
 	MANY_MTree(vector<shared_ptr<Abstract_MTree>> _branches) : branches(_branches) {
 	}
 	virtual ~MANY_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -75,10 +101,10 @@ public:
 		shared_ptr<Abstract_MTree> newTree = make_shared<MANY_MTree>(_branches);
 		return newTree;
 	}
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		for (auto b : branches) {
-			output.push_back(b->eval(dataMap)[0]);
+			output.push_back(b->eval(dataMap, PT, vectorData)[0]);
 		}
 		return output;
 	}
@@ -108,15 +134,17 @@ class CONST_MTree : public Abstract_MTree {
 public:
 	double value;
 
-	CONST_MTree() = default;
+	CONST_MTree() {
+		value = 0;
+	}
 	CONST_MTree(double _value) : value(_value) {}
 	virtual ~CONST_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		shared_ptr<Abstract_MTree> newTree = make_shared<CONST_MTree>(value);
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		output.push_back(value);
 		return output;
@@ -141,12 +169,12 @@ public:
 	fromDataMap_MTree(string _key) : key(_key) {
 	}
 	virtual ~fromDataMap_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMap_MTree>(key);
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		output.push_back(dataMap.GetAverage(key));
 		return output;
@@ -170,7 +198,7 @@ public:
 	SUM_MTree(vector<shared_ptr<Abstract_MTree>> _branches) : branches(_branches) {
 	}
 	virtual ~SUM_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -180,11 +208,11 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		output.push_back(0);
 		for (auto b : branches) {
-			output[0] += b->eval(dataMap)[0];
+			output[0] += b->eval(dataMap, PT, vectorData)[0];
 		}
 		return output;
 	}
@@ -218,7 +246,7 @@ public:
 	MULT_MTree(vector<shared_ptr<Abstract_MTree>> _branches) : branches(_branches) {
 	}
 	virtual ~MULT_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -228,11 +256,11 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		output.push_back(1);
 		for (auto b : branches) {
-			output[0] *= b->eval(dataMap)[0];
+			output[0] *= b->eval(dataMap, PT, vectorData)[0];
 		}
 		return output;
 	}
@@ -271,7 +299,7 @@ public:
 		}
 	}
 	virtual ~SUBTRACT_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -281,10 +309,10 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
 		vector<double> output;
 		output.push_back(branches[0]->eval(dataMap)[0]);
-		return{ branches[0]->eval(dataMap)[0] - branches[1]->eval(dataMap)[0] };
+		return{ branches[0]->eval(dataMap, PT, vectorData)[0] - branches[1]->eval(dataMap, PT, vectorData)[0] };
 	}
 	virtual void show(int indent = 0) override {
 		cout << string(indent, '\t') << "** SUBTRACT" << endl;
@@ -314,7 +342,7 @@ public:
 		}
 	}
 	virtual ~DIVIDE_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -324,8 +352,8 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
-		return{ branches[0]->eval(dataMap)[0] / branches[1]->eval(dataMap)[0] };
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
+		return{ branches[0]->eval(dataMap, PT, vectorData)[0] / branches[1]->eval(dataMap, PT, vectorData)[0] };
 	}
 	virtual void show(int indent = 0) override {
 		cout << string(indent, '\t') << "** DIVIDE" << endl;
@@ -356,7 +384,7 @@ public:
 		}
 	}
 	virtual ~SIN_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -366,10 +394,8 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
-		vector<double> output;
-		output.push_back(branches[0]->eval(dataMap)[0]);
-		return{ sin(branches[0]->eval(dataMap)[0]) };
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
+		return{ sin(branches[0]->eval(dataMap, PT, vectorData)[0]) };
 	}
 	virtual void show(int indent = 0) override {
 		cout << string(indent, '\t') << "** SIN" << endl;
@@ -400,7 +426,7 @@ public:
 		}
 	}
 	virtual ~COS_MTree() = default;
-	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) {
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
 		if (_branches.size() == 0) {
 			for (auto b : branches) {
 				_branches.push_back(b->makeCopy());
@@ -410,10 +436,8 @@ public:
 		return newTree;
 	}
 
-	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT = nullptr) override {
-		vector<double> output;
-		output.push_back(branches[0]->eval(dataMap)[0]);
-		return{ cos(branches[0]->eval(dataMap)[0]) };
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
+		return{ cos(branches[0]->eval(dataMap, PT, vectorData)[0]) };
 	}
 	virtual void show(int indent = 0) override {
 		cout << string(indent, '\t') << "** COS" << endl;
@@ -431,6 +455,59 @@ public:
 	}
 };
 
+class VECT_MTree : public Abstract_MTree {
+public:
+	vector<shared_ptr<Abstract_MTree>> branches;
+
+	VECT_MTree() = default;
+	VECT_MTree(vector<shared_ptr<Abstract_MTree>> _branches) : branches(_branches) {
+	}
+	virtual ~VECT_MTree() = default;
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
+		if (_branches.size() == 0) {
+			for (auto b : branches) {
+				_branches.push_back(b->makeCopy());
+			}
+		}
+		shared_ptr<Abstract_MTree> newTree = make_shared<VECT_MTree>(_branches);
+		return newTree;
+	}
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, vector<vector<double>>& vectorData) override {
+		cout << "HERE!" << endl;
+		int whichVect = max(0, (int)branches[0]->eval(dataMap, PT, vectorData)[0] % (int)vectorData.size());
+		cout << " " << whichVect << endl;
+		int whichVal = max(0,(int)branches[1]->eval(dataMap, PT, vectorData)[0]%(int)vectorData[whichVect].size());
+		cout << " " << whichVect << "    " << whichVal << endl;
+		for (auto v : vectorData) {
+			for (auto d : v) {
+				cout << d << "  ";
+			}
+			cout << endl;
+		}
+		return {vectorData[whichVect][whichVal]};
+	}
+
+	virtual void show(int indent = 0) override {
+		cout << string(indent, '\t') << "** VECT\n" << endl;
+		indent++;
+		for (auto b : branches) {
+			b->show(indent);
+		}
+	}
+	virtual string getFormula() override {
+		string args = "VECT(";
+		for (auto b : branches) {
+			args += b->getFormula();
+			args += ",";
+		}
+		args.pop_back();
+		args += ")";
+		return args;
+	}
+	virtual string type() override {
+		return "VECT";
+	}
+};
 
 inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 	//cout << "in MTree '" << formula << endl;
@@ -450,6 +527,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 	allOps.push_back(make_shared <COS_MTree>());
 	allOps.push_back(make_shared <CONST_MTree>());
 	allOps.push_back(make_shared <MANY_MTree>());
+	allOps.push_back(make_shared <VECT_MTree>());
 
 	// some ops are special (they can be represented by their symbol)
 	char ops[] = { '+','-','*','/' }; // add %,^,|,&, etc)
@@ -544,19 +622,20 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 			bool foundType = false;
 			for (auto op : allOps) {
 				testType = op->type();
-				//cout << op->type() << "  -  " << formula.substr(index, testType.size()) << endl;
-				//cout << "   " << formula << "     " << index << endl;
+				cout << op->type() << "  -  " << formula.substr(index, testType.size()) << endl;
+				cout << "   " << formula << "     " << index << endl;
 				if (formula.substr(index, testType.size()) == testType) {
-					//////cout << "found type: '" << testType << "' in " << formula << endl;
+					cout << "found type: '" << testType << "' in " << formula << endl;
 					//get parameters, and build branches argument
 					foundType = true;
 					string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
 					index = index + testType.size() + 1; // move past '['
-					while (formula[index] != ']') {
+					while (formula[index] != ']') { // read args into a string till ']'
 						argsString.push_back(formula[index]);
 						index++;
 						if (index > formulaSize) {
 							cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '[' opening braket.\n  Exiting." << endl;
+							exit(1);
 						}
 					}
 					index++; // move index to char after ']'
@@ -564,9 +643,9 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 					string arg;
 					vector<shared_ptr<Abstract_MTree>> args;
 					int argsIndex = 0;
-					while (argsIndex < (int)argsString.size()) {
+					while (argsIndex < (int)argsString.size()) { // convert args string to MTree args
 
-						if (argsString[argsIndex] == ',') {
+						if (argsString[argsIndex] == ',') { // this is a ',' seperated list
 							args.push_back(stringToMTree(arg));
 							arg.clear();
 						}
@@ -576,6 +655,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula) {
 						argsIndex++;
 					}
 					args.push_back(stringToMTree(arg));
+					op->show();
 					branches.push_back(op->makeCopy(args));
 					//index += testType.size() + argsString.size();
 				}
