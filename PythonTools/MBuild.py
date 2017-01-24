@@ -54,7 +54,7 @@ for option in options:
 		print("  " + o)
 	print("")
 
-outFile = open("modules.h", 'w')
+outFile = open(os.path.join(pathToMABE,"modules.h"), 'w')
 
 outFile.write('//  MABE is a product of The Hintza Lab @ MSU\n')
 outFile.write('//     for general research information:\n')
