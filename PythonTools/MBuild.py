@@ -243,7 +243,7 @@ for o in options:
 		moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+t+o+'.cpp')
 		dirs = [d for d in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/') if os.path.isdir(os.path.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
 		for d in dirs:
-                    contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c]
+                    contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
                     for content in contents:
                         moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/'+content)
 
