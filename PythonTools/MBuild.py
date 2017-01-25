@@ -18,12 +18,13 @@ else:
 	product = 'MABE'
 
 compiler='c++'
-compFlags='-Wall -std=c++11 -O3'
+compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3'
 if (args.pg):
 	compFlags =  compFlags + ' -pg'
 	
 # load all lines from buildFile into lines, ignore blank lines
 file = open(args.buildFile, 'r')
+pathToMABE=os.path.dirname(args.buildFile)
 lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [[],['EOF']] ]
 file.close()
 
@@ -53,7 +54,7 @@ for option in options:
 		print("  " + o)
 	print("")
 
-outFile = open("modules.h", 'w')
+outFile = open(os.path.join(pathToMABE,"modules.h"), 'w')
 
 outFile.write('//  MABE is a product of The Hintza Lab @ MSU\n')
 outFile.write('//     for general research information:\n')
@@ -239,19 +240,20 @@ options['Archivist'].remove('Default')
 moduleSources = []
 for o in options:
 	for t in options[o]:
-		moduleSources.append(o+'/'+t+o+'/'+t+o+'.cpp')
-		dirs = [d for d in os.listdir(o+'/'+t+o+'/') if os.path.isdir(os.path.join(o+'/'+t+o+'/', d))]
+		moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+t+o+'.cpp')
+		dirs = [d for d in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/') if os.path.isdir(os.path.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
 		for d in dirs:
-			contents = [c for c in os.listdir(o+'/'+t+o+'/'+d+'/') if '.cpp' in c]
-			for content in contents:
-				moduleSources.append(o+'/'+t+o+'/'+d+'/'+content)
+                    contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
+                    for content in contents:
+                        moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/'+content)
 
+alwaysSources = [pathToMABE+'/'+e for e in alwaysSources]
 sources = alwaysSources + moduleSources
 objects = []
 
 
 for s in sources:
-	objects.append('objectFiles/'+s.split('.')[0].replace('/','_') + '.o')
+    objects.append('objectFiles/'+os.path.realpath(s)[1:].split('.')[0].replace('/','_') + '.o')
 
 outFile = open("makefile", 'w')
 
@@ -267,14 +269,17 @@ for o in objects:
 outFile.write(' -o '+product+'\n\n')
 
 for i in range(len(sources)):
-	outFile.write(objects[i]+':\n')
+        if (sources[i][-8:] == 'main.cpp'):
+            outFile.write(objects[i]+': '+sources[i]+'\n')
+        else:
+            outFile.write(objects[i]+': '+sources[i]+' '+sources[i].replace('.cpp','.h')+'\n')
 	outFile.write('\t'+compiler+' '+compFlags+' -c '+sources[i]+' -o '+objects[i]+'\n\n')
 	
 outFile.write('clean:\n')
-outFile.write('\trm -r objectFiles '+product+'\n\n')
+outFile.write('\trm -r objectFiles/* '+product+'\n\n')
 
 outFile.write('cleanup:\n')
-outFile.write('\trm -r objectFiles\n')
+outFile.write('\trm -r objectFiles/*\n')
 
 outFile.close()
 
