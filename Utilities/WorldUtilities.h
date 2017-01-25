@@ -16,6 +16,8 @@
 #include <iostream>
 #include <map>
 #include <memory>
+#include "math.h"
+#include <cmath>
 #include <sstream>
 #include <set>
 #include <vector>
@@ -91,7 +93,7 @@ public:
 
 	void drawArc() {
 
-		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
+		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
 			int Y = abs(y);
 			if (Y < 10) {
 				cout << "  " << Y << "  : ";
@@ -101,7 +103,7 @@ public:
 				cout << Y << "  : ";
 			}
 
-			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
+			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
 				int dist = -1;
 				for (int i = 0; i < (int) allLocations.size() / 2; i++) {
 					if (allLocations[i * 2] == x && allLocations[(i * 2) + 1] == y) {
@@ -123,7 +125,7 @@ public:
 		}
 
 		cout << "       ";
-		for (int X = -1 * distanceMax; X <= distanceMax; X++) {
+		for (int X = -1 * (int)distanceMax; X <= (int)distanceMax; X++) {
 			int x = abs(X);
 			if (x < 10) {
 				cout << " " << x << " ";
@@ -563,16 +565,16 @@ public:
 			// conversion to get values between 0 and 360 with 0 degrees up
 			angle1 += 90;
 			angle2 += 90;
-			angle1 = loopMod(angle1, 360);
-			angle2 = loopMod(angle2, 360);
+			angle1 = loopModDouble(angle1, 360);
+			angle2 = loopModDouble(angle2, 360);
 		}
 
 		//cout << "adjusted angles " << angle1 << " " << angle2 << endl;
 		// first get a list of locations
 		//cout << "-2-" << endl;
 
-		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
-			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
+		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
+			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
 				check = false;
 
 				getWorkingAngles(x, y, minWorkingAngle, maxWorkingAngle);
@@ -735,8 +737,8 @@ public:
 
 		// test to show allLocations and edgeLocations
 
-		for (int y = -1 * distanceMax; y <= distanceMax; y++) {
-			for (int x = -1 * distanceMax; x <= distanceMax; x++) {
+		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
+			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
 				int type = 0;
 				for (int i = 0; i < locationsCount; i++) {
 					if (x == allLocations[i * 2] && y == allLocations[i * 2 + 1]) {

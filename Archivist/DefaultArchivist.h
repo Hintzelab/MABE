@@ -19,6 +19,7 @@
 
 #include "../Global.h"
 #include "../Organism/Organism.h"
+#include "../Utilities/MTree.h"
 
 using namespace std;
 
@@ -64,7 +65,7 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsP
 	string AveFileName;  // name of the Averages file (ave for all brains when file is written to)
 	string DominantFileName;  // name of the Dominant file (all stats for best brain when file is writtne to)
 	string AveFileColumnNames;  // data to be saved into average file (must be values that can generate an average)
-	string MaxValueName;  // what value will be used to determine which organism to write to max file
+	shared_ptr<Abstract_MTree> maxFormula;  // what value will be used to determine which organism to write to max file
 	bool DominantFileShowAllLists;
 
 
@@ -92,7 +93,7 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsP
 	const shared_ptr<ParametersTable> PT;
 
 	DefaultArchivist(shared_ptr<ParametersTable> _PT = nullptr);
-	DefaultArchivist(vector<string> aveFileColumns, string _maxValueName, shared_ptr<ParametersTable> _PT = nullptr);
+	DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~DefaultArchivist() = default;
 
 	//save dominant and average file data

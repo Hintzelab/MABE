@@ -149,6 +149,10 @@ public:
 		cout << "ERROR IN AbstractBrain::makeCopy() - You are using the abstract copy constructor for brains. You must define your own" << endl;
 		exit(1);
 	}
+
+	virtual bool requireGenome(){
+		return true;
+	}
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Brain__) */

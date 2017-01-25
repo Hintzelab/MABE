@@ -16,16 +16,15 @@
 class Tournament2Optimizer : public AbstractOptimizer {
  public:
 
-	static shared_ptr<ParameterLink<string>> optimizeValuePL;
+	static shared_ptr<ParameterLink<string>> optimizeFormulaPL;
 	static shared_ptr<ParameterLink<int>> elitismPL;
 	static shared_ptr<ParameterLink<int>> tournamentSizePL;
 
-	shared_ptr<ParameterLink<string>> optimizeValueLPL;
 	shared_ptr<ParameterLink<int>> elitismLPL;
 	shared_ptr<ParameterLink<int>> tournamentSizeLPL;
 
 	Tournament2Optimizer(shared_ptr<ParametersTable> _PT = nullptr) : AbstractOptimizer(_PT) {
-		optimizeValueLPL = (PT == nullptr) ? optimizeValuePL : Parameters::getStringLink("OPTIMIZER_TOURNAMENT2-optimizeValue", PT);
+		optimizeFormula = (PT == nullptr) ? stringToMTree(optimizeFormulaPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_TOURNAMENT2-optimizeValue"));
 		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_TOURNAMENT2-elitism", PT);
 		tournamentSizeLPL = (PT == nullptr) ? tournamentSizePL : Parameters::getIntLink("OPTIMIZER_TOURNAMENT2-tournamentSize", PT);
 		//cout << "Tournament2 Optimizer value is \"" << optimizeValueLPL->lookup() << "\"." << endl;
@@ -34,7 +33,7 @@ class Tournament2Optimizer : public AbstractOptimizer {
 	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
-		return(optimizeValueLPL->lookup());
+		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_GA-optimizeValue");
 	}
 };
 

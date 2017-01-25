@@ -16,7 +16,7 @@
 
 using namespace std;
 
-shared_ptr<ParameterLink<string>> GAOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "score", "value to optimize");
+shared_ptr<ParameterLink<string>> GAOptimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "DM[score]", "value to optimize");
 shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_GA-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
 
 /*
@@ -34,7 +34,7 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	double aveScore = 0;
 
 	for (auto org : population) {
-		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
+		Scores.push_back(optimizeFormula->eval(org->dataMap,PT)[0]);
 		aveScore += Scores.back();
 	}
 
@@ -64,7 +64,7 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
 	}
 	population = nextPopulation;
-	cout << "max(" << optimizeValueLPL->lookup() << ") = " << maxScore << "\tave(" << optimizeValueLPL->lookup() << ") = " << aveScore;
+	cout << "max = " << maxScore << "\tave = " << aveScore;
 
 }
 

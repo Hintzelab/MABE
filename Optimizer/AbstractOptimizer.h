@@ -18,6 +18,7 @@
 #include "../Genome/AbstractGenome.h"
 #include "../Organism/Organism.h"
 
+#include "../Utilities/MTree.h"
 #include "../Utilities/Parameters.h"
 #include "../Utilities/Random.h"
 
@@ -25,6 +26,7 @@ using namespace std;
 
 class AbstractOptimizer {
  public:
+	shared_ptr<Abstract_MTree> optimizeFormula;
 
 
 	static shared_ptr<ParameterLink<string>> Optimizer_MethodStrPL;
@@ -42,6 +44,14 @@ class AbstractOptimizer {
 	virtual string maxValueName() {
 		return("score");
 	}
+
+	virtual bool requireGenome(){
+		return false;
+	}
+	virtual bool requireBrain(){
+		return false;
+	}
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Optimizer__) */

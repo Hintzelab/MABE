@@ -26,31 +26,13 @@
 #include "Utilities/Data.h"
 #include "Utilities/Utilities.h"
 #include "Utilities/WorldUtilities.h"
+#include "Utilities/MTree.h"
 
 #include "modules.h"
 
 using namespace std;
 
-//void senseTotals(Vector2d<int>& worldgrid,  int& orgx,  int& orgy,  int& orgf,  Sensor& sensor, vector<int>& values){
-//
-//	bool blocked = false;
-//	int currentIndex = 0;
-//
-//	while (currentIndex != -1){
-//		//cout << currentIndex << "  :  " << sensor.angles[orgf]->cX(currentIndex) << "," << sensor.angles[orgf]->cY(currentIndex) << "  " << sensor.angles[orgf]->cX(currentIndex) + orgx << "," << sensor.angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx,sensor.angles[orgf]->cY(currentIndex) + orgy) << endl;
-//		values[worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy)]++;
-//		blocked = worldgrid(sensor.angles[orgf]->cX(currentIndex)+orgx, sensor.angles[orgf]->cY(currentIndex)+orgy) == 5;
-//
-//		worldgrid(sensor.angles[orgf]->cX(currentIndex) + orgx, sensor.angles[orgf]->cY(currentIndex) + orgy) += 10;
-//
-//		currentIndex = sensor.angles[orgf]->advanceIndex(currentIndex, blocked);
-//	}
-//
-//}
-
-
 int main(int argc, const char * argv[]) {
-
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
 			<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 
@@ -102,9 +84,30 @@ int main(int argc, const char * argv[]) {
 
 		Global::update = -1;  // before there was time, there was a progenitor - set time to -1 so progenitor (the root organism) will have birth time -1
 
-		// template objects are used to build progenitor
-		shared_ptr<AbstractGenome> templateGenome = makeTemplateGenome(PT);
-		shared_ptr<AbstractBrain> templateBrain = makeTemplateBrain(world, PT);
+		// create an optimizer of type defined by OPTIMIZER-optimizer
+		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
+
+		bool needBrain;
+		bool needGenome = false;
+
+		// make a template brain (but only if world or optimizer requires
+		needBrain = world->requireBrain() | optimizer->requireBrain();
+		shared_ptr<AbstractBrain> templateBrain;
+		if (needBrain){
+			templateBrain = makeTemplateBrain(world, PT);
+			needGenome = templateBrain->requireGenome();
+		} else {
+			templateBrain = nullptr;
+		}
+
+		// make a template genome (but only if world, optimizer or brain requires)
+		needGenome = needGenome | world->requireGenome() | optimizer->requireGenome();
+		shared_ptr<AbstractGenome> templateGenome;
+		if (needGenome) {
+			templateGenome = makeTemplateGenome(PT);
+		} else {
+			templateGenome = nullptr;
+		}
 
 		// make a organism with a templateGenome and templateBrain - progenitor serves as an ancestor to all and a template organism
 		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenome, templateBrain);
@@ -127,9 +130,6 @@ int main(int argc, const char * argv[]) {
 		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
 		progenitor->kill();
 
-		// create an optimizer of type defined by OPTIMIZER-optimizer
-		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
-
 		// aveFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
 		// ** aveFileColumns define what will appear in the ave.csv file **
 		// the following code asks world, genomes and brains for ave file columns
@@ -145,7 +145,7 @@ int main(int argc, const char * argv[]) {
 //		}
 //		cout << endl;
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->maxValueName(), PT);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[NS] = make_shared<Group>(population, optimizer, archivist);
@@ -286,7 +286,7 @@ int main(int argc, const char * argv[]) {
 			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()) {
 				newOrg->ID = IDcounter--; // assign a negative ID to indicate that this is a copy
 			} else {
-				newOrg->ID = g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!
+				newOrg->ID = (int)g->dataMap.GetAverage("ID"); // this is the first copy of this genome, so it get's it's own value!
 			}
 			inUseIDs.insert(newOrg->ID);
 

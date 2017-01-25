@@ -227,7 +227,7 @@ public:
 
 
 
-	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug);
+	virtual void runWorld(shared_ptr<Group> group, int analyse, int visualize, int debug);
 
 	// if lastfood < 0, do not consider last food, pick randomly
 	// if

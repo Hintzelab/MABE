@@ -372,7 +372,11 @@ bool Parameters::initializeParameters(int argc, const char * argv[]) {
 		unordered_map<string, string> file_list = Parameters::readParametersFile(fileName);
 		for (auto i : file_list) {
 			parseFullParameterName(i.first, workingNameSpace, workingCategory, workingParameterName);
-			ASSERT(workingParameterName != "", "  ERROR! :: reading from file \"" << fileName << "\" found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]");
+			if (workingParameterName == ""){
+				//ASSERT(workingParameterName != "", "  ERROR! :: reading from file \"" << fileName << "\" found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]");
+				cout << "  ERROR! :: reading from file \"" << fileName << "\" found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]" << endl;
+				exit(1);
+			}
 			string parameterType = root->getParameterType(workingCategory + "-" + workingParameterName);
 			if (parameterType == "bool") {
 				bool value;
@@ -408,7 +412,11 @@ bool Parameters::initializeParameters(int argc, const char * argv[]) {
 	}
 	for (auto i : command_line_list) {  // load command line parameters last
 		parseFullParameterName(i.first, workingNameSpace, workingCategory, workingParameterName);
-		ASSERT(workingParameterName != "", "  ERROR! :: reading from command line found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]");
+		if (workingParameterName == ""){
+			//ASSERT(workingParameterName != "", "  ERROR! :: reading from command line found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]");
+			cout << "  ERROR! :: reading from command line found misformatted parameter \"" << i.first << "\"\n  Parameters must have format: [category]-[name] or [name space][category]-[name]" << endl;
+			exit(1);
+		}
 		string parameterType = root->getParameterType(workingCategory + "-" + workingParameterName);
 		if (parameterType == "bool") {
 			bool value;

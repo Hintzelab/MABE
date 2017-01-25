@@ -12,14 +12,14 @@
 
 using namespace std;
 
-shared_ptr<ParameterLink<string>> Tournament2Optimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-optimizeValue", (string) "score", "value to optimize");
+shared_ptr<ParameterLink<string>> Tournament2Optimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-optimizeValue", (string) "DM[score]", "value to optimize");
 shared_ptr<ParameterLink<int>> Tournament2Optimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
 shared_ptr<ParameterLink<int>> Tournament2Optimizer::tournamentSizePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-tournamentSize", 5, "number of organisms considered in each tournament?");
 
 void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	vector<shared_ptr<Organism>> nextPopulation;
 	set<shared_ptr<Organism>> survivors;
-	int p1, p2;  // parent1 and 2
+	int p1, p2;  // parent 1 and 2
 	int challanger;  // used when picking best of
 	double surviveChance = 0;
 	bool orgSurvived = 0;
@@ -28,7 +28,7 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 	double aveScore = 0;
 
 	for (auto org : population) {
-		Scores.push_back(org->dataMap.GetAverage(optimizeValueLPL->lookup()));
+		Scores.push_back(optimizeFormula->eval(org->dataMap, PT)[0]);
 		aveScore += Scores.back();
 	}
 
@@ -111,6 +111,6 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 		}
 	}
 	population = nextPopulation;
-	cout << "max(" << optimizeValueLPL->lookup() << ") = " << maxScore << "\tave(" << optimizeValueLPL->lookup() << ") = " << aveScore;
+	cout << "max = " << maxScore << "\tave = " << aveScore;
 }
 
