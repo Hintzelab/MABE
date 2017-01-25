@@ -273,7 +273,7 @@ for i in range(len(sources)):
             outFile.write(objects[i]+': '+sources[i]+'\n')
         else:
             outFile.write(objects[i]+': '+sources[i]+' '+sources[i].replace('.cpp','.h')+'\n')
-	outFile.write('\t'+compiler+' '+compFlags+' -c '+sources[i]+' -o '+objects[i]+'\n\n')
+        outFile.write('\t'+compiler+' '+compFlags+' -c '+sources[i]+' -o '+objects[i]+'\n\n')
 	
 outFile.write('clean:\n')
 outFile.write('\trm -r objectFiles/* '+product+'\n\n')
