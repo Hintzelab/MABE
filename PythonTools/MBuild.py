@@ -1,14 +1,16 @@
 import argparse
 import os
+import sys
 from subprocess import call
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-buildFile', type=str, metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt', required=False)
 parser.add_argument('-windows', action='store_true', default = False, help='add this flag if you are on a windows computer', required=False)
-parser.add_argument('-noCleanup', action='store_true', default = False, help='add this flag if you want to keep the .o files', required=False)
+parser.add_argument('-cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building', required=False)
 parser.add_argument('-noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile', required=False)
 parser.add_argument('-pg', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
+parser.add_argument('-cores', default = 1, help='how many cores do you want to use when you compile?  i.e. make -j6', required=False)
 
 args = parser.parse_args()
 
@@ -21,10 +23,19 @@ compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3'
 if (args.pg):
 	compFlags =  compFlags + ' -pg'
+
+
+if os.path.exists(args.buildFile) is False:
+	print()
+	print('buildFile with name "'+args.buildFile+'" does not exist. Please provide a diffrent filename.')
+	print()
+	sys.exit();
 	
 # load all lines from buildFile into lines, ignore blank lines
 file = open(args.buildFile, 'r')
 pathToMABE=os.path.dirname(args.buildFile)
+if pathToMABE == "":
+	pathToMABE = "./"
 lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [[],['EOF']] ]
 file.close()
 
@@ -284,7 +295,8 @@ outFile.write('\trm -r objectFiles/*\n')
 outFile.close()
 
 if not (args.noCompile):
-	call("make")
-if not (args.noCleanup or args.noCompile):
+	call(["make","-j"+str(args.cores)])
+if (args.cleanup):
 	call(["make","cleanup"])
 	call(["rm","makefile"])
+	call(["rmdir","objectFiles"])
