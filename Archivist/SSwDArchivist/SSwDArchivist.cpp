@@ -10,8 +10,10 @@
 
 #include "SSwDArchivist.h"
 
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string) ":100", "when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_genomeSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeSequence", (string) ":1000", "when to save a genome file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string) ":100",
+		"when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_genomeSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeSequence", (string) ":1000",
+		"when to save a genome file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_genomeDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-genomeDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving genomes ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
@@ -104,7 +106,7 @@ void SSwDArchivist::cleanup() {
 
 bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
 
-	if (finished && !flush){
+	if (finished && !flush) {
 		return finished;
 	}
 
@@ -184,11 +186,15 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			size_t index = 0;
 			while (index < checkpoints[nextGenomeWrite].size()) {
 				if (auto org = checkpoints[nextGenomeWrite][index].lock()) {  // this ptr is still good
-					org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
-					org->genome->dataMap.Set("update", to_string(nextGenomeWrite));
-					org->genome->dataMap.Set("sites", org->genome->genomeToStr());
-					org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);  // append new data to the file
-					org->genome->dataMap.Clear("sites");  // this is large, clean it up now!
+
+					if (org->hasGenome) { // if org has a genome
+						org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
+						org->genome->dataMap.Set("update", to_string(nextGenomeWrite));
+						org->genome->dataMap.Set("sites", org->genome->genomeToStr());
+						org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);  // append new data to the file
+						org->genome->dataMap.Clear("sites");  // this is large, clean it up now!
+					}
+
 					index++;
 				} else {  // this ptr is expired - cut it out of the vector
 					swap(checkpoints[nextGenomeWrite][index], checkpoints[nextGenomeWrite].back());  // swap expired ptr to back of vector
@@ -257,21 +263,20 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	return finished;
 }
 
-
-bool SSwDArchivist::isDataUpdate(int checkUpdate){
+bool SSwDArchivist::isDataUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
 	bool check = DefaultArchivist::isDataUpdate(checkUpdate);
-	check = check || find(dataSequence.begin(),dataSequence.end(),checkUpdate) != dataSequence.end();
+	check = check || find(dataSequence.begin(), dataSequence.end(), checkUpdate) != dataSequence.end();
 	return check;
 }
 
-bool SSwDArchivist::isGenomeUpdate(int checkUpdate){
+bool SSwDArchivist::isGenomeUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
 	bool check = DefaultArchivist::isGenomeUpdate(checkUpdate);
-	check = check || find(genomeSequence.begin(),genomeSequence.end(),checkUpdate) != genomeSequence.end();
+	check = check || find(genomeSequence.begin(), genomeSequence.end(), checkUpdate) != genomeSequence.end();
 	return check;
 }

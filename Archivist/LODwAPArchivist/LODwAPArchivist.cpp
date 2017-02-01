@@ -10,8 +10,10 @@
 
 #include "LODwAPArchivist.h"
 
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataSequence", (string) ":100", "How often to write to data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_genomeSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeSequence", (string) ":1000", "How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataSequence", (string) ":100",
+		"How often to write to data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_genomeSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeSequence", (string) ":1000",
+		"How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_pruneIntervalPL = Parameters::register_parameter("ARCHIVIST_LODWAP-pruneInterval", 100, "How often to attempt to prune LOD and actually write out to files");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 100, "how long to run after updates (to get allow time for coalescence)");
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_DataFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileName", (string) "data.csv", "name of genome file (stores genomes for line of decent)");
@@ -77,7 +79,7 @@ LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Abstr
 }
 
 bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
-	if (finished && !flush){
+	if (finished && !flush) {
 		return finished;
 	}
 
@@ -198,14 +200,15 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 		if (writeGenomeFile) {
 
 			while ((effective_MRCA->timeOfBirth >= nextGenomeWrite) && (nextGenomeWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
+
 				shared_ptr<Organism> current = LOD[nextGenomeWrite - lastPrune];
-				//string dataString = to_string(nextGenomeWrite) + FileManager::separator + "\"[" + current->genome->genomeToStr() + "]\"";  // add write update and padding to genome string
-				//FileManager::writeToFile(GenomeFileName, dataString, "update,genome");  // write data to file
-				current->genome->dataMap.Set("sites", current->genome->genomeToStr());
-				current->genome->dataMap.Set("update", nextGenomeWrite);
-				current->genome->dataMap.Set("ID", current->dataMap.GetIntVector("ID")[0]);
-				//current->genome->dataMap.writeToFile(GenomeFileName, current->genome->dataMap.getKeys());  // append new data to the file
-				current->genome->dataMap.writeToFile(GenomeFileName, current->genome->genomeFileColumns);  // append new data to the file
+				if (current->hasGenome) { // only write a genome if org on LOD has a genome!
+					current->genome->dataMap.Set("sites", current->genome->genomeToStr());
+					current->genome->dataMap.Set("update", nextGenomeWrite);
+					current->genome->dataMap.Set("ID", current->dataMap.GetIntVector("ID")[0]);
+					current->genome->dataMap.writeToFile(GenomeFileName, current->genome->genomeFileColumns);  // append new data to the file
+				}
+
 				if ((int) genomeSequence.size() > genomeSeqIndex + 1) {
 					genomeSeqIndex++;
 					nextGenomeWrite = genomeSequence[genomeSeqIndex];

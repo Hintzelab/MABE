@@ -30,81 +30,21 @@
 
 using namespace std;
 
-//class OldDataMap {
-//private:
-//	map<string, string> data;
-//
-//public:
-//
-//	OldDataMap() = default;
-//
-//	OldDataMap(shared_ptr<OldDataMap> source) {
-//		data = source->data;
-//	}
-//
-//	/*
-//	 * sets a value at "key" to a DataMap.data
-//	 * Template Functions must be in a header
-//	 */
-//	template<typename Type>
-//	void Set(const string &key, const Type& value) {  // sets a value in a DataMap with "key"
-//		data[key] = to_string(value);
-//	}
-//
-//	// Clear a field in a DataMap
-//	void Clear(const string &key) {
-//		data.erase(key);
-//	}
-//
-//	// Clear add data in a DataMap
-//	void ClearMap() {
-//		data.clear();
-//	}
-//	string Get(const string &key);  // retrieve the string from a dataMap with "key"
-//	bool fieldExists(const string &key);  // return true if a data map contains "key"
-//
-//	void writeToFile(const string &fileName, const vector<string>& keys = { });  // write from this DataMap to fileName the data associated with keys
-//	vector<string> getKeys();
-//	//void clear();
-//
-//	/*
-//	 * takes a vector of string with key value pairs. Calls set for each pair.
-//	 */
-//	void SetMany(vector<string> dataPairs);
-//
-//	/*
-//	 * appends a value at "key" to a DataMap.data
-//	 * Template Functions must be in a header
-//	 */
-//	template<typename Type>
-//	void Append(const string &key, const Type &value) {
-//		// is this value in the DataMap already?
-//		if (data.find(key) == data.end()) {  // if this key is not already in the DataMap
-//			data[key] = "\"[" + to_string(value) + "]\"";
-//		} else {  // the key already exists
-//			if ((data[key][0] == '\"') && (data[key][1] = '[')) {  // if this key is already associated with a list
-//				string workingString = data[key];
-//				workingString.pop_back();  // strip off trailing ']"'
-//				workingString.pop_back();  // strip off trailing ']"'
-//				workingString = workingString + "," + to_string(value) + "]\"";  // add ",value]"
-//				data[key] = workingString;  // put new list back in DataMap
-//			} else {  // this key exists, but the associated element is not a list
-//				cout << "  In DataMap::Append(key, value)\n  ERROR: attempted to append to a non list DataMap entry. \n    Exiting!\n";
-//				exit(1);
-//			}
-//		}
-//	}
-//
-//};
+
 
 class FileManager {
 public:
-	static map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)
+	static map<string, vector<string>> fileColumns;  // list of files (NAME,LIST OF COLUMNS)
+	static map<string, ofstream> files; // list of files (NAME,ofstream)
+	static map<string, bool> fileStates; // list of files states (NAME,open?)
 
 	static string outputDirectory;
-	static set<string> dataFilesCreated;  // list of files, this allows us to track if headers must be written
+
 	static const char separator = ',';
+
 	static void writeToFile(const string& fileName, const string& data, const string& header = "");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+	static void openFile(const string& fileName, const string& header = "");  // open file and write header to file if file is new and header is provided
+	static void closeFile(const string& fileName); // close file
 };
 
 class DataMap {
@@ -713,15 +653,15 @@ public:
 
 		if (FileManager::files.find(fileName) == FileManager::files.end()) {  // first make sure that the dataFile has been set up.
 			if (keys.size() == 0) { // if no keys are given
-				FileManager::files[fileName] = getKeys();
+				FileManager::fileColumns[fileName] = getKeys();
 			} else {
-				FileManager::files[fileName] = keys;
+				FileManager::fileColumns[fileName] = keys;
 			}
 		}
 		string headerStr = "";
 		string dataStr = "";
 
-		constructHeaderAndDataStrings(headerStr, dataStr, FileManager::files[fileName], aveOnly); // if a list is given, use that.
+		constructHeaderAndDataStrings(headerStr, dataStr, FileManager::fileColumns[fileName], aveOnly); // if a list is given, use that.
 
 		FileManager::writeToFile(fileName, dataStr, headerStr);  // write the data to file!
 	}

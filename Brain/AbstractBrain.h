@@ -27,8 +27,6 @@ using namespace std;
 class AbstractBrain {
 public:
 	static shared_ptr<ParameterLink<string>> brainTypeStrPL;
-	//static shared_ptr<ParameterLink<int>> hiddenNodesPL;
-	//static shared_ptr<ParameterLink<bool>> serialProcessingPL;
 
 	const shared_ptr<ParametersTable> PT;
 
@@ -41,11 +39,8 @@ public:
 	int nrOutputValues;
 	vector<double> inputValues;
 	vector<double> outputValues;
-	//int nrHiddenNodes;
-	//vector<int> inputNodesList, outputNodesList;  //maps inputs to nodes and outputs to nodes
-	//vector<double> nodes;
-	//vector<double> nextNodes;
 
+	bool buildFromGenome = true; // should this brain be built from a genome (or self generate)
 
 	AbstractBrain() = delete;
 

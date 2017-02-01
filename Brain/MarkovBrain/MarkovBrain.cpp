@@ -213,15 +213,11 @@ void MarkovBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
 	auto genomeHandler = _genome->newHandler(_genome);
 
 	for (auto gateType : GLB->gateBuilder.inUseGateTypes) {
-		//cout << gateType << " : "<<Gate_Builder::intialGateCounts[gateType]<<endl;
 		for (int i = 0; i < GLB->gateBuilder.intialGateCounts[gateType]; i++) {
-			//cout << "    " << i << " : ";
 			genomeHandler->randomize();
 			for (auto value : GLB->gateBuilder.gateStartCodes[gateType]) {
-				//cout << value << " ";
 				genomeHandler->writeInt(value, 0, codonMax);
 			}
-			//cout << endl;
 		}
 	}
 }
