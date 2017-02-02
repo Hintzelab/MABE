@@ -111,6 +111,7 @@ void Tournament2Optimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popu
 		}
 	}
 	population = nextPopulation;
-	cout << "max = " << maxScore << "\tave = " << aveScore;
+
+	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
 }
 

@@ -25,7 +25,7 @@ int Organism::organismIDCounter = -1;  // every organism will get a unique ID
 
 // this is used to hold the most recent common ancestor
 
-void Organism::initOrganism(shared_ptr<ParametersTable> _PT){
+void Organism::initOrganism(shared_ptr<ParametersTable> _PT) {
 	PT = _PT;
 	ID = registerOrganism();
 	alive = true;
@@ -53,7 +53,7 @@ Organism::Organism(shared_ptr<ParametersTable> _PT) {
  */
 Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr){ // if an actual genome is passed
+	if (_genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
@@ -69,7 +69,7 @@ Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTabl
  */
 Organism::Organism(shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_brain != nullptr){ // if an actual brain was passed
+	if (_brain != nullptr) { // if an actual brain was passed
 		brain = _brain;
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
@@ -84,16 +84,16 @@ Organism::Organism(shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable>
  */
 Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr){ // if an actual genome is passed
+	if (_genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
 	}
-	if (brain!=nullptr && !brain->buildFromGenome){ // if this orgs brain is not built from genome, then install the brain that was passed
+	if (brain != nullptr && !brain->buildFromGenome) { // if this orgs brain is not built from genome, then install the brain that was passed
 		brain = _brain;
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
-	} else if (_brain!=nullptr && _genome != nullptr){ // ... else, build a brain from genome using passes brain as a template
+	} else if (_brain != nullptr && _genome != nullptr) { // ... else, build a brain from genome using passes brain as a template
 		brain = _brain->makeBrainFromGenome(genome);
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
@@ -108,16 +108,16 @@ Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain>
  */
 Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr){ // if an actual genome is passed
+	if (_genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
 	} // else hasGenome will remain false and there will be no genome
-	if (from->hasBrain && from->brain->buildFromGenome){ // if parent has a brain and that brain is built from genome
+	if (from->hasBrain && from->brain->buildFromGenome) { // if parent has a brain and that brain is built from genome
 		brain = from->brain->makeBrainFromGenome(genome); // build brain from genome using parents brain as template
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
-	} else if (from->hasBrain && !from->brain->buildFromGenome){
+	} else if (from->hasBrain && !from->brain->buildFromGenome) {
 		cout << "  in Orgainsm constructor (from(parent), genome, PT) :: brain in parent is !buildFromGenome and no brain is provided to this function so Organism can not be created. Exiting." << endl;
 		exit(1);
 	} // else hasBrain will remain false and there will be no brain
@@ -137,12 +137,12 @@ Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome
  */
 Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr){ // if an actual genome is passed
+	if (_genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
 	} // else hasGenome will remain false and there will be no brain
-	if (_brain != nullptr){ // if an actual brain is passed
+	if (_brain != nullptr) { // if an actual brain is passed
 		brain = _brain;
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
@@ -165,16 +165,16 @@ Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome
  */
 Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (genome != nullptr){ // if an actual genome is passed
+	if (genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
 	} // else hasGenome will remain false and there will be no brain
-	if (from[0]->brain != nullptr and from[0]->brain->buildFromGenome){ // if parent[0] has a brain and that brain is built from genome
+	if (from[0]->brain != nullptr and from[0]->brain->buildFromGenome) { // if parent[0] has a brain and that brain is built from genome
 		brain = from[0]->brain->makeBrainFromGenome(genome); // build brain from genome using parent[0]s brain as template
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
-	} else if (from[0]->hasBrain && !from[0]->brain->buildFromGenome){
+	} else if (from[0]->hasBrain && !from[0]->brain->buildFromGenome) {
 		cout << "  in Orgainsm constructor (from(parents), genome, PT) :: brain in parents is !buildFromGenome and no brain is provided to this function so Organism can not be created. Exiting." << endl;
 		exit(1);
 	} //else hasBrain will remain false and there will be no brain
@@ -198,12 +198,12 @@ Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractG
 Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
 	//PT = _PT;
-	if (genome != nullptr){ // if an actual genome is passed
+	if (genome != nullptr) { // if an actual genome is passed
 		genome = _genome;
 		hasGenome = true;
 		dataMap.Merge(genome->getStats());
 	} // else hasGenome will remain false and there will be no brain
-	if (_brain != nullptr){ // if an actual brain is passed
+	if (_brain != nullptr) { // if an actual brain is passed
 		brain = _brain;
 		hasBrain = true;
 		dataMap.Merge(brain->getStats());
@@ -242,31 +242,69 @@ void Organism::kill() {
 	}
 }
 
-shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> parent) {
+shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> from) {
 	shared_ptr<Organism> newOrg;
-	if(parent->hasGenome && parent->hasBrain && parent->brain->buildFromGenome){
+	if (from->hasGenome && from->hasBrain && from->brain->buildFromGenome) {
 		// if parent has genome and brain which is built from genome, then make a new organism with mutated genome and brain template from parent
-		newOrg = make_shared<Organism>(parent, parent->genome->makeMutatedGenomeFrom(parent->genome),PT);
-	} else if(parent->hasGenome && parent->hasBrain){
+		newOrg = make_shared<Organism>(from, from->genome->makeMutatedGenomeFrom(from->genome), PT);
+	} else if (from->hasGenome && from->hasBrain) {
 		// if org has genome and brain, and brain is NOT built from genome, then make new organism with mutated genome and mutated brain
-		newOrg = make_shared<Organism>(parent, parent->genome->makeMutatedGenomeFrom(parent->genome), parent->brain);//->makeMutatedBrainFrom(brain),PT);
-	} else if (!parent->hasGenome && parent->hasBrain && !parent->brain->buildFromGenome){
+		newOrg = make_shared<Organism>(from, from->genome->makeMutatedGenomeFrom(from->genome), from->brain->makeMutatedBrainFrom(brain), PT);
+	} else if (!from->hasGenome && from->hasBrain && !from->brain->buildFromGenome) {
 		// if parent has no genome, but has a brain which is not built from genome then make new organism with a mutated brain
-		newOrg = make_shared<Organism>(parent, nullptr, parent->brain);//->makeMutatedBrainFrom(brain),PT);
+		newOrg = make_shared<Organism>(from, nullptr, from->brain->makeMutatedBrainFrom(brain), PT);
 	} else {
 		cout << "  in makeMutatedOffspringFrom() :: attempt to build new organism where brain->buildFromGenome = true, but parent has no genome. Exiting." << endl;
 		exit(1);
 	}
+
+	if (!from->hasGenome && !from->hasBrain){
+		cout << "  in Organism::makeMutatedOffspringFrom :: attempt to make offspring from parent which have neither genomes nor brains. Exiting." << endl;
+		exit(1);
+	}
+
 	return newOrg;
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from) {
 	//cout << "In Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
-	vector<shared_ptr<AbstractGenome>> parentGenomes;
-	for (auto p : from) {
-		parentGenomes.push_back(p->genome);
+	shared_ptr<Organism> newOrg;
+
+	if (from[0]->hasGenome) { // if parents have genomes
+		vector<shared_ptr<AbstractGenome>> parentGenomes; // make a list of parents genomes
+		for (auto p : from) {
+			parentGenomes.push_back(p->genome);
+		}
+
+		if (from[0]->hasBrain && from[0]->brain->buildFromGenome){ // if parents have genome and brains and those brains are buildFromGenome
+			shared_ptr<Organism> newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes));
+		} else if (from[0]->hasBrain && !from[0]->brain->buildFromGenome) { // if parents have genomes and brains and those brains are not buildFromGenome
+			vector<shared_ptr<AbstractBrain>> parentBrains; // make a list of parents brains
+			for (auto p : from) {
+				parentBrains.push_back(p->brain);
+			}
+
+			newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes), from[0]->brain->makeMutatedBrainFromMany(parentBrains), PT);
+
+		} else if (!from[0]->hasBrain){ // else if there is no brain, create org with mutated genome and no brain (nullptr)
+			newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes), nullptr, PT);
+		}
+	} else { // parents do not have genomes
+		if (from[0]->hasBrain && from[0]->brain->buildFromGenome){
+			cout << "  in Organism::makeMutatedOffspringFromMany :: attempt to make offspring from parents with brains which are buildFromGenome, but parents do not have genomes. Exiting." << endl;
+			exit(1);
+		} else if (from[0]->hasBrain){
+			vector<shared_ptr<AbstractBrain>> parentBrains; // make a list of parents brains
+			for (auto p : from) {
+				parentBrains.push_back(p->brain);
+			}
+			newOrg = make_shared<Organism>(from, nullptr, from[0]->brain->makeMutatedBrainFromMany(parentBrains), PT);
+		}
 	}
-	shared_ptr<Organism> newOrg = make_shared<Organism>(from, genome->makeMutatedGenomeFromMany(parentGenomes));
+	if (!from[0]->hasGenome && !from[0]->hasBrain){
+		cout << "  in Organism::makeMutatedOffspringFromMany :: attempt to make offspring from parents which have neither genomes nor brains. Exiting." << endl;
+		exit(1);
+	}
 
 	//cout << "  leaving Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
 	return newOrg;
@@ -329,20 +367,20 @@ shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newOrg = make_shared<Organism>(_PT); 
-	newOrg->brain = brain->makeCopy(); 
-	newOrg->genome = genome->makeCopy(); 
-	newOrg->dataMap = dataMap; 
+	auto newOrg = make_shared<Organism>(_PT);
+	newOrg->brain = brain->makeCopy();
+	newOrg->genome = genome->makeCopy();
+	newOrg->dataMap = dataMap;
 	newOrg->snapShotDataMaps = snapShotDataMaps;
 	newOrg->offspringCount = offspringCount;
 	newOrg->parents = parents;
 	for (auto parent : parents) {
-		parent->offspringCount++; 
+		parent->offspringCount++;
 	}
 	newOrg->ancestors = ancestors;
 	newOrg->timeOfBirth = timeOfBirth;
 	newOrg->timeOfDeath = timeOfDeath;
 	newOrg->alive = alive;
 	newOrg->ID = registerOrganism();
-	return newOrg; 
+	return newOrg;
 }

@@ -69,6 +69,14 @@ public:
 	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) = 0;
 	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) = 0;
 
+	virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent){
+		return parent;
+	}
+
+	virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents){
+		return parents[0];
+	}
+
 	virtual void inline resetBrain() {
 		resetInputs();
 		resetOutputs();

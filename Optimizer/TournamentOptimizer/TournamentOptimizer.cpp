@@ -75,8 +75,8 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 //		population.pop_back();
 //	}
 	population = nextPopulation;
-	cout << "max = " << maxScore << "\tave = " << aveScore;
-	//cout << "Leaving TournamentOptimizer::makeNextGeneration\n";
+
+	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
 
 
 }

@@ -18,6 +18,7 @@
 #include "../Genome/AbstractGenome.h"
 #include "../Organism/Organism.h"
 
+#include "../Utilities/Utilities.h"
 #include "../Utilities/MTree.h"
 #include "../Utilities/Parameters.h"
 #include "../Utilities/Random.h"

@@ -64,7 +64,7 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
 	}
 	population = nextPopulation;
-	cout << "max = " << maxScore << "\tave = " << aveScore;
 
+	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
 }
 
