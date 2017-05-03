@@ -24,7 +24,7 @@ import glob
 import argparse
 import os
 import sys
-import pwd
+#import pwd
 import shutil
 import datetime
 
@@ -39,7 +39,7 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, exe
 	outFile.write('\n'+
 		'shopt -s expand_aliases\n'+
 		'module load powertools\n'+
-		'module load GNU/4.8.3\n'+
+		'module load GNU/6.2\n'+
 		'\n'+
 		'cd ' + workDir +
 		'\n')
@@ -238,15 +238,15 @@ if not (args.runLocal or args.runHPCC):
 	print("")
 
 
-userName = pwd.getpwuid( os.getuid() )[ 0 ] # get the user name
+userName = "bohmclif" #pwd.getpwuid( os.getuid() )[ 0 ] # get the user name
 print(userName)
 absLocalDir = os.getcwd() # this is needed so we can get back to the launch direcotry
 localDirParts = absLocalDir.split('/') # turn path into list so we can trim of verything before ~
-while localDirParts[0] != userName:
-	localDirParts = localDirParts[1:] # trim off parts from the front until we get the the user name
-	if len(localDirParts) == 1 and localDirParts[0] != userName:
-		print('You must be in your home area to run MQ.py.')
-		exit(1);
+#while localDirParts[0] != userName:
+#	localDirParts = localDirParts[1:] # trim off parts from the front until we get the the user name
+#	if len(localDirParts) == 1 and localDirParts[0] != userName:
+#		print('You must be in your home area to run MQ.py.')
+#		exit(1);
 localDir = '~/'+'/'.join(localDirParts[1:]) # this is the launch directory from ~/ : this command appends '~/' onto the remaining list with '/' between each element.
 
 pathToScratch = '/mnt/scratch/' # used for HPCC runs

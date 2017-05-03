@@ -96,7 +96,7 @@ void MarkovBrain::update() {
 			for (int i = 0; i < nrOutputValues; i++) {
 				//cout << i << " : " << nextNodesConnections[i] << endl;
 				if (nextNodesConnections[nrInputValues+i] == 0) { // note nrInputValues+i gets us the index for the node related to each output
-		cout << ".";
+		//cout << ".";
 					nextNodes[nrInputValues+i] = Random::getInt(0, (int) randomizeUnconnectedOutputsMax);
 				}
 			}
@@ -232,6 +232,6 @@ shared_ptr<AbstractBrain> MarkovBrain::makeCopy(shared_ptr<ParametersTable> _PT)
 		_gates.push_back(gate->makeCopy());
 	}
 	auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, _PT);
-	
+	newBrain->buildFromGenome = buildFromGenome;
 	return newBrain;
 }

@@ -10,7 +10,7 @@
 
 #include "../IPDBrain/IPDBrain.h"
 
-shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,Rand]", "list of strategies which this brain can use");
+shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,2TFT,TF2T,SIMP,Rand]", "list of strategies which this brain can use");
 
 
 //shared_ptr<ParameterLink<double>> IPDBrain::valueMinPL = Parameters::register_parameter("BRAIN_IPD-valueMin", 0.0, "Minmum value that brain will deliver");
@@ -25,7 +25,7 @@ shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::
 IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
-	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_CONSTANT-availableStrategies"), availableStrategies);
+	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_IPD-availableStrategies"), availableStrategies);
 
 	//	valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
 //	valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
@@ -52,10 +52,16 @@ shared_ptr<AbstractBrain> IPDBrain::makeBrainFromGenome(shared_ptr<AbstractGenom
 	return newBrain;
 }
 
+shared_ptr<AbstractBrain> IPDBrain::makeBrainFromValues(vector<double> values) {
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues);
+
+	newBrain->strategy = availableStrategies[int(values[0]) % (int)availableStrategies.size()];
+
+	return newBrain;
+}
+
 void IPDBrain::resetBrain(){
-
 	AbstractBrain::resetBrain();
-
 	movesSelf.clear();
 	movesOther.clear();
 	internalValues.clear();
@@ -66,7 +72,9 @@ void IPDBrain::update() {
 	int C = (PT == nullptr) ? Parameters::root->lookupBool("WORLD_IPD-C") : PT->lookupBool("WORLD_IPD-C");
 	int D = 1 - C;
 
-	movesOther.push_back(inputValues[1]);
+	movesOther.push_back(inputValues[1]); // last element is the other players last move
+										// note that movesSelf has this players last move (assigned last turn)
+
 	if (strategy == "Rand"){
 		//cout << "Rand" << endl;
 		outputValues[0] = Random::getInt(0,1);
@@ -88,9 +96,51 @@ void IPDBrain::update() {
 		outputValues[0] = ((movesOther[((int)movesOther.size())-1]) == D)?D:C;
 	}
 
-	if (strategy == "WSLS"){
-		cout << "not yet written!" << endl;
-		exit(1);
+	if (strategy == "2TFT") {
+		//cout << "2TFT" << endl;
+		if ((int)movesOther.size() == 1) {
+			outputValues[0] = (movesOther[0] == D) ? D : C;
+		}
+		else {
+			outputValues[0] = ((movesOther[((int)movesOther.size()) - 1]) == D || (movesOther[((int)movesOther.size()) - 2]) == D) ? D : C;
+		}
+	}
+
+	if (strategy == "TF2T") {
+		//cout << "TF2T" << endl;
+		if ((int)movesOther.size() == 1) {
+			outputValues[0] = C;
+		}
+		else {
+			outputValues[0] = ((movesOther[((int)movesOther.size()) - 1]) == D && (movesOther[((int)movesOther.size()) - 2]) == D) ? D : C;
+		}
+	}
+
+	if (strategy == "SIMP") {
+		//cout << "SIMP" << endl;
+		// cc -> c
+		// dc -> d
+		// cd -> d
+		// dd -> c
+		if (movesSelf.size() == 0) {
+			outputValues[0] = C;
+		}
+		else {
+			int lastMove = movesSelf[((int)movesSelf.size()) - 1];
+			int lastMoveOther = movesOther[((int)movesOther.size()) - 1];
+			if (lastMove == C && lastMoveOther == C) {
+				outputValues[0] = C;
+			}
+			else if (lastMove == D && lastMoveOther == C) {
+				outputValues[0] = D;
+			}
+			else if (lastMove == C && lastMoveOther == D) {
+				outputValues[0] = D;
+			}
+			else { // if (lastMove == D && lastMoveOther == D) {
+				outputValues[0] = C;
+			}
+		}
 	}
 	movesSelf.push_back(outputValues[0]);
 

@@ -187,7 +187,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			while (index < checkpoints[nextGenomeWrite].size()) {
 				if (auto org = checkpoints[nextGenomeWrite][index].lock()) {  // this ptr is still good
 
-					if (org->hasGenome) { // if org has a genome
+					if (org->hasGenome()) { // if org has a genome
 						org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
 						org->genome->dataMap.Set("update", to_string(nextGenomeWrite));
 						org->genome->dataMap.Set("sites", org->genome->genomeToStr());

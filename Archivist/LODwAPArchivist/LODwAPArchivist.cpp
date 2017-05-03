@@ -202,7 +202,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 			while ((effective_MRCA->timeOfBirth >= nextGenomeWrite) && (nextGenomeWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
 
 				shared_ptr<Organism> current = LOD[nextGenomeWrite - lastPrune];
-				if (current->hasGenome) { // only write a genome if org on LOD has a genome!
+				if (current->hasGenome()) { // only write a genome if org on LOD has a genome!
 					current->genome->dataMap.Set("sites", current->genome->genomeToStr());
 					current->genome->dataMap.Set("update", nextGenomeWrite);
 					current->genome->dataMap.Set("ID", current->dataMap.GetIntVector("ID")[0]);

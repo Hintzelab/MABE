@@ -9,6 +9,7 @@
 //         github.com/ahnt/MABE/wiki/License
 
 #include "IPDWorld.h"
+#include "../../Brain/IPDBrain/IPDBrain.h"
 
 shared_ptr<ParameterLink<bool>> IPDWorld::roundsFixedPerGenerationPL = Parameters::register_parameter("WORLD_IPD-roundsFixedPerGeneration", true,
 		"if true, number of rounds played will be randomized once per generation, else, each game will be or random duration");
@@ -28,6 +29,9 @@ shared_ptr<ParameterLink<bool>> IPDWorld::skipFirstMovePL = Parameters::register
 shared_ptr<ParameterLink<bool>> IPDWorld::randomFirstMovePL = Parameters::register_parameter("WORLD_IPD-randomFirstMove", false, "if true, the first move will not be scored");
 
 shared_ptr<ParameterLink<bool>> IPDWorld::saveMovesListPL = Parameters::register_parameter("WORLD_IPD-saveMovesList", false, "if true, save list of moves made by each agent to dataMap");
+
+shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use");
+shared_ptr<ParameterLink<int>> IPDWorld::playsVsFixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-playsVsFixedStrategies", 1, "number of matches each organism will play against each fixed strategy");
 
 IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
@@ -58,6 +62,30 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	numRounds = 0;
 	currentUpdate = -1;
 
+	// set up fixed strat organisms
+
+	playsVsFixedStrategies = (PT == nullptr) ? playsVsFixedStrategiesPL->lookup() : PT->lookupInt("WORLD_IPD-playsVsFixedStrategies");
+
+	shared_ptr<AbstractBrain> templateBrain = IPDBrain_brainFactory(inputNodesCount, outputNodesCount, PT);
+	shared_ptr<IPDBrain> castBrain = dynamic_pointer_cast<IPDBrain>(templateBrain);convertCSVListToVector((PT == nullptr) ? fixedStrategiesPL->lookup() : PT->lookupString("WORLD_IPD-fixedStrategies"), fixedStrategies);
+	
+	for (auto s : fixedStrategies) {
+		bool foundStrat = false;
+		for (int i = 0; i < (int)castBrain->availableStrategies.size(); i++) {
+			if (s == castBrain->availableStrategies[i]) {
+				fixedOrgs.push_back(make_shared<Organism>(nullptr, castBrain->makeBrainFromValues({ (double)i }), PT));
+				foundStrat = true;
+			}
+		}
+		if (!foundStrat) {
+			cout << "While initalizing fixed strategies in IPD World, can not find stratagy '" << s << "'. Exiting." << endl;
+			exit(1);
+		}
+	}
+
+	// done with setup
+
+
 	// columns to be added to ave file
 	aveFileColumns.clear();
 	aveFileColumns.push_back("score");
@@ -65,10 +93,16 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	aveFileColumns.push_back("DD");
 	aveFileColumns.push_back("CD");
 	aveFileColumns.push_back("DC");
+	if (playsVsFixedStrategies > 0) {
+		for (auto s : fixedStrategies) {
+			aveFileColumns.push_back("score_vs_" + s);
+		}
+	}
 }
 
 
-void IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
+pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
+	
 	int p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 	int p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 
@@ -149,6 +183,7 @@ void IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool an
 			}
 		}
 	}
+
 	//p1->score = P1score / (double) numRounds;
 	//p2->score = P2score / (double) numRounds;
 
@@ -166,22 +201,47 @@ void IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool an
 
 	p1->dataMap.Append("DD", (double) P1DD / (double) numRounds);
 	p2->dataMap.Append("DD", (double) P2DD / (double) numRounds);
+
+	pair<double, double> scores = { P1score / (double)numRounds, P2score / (double)numRounds };
+	return (scores);
 }
 
 
 void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
 	shared_ptr<Group> group = groups["default"];
-	if (group->population.size() < 2) {
-		cout << "  IPDWorld must be run with WORLD::groupEvaluation = true (1) and must be passed a group who's population size > 1.\n  Please update your parameters and rerun." << endl;
-		exit(1);
-	}
+	//if (group->population.size() < 2) {
+	//	cout << "  IPDWorld must be run with WORLD::groupEvaluation = true (1) and must be passed a group who's population size > 1.\n  Please update your parameters and rerun." << endl;
+	//	exit(1);
+	//}
 	vector<double> scores(group->population.size(), 0);
 
+
+	// first, play games against fixed IPDBrains;
+	
+	for (int i = 0; i < (int)group->population.size(); i++) {
+		for (int fixedOrgsCount = 0; fixedOrgsCount < (int)fixedOrgs.size(); fixedOrgsCount++) {
+			//cout << "fixedOrgsCount:" << fixedOrgsCount << "  fixedOrgs.size()" << fixedOrgs.size() << endl;
+			for (int j = 0; j < playsVsFixedStrategies; j++) {
+				//cout << "score_vs_" + fixedStrategies[fixedOrgsCount] << endl;
+				//cout << "j:" << j << "  playsVsFixedStrategies:" << playsVsFixedStrategies << endl;
+				pair<double,double> scores = runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
+				//cout << scores.first << "  " << scores.second << endl;
+				group->population[i]->dataMap.Append("score_vs_" + fixedStrategies[fixedOrgsCount], scores.first);
+				
+				////runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
+			}
+			
+		}
+		
+	}
+	
+
+	// next, play games agaist other brains
 	int n = numCompetitors;
 	if (n == -1) {
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			for (int j = i + 1; j < (int) group->population.size(); j++) {
-				IPDWorld::runDuel(group->population[i], group->population[j], analyse, visualize, debug);
+				runDuel(group->population[i], group->population[j], analyse, visualize, debug);
 //				scores[i] += group->population[i]->score;
 //				scores[j] += group->population[j]->score;
 			}
@@ -190,9 +250,9 @@ void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int
 		if (n >= (int) group->population.size()) {
 			cout << "In IPDWorld, WORLD_IPD-numCompetitors is to large. must be > 0 and < population size.\nExiting." << endl;
 			exit(1);
-		} else if (n == 0) {
-			cout << "In IPDWorld, WORLD_IPD-numCompetitors is 0. must be > 0 and < population size.\nExiting." << endl;
-			exit(1);
+		//} else if (n == 0) {
+		//	cout << "In IPDWorld, WORLD_IPD-numCompetitors is 0. must be > 0 and < population size.\nExiting." << endl;
+		//	exit(1);
 		} else {
 			for (int i = 0; i < (int) group->population.size(); i++) {
 				for (int j = i + 1; j <= i + n; j++) {

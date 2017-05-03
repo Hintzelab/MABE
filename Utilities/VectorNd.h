@@ -12,6 +12,8 @@
 #define __BasicMarkovBrainTemplate__VectorNd__
 
 #include <vector>
+#include <iostream>
+#include <iomanip>
 
 using namespace std;
 
@@ -86,12 +88,27 @@ public:
 	}
 
 	// show the contents of this Vector2d in a grid
-	void showGrid() {
-		for (int r = 0; r < R; r++) {
-			for (int c = 0; c < C; c++) {
-				cout << data[getIndex(r, c)] << " ";
+	void showGrid(int precision = -1) {
+		if (precision < 0) {
+			for (int r = 0; r < R; r++) {
+				for (int c = 0; c < C; c++) {
+					cout << data[getIndex(r, c)] << " ";
+				}
+				cout << endl;
 			}
-			cout << endl;
+		}
+		else {
+			for (int r = 0; r < R; r++) {
+				for (int c = 0; c < C; c++) {
+					if (data[getIndex(r, c)] == 0) {
+						cout << setfill(' ') << setw((precision * 2) + 2) << " ";
+					}
+					else {
+						cout << setfill(' ') << setw((precision * 2) + 1) << fixed << setprecision(precision) << data[getIndex(r, c)] << " ";
+					}
+				}
+				cout << endl;
+			}
 		}
 	}
 	int x(){

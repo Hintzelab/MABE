@@ -141,7 +141,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 			if ('ave' in PltWhat) or ('error' in PltWhat):
 				aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
 				aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
-				plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
+				#plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
 			if 'error' in PltWhat:
 				if (ErrorMethod == "stderr"):
 					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
@@ -157,7 +157,11 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 					plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
 				if (ErrorStyle == 'region'):
 					plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
+			if ('ave' in PltWhat):
+				plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
+
 			if ((len(ConditionsList) > 1) or (CombineData))and legendLocation != '':
+				print('add a legend')
 				plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
 				leg = plt.legend(loc=legendLocation, shadow=True)                    # add a legend
 				if (args.legendLineWeight > 0):

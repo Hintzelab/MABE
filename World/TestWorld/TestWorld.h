@@ -38,10 +38,6 @@ public:
 
 	virtual int requiredInputs() override;
 	virtual int requiredOutputs() override;
-
-
-	//virtual int maxOrgsAllowed() override;
-	//virtual int minOrgsAllowed() override;
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__WorldTest__) */

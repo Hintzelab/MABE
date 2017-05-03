@@ -185,9 +185,11 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 	string genomeFileName = GenomeFilePrefix + "_" + to_string(Global::update) + ".csv";
 
 	string dataString;
+	bool savedGenomes = false;
 	for (auto org : population) {
 
-		if (org->hasGenome) { // if org has a genome
+		if (org->hasGenome()) { // if org has a genome
+			savedGenomes = true;
 			org->genome->dataMap.Set("sites", org->genome->genomeToStr());
 			org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
 			org->genome->dataMap.Set("update", Global::update);
@@ -197,7 +199,9 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 		}
 
 	}
-	FileManager::closeFile(genomeFileName); // since this is a snapshot, we will not be writting to this file again.
+	if (savedGenomes) {
+		FileManager::closeFile(genomeFileName); // since this is a snapshot, we will not be writting to this file again.
+	}
 }
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after

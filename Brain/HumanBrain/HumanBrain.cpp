@@ -18,7 +18,7 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTab
 	useActionMap = (PT == nullptr) ? useActionMapPL->lookup() : PT->lookupBool("BRAIN_HUMAN-useActionMap");
 	actionMapFileName = (PT == nullptr) ? actionMapFileNamePL->lookup() : PT->lookupString("BRAIN_HUMAN-actionMapFileName");
 
-
+	buildFromGenome = false;
 
 	if (useActionMap) {  // if using an action map, load map with lines of format char output1 output2 output3... file must match brain # of outputs
 		string fileName = actionMapFileName;

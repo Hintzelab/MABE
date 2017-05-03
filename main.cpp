@@ -87,11 +87,10 @@ int main(int argc, const char * argv[]) {
 		// create an optimizer of type defined by OPTIMIZER-optimizer
 		shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
 
-		bool needBrain;
-		bool needGenome = false;
+		bool needGenome = true;
+		bool needBrain = world->requireBrain() | optimizer->requireBrain();
 
 		// make a template brain (but only if world or optimizer requires
-		needBrain = world->requireBrain() | optimizer->requireBrain();
 		shared_ptr<AbstractBrain> templateBrain;
 		if (needBrain){
 			templateBrain = makeTemplateBrain(world, PT);
@@ -102,6 +101,7 @@ int main(int argc, const char * argv[]) {
 
 		// make a template genome (but only if world, optimizer or brain requires)
 		needGenome = needGenome | world->requireGenome() | optimizer->requireGenome();
+
 		shared_ptr<AbstractGenome> templateGenome;
 		if (needGenome) {
 			templateGenome = makeTemplateGenome(PT);
@@ -110,19 +110,52 @@ int main(int argc, const char * argv[]) {
 		}
 
 		// make a organism with a templateGenome and templateBrain - progenitor serves as an ancestor to all and a template organism
-		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenome, templateBrain);
-
+		shared_ptr<Organism> progenitor;
+		if (templateGenome != nullptr && templateBrain != nullptr) {
+			progenitor = make_shared<Organism>(templateGenome, templateBrain, PT);
+		}
+		else if (templateGenome != nullptr){
+			progenitor = make_shared<Organism>(templateGenome, nullptr, PT);
+		}
+		else if (templateBrain != nullptr) {
+			progenitor = make_shared<Organism>(nullptr, templateBrain, PT);
+		} else { // both brain and genome are nullptr
+			cout << " While initializing population, progenitor has neither genome nor brain. Exiting." << endl;
+			exit(1);
+		}
 		Global::update = 0;  // the beginning of time - now we construct the first population
 		int popSize = (PT == nullptr) ? Global::popSizePL->lookup() : PT->lookupInt("GLOBAL-popSize");
 		vector<shared_ptr<Organism>> population;
 		// add popSize organisms which look like progenitor to population
+		shared_ptr<Organism> newOrg;
 		for (int i = 0; i < popSize; i++) {
 			// make a new genome like the template genome
-			auto newGenome = templateGenome->makeLike();
-			// use progenitors brain to prepare genome (i.e. add start codons, change ratio of site values, etc)
-			templateBrain->initalizeGenome(newGenome);
-			// create new organism using progenitor as template (i.e. to define type of brain) and the new genome
-			auto newOrg = make_shared<Organism>(progenitor, newGenome);
+			if (templateGenome != nullptr) {
+				auto newGenome = templateGenome->makeLike();
+				// create new organism using progenitor as template (i.e. to define type of brain) and the new genome
+				if (templateBrain == nullptr) { // if there is no brain...
+					newOrg = make_shared<Organism>(progenitor, newGenome, nullptr, PT); // make new org with only genome
+				} else if (templateBrain->buildFromGenome) { // use progenitors brain to prepare genome (i.e. add start codons, change ratio of site values, etc)
+					templateBrain->initalizeGenome(newGenome);
+					newOrg = make_shared<Organism>(progenitor, newGenome, nullptr, PT);
+				} else { // brain is not buildFromGenome
+					newOrg = make_shared<Organism>(progenitor, newGenome, makeTemplateBrain(world, PT), PT);
+				}
+			}
+			else { // templateGenome is nullptr
+				if (templateBrain != nullptr && !templateBrain->buildFromGenome) {
+					newOrg = make_shared<Organism>(progenitor, nullptr, makeTemplateBrain(world, PT), PT);
+				}
+				else if (templateBrain != nullptr && templateBrain->buildFromGenome) {
+					cout << "  While creating inital population, attempt to make organism with no genome, but brain is built from genome.\n  exiting." << endl;
+					exit(1);
+				}
+				else {
+					cout << "  While creating inital population, attempt to make organism with no genome, and no brain.\n  exiting." << endl;
+					exit(1);
+				}
+			}
+
 			// add new organism to population
 			population.push_back(newOrg);
 		}
@@ -137,13 +170,15 @@ int main(int argc, const char * argv[]) {
 		aveFileColumns.clear();
 		aveFileColumns.push_back("update");
 		aveFileColumns.insert(aveFileColumns.end(), world->aveFileColumns.begin(), world->aveFileColumns.end());
-		aveFileColumns.insert(aveFileColumns.end(), population[0]->genome->aveFileColumns.begin(), population[0]->genome->aveFileColumns.end());
-		aveFileColumns.insert(aveFileColumns.end(), population[0]->brain->aveFileColumns.begin(), population[0]->brain->aveFileColumns.end());
-//		for (int i = 1; i < aveFileColumns.size(); i++) {
-//			aveFileColumns[i] = aveFileColumns[i] + "_AVE";
-//			cout << aveFileColumns[i] << " ";
-//		}
-//		cout << endl;
+		
+
+		if (population[0]->genome != nullptr) {
+			aveFileColumns.insert(aveFileColumns.end(), population[0]->genome->aveFileColumns.begin(), population[0]->genome->aveFileColumns.end());
+		}
+		if (population[0]->brain != nullptr) {
+			aveFileColumns.insert(aveFileColumns.end(), population[0]->brain->aveFileColumns.begin(), population[0]->brain->aveFileColumns.end());
+		}
+
 		// create an archivist of type determined by ARCHIVIST-outputMethod
 		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT);
 
@@ -176,6 +211,7 @@ int main(int argc, const char * argv[]) {
 
 		while (!groups[defaultGroup]->archivist->finished) {
 			// evaluate population in world.
+			//cout << "  about to evaluate" << endl;
 			world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			//cout << "  evaluation done" << endl;
 
@@ -191,7 +227,7 @@ int main(int argc, const char * argv[]) {
 
 				Global::update++;
 				groups[defaultGroup]->optimize();
-				//cout << "  optimize done\n";
+				//cout << "  optimize done" << endl;
 			}
 			cout << endl;
 
@@ -282,7 +318,7 @@ int main(int argc, const char * argv[]) {
 		set<int> inUseIDs;
 
 		for (auto g : testGenomes) {
-			auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], g);
+			auto newOrg = make_shared<Organism>(groups[defaultGroup]->population[0], g,nullptr);
 			if (inUseIDs.find(g->dataMap.GetIntVector("ID")[0]) != inUseIDs.end()) {
 				newOrg->ID = IDcounter--; // assign a negative ID to indicate that this is a copy
 			} else {

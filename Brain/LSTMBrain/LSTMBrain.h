@@ -1,0 +1,75 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/ahnt/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/ahnt/MABE/wiki/License
+
+#ifndef __BasicMarkovBrainTemplate__LSTMBrain__
+#define __BasicMarkovBrainTemplate__LSTMBrain__
+
+#include <math.h>
+#include <memory>
+#include <iostream>
+#include <set>
+#include <vector>
+
+#include "../../Genome/AbstractGenome.h"
+
+#include "../../Utilities/Random.h"
+
+#include "../AbstractBrain.h"
+
+
+using namespace std;
+
+class LSTMBrain: public AbstractBrain {
+public:
+    vector<vector<double>> Wf,Wi,Wc,Wo;
+    vector<double> ft,it,Ct,Ot,dt;
+    vector<double> bt,bi,bC,bO;
+    int _I,_O;
+    vector<double> C,X,H;
+
+    
+	LSTMBrain() = delete;
+
+	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+
+	virtual ~LSTMBrain() = default;
+
+	virtual void update() override;
+
+	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
+
+	virtual string description() override;
+	virtual DataMap getStats() override;
+
+	virtual void resetBrain() override;
+	virtual void resetOutputs() override;
+
+	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) override;
+    
+    double fastSigmoid(double value){
+        return  value / (1.0 + fabs(value));
+    }
+    void singleLayerUpdate(vector<double> &IN,vector<double> &out,vector<vector<double>> &W);
+    void vectorMathSigmoid(vector<double> &V);
+    void vectorMathTanh(vector<double> &V);
+    void vectorMathElementalPlus(vector<double> &A,vector<double> &B,vector<double> &result);
+    void vectorMathElementalMultiply(vector<double> &A,vector<double> &B,vector<double> &result);
+    void showVector(vector<double> &V);
+    
+    virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+
+
+};
+
+inline shared_ptr<AbstractBrain> LSTMBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<LSTMBrain>(ins, outs, PT);
+}
+
+#endif /* defined(__BasicMarkovBrainTemplate__LSTMBrain__) */

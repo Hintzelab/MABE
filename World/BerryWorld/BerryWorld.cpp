@@ -627,6 +627,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 			if (recordFoodList) {
 				group->population[i]->dataMap.Append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
 			}
+
 			group->population[i]->brain->resetBrain();
 		}
 

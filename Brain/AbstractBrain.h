@@ -67,14 +67,19 @@ public:
 	virtual DataMap getStats() = 0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
 
 	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) = 0;
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) = 0;
+	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) {
+		cout << " for '" << description() << "' brain, initalizeGenom() has not been defined (probably this brain is not buildFromGenome.\n  Exiting." << endl;
+		exit(1);
+	};
 
 	virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent){
-		return parent;
+		//cout << "  in makeMutatedBrainFrom" << endl;
+		return parent->makeCopy();
 	}
 
 	virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents){
-		return parents[0];
+		//cout << "  in makeMutatedBrainFromMany" << endl;
+		return parents[0]->makeCopy();
 	}
 
 	virtual void inline resetBrain() {
@@ -103,39 +108,39 @@ public:
 	}
 
 	inline void setInput(const int& inputAddress, const double& value) {
-		if (inputAddress < nrInputValues) {
+		//if (inputAddress < nrInputValues) {
 			inputValues[inputAddress] = value;
-		} else {
-			cout << "in Brain::setInput() : Writing to invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
-			exit(1);
-		}
+		//} else {
+		//	cout << "in Brain::setInput() : Writing to invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
+		//	exit(1);
+		//}
 	}
 
 	inline double readInput(const int& inputAddress) {
-		if (inputAddress < nrInputValues) {
+		//if (inputAddress < nrInputValues) {
 			return inputValues[inputAddress];
-		} else {
-			cout << "in Brain::readInput() : Reading from invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
-			exit(1);
-		}
+		//} else {
+		//	cout << "in Brain::readInput() : Reading from invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
+		//	exit(1);
+		//}
 	}
 
 	inline void setOutput(const int& outputAddress, const double& value) {
-		if (outputAddress < nrOutputValues) {
+		//if (outputAddress < nrOutputValues) {
 			outputValues[outputAddress] = value;
-		} else {
-			cout << "in Brain::setOutput() : Writing to invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
-			exit(1);
-		}
+		//} else {
+		//	cout << "in Brain::setOutput() : Writing to invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
+		//	exit(1);
+		//}
 	}
 
 	inline double readOutput(const int& outputAddress) {
-		if (outputAddress < nrOutputValues) {
+		//if (outputAddress < nrOutputValues) {
 			return outputValues[outputAddress];
-		} else {
-			cout << "in Brain::readOutput() : Reading from invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
-			exit(1);
-		}
+		//} else {
+		//	cout << "in Brain::readOutput() : Reading from invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
+		//	exit(1);
+		//}
 	}
 
 //	// converts the value of each value in nodes[] to bit and converts the bits to an int

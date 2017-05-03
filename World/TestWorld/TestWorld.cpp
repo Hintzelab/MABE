@@ -27,6 +27,7 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 
 // score is number of outputs set to 1 (i.e. output > 0) squared
 void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+	//cout << "in test world evalSolo" << endl;
 	for (int r = 0; r < evaluationsPerGeneration; r++) {
 		org->brain->resetBrain();
 		org->brain->setInput(0, 1);  // give the brain a constant 1 (for wire brain)

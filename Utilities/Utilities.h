@@ -503,4 +503,39 @@ inline bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
 }
 
 
+/*
+// must add vector<T> to CSVString function
+inline string GetStringOfVector(const string &key) { // retrieve a string from a dataMap with "key" - if not already string, will be converted
+		string returnString = "\"[";
+		dataMapType typeOfKey = findKeyInData(key);
+		if (typeOfKey == NONE) {
+			cout << "  In DataMap::GetString() :: key \"" << key << "\" is not in data map!\n  exiting." << endl;
+			exit(1);
+		} else {
+			if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+				for (auto e : boolData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+				for (auto e : doubleData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == INT || typeOfKey == INTSOLO) {
+				for (auto e : intData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+				for (auto e : stringData[key]) {
+					returnString += e + ",";
+				}
+			}
+		}
+		if (returnString.size() > 2) { // if vector was not empty
+			returnString.pop_back(); // remove trailing ","
+		}
+		returnString += "]\"";
+		return returnString;
+	}
+*/
+
 #endif // __BasicMarkovBrainTemplate__Utilities__

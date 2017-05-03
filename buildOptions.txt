@@ -1,27 +1,21 @@
 % World
-  * Berry
-  + NumeralClassifier
-  + Test
-  + IPD
-  + SOF
-  + EGT
+  * Weed
+  + MorrisTest
+  + Berry
 
 % Genome
-  * Circular
   + Multi
+  * Circular
   
 % Brain
   * Markov
-  + ConstantValues
-  + Human
-  + Wire
+  + CGP
+  + LSTM
 	
 % Optimizer
   * GA
-  + Tournament
   + Tournament2
 
 % Archivist
   * Default
-  + LODwAP
   + SSwD
