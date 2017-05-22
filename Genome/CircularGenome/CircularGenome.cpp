@@ -468,10 +468,10 @@ void CircularGenome<T>::mutate() {
 }
 
 // make a mutated genome. from this genome
-// the undefined action is to return a new genome
+// inherit the ParamatersTable from the calling instance
 template<class T>
 shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<CircularGenome<T>>(parent->PT);
+	auto newGenome = make_shared<CircularGenome<T>>(PT);
 	newGenome->copyFrom(parent);
 	newGenome->mutate();
 	newGenome->recordDataMap();
@@ -479,7 +479,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<A
 }
 
 // make a mutated genome from a vector or genomes
-// inherit the ParamatersTable from the 0th parent
+// inherit the ParamatersTable from the calling instance
 // assumes all genomes have the same numbe000000r of chromosomes and same ploidy
 // if haploid, then all chromosomes are directly crossed (i.e. if there are 4 parents,
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
@@ -491,7 +491,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 	// first, check to make sure that parent genomes are conpatable.
 	auto castParent0 = dynamic_pointer_cast<CircularGenome<T>>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 
-	auto newGenome = make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,castParent0->PT);
+	auto newGenome = make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,PT);
 	//newGenome->alphabetSize = castParent0->alphabetSize;
 
 //	vector<shared_ptr<AbstractChromosome>> parentChromosomes;
@@ -564,9 +564,9 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 // the undefined action is to return an empty vector
 
 template<class T>
-DataMap CircularGenome<T>::getStats() {
+DataMap CircularGenome<T>::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set("genomeLength", countSites());
+	dataMap.Set(prefix + "genomeLength", countSites());
 	return (dataMap);
 }
 

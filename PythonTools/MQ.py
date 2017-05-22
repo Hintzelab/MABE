@@ -127,7 +127,7 @@ with open(args.file) as openfileobject:
 ex_names = []
 for ex in exceptions:
 		ex_index = 0
-		while ex_index < len(exceptions):
+		while ex_index < len(ex):
 			if ex[ex_index] not in ex_names:
 				ex_names.append(ex[ex_index])
 			ex_index  += 2;

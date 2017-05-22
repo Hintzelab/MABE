@@ -40,8 +40,6 @@ public:
 	vector<double> inputValues;
 	vector<double> outputValues;
 
-	bool buildFromGenome = true; // should this brain be built from a genome (or self generate)
-
 	AbstractBrain() = delete;
 
 	AbstractBrain(int ins, int outs, shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
@@ -56,30 +54,39 @@ public:
 
 	virtual ~AbstractBrain() = default;
 
-//	virtual static shared_ptr<AbstractBrain> brainFactory(int ins, int outs, int hidden, shared_ptr<ParametersTable> _PT = nullptr){
-//		cout << "  You are calling AbstractBrain::brainFactory()... this is not allowed (you can not construct an AbstractBrain!).\n Exiting."<<endl;
-//		exit(1);
-//	}
-
 	virtual void update() = 0;
 
 	virtual string description() = 0;  // returns a desription of this brain in it's current state
-	virtual DataMap getStats() = 0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
+	virtual DataMap getStats(string& prefix) = 0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) = 0;
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) {
-		cout << " for '" << description() << "' brain, initalizeGenom() has not been defined (probably this brain is not buildFromGenome.\n  Exiting." << endl;
-		exit(1);
+	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+		// do nothing by default... if this is a direct encoded brain, then no action is needed.
+		// should this be a madiatory function?
 	};
 
-	virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent){
-		//cout << "  in makeMutatedBrainFrom" << endl;
-		return parent->makeCopy();
+	// Make a brain like the brain that called this function, using genomes and initalizing other elements.
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string,shared_ptr<AbstractGenome>>& _genomes) {
+		cout << "WARRNING! you have called AbstractBrain::encodeBarin - This function must be defined from each brain type." << endl << "Exiting." << endl;
+		exit(1);
+		return makeCopy();
+	 }
+
+	// Make a brain like the brain that called this function, using genomes and inheriting other elements from parent.
+	// in the default case, we assume geneticly encoded brains, so this just calls the no parent version (i.e. build from genomes)
+	virtual shared_ptr<AbstractBrain> makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes){
+		return makeBrain(_genomes);
 	}
 
-	virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents){
-		//cout << "  in makeMutatedBrainFromMany" << endl;
-		return parents[0]->makeCopy();
+	// Make a brain like the brain that called this function, using genomes and inheriting other elements from parents.
+	// in the default case, we assume geneticly encoded brains, so this just calls the no parent version (i.e. build from genomes)
+	virtual shared_ptr<AbstractBrain> makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes){
+		return makeBrain(_genomes);
+	}
+
+	// apply direct mutations to this brain
+	virtual void mutate() {
+		// do nothing by default... if this is not a direct encoded brain, then no action is needed.
+		// should this be a madiatory function?
 	}
 
 	virtual void inline resetBrain() {
@@ -108,39 +115,39 @@ public:
 	}
 
 	inline void setInput(const int& inputAddress, const double& value) {
-		//if (inputAddress < nrInputValues) {
+		if (inputAddress < nrInputValues) {
 			inputValues[inputAddress] = value;
-		//} else {
-		//	cout << "in Brain::setInput() : Writing to invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
-		//	exit(1);
-		//}
+		} else {
+			cout << "in Brain::setInput() : Writing to invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
+			exit(1);
+		}
 	}
 
 	inline double readInput(const int& inputAddress) {
-		//if (inputAddress < nrInputValues) {
+		if (inputAddress < nrInputValues) {
 			return inputValues[inputAddress];
-		//} else {
-		//	cout << "in Brain::readInput() : Reading from invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
-		//	exit(1);
-		//}
+		} else {
+			cout << "in Brain::readInput() : Reading from invalid input (" << inputAddress << ") - this brain needs more inputs!\nExiting" << endl;
+			exit(1);
+		}
 	}
 
 	inline void setOutput(const int& outputAddress, const double& value) {
-		//if (outputAddress < nrOutputValues) {
+		if (outputAddress < nrOutputValues) {
 			outputValues[outputAddress] = value;
-		//} else {
-		//	cout << "in Brain::setOutput() : Writing to invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
-		//	exit(1);
-		//}
+		} else {
+			cout << "in Brain::setOutput() : Writing to invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
+			exit(1);
+		}
 	}
 
 	inline double readOutput(const int& outputAddress) {
-		//if (outputAddress < nrOutputValues) {
+		if (outputAddress < nrOutputValues) {
 			return outputValues[outputAddress];
-		//} else {
-		//	cout << "in Brain::readOutput() : Reading from invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
-		//	exit(1);
-		//}
+		} else {
+			cout << "in Brain::readOutput() : Reading from invalid output (" << outputAddress << ") - this brain needs more outputs!\nExiting" << endl;
+			exit(1);
+		}
 	}
 
 //	// converts the value of each value in nodes[] to bit and converts the bits to an int
@@ -158,9 +165,14 @@ public:
 		exit(1);
 	}
 
-	virtual bool requireGenome(){
-		return true;
+	virtual unordered_set<string> requiredGenomes() {
+		return { "root" };
+		// "root" = use empty name space
+		// "GROUP::" = use group name space
+		// "blah" = use "blah namespace at root level
+		// "Group::blah" = use "blah" name space inside of group name space
 	}
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Brain__) */

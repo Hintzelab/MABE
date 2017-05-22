@@ -26,8 +26,8 @@ public:
 	static shared_ptr<ParameterLink<string>> LODwAP_Arch_GenomeFileNamePL;  // name of the Genome file (genomes on LOD)
 	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_writeDataFilePL;  // if true, write data file
 	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_writeGenomeFilePL;  // if true, write genome file
-	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_dataFileShowAllListsPL;
-	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_dataFileConvertAllListsPL;
+	//static shared_ptr<ParameterLink<bool>> LODwAP_Arch_dataFileShowAllListsPL;
+	//static shared_ptr<ParameterLink<bool>> LODwAP_Arch_dataFileConvertAllListsPL;
 
 	vector<int> dataSequence;  // how often to write out data
 	vector<int> genomeSequence;  // how often to write out genomes
@@ -37,8 +37,8 @@ public:
 	string GenomeFileName;  // name of the Genome file (genomes on LOD)
 	bool writeDataFile;  // if true, write data file
 	bool writeGenomeFile;  // if true, write genome file
-	bool dataFileShowAllLists;
-	bool dataFileConvertAllLists;
+	//bool dataFileShowAllLists;
+	//bool dataFileConvertAllLists;
 
 	int lastPrune;  // last time Genome was Pruned
 

@@ -30,22 +30,9 @@ class IPDBrain: public AbstractBrain {
 public:
 
 	static shared_ptr<ParameterLink<string>> availableStrategiesPL;
-//	static shared_ptr<ParameterLink<double>> valueMaxPL;
-//	static shared_ptr<ParameterLink<int>> valueTypePL;
-//	static shared_ptr<ParameterLink<int>> samplesPerValuePL;
-//
-//	static shared_ptr<ParameterLink<bool>> initializeUniformPL;
-//	static shared_ptr<ParameterLink<bool>> initializeConstantPL;
-//	static shared_ptr<ParameterLink<int>> initializeConstantValuePL;
-//
-//	double valueMin;
-//	double valueMax;
-//	double valueType;
-//	int samplesPerValue;
-//
-//	bool initializeUniform;
-//	bool initializeConstant;
-//	int initializeConstantValue;
+	static shared_ptr<ParameterLink<string>> genomeNamePL;
+
+	string genomeName;
 
 	vector<string> availableStrategies;
 	string strategy;
@@ -61,16 +48,22 @@ public:
 
 	virtual void update() override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
+	// Make a brain like the brain that called this function, using genomes and initalizing other elements.
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+
 	virtual shared_ptr<AbstractBrain> makeBrainFromValues(vector<double> values);
 
 	virtual string description() override;
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
 
 	virtual void resetBrain() override;
 	//virtual void resetOutputs() override;
 
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
+	virtual void initalizeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+
+	virtual unordered_set<string> requiredGenomes() override {
+		return { genomeName };
+	}
 };
 
 inline shared_ptr<AbstractBrain> IPDBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {

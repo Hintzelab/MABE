@@ -31,13 +31,21 @@ public:
 	int numberOfOutputs;
 	int evaluationsPerGeneration;
 
+	static shared_ptr<ParameterLink<string>> groupNamePL;
+	static shared_ptr<ParameterLink<string>> brainNamePL;
+	//string groupName;
+	string brainName;
+
 	TestWorld(shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~TestWorld() = default;
 
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
 
-	virtual int requiredInputs() override;
-	virtual int requiredOutputs() override;
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		return { { groupName,{ "B:" + brainName + ",1," + to_string(numberOfOutputs) } } }; // default requires a root group and a brain (in root namespace) and no genome 
+	}
+
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__WorldTest__) */

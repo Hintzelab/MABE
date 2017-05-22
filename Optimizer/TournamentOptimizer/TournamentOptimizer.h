@@ -32,10 +32,10 @@ class TournamentOptimizer : public AbstractOptimizer {
 		//cout << "Tournament2 Optimizer value is \"" << optimizeValueLPL->lookup() << "\"." << endl;
 	}
 
-	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+	virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
-		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_GA-optimizeValue");
+		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT-optimizeValue");
 	}
 };
 

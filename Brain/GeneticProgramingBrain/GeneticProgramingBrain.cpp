@@ -50,8 +50,6 @@ GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, 
 	
 	//cout << "init" << endl;
 	
-	buildFromGenome = false;
-
 	initialTreeDepth = 3;
 	nodeTypes = { "SUM","MULT","SUBTRACT","DIVIDE","SIN","COS","VECT" };
 
@@ -166,7 +164,12 @@ void GeneticProgramingBrain::update() {
 
 }
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) {
+shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	shared_ptr<GeneticProgramingBrain> newBrain = make_shared<GeneticProgramingBrain>(nrInputValues, nrOutputValues);
+	return newBrain;
+}
+
+shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	//cout << "  in makeMutatedBrainFrom" << endl;
 	shared_ptr<GeneticProgramingBrain> newBrain = dynamic_pointer_cast<GeneticProgramingBrain>(parent->makeCopy());
 	// select a node in the newBrain
@@ -234,7 +237,7 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeMutatedBrainFrom(shared_pt
 	return newBrain;
 }
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents) {
+shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	//cout << "  in makeMutatedBrainFromMany" << endl;
 	return parents[0]->makeCopy();
 }
@@ -245,14 +248,15 @@ string GeneticProgramingBrain::description() {
 	return S;
 }
 
-DataMap GeneticProgramingBrain::getStats() {
+DataMap GeneticProgramingBrain::getStats(string& prefix) {
 	DataMap dataMap;
-
+	int nodesCount = 0;
 	for (auto t : trees) {
 		vector<shared_ptr<Abstract_MTree>> nodesList;
 		t->explode(t, nodesList);
-		dataMap.Append("nodesCount", (int)nodesList.size());
+		nodesCount = (int)nodesList.size();
 	}
+	dataMap.Append(prefix+"nodesCount", nodesCount);
 	return (dataMap);
 }
 

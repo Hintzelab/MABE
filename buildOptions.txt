@@ -2,20 +2,33 @@
   * Weed
   + MorrisTest
   + Berry
+  + BerryPlus
+  + IPD
+  + NumeralClassifier
+  + SOF
+  + Test
+  + RPP
 
 % Genome
   + Multi
   * Circular
   
 % Brain
-  * Markov
-  + CGP
+  + Markov
+  * CGP
   + LSTM
+  + ConstantValues
+  + GeneticPrograming
+  + Human
+  + IPD
+  + Wire
 	
 % Optimizer
   * GA
+  + Tournament
   + Tournament2
 
 % Archivist
-  * Default
+  + Default
   + SSwD
+  * LODwAP

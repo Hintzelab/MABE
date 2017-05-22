@@ -113,7 +113,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	if (flush != 1) {
 
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
-			writeRealTimeFiles(population);  // write to dominant and average files
+			writeRealTimeFiles(population);  // write to Max and average files
 			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}

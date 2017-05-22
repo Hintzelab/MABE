@@ -181,19 +181,19 @@ public:
 	}
 };
 
-class fromDataMap_MTree : public Abstract_MTree {
+class fromDataMapAve_MTree : public Abstract_MTree {
 public:
 
 	string key;
 
-	fromDataMap_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
+	fromDataMapAve_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
 		parent = _parent;
 	}
-	fromDataMap_MTree(string _key) : key(_key) {
+	fromDataMapAve_MTree(string _key) : key(_key) {
 	}
-	virtual ~fromDataMap_MTree() = default;
+	virtual ~fromDataMapAve_MTree() = default;
 	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
-		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMap_MTree>(key);
+		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapAve_MTree>(key);
 		return newTree;
 	}
 
@@ -203,13 +203,49 @@ public:
 		return output;
 	}
 	virtual void show(int indent = 0) override {
-		cout << string(indent, '\t') << "** fromDataMap\t\"" << key << "\"" << endl;
+		cout << string(indent, '\t') << "** fromDataMapAve_MTree\t\"" << key << "\"" << endl;
 	}
 	virtual string getFormula() override {
-		return "DM[" + key + "]";
+		return "DM_AVE[" + key + "]";
 	}
 	virtual string type() override {
-		return "DM";
+		return "DM_AVE";
+	}
+	virtual int numBranches() override {
+		return 0;
+	}
+};
+
+
+class fromDataMapSum_MTree : public Abstract_MTree {
+public:
+
+	string key;
+
+	fromDataMapSum_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
+		parent = _parent;
+	}
+	fromDataMapSum_MTree(string _key) : key(_key) {
+	}
+	virtual ~fromDataMapSum_MTree() = default;
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
+		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapSum_MTree>(key);
+		return newTree;
+	}
+
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, const vector<vector<double>>& vectorData) override {
+		vector<double> output;
+		output.push_back(dataMap.GetSum(key));
+		return output;
+	}
+	virtual void show(int indent = 0) override {
+		cout << string(indent, '\t') << "** fromDataMapSum_MTree\t\"" << key << "\"" << endl;
+	}
+	virtual string getFormula() override {
+		return "DM_SUM[" + key + "]";
+	}
+	virtual string type() override {
+		return "DM_SUM";
 	}
 	virtual int numBranches() override {
 		return 0;
@@ -709,9 +745,10 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 			}
 		}
 		// check to see if MTree is a DataMap lookup
-		else if (formula.substr(index, 2) == "DM") {
+		else if (formula.size() > (index + 6) && formula.substr(index, 6) == "DM_AVE") {
+		//else if (formula.substr(index, 6) == "DM_AVE") {
 			string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
-			index = index + 2 + 1; // move past 'DM['
+			index = index + 6 + 1; // move past 'DM_AVE['
 			while (formula[index] != ']') {
 				argsString.push_back(formula[index]);
 				index++;
@@ -720,7 +757,24 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 				}
 			}
 			index++; // move index to char after ']'
-			branches.push_back(make_shared<fromDataMap_MTree>(argsString));
+			branches.push_back(make_shared<fromDataMapAve_MTree>(argsString));
+			//cout << "in DM_AVE['" << argsString << "'].  index = " << index << endl;
+			//exit(1);
+		}
+		// check to see if MTree is a DataMap Sum lookup
+		else if (formula.size() > (index + 6) && formula.substr(index, 6) == "DM_SUM") {
+		//else if (formula.substr(index, 6) == "DM_SUM") {
+			string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
+			index = index + 6 + 1; // move past 'DM_SUM['
+			while (formula[index] != ']') {
+				argsString.push_back(formula[index]);
+				index++;
+				if (index > formulaSize) {
+					cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '[' opening braket.\n  Exiting." << endl;
+				}
+			}
+			index++; // move index to char after ']'
+			branches.push_back(make_shared<fromDataMapSum_MTree>(argsString));
 			//cout << "in DM['" << argsString << "'].  index = " << index << endl;
 			//exit(1);
 		}

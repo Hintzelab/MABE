@@ -265,6 +265,12 @@ public:
 	int germinationCost; //how much food a seed loses when it is planted
 
 	double rootSpreadMax, rootGirthMax, leafCoverageMax, stalkHeightMax;
+
+	static shared_ptr<ParameterLink<string>> groupNamePL;
+	static shared_ptr<ParameterLink<string>> brainNamePL;
+	//string groupName;
+	string brainName;
+
 	TurnTable turnTable;
 
 	map<int, shared_ptr<Weed>> weeds; // org ID maps to weeds	
@@ -289,16 +295,9 @@ public:
 
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override;
 
-	virtual int requiredInputs() override;
-	virtual int requiredOutputs() override;
-
-	virtual bool requireGenome() override {
-		return true;
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		return { { groupName,{ "B:" + brainName + ",4," + to_string(1 + numGrowthRegimes) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
-	virtual bool requireBrain() override {
-		return true;
-	}
-
 
 };
 

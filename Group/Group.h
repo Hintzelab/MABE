@@ -29,7 +29,7 @@ class Group {
 	~Group();
 
 	bool archive(int flush = 0);
-	void optimize();
+	vector<shared_ptr<Organism>> optimize();
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Group__) */

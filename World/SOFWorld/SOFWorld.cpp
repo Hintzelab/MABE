@@ -11,11 +11,17 @@
 #include "SOFWorld.h"
 
 shared_ptr<ParameterLink<string>> SOFWorld::scoreMapFilenamePL = Parameters::register_parameter("WORLD_SOF-scoreMapFilename", (string)"World/SOFWorld/scoreMap_20x20_2peaks.txt", "name of file containing score map.");
+shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 
 SOFWorld::SOFWorld(shared_ptr<ParametersTable> _PT) :
 AbstractWorld(_PT) {
 	x = y = 0;
+
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_SOF_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_SOF_NAMES-brainName");
+
 	// columns to be added to ave file
 	aveFileColumns.clear();
 	aveFileColumns.push_back("score");
@@ -59,14 +65,14 @@ AbstractWorld(_PT) {
 // score is number of outputs set to 1 (i.e. output > 0) squared
 void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
 	
-	
-	org->brain->resetBrain();
-	org->brain->setInput(0,1); // give the brain a constant 1 (for wire brain)
-	org->brain->update();
+	auto brain = org->brains[brainName];
+	brain->resetBrain();
+	brain->setInput(0,1); // give the brain a constant 1 (for wire brain)
+	brain->update();
 	//double score = 0.0;
 	
-	double local_x = org->brain->readOutput(0);
-	double local_y = org->brain->readOutput(1);
+	double local_x = brain->readOutput(0);
+	double local_y = brain->readOutput(1);
 	
 	if(local_x < 0){
 		local_x = 0;
@@ -96,10 +102,4 @@ void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 	org->dataMap.Append("y", local_y);
 }
 
-int SOFWorld::requiredInputs() {
-	return 1;
-}
-int SOFWorld::requiredOutputs() {
-	return 2;
-}
 

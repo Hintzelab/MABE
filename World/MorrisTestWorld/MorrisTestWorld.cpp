@@ -44,6 +44,9 @@ shared_ptr<ParameterLink<double>> MorrisTestWorld::agentAngleMaxPL = Parameters:
 shared_ptr<ParameterLink<double>> MorrisTestWorld::agentOffsetFromCenterMinPL = Parameters::register_parameter("WORLD_MORRISTEST-agentOffsetFromCenterMin", 0.95, "where is agent relitive to edge and center");
 shared_ptr<ParameterLink<double>> MorrisTestWorld::agentOffsetFromCenterMaxPL = Parameters::register_parameter("WORLD_MORRISTEST-agentOffsetFromCenterMax", 0.95, "where is agent relitive to edge and center");
 
+shared_ptr<ParameterLink<string>> MorrisTestWorld::groupNamePL = Parameters::register_parameter("WORLD_MORRISTEST_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> MorrisTestWorld::brainNamePL = Parameters::register_parameter("WORLD_MORRISTEST_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
 MorrisTestWorld::MorrisTestWorld(shared_ptr<ParametersTable> _PT) :
 	AbstractWorld(_PT) {
 
@@ -103,6 +106,9 @@ MorrisTestWorld::MorrisTestWorld(shared_ptr<ParametersTable> _PT) :
 
 	turnTable.setup(360, 36000);
 
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_MORRISTEST_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_MORRISTEST_NAMES-brainName");
+
 	// columns to be added to ave file
 	aveFileColumns.clear();
 	aveFileColumns.push_back("score");
@@ -110,6 +116,9 @@ MorrisTestWorld::MorrisTestWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+
+	auto brain = org->brains[brainName];
+
 	//cout << "in test MorrisTestWorld::evaluateSolo : " << org->ID << endl;
 
 	int findCount = 0;
@@ -212,7 +221,7 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 		}
 
 
-		org->brain->resetBrain();
+		brain->resetBrain();
 
 
 		int inputCounter; //used while assigning inputs to brain
@@ -247,11 +256,11 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 			}
 
 			if (found) { // was platfrom found last update?
-				org->brain->setInput(inputCounter++, 1); // if the marker is in this slice, set input to 1
+				brain->setInput(inputCounter++, 1); // if the marker is in this slice, set input to 1
 				//found = false;
 			}
 			else {
-				org->brain->setInput(inputCounter++, 0); // else set input to 0
+				brain->setInput(inputCounter++, 0); // else set input to 0
 			}
 
 			for (int i = 0; i < markerRelativeAngles.size(); i++) { // for each tracked angle (markers and maybe platfrom)
@@ -261,10 +270,10 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 					for (int j = 0; j < 8; j++) {
 						//cout << j << " - " << inputCounter << " ";
 						if (j == whichOct) {
-							org->brain->setInput(inputCounter++, 1); // if the marker is in this slice, set input to 1
+							brain->setInput(inputCounter++, 1); // if the marker is in this slice, set input to 1
 						}
 						else {
-							org->brain->setInput(inputCounter++, 0); // else set input to 0
+							brain->setInput(inputCounter++, 0); // else set input to 0
 						}
 					}
 					// set distance sensor
@@ -275,11 +284,11 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 							//cout << " j: " << j / 8 << " i: " << markerRelativeDistances[i] / (worldRadius * 2) << "  ";
 							if ((j / 8.0) < (markerRelativeDistances[i] / (worldRadius * 2))) {
 								//cout << " . ";
-								org->brain->setInput(inputCounter++, 1);
+								brain->setInput(inputCounter++, 1);
 							}
 							else {
 								//cout << " 0 ";
-								org->brain->setInput(inputCounter++, 0); // else set input to 0
+								brain->setInput(inputCounter++, 0); // else set input to 0
 							}
 						}
 					}
@@ -288,9 +297,9 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 				}
 				else { // not bit  brains
 				 //cout << "not bitBrain" << endl;
-					org->brain->setInput(inputCounter++, markerRelativeAngles[i]); // input is just angle to each marker
+					brain->setInput(inputCounter++, markerRelativeAngles[i]); // input is just angle to each marker
 					if (senseDistances) {
-						org->brain->setInput(inputCounter++, markerRelativeDistances[i]); // set input to distance to each marker
+						brain->setInput(inputCounter++, markerRelativeDistances[i]); // set input to distance to each marker
 					}
 				}
 			}
@@ -315,12 +324,12 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 					cout << endl << endl;
 				}
 			}
-			org->brain->update();
+			brain->update();
 
 			if (found) { // was platfrom found last update?
 				found = false;
 				//reset org and place at new random location
-				//org->brain->resetBrain(); // add reset on find parameter (if reset, inlife learning is not possible)
+				//brain->resetBrain(); // add reset on find parameter (if reset, inlife learning is not possible)
 				currentLocation = turnTable.movePoint(worldCenter,
 					Random::getDouble(agentAngleMin, agentAngleMax),
 					Random::getDouble(agentOffsetFromCenterMin, agentOffsetFromCenterMax)*worldRadius);
@@ -357,13 +366,13 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 					// 10 = turn right maxTurn
 
 					//turnRate = 0;
-					if (org->brain->readOutput(0) > 0 && org->brain->readOutput(1) > 0) { // 1,1 move
+					if (brain->readOutput(0) > 0 && brain->readOutput(1) > 0) { // 1,1 move
 						moveRate = max(min(moveRate + maxSpeedDelta, maxSpeed), minSpeed);
 					}
-					else if (org->brain->readOutput(0) > 0) { // turn more left
+					else if (brain->readOutput(0) > 0) { // turn more left
 						turnRate = maxTurnRate;
 					}
-					else if (org->brain->readOutput(1) > 0) { // turn more right
+					else if (brain->readOutput(1) > 0) { // turn more right
 						turnRate = minTurnRate;
 					}
 					else { // 00 slow down
@@ -371,13 +380,13 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 					}
 				}
 				else { // not bitBrain
-					double speedDelta = org->brain->readOutput(0);
+					double speedDelta = brain->readOutput(0);
 					if (abs(speedDelta) > maxSpeedDelta) {
 						speedDelta = (speedDelta < 0) ? -1.0 * maxSpeedDelta : maxSpeedDelta;
 					}
 					moveRate = max(min(moveRate + speedDelta, maxSpeed), minSpeed);
 
-					turnRate = org->brain->readOutput(1);
+					turnRate = brain->readOutput(1);
 					turnRate = max(min(turnRate, maxTurnRate), minTurnRate);
 				}
 				/////cout << "z" << flush;
@@ -408,7 +417,7 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 					findCount++;
 					score += 100;
 					//reset org and place at new random location
-					//org->brain->resetBrain(); // add reset on find parameter (if reset, inlife learning is not possible)
+					//brain->resetBrain(); // add reset on find parameter (if reset, inlife learning is not possible)
 
 					//currentLocation = turnTable.movePoint(worldCenter,
 					//	Random::getDouble(agentAngleMin,agentAngleMax),
@@ -443,11 +452,4 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 		org->dataMap.Append("findCount", findCount);
 	}
 	//cout << "in test MorrisTestWorld:: Done with evaluateSolo : " << org->ID << endl;
-}
-
-int MorrisTestWorld::requiredInputs() {
-	return inputCount;
-}
-int MorrisTestWorld::requiredOutputs() {
-	return outputCount;
 }

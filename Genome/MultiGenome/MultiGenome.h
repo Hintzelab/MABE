@@ -179,7 +179,7 @@ public:
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
 
 	virtual void recordDataMap() override;
 

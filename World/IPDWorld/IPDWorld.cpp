@@ -33,6 +33,9 @@ shared_ptr<ParameterLink<bool>> IPDWorld::saveMovesListPL = Parameters::register
 shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use");
 shared_ptr<ParameterLink<int>> IPDWorld::playsVsFixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-playsVsFixedStrategies", 1, "number of matches each organism will play against each fixed strategy");
 
+shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> IPDWorld::brainNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
 IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
 
@@ -67,13 +70,23 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	playsVsFixedStrategies = (PT == nullptr) ? playsVsFixedStrategiesPL->lookup() : PT->lookupInt("WORLD_IPD-playsVsFixedStrategies");
 
 	shared_ptr<AbstractBrain> templateBrain = IPDBrain_brainFactory(inputNodesCount, outputNodesCount, PT);
-	shared_ptr<IPDBrain> castBrain = dynamic_pointer_cast<IPDBrain>(templateBrain);convertCSVListToVector((PT == nullptr) ? fixedStrategiesPL->lookup() : PT->lookupString("WORLD_IPD-fixedStrategies"), fixedStrategies);
+	shared_ptr<IPDBrain> castBrain = dynamic_pointer_cast<IPDBrain>(templateBrain);
+	
+	convertCSVListToVector((PT == nullptr) ? fixedStrategiesPL->lookup() : PT->lookupString("WORLD_IPD-fixedStrategies"), fixedStrategies);
+
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_IPD_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_IPD_NAMES-brainName");
 	
 	for (auto s : fixedStrategies) {
 		bool foundStrat = false;
 		for (int i = 0; i < (int)castBrain->availableStrategies.size(); i++) {
+			//cout << castBrain->availableStrategies[i] << endl;
 			if (s == castBrain->availableStrategies[i]) {
-				fixedOrgs.push_back(make_shared<Organism>(nullptr, castBrain->makeBrainFromValues({ (double)i }), PT));
+				unordered_map<string, shared_ptr<AbstractGenome>> tempGenomes;
+				unordered_map<string, shared_ptr<AbstractBrain>> tempBrains;
+				tempBrains[brainName] = castBrain->makeBrainFromValues({ (double)i });
+			
+				fixedOrgs.push_back(make_shared<Organism>(tempGenomes, tempBrains, PT));
 				foundStrat = true;
 			}
 		}
@@ -82,6 +95,7 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 			exit(1);
 		}
 	}
+
 
 	// done with setup
 
@@ -102,7 +116,9 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 
 pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	
+	auto brain1 = p1->brains[brainName];
+	auto brain2 = p2->brains[brainName];
+
 	int p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 	int p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 
@@ -121,8 +137,8 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 		p1->dataMap.Append("moves", (string) "X"); // add X to indicate begining of new game
 		p2->dataMap.Append("moves", (string) "X");
 	}
-	p1->brain->resetBrain();
-	p2->brain->resetBrain();
+	brain1->resetBrain();
+	brain2->resetBrain();
 
 	if (roundsFixedPerGeneration) {
 		if (currentUpdate != Global::update) {
@@ -135,20 +151,20 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 
 	for (int t = 0; t < numRounds + (int) skipFirstMove; t++) {
 		if (t == 0) {
-			p1->brain->setInput(0, 1);
-			p2->brain->setInput(0, 1);
+			brain1->setInput(0, 1);
+			brain2->setInput(0, 1);
 		} else {
-			p1->brain->setInput(0, 0);
-			p2->brain->setInput(0, 0);
+			brain1->setInput(0, 0);
+			brain2->setInput(0, 0);
 		}
-		p1->brain->setInput(1, p2Move);
-		p2->brain->setInput(1, p1Move);
+		brain1->setInput(1, p2Move);
+		brain2->setInput(1, p1Move);
 
-		p1->brain->update();
-		p2->brain->update();
+		brain1->update();
+		brain2->update();
 
-		p1Move = Bit(p1->brain->readOutput(0));
-		p2Move = Bit(p2->brain->readOutput(0));
+		p1Move = Bit(brain1->readOutput(0));
+		p2Move = Bit(brain2->readOutput(0));
 
 		if (saveMovesList) {
 			string p1M = (p1Move == C) ? "C" : "D";
@@ -208,7 +224,7 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 
 
 void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
-	shared_ptr<Group> group = groups["default"];
+	shared_ptr<Group> group = groups[groupName];
 	//if (group->population.size() < 2) {
 	//	cout << "  IPDWorld must be run with WORLD::groupEvaluation = true (1) and must be passed a group who's population size > 1.\n  Please update your parameters and rerun." << endl;
 	//	exit(1);
@@ -217,7 +233,7 @@ void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int
 
 
 	// first, play games against fixed IPDBrains;
-	
+
 	for (int i = 0; i < (int)group->population.size(); i++) {
 		for (int fixedOrgsCount = 0; fixedOrgsCount < (int)fixedOrgs.size(); fixedOrgsCount++) {
 			//cout << "fixedOrgsCount:" << fixedOrgsCount << "  fixedOrgs.size()" << fixedOrgs.size() << endl;
@@ -234,7 +250,7 @@ void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int
 		}
 		
 	}
-	
+
 
 	// next, play games agaist other brains
 	int n = numCompetitors;

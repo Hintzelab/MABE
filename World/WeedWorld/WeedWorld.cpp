@@ -59,6 +59,9 @@ shared_ptr<ParameterLink<double>> WeedWorld::sexSelfPercentPL = Parameters::regi
 shared_ptr<ParameterLink<bool>> WeedWorld::sexSelfIfNoMatePL = Parameters::register_parameter("WORLD_WEED-sexSelfIfNoMate", true, "if reproduction is by sex and no mate is not found, parent will self");
 
 
+shared_ptr<ParameterLink<string>> WeedWorld::groupNamePL = Parameters::register_parameter("WORLD_WEED_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> WeedWorld::brainNamePL = Parameters::register_parameter("WORLD_WEED_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
 
 bool WeedWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT, Vector2d<double> grid, int worldSizeCourse) {
 	fileName = _fileName;
@@ -245,6 +248,9 @@ WeedWorld::WeedWorld(shared_ptr<ParametersTable> _PT) :
 
 	turnTable.setup(360, 360); // 360 degrees, one slice per degree
 
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_WEED_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_WEED_NAMES-brainName");
+
 	// columns to be added to ave file
 	aveFileColumns.clear();
 	aveFileColumns.push_back("score");
@@ -336,7 +342,7 @@ void WeedWorld::integrateWeed(int ID, shared_ptr<Weed> weed) {
 }
 
 void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
-	vector<shared_ptr<Organism>> population = groups["default"]->population;
+	vector<shared_ptr<Organism>> population = groups[groupName]->population;
 	vector<shared_ptr<Organism>> nextPopulation;
 	int popSize = population.size();
 
@@ -376,7 +382,7 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 	}
 
 
-	while (!groups["default"]->archivist->finished) {
+	while (!groups[groupName]->archivist->finished) {
 
 		DataMap worldData;
 
@@ -499,6 +505,7 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 		}
 
 		for (auto weed : weeds) {
+			auto brain = weed.second->org->brains[brainName];
 			//set investments to be 0 since we have to write to the data map
 			//even if the weed doesnt update
 			float rootSpreadInvestment, rootGirthInvestment, stalkHeightInvestment, leafCoverageInvestment;
@@ -546,14 +553,14 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 			}
 			else {
 				//siganl to plants how much food they have.
-				weed.second->org->brain->setInput(0, weed.second->food > 3);
-				weed.second->org->brain->setInput(1, weed.second->food > 60);
-				weed.second->org->brain->setInput(2, weed.second->food > 90);
-				weed.second->org->brain->setInput(3, weed.second->food > 120);
+				brain->setInput(0, weed.second->food > 3);
+				brain->setInput(1, weed.second->food > 60);
+				brain->setInput(2, weed.second->food > 90);
+				brain->setInput(3, weed.second->food > 120);
 
-				weed.second->org->brain->update();
+				brain->update();
 
-				double produce = Bit(weed.second->org->brain->readOutput(0));
+				double produce = Bit(brain->readOutput(0));
 
 				//weeds can EITHER grow or produce.
 				if (produce) {
@@ -573,7 +580,7 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 
 					for (int i = 0; i < numGrowthRegimes; i++) {
 						//average the growth regimes that the weeds have chosen
-						bool current = Bit(weed.second->org->brain->readOutput(i + 1)); //index 0 is used for grow 
+						bool current = Bit(brain->readOutput(i + 1)); //index 0 is used for grow 
 						if (current) {
 							rootSpreadInvestment += weed.second->growthPatterns[i].rootSpreadInvestment * .01;
 							rootGirthInvestment += weed.second->growthPatterns[i].rootGirthInvestment * .01;
@@ -668,12 +675,12 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 		}
 		if (population.size() < 1) {
 			cout << " populaiton has dropped to 0" << endl;
-			groups["default"]->archivist->finished = true;
+			groups[groupName]->archivist->finished = true;
 		}
 		else {
 			//cout << "calling archive" << endl;
-			groups["default"]->archive();
-			//cout << "done? " << groups["default"]->archivist->finished << endl;
+			groups[groupName]->archive();
+			//cout << "done? " << groups[groupName]->archivist->finished << endl;
 			if (saveLocations && Global::update % saveLocationsStep == 0) {
 				cout << "saving locations" << endl;
 				string weedData = "";
@@ -945,15 +952,6 @@ void WeedWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, in
 			worldData.writeToFile("worldData.csv");
 		}
 		population = nextPopulation;
-		groups["default"]->population = population;
+		groups[groupName]->population = population;
 	}
-}
-
-int WeedWorld::requiredInputs() {
-	return 4;
-}
-int WeedWorld::requiredOutputs() {
-	//reproduce index 0
-	//growth types 1 - N-1
-	return 1 + numGrowthRegimes;
 }

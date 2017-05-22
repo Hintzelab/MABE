@@ -112,6 +112,8 @@ shared_ptr<ParameterLink<bool>> BerryPlusWorld::relativeScoringPL = Parameters::
 shared_ptr<ParameterLink<int>> BerryPlusWorld::repeatsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-repeats", 3, "Number of times to test each Organism per generation");
 shared_ptr<ParameterLink<bool>> BerryPlusWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY_PLUS-groupEvaluation", false, "if true, evaluate population concurrently");
 
+shared_ptr<ParameterLink<string>> BerryPlusWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_PLUS_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_PLUS_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 
 bool BerryPlusWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT) {
@@ -394,6 +396,9 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 	foodRewards[6] = (PT == nullptr) ? rewardForFood6PL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-rewardForFood6");
 	foodRewards[7] = (PT == nullptr) ? rewardForFood7PL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-rewardForFood7");
 	foodRewards[8] = (PT == nullptr) ? rewardForFood8PL->lookup() : PT->lookupDouble("WORLD_BERRY_PLUS-rewardForFood8");
+
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_BERRY_PLUS_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_BERRY_PLUS_NAMES-brainName");
 
 	// columns to be added to ave file
 	aveFileColumns.clear();
@@ -709,7 +714,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 			if (recordFoodList) {
 				group->population[i]->dataMap.Append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
 			}
-			group->population[i]->brain->resetBrain();
+			group->population[i]->brains[brainName]->resetBrain();
 			currentLocation[i].first += .5;
 			currentLocation[i].second += .5;
 		}
@@ -753,7 +758,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 				orgIndex = orgList[orgListIndex];
 				orgList[orgListIndex] = orgList[orgList.size() - 1];
 				orgList.pop_back();
-
+				auto brain = group->population[orgIndex]->brains[brainName];
 				double t = 0;
 				while (t < 1.0) {
 					//cout << "Local time: " << t << "    " << orgIndex << endl;
@@ -780,11 +785,11 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 						visionSensor.senseTotals(grid, sensorX, sensorY, sensorFacing, values, WALL);
 
 						for (int food = 0; food < foodTypes; food++) {
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
+							brain->setInput(nodesAssignmentCounter++, values[food + 1]);
 							//cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
 						}
 						if (senseWalls) {
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
+							brain->setInput(nodesAssignmentCounter++, values[9]);
 							//cout << "    walls " << values[10] << endl;
 						}
 						//cout << endl;
@@ -800,11 +805,11 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 						smellSensor.senseTotals(grid, sensorX, sensorY, sensorFacing, values, WALL);
 
 						for (int food = 0; food < foodTypes; food++) {
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[food + 1]);
+							brain->setInput(nodesAssignmentCounter++, values[food + 1]);
 							//cout << "    food" << food + 1 << " = " << values[food + 1] << endl;
 						}
 						if (senseWalls) {
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, values[9]);
+							brain->setInput(nodesAssignmentCounter++, values[9]);
 							//cout << "    walls " << values[10] << endl;
 						}
 						//cout << endl;
@@ -812,11 +817,11 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 
 					// tell org what it's on
 					for (int food = 0; food < foodTypes; food++) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, grid(currentLocation[orgIndex]) == (food + 1));
+						brain->setInput(nodesAssignmentCounter++, grid(currentLocation[orgIndex]) == (food + 1));
 					}
 
 					if (senseVisited) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedGrid(currentLocation[orgIndex]));
+						brain->setInput(nodesAssignmentCounter++, visitedGrid(currentLocation[orgIndex]));
 					}
 
 					if (debug) {
@@ -825,30 +830,30 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 						cout << "currentLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  :  " << facing[orgIndex] << "\n";
 						cout << "inNodes: ";
 						for (int i = 0; i < inputNodesCount; i++) {
-							cout << group->population[orgIndex]->brain->readInput(i) << " ";
+							cout << brain->readInput(i) << " ";
 						}
 						cout << "\nlast outNodes: ";
 						for (int i = 0; i < outputNodesCount; i++) {
-							cout << group->population[orgIndex]->brain->readOutput(i) << " ";
+							cout << brain->readOutput(i) << " ";
 						}
 						cout << "\n\n  -- brain update --\n\n";
 					}
 
 					// inputNodesCount is now set to the first output Brain State Address. we will not move it until the next world update!
 					if (clearOutputs) {
-						group->population[orgIndex]->brain->resetOutputs();
+						brain->resetOutputs();
 					}
 
-					group->population[orgIndex]->brain->update();  // just run the update!
+					brain->update();  // just run the update!
 
 					// set output values
 					// output1 has info about the first 2 output bits these [00 eat, 10 left, 01 right, 11 move]
-					output1 = Bit(group->population[orgIndex]->brain->readOutput(0)) + (Bit(group->population[orgIndex]->brain->readOutput(1)) << 1);
+					output1 = Bit(brain->readOutput(0)) + (Bit(brain->readOutput(1)) << 1);
 					// output 2 has info about the 3rd output bit, which either does nothing, or is eat.
 					if (alwaysEat) {
 						output2 = 1;
 					} else {
-						output2 = Bit(group->population[orgIndex]->brain->readOutput(2));
+						output2 = Bit(brain->readOutput(2));
 					}
 
 //				if (saveOrgActions) { // if saveOrgActions save the output.
@@ -981,7 +986,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 
 					if (debug) {
 						for (int i = 0; i < outputNodesCount; i++) {
-							cout << Bit(group->population[orgIndex]->brain->readOutput(i)) << " ";
+							cout << Bit(brain->readOutput(i)) << " ";
 						}
 						cout << "output1: " << output1 << "  output2: " << output2 << "\n";
 						cout << "\n  -- world update --\n\n";
@@ -1111,7 +1116,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 //				}
 //			}
 //
-//			// now count left and right turns and correct if needed so that 2x turns are dominant
+//			// now count left and right turns and correct if needed so that 2x turns are Max
 //			for (int i = 0; i < (int) simplifiedMoves.size(); i++) {
 //				if (leftTurnCount > rightTurnCount) {
 //					if (simplifiedMoves[i] > 20 && simplifiedMoves[i] < 40) { // for each value that is a turn, reverse it's direction

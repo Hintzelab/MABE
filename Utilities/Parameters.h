@@ -512,7 +512,6 @@ public:
 	// looks for a table with name space _tableNameSpace; if not found error out.
 	shared_ptr<ParametersTable> lookupTable(const string& _tableNameSpace) {
 		if ((*parametersTablesRegistry).find(_tableNameSpace) == (*parametersTablesRegistry).end()){
-			//ASSERT ((*parametersTablesRegistry).find(_tableNameSpace) != (*parametersTablesRegistry).end() , ("ERROR! :: Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting!\n"));
 			cout << "  In ParametersTable::lookupTable()  - Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting! " << endl;
 			exit(1);
 		}
@@ -523,7 +522,8 @@ public:
 	shared_ptr<ParametersTable> findTableWithNamedParameter(const string& name, shared_ptr<ParametersTable> searchTable) {
 		bool found = false;
 		while (searchTable != nullptr && !found) {  // while findTable is valid and we have not found the value
-			if (searchTable->table.find(name) == table.end()) {  // if the value is not here, point to the parent.
+			//cout << "searching" << searchTable->tableNameSpace << " for " << name << endl;
+			if (searchTable->table.find(name) == searchTable->table.end()) {  // if the value is not here, point to the parent.
 				searchTable = searchTable->parent;
 			} else if (!searchTable->table[name]->isLocal()) {  // if the value is here, but is not local, point to the parent.
 				searchTable = searchTable->parent;
@@ -571,7 +571,6 @@ public:
 			table[name]->get(value,name);
 
 		} else {
-			//value = 10.0;
 			shared_ptr<ParametersTable> searchTable;// used to determine which ancestor table we are looking at
 			if (parent != nullptr) {
 				searchTable = parent;
@@ -580,12 +579,10 @@ public:
 			}
 			searchTable = findTableWithNamedParameter(name, searchTable);  // find the name in the closest ancestor table with named parameter
 			if (searchTable == nullptr){
-				//ASSERT (searchTable != nullptr,"  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!");
 				cout << "  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!" << endl;
 				exit(1);
 			}
 			searchTable->table[name]->get(value,name);// assign value
-			////table[name] = make_shared<ParametersEntry<T>>(value,false);// create new entry with value and local = false
 			table[name] = make_shared<ParametersEntry<T>>();
 			table[name]->follow(searchTable->table[name]);
 		}
@@ -614,7 +611,6 @@ public:
 
 	inline bool lookupBool(const string& name, const string& _tableNameSpace) {
 		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
-			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
 			cout << "  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
 			exit(1);
 		}

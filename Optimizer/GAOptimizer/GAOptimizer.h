@@ -28,7 +28,7 @@ class GAOptimizer : public AbstractOptimizer {
 		optimizeFormula = (PT == nullptr) ? stringToMTree(optimizeFormulaPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_GA-optimizeValue"));
 		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_GA-elitism", PT);
 	}
-	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+	virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
 		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_GA-optimizeValue");

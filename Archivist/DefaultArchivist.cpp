@@ -11,8 +11,10 @@
 #include "DefaultArchivist.h"
 using namespace std;
 
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter("ARCHIVIST-outputMethod", (string) "Default",
-		"output method, [default, LODwAP (Line of Decent with Aggressive Pruning), SSwD (SnapShot with Delay)]");  // string parameter for outputMethod;
+////// ARCHIVIST-outputMethod is actually set by Modules.h //////
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter("ARCHIVIST-outputMethod", (string) "This_string_is_set_by_modules.h",
+		"This_string_is_set_by_modules.h");  // string parameter for outputMethod;
+////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-realtimeSequence", (string) ":10",
 		"How often to write to realtime data files. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
@@ -22,13 +24,11 @@ shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_genomeSequencePL = P
 		"How often to save a realtime snapshot genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeAveFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeAveFile", true, "Save data to average file?");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeDominantFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeDominantFile", true, "Save data to dominant file?");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeMaxFile", true, "Save data to Max file?");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_AveFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileName", (string) "ave.csv", "name of average file (saves population averages)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DominantFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-dominantFileName", (string) "dominant.csv", "name of dominant file (saves data on dominant organism)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_MaxFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-maxFileName", (string) "max.csv", "name of max file (saves data on organism with max \"score\" as determined by Optimizer)");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultAveFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileColumns", (string) "[]",
 		"data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-dominantFileShowAllLists", true,
-		"lists named 'all'* in data map will be averaged and added to file. if true, raw 'all'* lists will also be added to the file");
 
 shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataFilePrefix", (string) "snapshotData", "prefix for name of snapshot genome file (stores genomes)");
 shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_GenomeFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotGenomeFilePrefix", (string) "snapshotGenome",
@@ -41,11 +41,10 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 		PT(_PT) {
 
 	writeAveFile = (PT == nullptr) ? Arch_writeAveFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeAveFile");
-	writeDominantFile = (PT == nullptr) ? Arch_writeDominantFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeDominantFile");
+	writeMaxFile = (PT == nullptr) ? Arch_writeMaxFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeMaxFile");
 	AveFileName = (PT == nullptr) ? Arch_AveFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileName");
-	DominantFileName = (PT == nullptr) ? Arch_DominantFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-dominantFileName");
+	MaxFileName = (PT == nullptr) ? Arch_MaxFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-maxFileName");
 	AveFileColumnNames = (PT == nullptr) ? Arch_DefaultAveFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileColumns");
-	DominantFileShowAllLists = (PT == nullptr) ? Arch_DominantFileShowAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-dominantFileShowAllLists");
 
 	DataFilePrefix = (PT == nullptr) ? SS_Arch_DataFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataFilePrefix");
 	GenomeFilePrefix = (PT == nullptr) ? SS_Arch_GenomeFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeFilePrefix");
@@ -56,7 +55,7 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 	realtimeDataSequence.push_back(0);
 	realtimeGenomeSequence.push_back(0);
 
-	if (writeAveFile != false || writeDominantFile != false) {
+	if (writeAveFile != false || writeMaxFile != false) {
 		string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
 		realtimeSequence.clear();
 		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
@@ -102,10 +101,11 @@ DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abs
 	}
 }
 
-//save dominant and average file data
+//save Max and average file data
 //keys named all* will be converted to *. These should key for lists of values. These values will be averaged (used to average world repeats)
 void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population) {
 	// write out Average data
+
 	if (writeAveFile) {
 		double aveValue;
 		DataMap AveMap;
@@ -137,8 +137,8 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 		AveMap.writeToFile(AveFileName, { }, true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
-	// write out Dominant data
-	if (writeDominantFile && maxFormula != nullptr) {
+	// write out Max data
+	if (writeMaxFile && maxFormula != nullptr) {
 		vector<double> Scores;
 		for (auto org : population) {
 			Scores.push_back(maxFormula->eval(org->dataMap, org->PT)[0]);
@@ -146,7 +146,7 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 
 		int best = findGreatestInVector(Scores);
 		population[best]->dataMap.Set("update", Global::update);
-		population[best]->dataMap.writeToFile(DominantFileName);
+		population[best]->dataMap.writeToFile(MaxFileName);
 		population[best]->dataMap.Clear("update");
 	}
 }
@@ -206,12 +206,13 @@ void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> populati
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
 bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+
 	if (finished) {
 		return finished;
 	}
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
-			writeRealTimeFiles(population);  // write to dominant and average files
+			writeRealTimeFiles(population);  // write to Max and average files
 			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}

@@ -32,21 +32,20 @@ class DefaultArchivist {
 
 shared_ptr<ParameterLink<int>> DefaultArchivist::Arch_realtimeFilesIntervalPL = Parameters::register_parameter("ARCHIVIST-realtimeFilesInterval", 10, "How often to write to realtime data files");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeAveFilePL = Parameters::register_parameter("ARCHIVIST-writeAveFile", true, "Save data to average file?");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeDominantFilePL = Parameters::register_parameter("ARCHIVIST-writeDominantFile", true, "Save data to dominant file?");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL = Parameters::register_parameter("ARCHIVIST-writeMaxFile", true, "Save data to Max file?");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_AveFileNamePL = Parameters::register_parameter("ARCHIVIST-aveFileName", (string) "ave.csv", "name of average file (saves population averages)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DominantFileNamePL = Parameters::register_parameter("ARCHIVIST-dominantFileName", (string) "dominant.csv", "name of dominant file (saves data on dominant organism)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_MaxFileNamePL = Parameters::register_parameter("ARCHIVIST-MaxFileName", (string) "Max.csv", "name of Max file (saves data on Max organism)");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultAveFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST-aveFileColumns", (string) "[]", "data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST-dominantFileShowAllLists", true, "lists named 'all'* in data map will be averaged and added to file. if true, raw 'all'* lists will also be added to the file");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST-MaxFileShowAllLists", true, "lists named 'all'* in data map will be averaged and added to file. if true, raw 'all'* lists will also be added to the file");
 	 */
 
 	static shared_ptr<ParameterLink<string>> Arch_outputMethodStrPL;  // string parameter for outputMethod;
 
 	static shared_ptr<ParameterLink<bool>> Arch_writeAveFilePL;  // if true, ave file will be created
-	static shared_ptr<ParameterLink<bool>> Arch_writeDominantFilePL;  // if true, dominant file will be created
+	static shared_ptr<ParameterLink<bool>> Arch_writeMaxFilePL;  // if true, Max file will be created
 	static shared_ptr<ParameterLink<string>> Arch_AveFileNamePL;  // name of the Averages file (ave for all brains when file is written to)
-	static shared_ptr<ParameterLink<string>> Arch_DominantFileNamePL;  // name of the Dominant file (all stats for best brain when file is writtne to)
+	static shared_ptr<ParameterLink<string>> Arch_MaxFileNamePL;  // name of the Max file (all stats for best brain when file is writtne to)
 	static shared_ptr<ParameterLink<string>> Arch_DefaultAveFileColumnNamesPL;  // data to be saved into average file (must be values that can generate an average)
-	static shared_ptr<ParameterLink<bool>> Arch_DominantFileShowAllListsPL;
 
 	static shared_ptr<ParameterLink<string>> Arch_realtimeSequencePL;  // how often to write out data
 	static shared_ptr<ParameterLink<string>> SS_Arch_dataSequencePL;  // how often to save data
@@ -61,12 +60,11 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsP
 
 
 	bool writeAveFile;  // if true, ave file will be created
-	bool writeDominantFile;  // if true, dominant file will be created
+	bool writeMaxFile;  // if true, Max file will be created
 	string AveFileName;  // name of the Averages file (ave for all brains when file is written to)
-	string DominantFileName;  // name of the Dominant file (all stats for best brain when file is writtne to)
+	string MaxFileName;  // name of the Max file (all stats for best brain when file is writtne to)
 	string AveFileColumnNames;  // data to be saved into average file (must be values that can generate an average)
 	shared_ptr<Abstract_MTree> maxFormula;  // what value will be used to determine which organism to write to max file
-	bool DominantFileShowAllLists;
 
 
 	vector<int> realtimeSequence;  // how often to write out data
@@ -96,7 +94,7 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsP
 	DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~DefaultArchivist() = default;
 
-	//save dominant and average file data
+	//save Max and average file data
 	void writeRealTimeFiles(vector<shared_ptr<Organism>> &population);
 
 	void saveSnapshotData(vector<shared_ptr<Organism>> population);

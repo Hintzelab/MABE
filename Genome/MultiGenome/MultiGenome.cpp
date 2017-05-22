@@ -441,9 +441,9 @@ void MultiGenome::mutate() {
 }
 
 // make a mutated genome. from this genome
-// the undefined action is to return a new genome
+// inherit the ParamatersTable from the calling instance
 shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<MultiGenome>(parent->PT);
+	auto newGenome = make_shared<MultiGenome>(PT);
 	newGenome->copyFrom(parent);
 	newGenome->mutate();
 	newGenome->recordDataMap();
@@ -451,7 +451,7 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<Abstrac
 }
 
 // make a mutated genome from a vector or genomes
-// inherit the ParamatersTable from the 0th parent
+// inherit the ParamatersTable from the calling instance
 // assumes all genomes have the same number of chromosomes and same ploidy
 // if haploid, then all chromosomes are directly crossed (i.e. if there are 4 parents,
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
@@ -475,7 +475,7 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 		}
 
 	}
-	auto newGenome = make_shared<MultiGenome>(castParent0->PT);
+	auto newGenome = make_shared<MultiGenome>(PT);
 	newGenome->ploidy = castParent0->ploidy;  // copy ploidy from 0th parent
 	int crossCount = crossCountLPL->lookup();
 	if (ploidy == 1) {  // if haploid then cross chromosomes from all parents
@@ -519,9 +519,9 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-DataMap MultiGenome::getStats() {
+DataMap MultiGenome::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set("genomeLength",countSites());
+	dataMap.Set(prefix +"genomeLength",countSites());
 	return (dataMap);
 }
 

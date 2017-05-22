@@ -19,6 +19,8 @@ shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeUniformPL = Param
 shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
 shared_ptr<ParameterLink<int>> ConstantValuesBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
 
+shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CONSTANT_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
 ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 	valueMin = (PT == nullptr) ? valueMinPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMin");
@@ -30,6 +32,8 @@ ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared
 	initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
 	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
 
+	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_CONSTANT_NAMES-genomeName");
+
 // columns to be added to ave file
 	aveFileColumns.clear();
 	for (int i = 0; i < nrOutputValues; i++) {
@@ -37,9 +41,9 @@ ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared
 	}
 }
 
-shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
+shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	shared_ptr<ConstantValuesBrain> newBrain = make_shared<ConstantValuesBrain>(nrInputValues, nrOutputValues);
-	auto genomeHandler = _genome->newHandler(_genome, true);
+	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
 
 	double tempValue;
 
@@ -82,7 +86,7 @@ string ConstantValuesBrain::description() {
 	return S;
 }
 
-DataMap ConstantValuesBrain::getStats() {
+DataMap ConstantValuesBrain::getStats(string& prefix) {
 	DataMap dataMap;
 //	dataPairs.push_back("outputValues");
 //	string valuesList = "\"[";
@@ -95,12 +99,12 @@ DataMap ConstantValuesBrain::getStats() {
 //	dataPairs.push_back(to_string(valuesList));
 
 	for (int i = 0; i < nrOutputValues; i++) {
-		dataMap.Set("brainValue" + to_string(i),outputValues[i]);
+		dataMap.Set(prefix + "brainValue" + to_string(i),outputValues[i]);
 	}
 	return (dataMap);
 }
 
-void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
+void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	if (initializeConstant) {
 		if (initializeConstantValue < valueMin) {
 			cout << "ERROR: initializeConstantValue must be greater then or equal to valueMin" << endl;
@@ -110,7 +114,7 @@ void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
 			cout << "ERROR: initializeConstantValue must be less then or equal to valueMax" << endl;
 			exit(1);
 		}
-		auto handler = _genome->newHandler(_genome);
+		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		while (!handler->atEOG()) {
 			if (valueType == 1) {
 				handler->writeInt(initializeConstantValue, valueMin, valueMax);
@@ -121,7 +125,7 @@ void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
 		handler->resetHandler();
 		handler->writeInt(initializeConstantValue, valueMin, valueMax);
 	} else if (initializeUniform) {
-		auto handler = _genome->newHandler(_genome);
+		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		int count = 0;
 		double randomValue = 0;
 		if (valueType == 1) {
@@ -153,7 +157,7 @@ void ConstantValuesBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
 			count++;
 		}
 	} else {
-		_genome->fillRandom();
+		_genomes[genomeName]->fillRandom();
 	}
 }
 

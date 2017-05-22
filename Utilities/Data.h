@@ -522,6 +522,45 @@ public:
 		return returnValue;
 	}
 
+	// get ave of values in a vector - must be bool, double or, int
+	inline double GetSum(string key) { // not ref, we may need to change to a "{LIST}" key
+		dataMapType typeOfKey = findKeyInData(key);
+		double returnValue = 0;
+		if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+			for (auto e : boolData[key]) {
+				returnValue += (double)e;
+			}
+			//if (boolData[key].size() > 1) {
+			//	returnValue /= boolData[key].size();
+			//} // else vector is  size 1, no div needed or vector is empty, returnValue will be 0
+		}
+		else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+			for (auto e : doubleData[key]) {
+				returnValue += (double)e;
+			}
+			//if (doubleData[key].size() > 1) {
+			//	returnValue /= doubleData[key].size();
+			//} // else vector is  size 1, no div needed or vector is empty, returnValue will be 0
+		}
+		else if (typeOfKey == INT || typeOfKey == INTSOLO) {
+			for (auto e : intData[key]) {
+				returnValue += (double)e;
+			}
+			//if (intData[key].size() > 1) {
+			//	returnValue /= intData[key].size();
+			//} // else vector is  size 1, no div needed or vector is empty, returnValue will be 0
+		}
+		else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+			cout << "  in DataMap::GetAverage attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
+			exit(1);
+		}
+		else if (typeOfKey == NONE) {
+			cout << "  in DataMap::GetAverage attempt to get average from nonexistent key \"" << key << "\".\n  Exiting." << endl;
+			exit(1);
+		}
+		return returnValue;
+	}
+
 	// Clear a field in a DataMap
 	inline void Clear(const string &key) {
 		dataMapType typeOfKey = findKeyInData(key);
@@ -630,7 +669,8 @@ public:
 					dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
 				}
 				if (OB & SUM) { // key_SUM = sum of vector
-					cout << "  WARNING OUTPUT METHOD SUM IS HAS YET TO BE WRITTEN!" << endl;
+					headerStr = headerStr + FileManager::separator + i + "_SUM";
+					dataStr = dataStr + FileManager::separator + to_string(GetSum(i));
 				}
 				if (OB & PROD) { // key_PROD = product of vector
 					cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;

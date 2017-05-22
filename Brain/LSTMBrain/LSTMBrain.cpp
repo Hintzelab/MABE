@@ -21,8 +21,15 @@ shared_ptr<ParameterLink<bool>> LSTMBrain::initializeConstantPL = Parameters::re
 shared_ptr<ParameterLink<int>> LSTMBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
 */
 
+shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
+
+
 LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+
+	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_LSTM_NAMES-genomeName");
+
             _I=_nrInNodes;
             _O=_nrOutNodes;
             /*
@@ -43,9 +50,9 @@ LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
              */
 }
 
-shared_ptr<AbstractBrain> LSTMBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
+shared_ptr<AbstractBrain> LSTMBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	shared_ptr<LSTMBrain> newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues);
-	auto genomeHandler = _genome->newHandler(_genome, true);
+	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
     
     newBrain->_I=_I;
     newBrain->_O=_O;
@@ -161,7 +168,7 @@ string LSTMBrain::description() {
 	return S;
 }
 
-DataMap LSTMBrain::getStats() {
+DataMap LSTMBrain::getStats(string& prefix) {
 	DataMap dataMap;
     
 //	dataPairs.push_back("outputValues");
@@ -181,9 +188,9 @@ DataMap LSTMBrain::getStats() {
 	return (dataMap);
 }
 
-void LSTMBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
+void LSTMBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
     //int totalGenomeSizeNeeded=(_I*_O*4)+(_O*4);
-    _genome->fillRandom();
+    _genomes[genomeName]->fillRandom();
     //printf("%s\n",_genome->genomeToStr().c_str());
     //exit(0);
     /*

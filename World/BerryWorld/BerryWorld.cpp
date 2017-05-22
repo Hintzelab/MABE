@@ -92,6 +92,10 @@ shared_ptr<ParameterLink<int>> BerryWorld::fixedStartFacingPL = Parameters::regi
 shared_ptr<ParameterLink<int>> BerryWorld::repeatsPL = Parameters::register_parameter("WORLD_BERRY-repeats", 3, "Number of times to test each Organism per generation");
 shared_ptr<ParameterLink<bool>> BerryWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY-groupEvaluation", false, "if true, evaluate population concurrently");
 
+
+shared_ptr<ParameterLink<string>> BerryWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> BerryWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
 // if the line is not empty/comment, clean ss and load line.
 // rawLine is the string version of the same data as ss
@@ -247,6 +251,8 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	repeats = (PT == nullptr) ? repeatsPL->lookup() : PT->lookupInt("WORLD_BERRY-repeats");
 	groupEvaluation = (PT == nullptr) ? groupEvaluationPL->lookup() : PT->lookupBool("WORLD_BERRY-groupEvaluation");
 
+	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_BERRY_NAMES-groupName");
+	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_BERRY_NAMES-brainName");
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//  LOAD MAPS FROM FILES  ///////////////////////////////////////////////////////////
@@ -296,8 +302,11 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
 	} else {
 		cout << "    " << inputNodesCount << " Inputs\t nodes 0 to " << inputNodesCount - 1 << "\n";
 		cout << "    " << outputNodesCount << " Outputs\t nodes " << inputNodesCount << " to " << inputNodesCount + outputNodesCount - 1 << "\n";
-
 	}
+	cout << "    groupName: " << groupName << "   brainName: " << brainName << endl;
+
+
+
 	foodRatioLookup.resize(9);  // stores reward of each type of food NOTE: food is indexed from 1 so 0th entry is chance to leave empty
 	foodRatioLookup[0] = (PT == nullptr) ? ratioFood0PL->lookup() : PT->lookupInt("WORLD_BERRY_ADVANCED-replacementRatioFood0");
 	foodRatioLookup[1] = (PT == nullptr) ? ratioFood1PL->lookup() : PT->lookupInt("WORLD_BERRY_ADVANCED-replacementRatioFood1");
@@ -628,7 +637,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				group->population[i]->dataMap.Append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
 			}
 
-			group->population[i]->brain->resetBrain();
+			group->population[i]->brains[brainName]->resetBrain();
 		}
 
 		// set up vars needed to run
@@ -671,41 +680,42 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				rightFront = getGridValue(grid, moveOnGrid(currentLocation[orgIndex], turnRight(facing[orgIndex])));
 
 				nodesAssignmentCounter = 0;  // get ready to start assigning inputs
+				shared_ptr<AbstractBrain> evalBrain = group->population[orgIndex]->brains[brainName];
 				if (senseWalls) {
 					if (senseDown) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at here location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (here == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (here == i + 1));
 						}
 					}
 					if (senseFront) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at front location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (front == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (front == i + 1));
 						}
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (front == WALL));
+						evalBrain->setInput(nodesAssignmentCounter++, (front == WALL));
 					}
 					if (senseFrontSides) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at front location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (leftFront == i + 1));
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (rightFront == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (leftFront == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (rightFront == i + 1));
 						}
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (leftFront == WALL));
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (rightFront == WALL));
+						evalBrain->setInput(nodesAssignmentCounter++, (leftFront == WALL));
+						evalBrain->setInput(nodesAssignmentCounter++, (rightFront == WALL));
 					}
 				} else {  // don't sense walls
 					if (senseDown) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at here location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (here == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (here == i + 1));
 						}
 					}
 					if (senseFront) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at front location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (front == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (front == i + 1));
 						}
 					}
 					if (senseFrontSides) {
 						for (int i = 0; i < foodTypes; i++) {  // fill first nodes with food values at front location
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (leftFront == i + 1));
-							group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, (rightFront == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (leftFront == i + 1));
+							evalBrain->setInput(nodesAssignmentCounter++, (rightFront == i + 1));
 						}
 					}
 				}
@@ -716,11 +726,11 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					otherRightFront = getGridValue(orgPositionsGrid, moveOnGrid(currentLocation[orgIndex], turnRight(facing[orgIndex])));
 
 					if (senseFront) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, otherFront);
+						evalBrain->setInput(nodesAssignmentCounter++, otherFront);
 					}
 					if (senseFrontSides) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, otherLeftFront);
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, otherRightFront);
+						evalBrain->setInput(nodesAssignmentCounter++, otherLeftFront);
+						evalBrain->setInput(nodesAssignmentCounter++, otherRightFront);
 
 					}
 				}
@@ -730,14 +740,14 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					visitedLeftFront = getGridValue(visitedGrid, moveOnGrid(currentLocation[orgIndex], turnLeft(facing[orgIndex])));
 					visitedRightFront = getGridValue(visitedGrid, moveOnGrid(currentLocation[orgIndex], turnRight(facing[orgIndex])));
 					if (senseDown) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedHere);
+						evalBrain->setInput(nodesAssignmentCounter++, visitedHere);
 					}
 					if (senseFront) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedFront);
+						evalBrain->setInput(nodesAssignmentCounter++, visitedFront);
 					}
 					if (senseFrontSides) {
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedLeftFront);
-						group->population[orgIndex]->brain->setInput(nodesAssignmentCounter++, visitedRightFront);
+						evalBrain->setInput(nodesAssignmentCounter++, visitedLeftFront);
+						evalBrain->setInput(nodesAssignmentCounter++, visitedRightFront);
 
 					}
 
@@ -749,30 +759,30 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					cout << "currentLocation: " << currentLocation[orgIndex].first << "," << currentLocation[orgIndex].second << "  :  " << facing[orgIndex] << "\n";
 					cout << "inNodes: ";
 					for (int i = 0; i < inputNodesCount; i++) {
-						cout << group->population[orgIndex]->brain->readInput(i) << " ";
+						cout << evalBrain->readInput(i) << " ";
 					}
 					cout << "\nlast outNodes: ";
 					for (int i = 0; i < outputNodesCount; i++) {
-						cout << group->population[orgIndex]->brain->readOutput(i) << " ";
+						cout << evalBrain->readOutput(i) << " ";
 					}
 					cout << "\n\n  -- brain update --\n\n";
 				}
 
 				// inputNodesCount is now set to the first output Brain State Address. we will not move it until the next world update!
 				if (clearOutputs) {
-					group->population[orgIndex]->brain->resetOutputs();
+					evalBrain->resetOutputs();
 				}
 
-				group->population[orgIndex]->brain->update();  // just run the update!
+				evalBrain->update();  // just run the update!
 
 				// set output values
 				// output1 has info about the first 2 output bits these [00 eat, 10 left, 01 right, 11 move]
-				output1 = Bit(group->population[orgIndex]->brain->readOutput(0)) + (Bit(group->population[orgIndex]->brain->readOutput(1)) << 1);
+				output1 = Bit(evalBrain->readOutput(0)) + (Bit(evalBrain->readOutput(1)) << 1);
 				// output 2 has info about the 3rd output bit, which either does nothing, or is eat.
 				if (alwaysEat) {
 					output2 = 1;
 				} else {
-					output2 = Bit(group->population[orgIndex]->brain->readOutput(2));
+					output2 = Bit(evalBrain->readOutput(2));
 				}
 
 				if (saveOrgActions) { // if saveOrgActions save the output.
@@ -892,7 +902,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 
 				if (debug) {
 					for (int i = 0; i < outputNodesCount; i++) {
-						cout << Bit(group->population[orgIndex]->brain->readOutput(i)) << " ";
+						cout << Bit(evalBrain->readOutput(i)) << " ";
 					}
 					cout << "output1: " << output1 << "  output2: " << output2 << "\n";
 					cout << "\n  -- world update --\n\n";
@@ -1018,7 +1028,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				}
 			}
 
-			// now count left and right turns and correct if needed so that 2x turns are dominant
+			// now count left and right turns and correct if needed so that 2x turns are Max
 			for (int i = 0; i < (int) simplifiedMoves.size(); i++) {
 				if (leftTurnCount > rightTurnCount) {
 					if (simplifiedMoves[i] > 20 && simplifiedMoves[i] < 40) { // for each value that is a turn, reverse it's direction

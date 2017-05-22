@@ -28,6 +28,11 @@ using namespace std;
 
 class LSTMBrain: public AbstractBrain {
 public:
+
+	static shared_ptr<ParameterLink<string>> genomeNamePL;
+
+	string genomeName;
+
     vector<vector<double>> Wf,Wi,Wc,Wo;
     vector<double> ft,it,Ct,Ot,dt;
     vector<double> bt,bi,bC,bO;
@@ -43,15 +48,15 @@ public:
 
 	virtual void update() override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
 	virtual string description() override;
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
 
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;
 
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome) override;
+	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
     
     double fastSigmoid(double value){
         return  value / (1.0 + fabs(value));
@@ -65,6 +70,9 @@ public:
     
     virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
+	virtual unordered_set<string> requiredGenomes() override {
+		return { genomeName };
+	}
 
 };
 

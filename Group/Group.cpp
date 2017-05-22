@@ -26,7 +26,7 @@ bool Group::archive(int flush) {
 	return archivist->archive(population, flush);
 }
 
-void Group::optimize() {
-	optimizer->makeNextGeneration(population);
+vector<shared_ptr<Organism>> Group::optimize() {
+	return optimizer->makeNextGeneration(population);
 }
 

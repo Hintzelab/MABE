@@ -36,6 +36,8 @@ void Organism::initOrganism(shared_ptr<ParametersTable> _PT) {
 	dataMap.Set("alive", alive);
 	dataMap.Set("timeOfBirth", timeOfBirth);
 }
+
+
 /*
  * create an empty organism - it must be filled somewhere else.
  * parents is left empty (this is organism has no parents!)
@@ -46,136 +48,83 @@ Organism::Organism(shared_ptr<ParametersTable> _PT) {
 	snapshotAncestors.insert(ID);
 }
 
-///*
-// * create a new organism given only a genome - since we do not know the type of brain we are using, we can not make the brain yet
-// * parents is left empty (this is organism has no parents!)
-// */
-//Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
-//	initOrganism(_PT);
-//	if (_genome != nullptr) { // if an actual genome is passed
-//		genome = _genome;
-//		dataMap.Merge(genome->getStats());
-//	} // else hasGenome will be false
-//	ancestors.insert(ID);  // it is it's own Ancestor for data tracking purposes
-//	snapshotAncestors.insert(ID);
-//}
-
-///*
-// * create a new organism given only a brain - the brain passed will be installed as is (this constructor is mostly for brain->buildFromGenome is false
-// * parents is left empty (this is organism has no parents!)
-// * This constructor can also be used if you need to test a brain and don't want to bother with the genome!
-// */
-//Organism::Organism(shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
-//	initOrganism(_PT);
-//	if (_brain != nullptr) { // if an actual brain was passed
-//		brain = _brain;
-//		dataMap.Merge(brain->getStats());
-//	} // else hasBrain will remain false and there will be no brain
-//	ancestors.insert(ID);  // it is it's own Ancestor for data tracking purposes
-//	snapshotAncestors.insert(ID);
-//}
-
 /*
- * create a new organism given a genome and a brain - this brain severs as a template which allows us to convert the genome into a brain
- * parents is left empty (this is organism has no parents!)
- */
-Organism::Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
+* create a new organism given genomes and brains - the grnome and brains passed with be installed as is (i.e. NOT copied)
+* it is assumed that either this organism will never by used (it will serve as a template), or the brains have already been built elsewhere
+* parents is set left unset/nullptr (no parents), and ancestor is set to self (this organism is the result of adigigenesis!)
+*/
+Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, unordered_map<string, shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	genome = _genome;
-	if (genome != nullptr) { // if an actual genome is passed
-		dataMap.Merge(genome->getStats());
+	
+	genomes = _genomes;
+
+	for (auto genome : genomes) { // collect stats from genomes
+		string prefix;
+		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		dataMap.Merge(genome.second->getStats(prefix));
 	}
-	if ((_brain != nullptr && !_brain->buildFromGenome) || (_brain!=nullptr && genome==nullptr)) {
-		// if a brain is passed and brain is not buildFromGenome
-		// or a brain is passes which is buildFromGenome, but there is no Genome
-		// then install the passed brain.
-		brain = _brain;
-		dataMap.Merge(brain->getStats());
-	} else if (_brain != nullptr && genome != nullptr) { // else, if we were passed a genome and a brain, and brain is buildFromGenome...
-		brain = _brain->makeBrainFromGenome(genome); // ... build a brain from genome using passed brain as a template
-		dataMap.Merge(brain->getStats());
+
+	brains = _brains;
+
+	for (auto brain : _brains) { // collect stats from brains
+		string prefix;
+		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		dataMap.Merge(brain.second->getStats(prefix));
 	}
+
+	if (genomes.count("root") == 0) {
+		genome = nullptr;
+	}
+	else {
+		genome = genomes["root"];
+	}
+
+	if (brains.count("root") == 0) {
+		brain = nullptr;
+	}
+	else {
+		brain = brains["root"];
+	}
+
 	ancestors.insert(ID);  // it is it's own Ancestor for data tracking purposes
 	snapshotAncestors.insert(ID);
 }
 
-///*
-// * given a genome, and a parent, create an organism with one parent
-// * a brain is build from the genome using the parents brain as a template
-// */
-//Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
-//	cout << "in Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT)" << endl;
-//	initOrganism(_PT);
-//	if (_genome != nullptr) { // if an actual genome is passed
-//		cout << " passed Genome != nullptr" << endl;
-//		genome = _genome;
-//		dataMap.Merge(genome->getStats());
-//		cout << "got stats..." << endl;
-//		cout << from << endl;
-//		if (from->hasBrain() && from->brain->buildFromGenome) {// if parent has a brain and that brain is built from genome
-//			cout << " build brain from genome!" << endl;
-//			brain = from->brain->makeBrainFromGenome(genome); // build brain from genome using parents brain as template
-//			dataMap.Merge(brain->getStats());
-//		}
-//		else if (from->hasBrain()) { // parent has genome and brain, but brain is not built from genome (this function will not assume you want to mutated brain)
-//			cout << "  in Orgainsm constructor (from(parent), genome, PT) :: brain in parent is !buildFromGenome and no brain is provided to this function so Organism can not be created." << endl;
-//			cout << "  - if you want to make a mutated an offspring with a mutated brain, you must use makeMutatedOffspringFrom()." << endl;
-//			cout << "  - if you want a perfect copy of this organism, use the makeCopy() function." << endl;
-//			cout << "    exiting." << endl;
-//			exit(1);
-//		} // else parent has no brain, brain here also = nullptr
-//	} else { // parent has genome and brain, but brain is not built from genome (this function will not assume you want to mutated brain)
-//		cout << "  in Orgainsm constructor (from(parent), genome, PT) :: genome passed is nullptr, I need a genome." << endl;
-//		cout << "    exiting." << endl;
-//		exit(1);
-//	}
-//	parents.push_back(from);
-//	from->offspringCount++;  // this parent has an(other) offspring
-//	for (auto ancestorID : from->ancestors) {
-//		ancestors.insert(ancestorID);  // union all parents ancestors into this organisms ancestor set.
-//	}
-//	for (auto ancestorID : from->snapshotAncestors) {
-//		snapshotAncestors.insert(ancestorID);  // union all parents ancestors into this organisms ancestor set.
-//	}
-//	cout << "... done" << endl;
-//}
-
 /*
- * given a genome, a brain, and a parent, create an organism with one parent
- *
- * if only genome is passed...
- *    and parent has no brain, then this brain will be nullptr
- *    and parent has brain, this brain will be built using parents brain and passed genome
- *
- * if only brain is passed...
- *    passed brain will be installed as is (it is possible to have a brain that is buildFromGenome, and NO genome)
- *
- * if brain and genome are passed...
- *    if brain is buildFromGenome, passed brain will use genome to build this brain
- *    if brain is not buildFromGenome, passed brain will be installed as is
- */
-Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
+* create a new organism given a single parent, genomes and brains - the grnome and brains passed with be installed as is (i.e. NOT copied)
+* it is assumed that either this organism will never by used (it will serve as a template), or the brains have already been built elsewhere
+*/
+Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, unordered_map<string, shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr) { // if an actual genome is passed
-		//cout << "    has genome" << endl;
-		genome = _genome;
-		dataMap.Merge(genome->getStats());
-		if (_brain == nullptr && from->brain != nullptr && from->brain->buildFromGenome) { // we were not passed a brain, so a brain will be build using parent as template
-			brain = from->brain->makeBrainFromGenome(genome); // ... build a brain from genome using passed brain as a template
-			dataMap.Merge(brain->getStats());
-		}
-		else if (_brain != nullptr && _brain->buildFromGenome) {
-			brain = _brain->makeBrainFromGenome(genome); // ... build a brain from genome using passed brain as a template
-			dataMap.Merge(brain->getStats());
-		}
+
+	genomes = _genomes;
+
+	for (auto genome : genomes) { // collect stats from genomes
+		string prefix;
+		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		dataMap.Merge(genome.second->getStats(prefix));
 	}
 
-	if ((_brain != nullptr && !_brain->buildFromGenome) || (_brain != nullptr && genome == nullptr)) {
-		// if a brain is passed and brain is not buildFromGenome
-		// or a brain is passes which is buildFromGenome, but no Genome is passed
-		// then install the passed brain.
-		brain = _brain;
-		dataMap.Merge(brain->getStats());
+	brains = _brains;
+
+	for (auto brain : _brains) { // collect stats from brains
+		string prefix;
+		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		dataMap.Merge(brain.second->getStats(prefix));
+	}
+
+	if (genomes.count("root") == 0) {
+		genome = nullptr;
+	}
+	else {
+		genome = genomes["root"];
+	}
+
+	if (brains.count("root") == 0) {
+		brain = nullptr;
+	}
+	else {
+		brain = brains["root"];
 	}
 
 	parents.push_back(from);
@@ -188,76 +137,41 @@ Organism::Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome
 	}
 }
 
-///*
-// * create an organism that has more than one parent
-// * in this case the parent pointer is not used, and ancestor* sets are used instead to track lineage
-// * a brain is created using the first parents brain as a template
-// * this function assumes that all parent organisms use the same type of brain (this is not checked!)
-// */
-//Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT) {
-//	initOrganism(_PT);
-//	if (genome != nullptr) { // if an actual genome is passed
-//		genome = _genome;
-//		dataMap.Merge(genome->getStats());
-//		if (from[0]->brain != nullptr && from[0]->brain->buildFromGenome) { // if parent[0] has a brain and that brain is built from genome
-//			brain = from[0]->brain->makeBrainFromGenome(genome); // build brain from genome using parent[0]s brain as template
-//			dataMap.Merge(brain->getStats());
-//		} else if (from[0]->hasBrain() && !from[0]->brain->buildFromGenome) {
-//			cout << "  in Orgainsm constructor (from(parents), genome, PT) :: brain in parents is !buildFromGenome and no brain is provided to this function so Organism can not be created." << endl;
-//			cout << "  - if you want to make a mutated/crossed an offspring with a mutated/crossed brains, you must use makeMutatedOffspringFromMany()." << endl;
-//			cout << "    exiting." << endl;
-//			exit(1);
-//		} // else parent has no brain, brain here also = nullptr
-//	} // else no genome was provided. genome and brain will be nullptr... which is probably a bad thing... maybe should throw error here.
-//	for (auto parent : from) {
-//		parents.push_back(parent);  // add this parent to the parents set
-//		parent->offspringCount++;  // this parent has an(other) offspring
-//		for (auto ancestorID : parent->ancestors) {
-//			ancestors.insert(ancestorID);  // union all parents ancestors into this organisms ancestor set
-//		}
-//		for (auto ancestorID : parent->snapshotAncestors) {
-//			snapshotAncestors.insert(ancestorID);  // union all parents ancestors into this organisms ancestor set.
-//		}
-//	}
-//}
-
 /*
- * create an organism that has more than one parent
- * in this case the parent pointer is not used, and ancestor* sets are used instead to track lineage
- *
- * if only genome is passed...
- *    and parent[0] has no brain, then this brain will be nullptr
- *    and parent[0] has brain, this brain will be built using parent[0]s brain and passed genome
- *
- * if only brain is passed...
- *    passed brain will be installed as is (it is possible to have a brain that is buildFromGenome, and NO genome)
- *
- * if brain and genome are passed...
- *    if brain is buildFromGenome, passed brain will use genome to build this brain
- *    if brain is not buildFromGenome, passed brain will be installed as is
- */
-Organism::Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT) {
-	//cout << "  in Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT)" << endl;
+* create a new organism given a list of parents, genomes and brains - the grnome and brains passed with be installed as is (i.e. NOT copied)
+* it is assumed that either this organism will never by used (it will serve as a template), or the brains have already been built elsewhere
+*/
+Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, unordered_map<string, shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT) {
 	initOrganism(_PT);
-	if (_genome != nullptr) { // if an actual genome is passed
-		//cout << "has genome..." << endl;
-		genome = _genome;
-		dataMap.Merge(genome->getStats());
-		if (_brain == nullptr && from[0]->brain != nullptr && from[0]->brain->buildFromGenome) { // we were not passed a brain, so a brain will be build using parent as template
-			brain = from[0]->brain->makeBrainFromGenome(genome); // ... build a brain from genome using passed brain as a template
-			dataMap.Merge(brain->getStats());
-		}
+
+	genomes = _genomes;
+
+	for (auto genome : genomes) { // collect stats from genomes
+		string prefix;
+		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		dataMap.Merge(genome.second->getStats(prefix));
 	}
-	if ((_brain != nullptr && !_brain->buildFromGenome) || (_brain != nullptr && genome == nullptr)) {
-		// if a brain is passed and brain is not buildFromGenome
-		// or a brain is passes which is buildFromGenome, but there is no Genome
-		// then install the passed brain.
-		brain = _brain;
-		dataMap.Merge(brain->getStats());
+
+	brains = _brains;
+
+	for (auto brain : _brains) { // collect stats from brains
+		string prefix;
+		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		dataMap.Merge(brain.second->getStats(prefix));
 	}
-	else if (_brain != nullptr && genome != nullptr) { // else, if we were passed a genome and a brain, and brain is buildFromGenome...
-		brain = _brain->makeBrainFromGenome(genome); // ... build a brain from genome using passed brain as a template
-		dataMap.Merge(brain->getStats());
+
+	if (genomes.count("root") == 0) {
+		genome = nullptr;
+	}
+	else {
+		genome = genomes["root"];
+	}
+
+	if (brains.count("root") == 0) {
+		brain = nullptr;
+	}
+	else {
+		brain = brains["root"];
 	}
 
 	for (auto parent : from) {
@@ -295,86 +209,53 @@ void Organism::kill() {
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> from) {
-	//cout << "In makeMutatedOffspringFrom" << endl;
-	//cout << from->ID << "  genome? " << from->hasGenome << "  brain? " << from->hasBrain << endl;
-	//if (from->hasBrain) {
-	//	cout << "  buildFromGenome? " << from->brain->buildFromGenome << endl;
-	//}
 	shared_ptr<Organism> newOrg;
-	if (from->hasGenome() && from->hasBrain() && from->brain->buildFromGenome) {
-		//cout << "from->hasGenome && from->hasBrain && from->brain->buildFromGenome" << endl;
-		// if parent has genome and brain which is built from genome, then make a new organism with mutated genome and brain template from parent
-		newOrg = make_shared<Organism>(from, from->genome->makeMutatedGenomeFrom(from->genome), nullptr, PT);
-	} else if (from->hasGenome() && from->hasBrain()) {
-		//cout << "from->hasGenome && from->hasBrain" << endl;
-		// if org has genome and brain, and brain is NOT built from genome, then make new organism with mutated genome and mutated brain
-		newOrg = make_shared<Organism>(from, from->genome->makeMutatedGenomeFrom(from->genome), from->brain->makeMutatedBrainFrom(brain), PT);
-	} else if (!from->hasGenome() && from->hasBrain() && !from->brain->buildFromGenome) {
-		//cout << "!from->hasGenome && from->hasBrain && !from->brain->buildFromGenome" << endl;
-		// if parent has no genome, but has a brain which is not built from genome then make new organism with a mutated brain
-		newOrg = make_shared<Organism>(from, nullptr, from->brain->makeMutatedBrainFrom(brain), PT);
-	} else {
-		cout << "  in makeMutatedOffspringFrom() :: attempt to build new organism where brain->buildFromGenome = true, but parent has no genome. Exiting." << endl;
-		exit(1);
+
+	unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
+	unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
+
+	for (auto genome : from->genomes) {
+		newGenomes[genome.first] = genome.second->makeMutatedGenomeFrom(genome.second);
 	}
 
-	if (!from->hasGenome() && !from->hasBrain()){
-		cout << "  in Organism::makeMutatedOffspringFrom :: attempt to make offspring from parent which have neither genomes nor brains. Exiting." << endl;
-		exit(1);
+	for (auto brain : from->brains) {
+		newBrains[brain.first] = brain.second->makeBrainFrom(brain.second,newGenomes);
+		newBrains[brain.first]->mutate();
 	}
 
+	newOrg = make_shared<Organism>(from, newGenomes, newBrains, PT);
+	
 	return newOrg;
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from) {
-	//cout << "In Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
+
 	shared_ptr<Organism> newOrg;
 
-	if (from[0]->hasGenome()) { // if parents have genomes
+	unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
+	unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
+
+	for (auto genome : from[0]->genomes) {
 		vector<shared_ptr<AbstractGenome>> parentGenomes; // make a list of parents genomes
 		for (auto p : from) {
-			parentGenomes.push_back(p->genome);
+			parentGenomes.push_back(p->genomes[genome.first]);
 		}
+		newGenomes[genome.first] = genome.second->makeMutatedGenomeFromMany(parentGenomes);
 
-		if (from[0]->hasBrain() && from[0]->brain->buildFromGenome){ // if parents have genome and brains and those brains are buildFromGenome
-			newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes),nullptr,PT);
-		} else if (from[0]->hasBrain() && !from[0]->brain->buildFromGenome) { // if parents have genomes and brains and those brains are not buildFromGenome
-			vector<shared_ptr<AbstractBrain>> parentBrains; // make a list of parents brains
-			for (auto p : from) {
-				parentBrains.push_back(p->brain);
-			}
 
-			newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes), from[0]->brain->makeMutatedBrainFromMany(parentBrains), PT);
-
-		} else if (!from[0]->hasBrain()){ // else if there is no brain, create org with mutated genome and no brain (nullptr)
-			newOrg = make_shared<Organism>(from, from[0]->genome->makeMutatedGenomeFromMany(parentGenomes), nullptr, PT);
-		}
-	} else { // parents do not have genomes
-		if (from[0]->hasBrain() && from[0]->brain->buildFromGenome){
-			cout << "  in Organism::makeMutatedOffspringFromMany :: attempt to make offspring from parents with brains which are buildFromGenome, but parents do not have genomes. Exiting." << endl;
-			exit(1);
-		} else if (from[0]->hasBrain()){
-			vector<shared_ptr<AbstractBrain>> parentBrains; // make a list of parents brains
-			for (auto p : from) {
-				parentBrains.push_back(p->brain);
-			}
-			//cout << "oooooooooooooooOOOOOOOOOOOOOOooooooooOOOOOooooooooooOoOoooooooooooooooOOOOOOOOOOooooooooooooooooooooooooooooooooooooooooooooooooooooooo" << endl;
-			newOrg = make_shared<Organism>(from, nullptr, from[0]->brain->makeMutatedBrainFromMany(parentBrains), PT);
-			//cout << " 0000000000000000000000000000000 " << endl;
-			//cout << from[0]->brain->description() << endl;
-			//cout << "bgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtgbgttgtg" << endl;
-			//cout << " :: " << from[0]->brain->makeMutatedBrainFromMany(parentBrains)->description() << endl;
-			//cout << "newOrg: " << newOrg << endl;
-			//cout << "newOrg->brain: " << newOrg->brain << endl;
-			//cout << newOrg->brain->description() << endl;
-		}
-	}
-	if (!from[0]->hasGenome() && !from[0]->hasBrain()){
-		cout << "  in Organism::makeMutatedOffspringFromMany :: attempt to make offspring from parents which have neither genomes nor brains. Exiting." << endl;
-		exit(1);
 	}
 
-	//cout << "  leaving Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from)"<<endl;
+	for (auto brain : from[0]->brains) {
+		vector<shared_ptr<AbstractBrain>> parentBrains; // make a list of parents genomes
+		for (auto p : from) {
+			parentBrains.push_back(p->brains[brain.first]);
+		}
+
+		newBrains[brain.first] = brain.second->makeBrainFromMany(parentBrains, newGenomes);
+		newBrains[brain.first]->mutate();
+	}
+
+	newOrg = make_shared<Organism>(from, newGenomes, newBrains, PT);
 	return newOrg;
 }
 

@@ -42,6 +42,11 @@ public:
 	int retinaType;
 	string numeralDataFileName;
 
+	static shared_ptr<ParameterLink<string>> groupNamePL;
+	static shared_ptr<ParameterLink<string>> brainNamePL;
+	//string groupName;
+	string brainName;
+
 	vector<pair<int, int>> retinalOffsets = { { 0, 0 }, { -1, 0 }, { 1, 0 }, { -1, -1 }, { 0, -1 }, { 1, -1 }, { -1, 1 }, { 0, 1 }, { 1, 1 }, { -2, -2 }, { -1, -2 }, { 0, -2 }, { 1, -2 }, { 2, -2 }, { -2, 2 }, { -1, 2 }, { 0, 2 }, { 1, 2 }, { 2, 2 }, { -2, -1 }, { 2, -1 }, { -2, 0 }, { 2, 0 }, { -2, 1 }, { 2, 1 }, { -3, -3 }, { -2, -3 }, { -1, -3 }, { 0, -3 }, { 1, -3 }, { 2, -3 }, { 3, -3 }, { -3, 3 }, { -2, 3 }, { -1, 3 }, { 0, 3 }, { 1, 3 }, { 2, 3 }, { 3, 3 }, { -3, -2 }, { 3, -2 }, { -3, -1 }, { 3, -1 }, { -3, 0 }, { 3, 0 }, { -3, 1 }, { 3, 1 }, { -3, 2 }, { 3, 2 } };
 	// retina is a list of offsets defining input sensor array to brain
 	// 25 26 27 28 29 30 31
@@ -60,12 +65,10 @@ public:
 
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
 
-	virtual int requiredInputs() override {
-		return inputNodesCount;
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		return { { groupName,{ "B:" + brainName + "," + to_string(inputNodesCount) + "," + to_string(outputNodesCount) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
-	virtual int requiredOutputs() override {
-		return outputNodesCount;
-	}
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__NumeralClassifierWorld__) */

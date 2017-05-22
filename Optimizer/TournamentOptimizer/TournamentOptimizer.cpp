@@ -16,7 +16,7 @@
 
 using namespace std;
 
-shared_ptr<ParameterLink<string>> TournamentOptimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-optimizeValue", (string) "DM[score]", "value to optimize");
+shared_ptr<ParameterLink<string>> TournamentOptimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-optimizeValue", (string) "DM_AVE[score]", "value to optimize");
 shared_ptr<ParameterLink<int>> TournamentOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
 shared_ptr<ParameterLink<int>> TournamentOptimizer::tournamentSizePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT-tournamentSize", 5, "number of organisms considered in each tournament?");
 
@@ -26,7 +26,7 @@ shared_ptr<ParameterLink<int>> TournamentOptimizer::tournamentSizePL = Parameter
  * for each next population genome, randomly select (with replacement) n genomes (where n = Optimizer::tournamentSize)
  * copy to the next generation and mutate the copy.
  */
-void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
+vector<shared_ptr<Organism>> TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	//cout << "In TournamentOptimizer::makeNextGeneration\n";
 	vector<shared_ptr<Organism>> nextPopulation;
 
@@ -59,9 +59,9 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 		nextPopulation.push_back(population[winner]->makeMutatedOffspringFrom(population[winner]));
 		//nextPopulation.push_back(population[winner]);
 	}
-	for (size_t i = 0; i < population.size(); i++) {
-		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
-	}
+	//for (size_t i = 0; i < population.size(); i++) {
+	//	population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
+	//}
 	//population = nextPopulation;
 	//population.resize(0);
 //	while (population.size() > 0){
@@ -74,9 +74,9 @@ void TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &popul
 //		cout << "   done keys" << endl;
 //		population.pop_back();
 //	}
-	population = nextPopulation;
-
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
+	return nextPopulation;
+
 
 
 }

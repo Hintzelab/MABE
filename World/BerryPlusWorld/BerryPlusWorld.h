@@ -210,6 +210,10 @@ public:
 	vector<int> foodRatioLookup;
 	vector<double> foodRewards;
 
+	static shared_ptr<ParameterLink<string>> groupNamePL;
+	static shared_ptr<ParameterLink<string>> brainNamePL;
+	//string groupName;
+	string brainName;
 
 
 	class WorldMap {
@@ -226,29 +230,29 @@ public:
 	BerryPlusWorld(shared_ptr<ParametersTable> _PT = nullptr);
 
 	void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override {
-		//vector<double> scores(groups["default"]->population.size(), 0);
-		int groupSize = groups["default"]->population.size();
+		//vector<double> scores(groups[groupName]->population.size(), 0);
+		int groupSize = groups[groupName]->population.size();
 		if (groupEvaluation) {
 			for (int r = 0; r < repeats; r++) {
-				runWorld(groups["default"], analyse, visualize, debug);
+				runWorld(groups[groupName], analyse, visualize, debug);
 //				for (int i = 0; i < groupSize; i++) {
-//					scores[i] += groups["default"]->population[i]->score;
+//					scores[i] += groups["root"]->population[i]->score;
 //				}
 			}
 		} else {
 			vector<shared_ptr<Organism>> soloPopulation;
-			shared_ptr<Group> soloGroup = make_shared<Group>(soloPopulation, groups["default"]->optimizer, groups["default"]->archivist);
+			shared_ptr<Group> soloGroup = make_shared<Group>(soloPopulation, groups[groupName]->optimizer, groups[groupName]->archivist);
 			for (int i = 0; i < groupSize; i++) {
 				soloGroup->population.clear();
-				soloGroup->population.push_back(groups["default"]->population[i]);
+				soloGroup->population.push_back(groups[groupName]->population[i]);
 				for (int r = 0; r < repeats; r++) {
 					runWorld(soloGroup, analyse, visualize, debug);
-					//scores[i] += groups["default"]->population[i]->score;
+					//scores[i] += groups["root"]->population[i]->score;
 				}
 			}
 		}
-//		for (size_t i = 0; i < groups["default"]->population.size(); i++) {
-//			groups["default"]->population[i]->score = scores[i] / repeatsPL->lookup();
+//		for (size_t i = 0; i < groups["root"]->population.size(); i++) {
+//			groups["root"]->population[i]->score = scores[i] / repeatsPL->lookup();
 //		}
 	}
 
@@ -387,11 +391,8 @@ public:
 
 	void printGrid(Vector2d<int> grid, pair<double, double> loc, int facing);
 
-	virtual int requiredInputs() override {
-		return inputNodesCount;
-	}
-	virtual int requiredOutputs() override {
-		return outputNodesCount;
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		return { { groupName,{ "B:" + brainName + "," + to_string(inputNodesCount) + "," + to_string(outputNodesCount) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 	void SaveWorldState(string fileName, Vector2d<int> grid, Vector2d<int> vistedGrid, vector<pair<double, double>> currentLocation, vector<int> facing, bool reset = false);

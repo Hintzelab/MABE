@@ -11,41 +11,25 @@
 #include "../IPDBrain/IPDBrain.h"
 
 shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,2TFT,TF2T,SIMP,Rand]", "list of strategies which this brain can use");
-
-
-//shared_ptr<ParameterLink<double>> IPDBrain::valueMinPL = Parameters::register_parameter("BRAIN_IPD-valueMin", 0.0, "Minmum value that brain will deliver");
-//shared_ptr<ParameterLink<double>> IPDBrain::valueMaxPL = Parameters::register_parameter("BRAIN_IPD-valueMax", 100.0, "Maximum value that brain will deliver");
-//shared_ptr<ParameterLink<int>> IPDBrain::valueTypePL = Parameters::register_parameter("BRAIN_IPD-valueType", 0, "0 = int, 1 = double");
-//shared_ptr<ParameterLink<int>> IPDBrain::samplesPerValuePL = Parameters::register_parameter("BRAIN_IPD-samplesPerValue", 1, "for each brain value, this many samples will be taken from genome and averaged");
-//
-//shared_ptr<ParameterLink<bool>> IPDBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_IPD-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
-//shared_ptr<ParameterLink<bool>> IPDBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_IPD-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
-//shared_ptr<ParameterLink<int>> IPDBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_IPD-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
+shared_ptr<ParameterLink<string>> IPDBrain::genomeNamePL = Parameters::register_parameter("BRAIN_IPD_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
 	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_IPD-availableStrategies"), availableStrategies);
-
-	//	valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
-//	valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
-//	samplesPerValue = (PT == nullptr) ? samplesPerValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-samplesPerValue");
-//
-//	initializeUniform = (PT == nullptr) ? initializeUniformPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeUniform");
-//	initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
-//	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
+	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_IPD_NAMES-genomeName");
 
 // columns to be added to ave file
 	aveFileColumns.clear();
 	for (auto i:availableStrategies) {
-		aveFileColumns.push_back("brain_" + to_string(i));
+		aveFileColumns.push_back("IPD_" + to_string(i));
 	}
 }
 
-shared_ptr<AbstractBrain> IPDBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
+shared_ptr<AbstractBrain> IPDBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 
 	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues);
-	auto genomeHandler = _genome->newHandler(_genome, true);
+	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
 
 	newBrain->strategy = availableStrategies[genomeHandler->readInt(0, ((int)availableStrategies.size())-1, 77, 0)];
 
@@ -153,20 +137,20 @@ string IPDBrain::description() {
 	return S;
 }
 
-DataMap IPDBrain::getStats() {
+DataMap IPDBrain::getStats(string& prefix) {
 	DataMap dataMap;
 
 	for (auto i : availableStrategies) {
 		if (strategy == i){
-			dataMap.Set("brain_" + i,1.0);
+			dataMap.Set(prefix + "IPD_" + i,1.0);
 		} else {
-			dataMap.Set("brain_" + i,0.0);
+			dataMap.Set(prefix + "IPD_" + i,0.0);
 		}
 	}
 	return (dataMap);
 }
 
-void IPDBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
-	_genome->fillRandom();
+void IPDBrain::initalizeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	_genomes[genomeName]->fillRandom();
 }
 

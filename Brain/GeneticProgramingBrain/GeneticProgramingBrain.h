@@ -70,24 +70,25 @@ public:
 
 	virtual void update() override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override {
-		cout << "  Attempt to makeBrainFromGenome for GeneticProgramming Brain. GeneticProgrammingBrains are not built from Genomes!\n  Exiting." << endl;
-		exit(1);
-	}
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
-	virtual bool requireGenome() {
-		return false;
-	}
-
-	virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) override;
-	virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents) override;
+	virtual shared_ptr<AbstractBrain> makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual shared_ptr<AbstractBrain> makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
 	virtual string description() override;
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
 
 	virtual void resetBrain() override;
 
 	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+
+	virtual unordered_set<string> requiredGenomes() override {
+		return {};
+		// "root" = use empty name space
+		// "GROUP::" = use group name space
+		// "blah" = use "blah namespace at root level
+		// "Group::blah" = use "blah" name space inside of group name space
+	}
 
 };
 

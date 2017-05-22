@@ -174,15 +174,14 @@ outFile.write('}\n')
 # makeTemplateBrain
 
 outFile.write('\n\n//create a template brain\n')
-outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, shared_ptr<ParametersTable> PT = nullptr){\n')
+outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT = nullptr){\n')
 outFile.write('  shared_ptr<AbstractBrain> newBrain;\n')
 outFile.write('  bool found = false;\n')
 outFile.write('  string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");\n')
 #outFile.write('  int hiddenNodes = (PT == nullptr) ? AbstractBrain::hiddenNodesPL->lookup() : PT->lookupInt("BRAIN-hiddenNodes");\n')
 for option in options["Brain"]:
 	outFile.write('  if (brainType == "'+option+'") {\n')
-#	outFile.write('    newBrain = '+option+'Brain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);\n')
-	outFile.write('    newBrain = '+option+'Brain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);\n')
+	outFile.write('    newBrain = '+option+'Brain_brainFactory(inputs, outputs, PT);\n')
 	outFile.write('    found = true;\n')	
 	outFile.write('    }\n')
 outFile.write('  if (found == false){\n')

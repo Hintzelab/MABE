@@ -35,22 +35,32 @@ class AbstractOptimizer {
 
  public:
 	const shared_ptr<ParametersTable> PT;
+	vector<string> aveFileColumns;
 
 	AbstractOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
 
 	}
 
 	virtual ~AbstractOptimizer() = default;
-	virtual void makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
+	virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
 	virtual string maxValueName() {
 		return("score");
 	}
 
-	virtual bool requireGenome(){
+	virtual bool requireGenome() {
 		return false;
 	}
-	virtual bool requireBrain(){
+	virtual bool requireBrain() {
 		return false;
+	}
+
+
+	virtual unordered_set<string> requiredGenomes() {
+		return {};
+		// "root" = use empty name space
+		// "GROUP::" = use group name space
+		// "blah" = use "blah namespace at root level
+		// "Group::blah" = use "blah" name space inside of group name space
 	}
 
 };

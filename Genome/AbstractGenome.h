@@ -151,7 +151,7 @@ public:
 	//// gets data about genome which can be added to a data map
 	//// data is in pairs of strings (key, value)
 	//// the undefined action is to return an empty vector
-	virtual DataMap getStats() {
+	virtual DataMap getStats(string& name) {
 		DataMap data;
 		cout << "Warning! In AbstractGenome::getStats()...\n";
 		return data;

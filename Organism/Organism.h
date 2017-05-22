@@ -35,7 +35,10 @@ class Organism {
 
 	shared_ptr<AbstractGenome> genome = nullptr;
 	shared_ptr<AbstractBrain> brain = nullptr;
-	shared_ptr<ParametersTable> PT; 
+	shared_ptr<ParametersTable> PT;
+
+	unordered_map<string, shared_ptr<AbstractGenome>> genomes;
+	unordered_map<string, shared_ptr<AbstractBrain>> brains;
 
 	//bool hasGenome = false;
 	//bool hasBrain = false;
@@ -58,15 +61,15 @@ class Organism {
 
 	Organism() = delete; 
 	Organism(shared_ptr<ParametersTable> _PT = nullptr);  // make an empty organism
-	Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a brain
-	Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make an organism with one parent, a genome and a brain determined from the parents brain type.
-	Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a organism with many parents, a genome, and a brain determined from the parents brain type.
+	//Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a brain
+	//Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make an organism with one parent, a genome and a brain determined from the parents brain type.
+	//Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a organism with many parents, a genome, and a brain determined from the parents brain type.
 
 
-	//Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a nullptr to brain
-	//Organism(shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a brain
-	//Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT = nullptr);  // make an organism with one parent, a genome and a brain determined from the parents brain type.
-	//Organism(const vector<shared_ptr<Organism>> from, shared_ptr<AbstractGenome> _genome, shared_ptr<ParametersTable> _PT = nullptr);  // make a organism with many parents, a genome, and a brain determined from the parents brain type.
+	Organism(unordered_map<string,shared_ptr<AbstractGenome>>& _genomes, unordered_map<string,shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless organism with a genome, and a brain
+	Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, unordered_map<string, shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT = nullptr);  // make an organism with one parent, a genome and a brain determined from the parents brain type.
+	Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, unordered_map<string, shared_ptr<AbstractBrain>>& _brains, shared_ptr<ParametersTable> _PT = nullptr);  // make a organism with many parents, a genome, and a brain determined from the parents brain type.
+
 
 	virtual ~Organism();
 
