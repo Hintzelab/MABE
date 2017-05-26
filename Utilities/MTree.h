@@ -12,6 +12,7 @@
 #define __BasicMarkovBrainTemplate__MTree__
 
 #include <cwctype>
+#include <cmath> // pow
 #include <fstream>
 #include <iostream>
 #include <iterator>
@@ -460,6 +461,50 @@ public:
 	}
 };
 
+class POW_MTree : public Abstract_MTree {
+public:
+
+	POW_MTree() = default;
+	POW_MTree(vector<shared_ptr<Abstract_MTree>> _branches, shared_ptr<Abstract_MTree> _parent = nullptr) {
+		parent = _parent;
+		branches = _branches;
+		if (branches.size() != 2) {
+			cout << "  In POW_MTree::constructor - branches does not contain 2 elements!" << endl;
+			exit(1);
+		}
+	}
+	virtual ~POW_MTree() = default;
+	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
+		if (_branches.size() == 0) {
+			for (auto b : branches) {
+				_branches.push_back(b->makeCopy());
+			}
+		}
+		shared_ptr<Abstract_MTree> newTree = make_shared<POW_MTree>(_branches);
+		return newTree;
+	}
+
+	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, const vector<vector<double>>& vectorData) override {
+		return { pow( branches[0]->eval(dataMap, PT, vectorData)[0] , branches[1]->eval(dataMap, PT, vectorData)[0] ) };
+	}
+	virtual void show(int indent = 0) override {
+		cout << string(indent, '\t') << "** POW" << endl;
+		indent++;
+		for (auto b : branches) {
+			b->show(indent);
+		}
+	}
+	virtual string getFormula() override {
+		string args = "(" + branches[0]->getFormula() + "^" + branches[1]->getFormula() + ")";
+		return args;
+	}
+	virtual string type() override {
+		return "POW";
+	}
+	virtual int numBranches() override {
+		return 2;
+	}
+};
 
 class SIN_MTree : public Abstract_MTree {
 public:
@@ -721,7 +766,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 	}
 
 	// some ops are special (they can be represented by their symbol)
-	char ops[] = { '+','-','*','/' }; // add %,^,|,&, etc)
+	char ops[] = { '+','-','*','/','^' }; // add %,|,&, etc)
 	// done with setup
 
 	string currString = ""; // working string
@@ -917,6 +962,13 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 		}
 		if (op == '/') {
 			auto op = make_shared<DIVIDE_MTree>(branches, parent);
+			for (auto b : op->branches) {
+				b->parent = op;
+			}
+			return op;
+		}
+		if (op == '^') {
+			auto op = make_shared<POW_MTree>(branches, parent);
 			for (auto b : op->branches) {
 				b->parent = op;
 			}
