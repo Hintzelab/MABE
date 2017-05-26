@@ -36,6 +36,7 @@ vector<shared_ptr<Organism>> GAOptimizer::makeNextGeneration(vector<shared_ptr<O
 	for (auto org : population) {
 		Scores.push_back(optimizeFormula->eval(org->dataMap,PT)[0]);
 		aveScore += Scores.back();
+		org->dataMap.Append("optimizeValue", Scores.back());
 	}
 
 	aveScore /= population.size();
