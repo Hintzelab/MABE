@@ -43,9 +43,9 @@ LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
 	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
 
 // columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 	for (int i = 0; i < nrOutputValues; i++) {
-		aveFileColumns.push_back("brainValue" + to_string(i));
+		popFileColumns.push_back("brainValue" + to_string(i));
 	}
              */
 }

@@ -71,9 +71,9 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 	brainVectors.clear();
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 	if (buildMode == "codon") {
-		aveFileColumns.push_back("aveFormulaLength");
+		popFileColumns.push_back("aveFormulaLength");
 	}
 
 }

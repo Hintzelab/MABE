@@ -287,8 +287,8 @@ MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
 	genomeFileColumns.push_back("chromosomeLengths");
 	genomeFileColumns.push_back("sites");
 	// define columns to added to ave files
-	aveFileColumns.clear();
-	aveFileColumns.push_back("genomeLength");
+	popFileColumns.clear();
+	popFileColumns.push_back("genomeLength");
 }
 
 // make a genome with 1 chromosome

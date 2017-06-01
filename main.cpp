@@ -285,31 +285,31 @@ int main(int argc, const char * argv[]) {
 		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
 		progenitor->kill();
 
-		// aveFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
-		// ** aveFileColumns define what will appear in the ave.csv file **
+		// popFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
+		// ** popFileColumns define what will appear in the pop.csv file **
 		// the following code asks world, genomes and brains for ave file columns
-		vector<string> aveFileColumns;
-		aveFileColumns.clear();
-		aveFileColumns.push_back("update");
-		aveFileColumns.insert(aveFileColumns.end(), world->aveFileColumns.begin(), world->aveFileColumns.end());
-		aveFileColumns.insert(aveFileColumns.end(), optimizer->aveFileColumns.begin(), optimizer->aveFileColumns.end());
+		vector<string> popFileColumns;
+		popFileColumns.clear();
+		popFileColumns.push_back("update");
+		popFileColumns.insert(popFileColumns.end(), world->popFileColumns.begin(), world->popFileColumns.end());
+		popFileColumns.insert(popFileColumns.end(), optimizer->popFileColumns.begin(), optimizer->popFileColumns.end());
 
 		for (auto genome : population[0]->genomes) {
-			for (auto c : genome.second->aveFileColumns) {
-				(genome.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(genome.first + "_" + c);
-				//(genome.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(genome.second->PT->getTableNameSpace() + "_" + c);
+			for (auto c : genome.second->popFileColumns) {
+				(genome.first == "root") ? popFileColumns.push_back(c) : popFileColumns.push_back(genome.first + "_" + c);
+				//(genome.first == "root") ? popFileColumns.push_back(c) : popFileColumns.push_back(genome.second->PT->getTableNameSpace() + "_" + c);
 			}
 		}
 		for (auto brain : population[0]->brains) {
-			for (auto c : brain.second->aveFileColumns) {
-				(brain.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(brain.first + "_" + c);
-				//(brain.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(brain.second->PT->getTableNameSpace() + "_" + c);
+			for (auto c : brain.second->popFileColumns) {
+				(brain.first == "root") ? popFileColumns.push_back(c) : popFileColumns.push_back(brain.first + "_" + c);
+				//(brain.first == "root") ? popFileColumns.push_back(c) : popFileColumns.push_back(brain.second->PT->getTableNameSpace() + "_" + c);
 				//cout << brain.first << "   " << c << endl;
 			}
 		}
 
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(popFileColumns, optimizer->optimizeFormula, PT);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[groupInfo.first] = make_shared<Group>(population, optimizer, archivist);

@@ -23,10 +23,10 @@ AbstractWorld(_PT) {
 	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_SOF_NAMES-brainName");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
-	aveFileColumns.push_back("x");
-	aveFileColumns.push_back("y");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("x");
+	popFileColumns.push_back("y");
 	
 	ifstream scoreMap;
 	string rawLine;

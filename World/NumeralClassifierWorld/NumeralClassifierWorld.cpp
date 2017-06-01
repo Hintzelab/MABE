@@ -111,15 +111,15 @@ NumeralClassifierWorld::NumeralClassifierWorld(shared_ptr<ParametersTable> _PT) 
 	}
 
 //	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
 
 	for (int i = 0; i < 10; i++) {
-		aveFileColumns.push_back(to_string(i) + "_correct");
-		aveFileColumns.push_back(to_string(i) + "_incorrect");
+		popFileColumns.push_back(to_string(i) + "_correct");
+		popFileColumns.push_back(to_string(i) + "_incorrect");
 	}
-	aveFileColumns.push_back("totalCorrect");
-	aveFileColumns.push_back("totalIncorrect");
+	popFileColumns.push_back("totalCorrect");
+	popFileColumns.push_back("totalIncorrect");
 }
 
 

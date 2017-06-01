@@ -55,7 +55,7 @@ public:
 	//unordered_map<int, vector<weak_ptr<Organism>>> checkpoints;  // used by SSwD only - this keeps lists of orgs that may be written (if they have living decendents)
 	//// key is Global::nextGenomeWrite or Global::nextDataWrite
 	LODwAPArchivist() = delete;
-	LODwAPArchivist(vector<string> aveFileColumns = { }, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr);
+	LODwAPArchivist(vector<string> popFileColumns = { }, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr);
 
 	virtual ~LODwAPArchivist() = default;
 

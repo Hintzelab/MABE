@@ -266,8 +266,8 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	genomeFileColumns.push_back("genomeLength");
 	genomeFileColumns.push_back("sites");
 	// define columns to added to ave files
-	aveFileColumns.clear();
-	aveFileColumns.push_back("genomeLength");
+	popFileColumns.clear();
+	popFileColumns.push_back("genomeLength");
 
 	recordDataMap();
 }

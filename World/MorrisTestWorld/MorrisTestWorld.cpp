@@ -110,9 +110,9 @@ MorrisTestWorld::MorrisTestWorld(shared_ptr<ParametersTable> _PT) :
 	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_MORRISTEST_NAMES-brainName");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
-	aveFileColumns.push_back("findCount");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("findCount");
 }
 
 void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {

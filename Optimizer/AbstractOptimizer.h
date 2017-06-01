@@ -35,7 +35,7 @@ class AbstractOptimizer {
 
  public:
 	const shared_ptr<ParametersTable> PT;
-	vector<string> aveFileColumns;
+	vector<string> popFileColumns;
 
 	AbstractOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
 

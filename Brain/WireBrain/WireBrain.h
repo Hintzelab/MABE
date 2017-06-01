@@ -132,7 +132,7 @@ public:
 	virtual ~WireBrain() = default;
 
 	virtual void initalize();
-	virtual void connectPruneAndSetAveColumns(vector<pair<int, int>> wormholeList);
+	virtual void connectPruneAndSetPopColumns(vector<pair<int, int>> wormholeList);
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 	virtual void chargeUpdate();
 	virtual void chargeUpdateTrit();

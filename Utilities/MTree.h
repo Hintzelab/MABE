@@ -181,19 +181,19 @@ public:
 	}
 };
 
-class fromDataMapAve_MTree : public Abstract_MTree {
+class fromDataMapPop_MTree : public Abstract_MTree {
 public:
 
 	string key;
 
-	fromDataMapAve_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
+	fromDataMapPop_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
 		parent = _parent;
 	}
-	fromDataMapAve_MTree(string _key) : key(_key) {
+	fromDataMapPop_MTree(string _key) : key(_key) {
 	}
-	virtual ~fromDataMapAve_MTree() = default;
+	virtual ~fromDataMapPop_MTree() = default;
 	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
-		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapAve_MTree>(key);
+		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapPop_MTree>(key);
 		return newTree;
 	}
 
@@ -203,7 +203,7 @@ public:
 		return output;
 	}
 	virtual void show(int indent = 0) override {
-		cout << string(indent, '\t') << "** fromDataMapAve_MTree\t\"" << key << "\"" << endl;
+		cout << string(indent, '\t') << "** fromDataMapPop_MTree\t\"" << key << "\"" << endl;
 	}
 	virtual string getFormula() override {
 		return "DM_AVE[" + key + "]";
@@ -757,7 +757,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 				}
 			}
 			index++; // move index to char after ']'
-			branches.push_back(make_shared<fromDataMapAve_MTree>(argsString));
+			branches.push_back(make_shared<fromDataMapPop_MTree>(argsString));
 			//cout << "in DM_AVE['" << argsString << "'].  index = " << index << endl;
 			//exit(1);
 		}

@@ -136,13 +136,13 @@ outFile.write('}\n')
 # makeArchivist
 
 outFile.write('\n\n//create an archivist\n')
-outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root){\n')
+outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root){\n')
 outFile.write('  shared_ptr<DefaultArchivist> newArchivist;\n')
 outFile.write('  bool found = false;\n')
 outFile.write('  string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");\n')
 for option in options["Archivist"]:
 	outFile.write('  if (archivistType == "'+option+'") {\n')
-	outFile.write('    newArchivist = make_shared<'+option+'Archivist>(aveFileColumns, _maxFormula, PT);\n')
+	outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT);\n')
 	outFile.write('    found = true;\n')	
 	outFile.write('    }\n')
 outFile.write('  if (!found){\n')

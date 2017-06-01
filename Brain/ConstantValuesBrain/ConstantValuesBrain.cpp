@@ -35,9 +35,9 @@ ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared
 	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_CONSTANT_NAMES-genomeName");
 
 // columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 	for (int i = 0; i < nrOutputValues; i++) {
-		aveFileColumns.push_back("brainValue" + to_string(i));
+		popFileColumns.push_back("brainValue" + to_string(i));
 	}
 }
 

@@ -51,9 +51,10 @@ class DataMap {
 public:
 
 	enum outputBehaviors {
-		LIST = 1, AVE = 2, SUM = 4, PROD = 8, STDERR = 16, FIRST = 32
+		LIST = 1, AVE = 2, SUM = 4, PROD = 8, STDERR = 16, FIRST = 32, VAR = 64
 	}; // 0 = do not save or default..?
 	map<string, int> outputBehavior; // Defines how each element should be written to file - if element not found, LIST (write out list) is used.
+	static map<string,int> knownOutputBehaviors;
 
 private:
 	enum dataMapType {
@@ -522,6 +523,56 @@ public:
 		return returnValue;
 	}
 
+	inline double GetVariance(string key) { // not ref, we may need to change to a "{LIST}" key
+		dataMapType typeOfKey = findKeyInData(key);
+		double averageValue(0);
+		double varianceValue(0);
+		if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+			for (auto e : boolData[key]) {
+				averageValue += (double) e;
+			}
+			averageValue /= boolData[key].size();
+			for (auto e : boolData[key]) {
+				varianceValue += ((double) e - averageValue)*((double) e - averageValue);
+			}
+			if (boolData[key].size() > 0)
+				varianceValue /= boolData[key].size()-1;
+			else
+				varianceValue = 0;
+		} else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+			for (auto e : doubleData[key]) {
+				averageValue += (double) e;
+			}
+			averageValue /= doubleData[key].size();
+			for (auto e : doubleData[key]) {
+				varianceValue += ((double) e - averageValue)*((double) e - averageValue);
+			}
+			if (doubleData[key].size() > 0)
+				varianceValue /= doubleData[key].size()-1;
+			else
+				varianceValue = 0;
+		} else if (typeOfKey == INT || typeOfKey == INTSOLO) {
+			for (auto e : intData[key]) {
+				averageValue += (double) e;
+			}
+			averageValue /= intData[key].size();
+			for (auto e : intData[key]) {
+				varianceValue += ((double) e - averageValue)*((double) e - averageValue);
+			}
+			if (intData[key].size() > 0)
+				varianceValue /= intData[key].size()-1;
+			else
+				varianceValue = 0;
+		} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+			cout << "  in DataMap::GetVariance attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
+			exit(1);
+		} else if (typeOfKey == NONE) {
+			cout << "  in DataMap::GetVariance attempt to get value from nonexistent key \"" << key << "\".\n  Exiting." << endl;
+			exit(1);
+		}
+		return varianceValue;
+	}
+
 	// get ave of values in a vector - must be bool, double or, int
 	inline double GetSum(string key) { // not ref, we may need to change to a "{LIST}" key
 		dataMapType typeOfKey = findKeyInData(key);
@@ -625,7 +676,7 @@ public:
 				}
 
 				if (aveOnly) {
-					OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
+					OB = OB & (AVE | FIRST | VAR); // if aveOnly, only output AVE on the entries that have been set for AVE
 				}
 
 				if (OB & FIRST) { // save first (only?) element in vector with key as column name
@@ -667,6 +718,10 @@ public:
 				if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
 					headerStr = headerStr + FileManager::separator + i + "_AVE";
 					dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
+				}
+				if (OB & VAR) { // key_VAR = variance of vector (will error if of type string!)
+					headerStr = headerStr + FileManager::separator + i + "_VAR";
+					dataStr = dataStr + FileManager::separator + to_string(GetVariance(i));
 				}
 				if (OB & SUM) { // key_SUM = sum of vector
 					headerStr = headerStr + FileManager::separator + i + "_SUM";

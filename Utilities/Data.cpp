@@ -24,6 +24,7 @@ string FileManager::outputDirectory = "./";
 map<string, vector<string>> FileManager::fileColumns;
 map<string, ofstream> FileManager::files; // list of files (NAME,ofstream)
 map<string, bool> FileManager::fileStates; // list of files states (NAME,open?)
+map<string, int> DataMap::knownOutputBehaviors = { {"LIST",LIST}, {"AVE",AVE}, {"SUM",SUM}, {"PROD",PROD}, {"STDERR",STDERR}, {"FIRST",FIRST}, {"VAR",VAR} };
 
 void FileManager::writeToFile(const string& fileName, const string& data, const string& header) {
 	openFile(fileName, header); // make sure that the file is open and ready to be written to

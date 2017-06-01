@@ -37,8 +37,8 @@ class Tournament2Optimizer : public AbstractOptimizer {
 		tournamentSizeLPL = (PT == nullptr) ? tournamentSizePL : Parameters::getIntLink("OPTIMIZER_TOURNAMENT2-tournamentSize", PT);
 		selfRateLPL = (PT == nullptr) ? selfRatePL : Parameters::getDoubleLink("OPTIMIZER_TOURNAMENT2-selfRate", PT);
 
-		aveFileColumns.clear();
-		//aveFileColumns.push_back("Tournament2_numOffspring");
+		popFileColumns.clear();
+		//popFileColumns.push_back("Tournament2_numOffspring");
 
 	}
 

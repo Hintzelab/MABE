@@ -101,15 +101,15 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
-	aveFileColumns.push_back("CC");
-	aveFileColumns.push_back("DD");
-	aveFileColumns.push_back("CD");
-	aveFileColumns.push_back("DC");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("CC");
+	popFileColumns.push_back("DD");
+	popFileColumns.push_back("CD");
+	popFileColumns.push_back("DC");
 	if (playsVsFixedStrategies > 0) {
 		for (auto s : fixedStrategies) {
-			aveFileColumns.push_back("score_vs_" + s);
+			popFileColumns.push_back("score_vs_" + s);
 		}
 	}
 }
