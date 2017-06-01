@@ -29,6 +29,8 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 	popFileColumns.clear();
 	popFileColumns.push_back("score");
 	popFileColumns.push_back("score_VAR");
+	popFileColumns.push_back("optimizeValue");
+	popFileColumns.push_back("optimizeValue_VAR");
 }
 
 // score is number of outputs set to 1 (i.e. output > 0) squared

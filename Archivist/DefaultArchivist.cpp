@@ -104,15 +104,16 @@ DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abs
 			uniqueColumnNameToOutputBehaviors[key] = 0;
 			continue;
 		}
-		if ((key.length() > 3) && (key.at(key.length()-4)=='_')) {
-			if (DataMap::knownOutputBehaviors.find(key.substr(key.length()-3)) == DataMap::knownOutputBehaviors.end()) { // if mask not known
+		size_t downslashPos = key.find_last_of('_');
+		if (downslashPos != string::npos) { // if there is a downslash
+			if (DataMap::knownOutputBehaviors.find(key.substr(downslashPos+1)) == DataMap::knownOutputBehaviors.end()) { // if word after downslash does not indicate a known mask
 				cout << "In DefaultArchivist::writerealTimeFiles :: Error, key '" << key << "' specifies an unknown output behavior (part after underscore)";
 			}
 			else {
-				if (uniqueColumnNameToOutputBehaviors.find(key.substr(0,key.length()-4)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
+				if (uniqueColumnNameToOutputBehaviors.find(key.substr(0,downslashPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
 					uniqueColumnNameToOutputBehaviors[key] = DataMap::knownOutputBehaviors[key];
 				} else { // key already in map
-					uniqueColumnNameToOutputBehaviors[key.substr(0,key.length()-4)] |= DataMap::knownOutputBehaviors[key.substr(key.length()-3)];
+					uniqueColumnNameToOutputBehaviors[key.substr(0,downslashPos)] |= DataMap::knownOutputBehaviors[key.substr(downslashPos+1)];
 				}
 			}
 		} else { // add key normally, because it has no special flags specified
