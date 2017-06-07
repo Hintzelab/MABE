@@ -52,6 +52,9 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "LSTM";
+	}
 
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;

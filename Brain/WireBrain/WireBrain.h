@@ -141,6 +141,10 @@ public:
 	virtual void displayBrainState();
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "Wire";
+	}
+
 	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 	virtual unordered_set<string> requiredGenomes() override {
 		return { genomeName };

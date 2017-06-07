@@ -93,7 +93,7 @@ shared_ptr<ParameterLink<int>> BerryWorld::repeatsPL = Parameters::register_para
 shared_ptr<ParameterLink<bool>> BerryWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY-groupEvaluation", false, "if true, evaluate population concurrently");
 
 
-shared_ptr<ParameterLink<string>> BerryWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> BerryWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> BerryWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
@@ -662,7 +662,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 			BerryWorld::SaveWorldState(visualizationFileName, grid, visitedGrid, currentLocation, facing, true);
 		}
 
-		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : (int)MAXSCORE * worldUpdatesBaisedOnInitial;
+		int realWorldUpdates = (worldUpdatesBaisedOnInitial <= 0) ? worldUpdates : (int)(MAXSCORE * worldUpdatesBaisedOnInitial);
 		for (int t = 0; t < realWorldUpdates; t++) {  //run agent for "worldUpdates" brain updates
 			orgList.clear();
 			for (int i = 0; i < (int) group->population.size(); i++) {

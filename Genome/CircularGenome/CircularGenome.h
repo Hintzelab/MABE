@@ -194,6 +194,13 @@ public:
 // the undefined action is to return an empty vector
 	virtual DataMap getStats(string& prefix) override;
 
+	virtual string getType() override{
+		return "Circular";
+	}
+
+	virtual DataMap serialize(string& name) override;
+	virtual void deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) override;
+
 	virtual void recordDataMap() override;
 
 	// load all genomes from a file

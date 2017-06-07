@@ -31,7 +31,7 @@ public:
 	//string groupName;
 	string brainName;
 
-	vector<int> scoreMatrix;
+	vector<double> scoreMatrix;
 	int x, y;
 
 	

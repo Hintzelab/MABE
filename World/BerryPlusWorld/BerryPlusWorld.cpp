@@ -112,7 +112,7 @@ shared_ptr<ParameterLink<bool>> BerryPlusWorld::relativeScoringPL = Parameters::
 shared_ptr<ParameterLink<int>> BerryPlusWorld::repeatsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-repeats", 3, "Number of times to test each Organism per generation");
 shared_ptr<ParameterLink<bool>> BerryPlusWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY_PLUS-groupEvaluation", false, "if true, evaluate population concurrently");
 
-shared_ptr<ParameterLink<string>> BerryPlusWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_PLUS_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> BerryPlusWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_PLUS_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> BerryPlusWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_PLUS_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 
@@ -422,7 +422,7 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 
 void BerryPlusWorld::printGrid(Vector2d<int> grid, pair<double, double> loc, int facing) {
 
-	int FD = (int) (((double) facing / (double) numberOfDirections) * 8.0) + .5;
+	int FD = (int) ((((double) facing / (double) numberOfDirections) * 8.0) + .5);
 	if (FD > 7) {
 		FD = 0;
 	}
@@ -561,7 +561,7 @@ void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visual
 	for (int worldCount = 0; worldCount < numWorlds; worldCount++) {
 
 		vector<double> scores(group->population.size(), 0);
-		int MAXSCORE = 1; // scores will be divided by MAXSCORE. If relativeScoring is true MAXSCORE will be set (see relativeScoring/MAXSCORE below)
+		double MAXSCORE = 1; // scores will be divided by MAXSCORE. If relativeScoring is true MAXSCORE will be set (see relativeScoring/MAXSCORE below)
 		int FOODCOUNT = 0; // used if modulateWorldTime is set
 
 		vector<int> novelty(group->population.size(), 0);

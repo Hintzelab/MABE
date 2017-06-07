@@ -12,41 +12,42 @@
 
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataSequence", (string) ":100",
 		"How often to write to data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_genomeSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeSequence", (string) ":1000",
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-organismSequence", (string) ":1000",
 		"How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_pruneIntervalPL = Parameters::register_parameter("ARCHIVIST_LODWAP-pruneInterval", 100, "How often to attempt to prune LOD and actually write out to files");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 100, "how long to run after updates (to get allow time for coalescence)");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_DataFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileName", (string) "data.csv", "name of genome file (stores genomes for line of decent)");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_GenomeFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeFileName", (string) "genome.csv", "name of data file (stores everything but genomes)");
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_DataFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileName", (string) "LOD_data.csv", "name of genome file (stores genomes for line of decent)");
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_OrganismFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeFileName", (string) "LOD_organism.csv", "name of data file (stores everything but genomes)");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeDataFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeDataFile", true, "if true, a data file will be written");
-shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeGenomeFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeGenomeFile", true, "if true, a genome file will be written");
-//shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_dataFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileShowAllLists", true, "if true, lists named 'all'* in data map will be saved");
+shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeOrganismFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeOrganismFile", true, "if true, a organism file will be written");
 
-LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT) :
-		DefaultArchivist(aveFileColumns, _maxFormula, _PT) {
+LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+		DefaultArchivist(aveFileColumns, _maxFormula, _PT, _groupPrefix) {
 
 	pruneInterval = (PT == nullptr) ? LODwAP_Arch_pruneIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-pruneInterval");
 	terminateAfter = (PT == nullptr) ? LODwAP_Arch_terminateAfterPL->lookup() : PT->lookupInt("ARCHIVIST_LODWAP-terminateAfter");
 	DataFileName = (PT == nullptr) ? LODwAP_Arch_DataFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-dataFileName");
-	GenomeFileName = (PT == nullptr) ? LODwAP_Arch_GenomeFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeFileName");
+	DataFileName = (groupPrefix == "") ? DataFileName : groupPrefix + "__" + DataFileName;
+	OrganismFileName = (PT == nullptr) ? LODwAP_Arch_OrganismFileNamePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeFileName");
+	OrganismFileName = (groupPrefix == "") ? OrganismFileName : groupPrefix + "__" + OrganismFileName;
+
 	writeDataFile = (PT == nullptr) ? LODwAP_Arch_writeDataFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeDataFile");
-	writeGenomeFile = (PT == nullptr) ? LODwAP_Arch_writeGenomeFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeGenomeFile");
-	//dataFileShowAllLists = (PT == nullptr) ? LODwAP_Arch_dataFileShowAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-dataFileShowAllLists");
+	writeOrganismFile = (PT == nullptr) ? LODwAP_Arch_writeOrganismFilePL->lookup() : PT->lookupBool("ARCHIVIST_LODWAP-writeOrganismFile");
 
 	dataSequence.push_back(0);
-	genomeSequence.push_back(0);
+	organismSequence.push_back(0);
 
 	string dataSequenceStr = (PT == nullptr) ? LODwAP_Arch_dataSequencePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-dataSequence");
-	string genomeSequenceStr = (PT == nullptr) ? LODwAP_Arch_genomeSequencePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-genomeSequence");
+	string genomeSequenceStr = (PT == nullptr) ? LODwAP_Arch_organismSequencePL->lookup() : PT->lookupString("ARCHIVIST_LODWAP-organismSequence");
 
 	dataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
 	if (dataSequence.size() == 0) {
 		cout << "unable to translate ARCHIVIST_LODWAP-dataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
 		exit(1);
 	}
-	genomeSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
-	if (genomeSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_LODWAP-genomeSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+	organismSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
+	if (organismSequence.size() == 0) {
+		cout << "unable to translate ARCHIVIST_LODWAP-organismSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
 		exit(1);
 	}
 
@@ -59,18 +60,18 @@ LODwAPArchivist::LODwAPArchivist(vector<string> aveFileColumns, shared_ptr<Abstr
 		}
 	}
 
-	if (writeGenomeFile != false) {
-		genomeSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
-		if (genomeSequence.size() == 0) {
-			cout << "unable to translate ARCHIVIST_SSWD-genomeSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+	if (writeOrganismFile != false) {
+		organismSequence = seq(genomeSequenceStr, Global::updatesPL->lookup(), true);
+		if (organismSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_SSWD-organismSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
 			exit(1);
 		}
 	}
 
 	dataSeqIndex = 0;
-	genomeSeqIndex = 0;
+	organismSeqIndex = 0;
 	nextDataWrite = dataSequence[dataSeqIndex];
-	nextGenomeWrite = genomeSequence[genomeSeqIndex];
+	nextOrganismWrite = organismSequence[organismSeqIndex];
 
 	lastPrune = 0;
 
@@ -94,14 +95,14 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 			realtimeDataSeqIndex++;
 		}
 	}
-	if ((Global::update == realtimeGenomeSequence[realtimeGenomeSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
-		saveSnapshotGenomes(population);
-		if (realtimeGenomeSeqIndex + 1 < (int) realtimeGenomeSequence.size()) {
-			realtimeGenomeSeqIndex++;
+	if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
+		saveSnapshotOrganisms(population);
+		if (realtimeOrganismSeqIndex + 1 < (int) realtimeOrganismSequence.size()) {
+			realtimeOrganismSeqIndex++;
 		}
 	}
 
-	if (writeGenomeFile && find(genomeSequence.begin(), genomeSequence.end(), Global::update) != genomeSequence.end()) {
+	if (writeOrganismFile && find(organismSequence.begin(), organismSequence.end(), Global::update) != organismSequence.end()) {
 		for (auto org : population) {  // if this update is in the genome sequence, turn on genome tracking.
 			org->trackGenome = true;
 		}
@@ -156,34 +157,9 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 			while ((effective_MRCA->timeOfBirth >= nextDataWrite) && (nextDataWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
 				shared_ptr<Organism> current = LOD[nextDataWrite - lastPrune];
 				current->dataMap.Set("update", nextDataWrite);
-//				if (dataFileConvertAllLists) {
-//					OldDataMap TempMap;
-//					for (auto key : current->dataMap.getKeys()) {
-//						if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
-//							double temp = 0;
-//							vector<double> values;
-//							convertCSVListToVector(current->dataMap.Get(key), values);
-//							for (auto v : values) {
-//								temp += v;
-//							}
-//							temp /= (double) values.size();
-//							TempMap.Set(key.substr(3, key.size() - 1), temp);
-//							if (dataFileShowAllLists) {
-//								TempMap.Set(key, current->dataMap.Get(key));
-//							}
-//						} else {
-//							TempMap.Set(key, current->dataMap.Get(key));
-//						}
-//					}
-////					for (auto file : files) {  // for each file in files
-////						TempMap.writeToFile(file.first, file.second);  // append new data to the file
-////					}
-//					TempMap.writeToFile(DataFileName, files[DataFileName]);
-//				} else {
-////					for (auto file : files) {  // for each file in files
+				current->dataMap.setOutputBehavior("update", DataMap::FIRST);
 				current->dataMap.writeToFile(DataFileName, files[DataFileName]);  // append new data to the file
-////					}
-//				}
+				current->dataMap.Clear("update");
 				if ((int) dataSequence.size() > dataSeqIndex + 1) {
 					dataSeqIndex++;
 					nextDataWrite = dataSequence[dataSeqIndex];
@@ -194,24 +170,31 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 			}
 		}
 
-		//Save Genomes
-		if (writeGenomeFile) {
+		//Save Organisms
+		if (writeOrganismFile) {
 
-			while ((effective_MRCA->timeOfBirth >= nextGenomeWrite) && (nextGenomeWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
+			while ((effective_MRCA->timeOfBirth >= nextOrganismWrite) && (nextOrganismWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
 
-				shared_ptr<Organism> current = LOD[nextGenomeWrite - lastPrune];
-				if (current->hasGenome()) { // only write a genome if org on LOD has a genome!
-					current->genome->dataMap.Set("sites", current->genome->genomeToStr());
-					current->genome->dataMap.Set("update", nextGenomeWrite);
-					current->genome->dataMap.Set("ID", current->dataMap.GetIntVector("ID")[0]);
-					current->genome->dataMap.writeToFile(GenomeFileName, current->genome->genomeFileColumns);  // append new data to the file
+				shared_ptr<Organism> current = LOD[nextOrganismWrite - lastPrune];
+
+				DataMap OrgMap;
+				OrgMap.Set("ID", current->ID);
+				OrgMap.Set("update", nextOrganismWrite);
+				OrgMap.setOutputBehavior("update", DataMap::FIRST);
+
+				for (auto genome : current->genomes) {
+					OrgMap.Merge(genome.second->serialize("GENOME_" + genome.first));
 				}
+				for (auto brain : current->brains) {
+					OrgMap.Merge(brain.second->serialize("BRAIN_" + brain.first));
+				}
+				OrgMap.writeToFile(OrganismFileName); // append new data to the file
 
-				if ((int) genomeSequence.size() > genomeSeqIndex + 1) {
-					genomeSeqIndex++;
-					nextGenomeWrite = genomeSequence[genomeSeqIndex];
+				if ((int) organismSequence.size() > organismSeqIndex + 1) {
+					organismSeqIndex++;
+					nextOrganismWrite = organismSequence[organismSeqIndex];
 				} else {
-					nextGenomeWrite = Global::updatesPL->lookup() + terminateAfter + 1;
+					nextOrganismWrite = Global::updatesPL->lookup() + terminateAfter + 1;
 				}
 			}
 		}
@@ -237,11 +220,11 @@ bool LODwAPArchivist::isDataUpdate(int checkUpdate) {
 	return check;
 }
 
-bool LODwAPArchivist::isGenomeUpdate(int checkUpdate) {
+bool LODwAPArchivist::isOrganismUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
-	bool check = DefaultArchivist::isGenomeUpdate(checkUpdate);
-	check = check || find(genomeSequence.begin(), genomeSequence.end(), checkUpdate) != genomeSequence.end();
+	bool check = DefaultArchivist::isOrganismUpdate(checkUpdate);
+	check = check || find(organismSequence.begin(), organismSequence.end(), checkUpdate) != organismSequence.end();
 	return check;
 }

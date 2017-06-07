@@ -11,7 +11,7 @@
 #include "SOFWorld.h"
 
 shared_ptr<ParameterLink<string>> SOFWorld::scoreMapFilenamePL = Parameters::register_parameter("WORLD_SOF-scoreMapFilename", (string)"World/SOFWorld/scoreMap_20x20_2peaks.txt", "name of file containing score map.");
-shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 
@@ -71,8 +71,8 @@ void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 	brain->update();
 	//double score = 0.0;
 	
-	double local_x = brain->readOutput(0);
-	double local_y = brain->readOutput(1);
+	int local_x = (int)brain->readOutput(0);
+	int local_y = (int)brain->readOutput(1);
 	
 	if(local_x < 0){
 		local_x = 0;
@@ -88,9 +88,9 @@ void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 		local_y = y-1;
 	}
 	
-	double key = (x*local_y) + local_x;
+	int key = (x*local_y) + local_x;
 	
-	double score = scoreMatrix[key];
+	double score = (double)scoreMatrix[key];
 
 	if(debug){
 		cout << local_x << "," << local_y << "  :  " << score << endl;

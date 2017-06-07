@@ -43,7 +43,7 @@ public:
 
 	double valueMin;
 	double valueMax;
-	double valueType;
+	int valueType;
 	int samplesPerValue;
 
 	bool initializeUniform;
@@ -66,6 +66,9 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "ConstantValues";
+	}
 
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;

@@ -110,8 +110,8 @@ void IPDBrain::update() {
 			outputValues[0] = C;
 		}
 		else {
-			int lastMove = movesSelf[((int)movesSelf.size()) - 1];
-			int lastMoveOther = movesOther[((int)movesOther.size()) - 1];
+			int lastMove = (int)movesSelf[((int)movesSelf.size()) - 1];
+			int lastMoveOther = (int)movesOther[((int)movesOther.size()) - 1];
 			if (lastMove == C && lastMoveOther == C) {
 				outputValues[0] = C;
 			}

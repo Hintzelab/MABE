@@ -525,13 +525,49 @@ DataMap MultiGenome::getStats(string& prefix) {
 	return (dataMap);
 }
 
+DataMap MultiGenome::serialize(string& name) {
+	DataMap serialDataMap;
+
+	string chromosomeLengths = "\"[";
+	for (size_t c = 0; c < chromosomes.size(); c++) {
+		chromosomeLengths += to_string(chromosomes[c]->size()) + ",";
+	}
+	chromosomeLengths.pop_back();
+	chromosomeLengths += "]\"";
+	serialDataMap.Set(name + "_chromosomeLengths", chromosomeLengths);
+	serialDataMap.Set(name + "_sites", genomeToStr());
+	return serialDataMap;
+}
+
+// given a DataMap and PT, return genome [name] from the DataMap
+void MultiGenome::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+	// make sure that data has needed columns
+	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_chromosomeLengths") == orgData.end()) {
+		cout << "  In MultiGenome::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << endl;
+		exit(1);
+	}
+
+	vector<int> _chromosomeLengths;
+	convertCSVListToVector(orgData["GENOME_" + name + "_chromosomeLengths"], _chromosomeLengths);
+	string sitesType = (PT == nullptr) ? AbstractGenome::genomeSitesTypePL->lookup() : PT->lookupString("GENOME-sitesType");
+	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size()-1);
+	std::stringstream ss(allSites);
+	for (size_t i = 0; i < _chromosomeLengths.size(); i++) {
+		//cout << i << "  :  " << ss.str() << endl;
+		chromosomes[i]->readChromosomeFromSS(ss, _chromosomeLengths[i]);
+	}
+}
+
 /////////////// FIX FIX FIX ////////////////////
 
 void MultiGenome::recordDataMap() {
 	dataMap.Merge(chromosomes[0]->getFixedStats());
 	dataMap.Set("ploidy", ploidy);
+	dataMap.setOutputBehavior("ploidy", DataMap::FIRST);
 	dataMap.Set("chromosomeCount", (int)chromosomes.size());
+	dataMap.setOutputBehavior("chromosomeCount", DataMap::FIRST);
 	dataMap.Set("sitesCount", countSites());
+	dataMap.setOutputBehavior("sitesCount", DataMap::FIRST);
 	dataMap.Clear("chromosomeLengths");
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		dataMap.Append("chromosomeLengths", chromosomes[c]->size());

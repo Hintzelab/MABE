@@ -44,7 +44,7 @@ shared_ptr<ParameterLink<double>> MorrisTestWorld::agentAngleMaxPL = Parameters:
 shared_ptr<ParameterLink<double>> MorrisTestWorld::agentOffsetFromCenterMinPL = Parameters::register_parameter("WORLD_MORRISTEST-agentOffsetFromCenterMin", 0.95, "where is agent relitive to edge and center");
 shared_ptr<ParameterLink<double>> MorrisTestWorld::agentOffsetFromCenterMaxPL = Parameters::register_parameter("WORLD_MORRISTEST-agentOffsetFromCenterMax", 0.95, "where is agent relitive to edge and center");
 
-shared_ptr<ParameterLink<string>> MorrisTestWorld::groupNamePL = Parameters::register_parameter("WORLD_MORRISTEST_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> MorrisTestWorld::groupNamePL = Parameters::register_parameter("WORLD_MORRISTEST_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> MorrisTestWorld::brainNamePL = Parameters::register_parameter("WORLD_MORRISTEST_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 MorrisTestWorld::MorrisTestWorld(shared_ptr<ParametersTable> _PT) :
@@ -184,7 +184,7 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 			cout << "  turnRate: " << to_string(turnRate) << endl;
 			cout << "  moveRate:" << to_string(moveRate) << endl;
 			cout << "    marker angles: " << markerAngles.size() << endl;
-			for (int i = 0; i < markerAngles.size(); i++) {
+			for (size_t i = 0; i < markerAngles.size(); i++) {
 				cout << i << "      fixed: " << markerAngles[i] << "  distance from center: " << markerLocations[i].dist(worldCenter) << "  location: ";
 				markerLocations[i].show();
 			}
@@ -263,7 +263,7 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 				brain->setInput(inputCounter++, 0); // else set input to 0
 			}
 
-			for (int i = 0; i < markerRelativeAngles.size(); i++) { // for each tracked angle (markers and maybe platfrom)
+			for (size_t i = 0; i < markerRelativeAngles.size(); i++) { // for each tracked angle (markers and maybe platfrom)
 				if (bitBrains) {
 					int whichOct = (int)(markerRelativeAngles[i] / 45.0); // devide 360 into 8 slices
 
@@ -316,7 +316,7 @@ void MorrisTestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vi
 				cout << "    fixed: " << platformCenter.angle_between_deg(upVector) << "  relative to current:  " << currentFacingVector.angle_between_deg(platformCenter - currentLocation) << "  distance to current: " << platformCenter.dist(currentLocation) << "  location: ";
 				platformCenter.show();
 				cout << "  markers: " << markerAngles.size() << endl;
-				for (int i = 0; i < markerAngles.size(); i++) {
+				for (size_t i = 0; i < markerAngles.size(); i++) {
 					cout << i << "          fixed: " << markerAngles[i] << "  relative to current:  " << markerRelativeAngles[platformVisable ? i + 1 : i] << "  distance to current: " << markerLocations[i].dist(currentLocation) << "  location: ";
 					markerLocations[i].show();
 					cout << i << "  check   fixed: " << upVector.angle_between_deg(markerLocations[i]) << "  relative to current:  " << currentFacingVector.angle_between_deg(markerLocations[i] - currentLocation) << "  distance to current: " << markerLocations[i].dist(currentLocation) << "  location: ";

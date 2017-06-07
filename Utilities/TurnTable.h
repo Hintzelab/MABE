@@ -32,7 +32,7 @@ public:
 
 	void show() {
 		cout << "showing values in TurnTable:" << endl;
-		for (int i = 0.0; i < numSlices; i++) {
+		for (int i = 0; i < (int)numSlices; i++) {
 			cout << "slice: " << i << " direction: " << (i/numSlices) * numDirections << " degree: " << i * degPerSlice << "  -> ";
 			moveDeltas[i].show();
 		}
@@ -41,7 +41,7 @@ public:
 	void setup(double _numDirections, double _numSlices) {
 		numDirections = _numDirections;
 		numSlices = _numSlices;
-		double workingAngle;
+
 		degPerSlice = (360.0 / numSlices);
 		moveDeltas.clear();
 		for (double s = 0; s < 360; s += degPerSlice) {

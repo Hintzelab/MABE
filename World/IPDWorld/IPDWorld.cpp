@@ -33,7 +33,7 @@ shared_ptr<ParameterLink<bool>> IPDWorld::saveMovesListPL = Parameters::register
 shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use");
 shared_ptr<ParameterLink<int>> IPDWorld::playsVsFixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-playsVsFixedStrategies", 1, "number of matches each organism will play against each fixed strategy");
 
-shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root", "name of group to be evaluated\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> IPDWorld::brainNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
 IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :

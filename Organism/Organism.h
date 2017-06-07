@@ -40,9 +40,6 @@ class Organism {
 	unordered_map<string, shared_ptr<AbstractGenome>> genomes;
 	unordered_map<string, shared_ptr<AbstractBrain>> brains;
 
-	//bool hasGenome = false;
-	//bool hasBrain = false;
-
 	int offspringCount;
 
 	vector<shared_ptr<Organism>> parents;  // parents are pointers to parents of this organism. In asexual populations this will have one element

@@ -21,6 +21,7 @@ using namespace std;
 class Group {
  public:
 	vector<shared_ptr<Organism>> population;
+	shared_ptr<Organism> templateOrg;
 	shared_ptr<DefaultArchivist> archivist;
 	shared_ptr<AbstractOptimizer> optimizer;
 

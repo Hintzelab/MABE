@@ -33,6 +33,9 @@
 using namespace std;
 
 int main(int argc, const char * argv[]) {
+
+
+	
 	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
 		<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
 	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
@@ -49,6 +52,14 @@ int main(int argc, const char * argv[]) {
 		cout << "Saving settings files and exiting." << endl;
 		exit(0);
 	}
+
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	/// IF YOU WANT TO HACK PARAMETERS, DO IT HERE! /////////////////////////////////////////////
+	/////////////////////////////////////////////////////////////////////////////////////////////
+	///
+	/// Parameters::root->setExistingParameter("BRAIN-brainType", "LSTM");
+	///
+	/////////////////////////////////////////////////////////////////////////////////////////////
 
 	// outputDirectory must exist. If outputDirectory does not exist, no error will occur, but no data will be written. THIS SHOULD BE ADDRESSED ONE DAY!
 	FileManager::outputDirectory = Global::outputDirectoryPL->lookup();
@@ -73,15 +84,6 @@ int main(int argc, const char * argv[]) {
 	string NS;
 
 	unordered_map<string, unordered_set<string>> worldRequirements = world->requiredGroups();
-
-	//for (auto r : worldRequirements) {
-	//	cout << r.first << "   ";
-	//	for (auto e : r.second) {
-	//		cout << e << "   " << endl;
-	//	}
-	//	cout << endl;
-	//}
-	//cout << endl;
 
 	// for each name space in the GLOBAL-groups create a group. if GLOBAL-groups is empty, create "default" group.
 	for (auto groupInfo : worldRequirements) {
@@ -238,53 +240,44 @@ int main(int argc, const char * argv[]) {
 			templateGenomes[genomeName] = makeTemplateGenome(This_PT);
 		}
 
-
-
-		//cout << "\n  Required Brains in this group: ";
-		//for (auto b : templateBrains) {
-		//	cout << b.first << "  ";
-		//}
-		//cout << endl;
-
-		//cout << "\n  Required Genomes in this group: ";
-		//for (auto g : templateGenomes) {
-		//	cout << g.first << "  ";
-		//}
-		//cout << endl;
-
 		// make a organism with a templateGenomes and templateBrains - progenitor serves as an ancestor to all and a template organism
 		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenomes, templateBrains, PT);
 		
 		Global::update = 0;  // the beginning of time - now we construct the first population
 
 		int popSize = (PT == nullptr) ? Global::popSizePL->lookup() : PT->lookupInt("GLOBAL-popSize");
+		
+		
 		vector<shared_ptr<Organism>> population;
-		// add popSize organisms which look like progenitor to population
-		shared_ptr<Organism> newOrg;
-		for (int i = 0; i < popSize; i++) {
-			// make a new genome like the template genome
-			unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
-			unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
-			for (auto genome : templateGenomes) {
-				newGenomes[genome.first] = genome.second->makeLike();
-			}
-			for (auto brain : templateBrains) {
-				brain.second->initalizeGenomes(newGenomes);
-				newBrains[brain.first] = brain.second->makeBrain(newGenomes);
-			}
-			// create new organism using progenitor as template (i.e. to define brains) and the new genomes
+		
+		if (Global::modePL->lookup() == "run") {
 
-			//// must address initalizGenome in case of multi brains!!
+			// add popSize organisms which look like progenitor to population
+			shared_ptr<Organism> newOrg;
+			for (int i = 0; i < popSize; i++) {
+				// make a new genome like the template genome
+				unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
+				unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
+				for (auto genome : templateGenomes) {
+					newGenomes[genome.first] = genome.second->makeLike();
+				}
+				for (auto brain : templateBrains) {
+					brain.second->initalizeGenomes(newGenomes);
+					newBrains[brain.first] = brain.second->makeBrain(newGenomes);
+				}
+				// create new organism using progenitor as template (i.e. to define brains) and the new genomes
+
+				//// must address initalizGenome in case of multi brains!!
+
+				newOrg = make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+
+				// add new organism to population
+				population.push_back(newOrg);
+			}
+
+		} else { // we are in visualize or analyze mode we want to keep the progenitor so we can use it as a template to build orgs
 			
-			newOrg = make_shared<Organism>(progenitor,newGenomes,newBrains,PT);
-
-			// add new organism to population
-			population.push_back(newOrg);
 		}
-
-		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
-		progenitor->kill();
-
 		// aveFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
 		// ** aveFileColumns define what will appear in the ave.csv file **
 		// the following code asks world, genomes and brains for ave file columns
@@ -294,102 +287,77 @@ int main(int argc, const char * argv[]) {
 		aveFileColumns.insert(aveFileColumns.end(), world->aveFileColumns.begin(), world->aveFileColumns.end());
 		aveFileColumns.insert(aveFileColumns.end(), optimizer->aveFileColumns.begin(), optimizer->aveFileColumns.end());
 
-		for (auto genome : population[0]->genomes) {
+		for (auto genome : progenitor->genomes) {
 			for (auto c : genome.second->aveFileColumns) {
 				(genome.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(genome.first + "_" + c);
-				//(genome.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(genome.second->PT->getTableNameSpace() + "_" + c);
 			}
 		}
-		for (auto brain : population[0]->brains) {
+		for (auto brain : progenitor->brains) {
 			for (auto c : brain.second->aveFileColumns) {
 				(brain.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(brain.first + "_" + c);
-				//(brain.first == "root") ? aveFileColumns.push_back(c) : aveFileColumns.push_back(brain.second->PT->getTableNameSpace() + "_" + c);
-				//cout << brain.first << "   " << c << endl;
 			}
 		}
 
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(aveFileColumns, optimizer->optimizeFormula, PT, groupInfo.first);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[groupInfo.first] = make_shared<Group>(population, optimizer, archivist);
+
+		cout << "AAA" << endl;
+		groups[groupInfo.first]->templateOrg = progenitor->makeCopy();
+		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
+		progenitor->kill();
+		cout << "BBB" << endl;
 
 		//report on what was just built
 		if (PT == nullptr) {
 			PT = Parameters::root;
 		}
-		cout << "\nFinished Building Group: " << groupInfo.first << "   Group name space: " << NS << "\n  population size: " << popSize << "     Optimizer: "
+		if (Global::modePL->lookup() == "run") {
+
+			cout << "\nFinished Building Group: " << groupInfo.first << "   Group name space: " << NS << "\n  population size: " << popSize << "     Optimizer: "
 				<< PT->lookupString("OPTIMIZER-optimizer") << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
-		cout << endl;
+			cout << endl;
+		}
+		else {
+			cout << "\nFinished Building Group: " << groupInfo.first << "   Group name space: " << NS << "\n  population size: 0 (not in run mode)     Optimizer: "
+				<< PT->lookupString("OPTIMIZER-optimizer") << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
+			cout << endl;
+		}
 		// end of report
 	}
 
-	// this versVector2d<int> worldgrid(10, 10);ion of the code requires a default group. This is change in the future.
-	//string defaultGroup = "cat";// "root";
-	//if (groups.find(defaultGroup) == groups.end()) {
-	//	cout << "Group " << defaultGroup << " not found in groups.\nExiting." << endl;
-	//	exit(1);
-	//}
-
-	// exit(1);
 	// in run mode we evolve organsims
 	bool done = false;
 	if (Global::modePL->lookup() == "run") {
-		//////////////////
+		////////////////////////////////////////////////////////////////////////////////////
 		// run mode - evolution loop
-		//////////////////
-
-		// first archive initial populations
-		//world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
-		//for (auto group : groups) {
-		//	if (!group.second->archivist->finished) {
-		//		group.second->archive();
-		//		if (!group.second->archivist->finished) {
-		//			done = false;
-		//		}
-		//	}
-		//}
+		////////////////////////////////////////////////////////////////////////////////////
 
 		while (!done){//!groups[defaultGroup]->archivist->finished) {
-			
-			
-
-			// evaluate population in world.
-			//cout << "  start evaluation" << endl;
 			world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
-			//cout << "  evaluation done" << endl;
-
-			// save data, update memory and delete any unneeded data;
-			cout << "update: " << Global::update << "   ";
-			
-			// move forward in time!
-			Global::update++; // advance time to create new population
-			done = true;
+			cout << "update: " << Global::update << "   " << flush;
+			Global::update++; // advance time to create new population(s)
+			done = true; // until we find out otherwise, assume we are done.
 			for (auto group : groups) {
 				if (!group.second->archivist->finished) {
-
-					// update the population (reproduction and death)
-					vector<shared_ptr<Organism>> nextPopulation = group.second->optimize();
-
+					vector<shared_ptr<Organism>> nextPopulation = group.second->optimize(); // create the next updates population
 					Global::update--; // back up time to archive last generation
-					group.second->archive();
-					Global::update++; // jump forward
-					//cout << "  archive done" << endl;
+					group.second->archive(); // save data, update memory and delete unneeded data;
+					Global::update++; // the last updates data is now saved, jump forward again.
 					if (!group.second->archivist->finished) {
-						done = false;
+						done = false; // if any groups archivist says we are not done, then we are not done
 					}
-
-					for (auto org : group.second->population) {
-						if (find(nextPopulation.begin(),nextPopulation.end(),org) == nextPopulation.end()) {  // if this org did not survive to the next generation, it must be killed (sad.)
+					for (auto org : group.second->population) { // kill orgs that did not survive so there memory can be recycled
+						if (find(nextPopulation.begin(),nextPopulation.end(),org) == nextPopulation.end()) {  // if this org is not in the current population, it must be killed (sad.)
 							org->kill();
 						}
 					}
-					group.second->population = nextPopulation;
-					//cout << "  optimize done" << endl;
+					group.second->population = nextPopulation;  // swap in the new population
 				}
 			}
 			cout << endl;
-
 		}
 
 		// the run is finished... flush any data that has not been output yet
@@ -402,11 +370,67 @@ int main(int argc, const char * argv[]) {
 	//// in visualize mode we load in organisms (usually genomes) and rerun them to collect addtional data
 	//// this data may relate to the world, brain... or other things...
 	//// this section of code is very rough...
-	//else if (Global::modePL->lookup() == "visualize") {
-	//	//////////////////
-	//	// visualize mode
-	//	//////////////////
-	//	cout << "  You are running MABE in visualize mode." << endl << endl;
+	else if (Global::modePL->lookup() == "visualize") {
+		////////////////////////////////////////////////////////////////////////////////////
+		// visualize mode
+		////////////////////////////////////////////////////////////////////////////////////
+		cout << "\n  You are running MABE in visualize mode." << endl << endl;
+
+
+		//which orgs do I need to make?
+		// lets make all orgs required by world.
+		unordered_map<int, unordered_map<string, string>> data;
+		string fileName = "TOM__snapshotOrganisms_100.csv";
+		string indexName = "ID";
+
+		loadIndexedCSVFile(fileName, data, indexName);
+		unordered_map<string, string> orgData = data[10077];
+
+
+		for (auto group : groups) {
+			shared_ptr<Organism> newOrg = group.second->templateOrg->makeCopy();
+			for (auto genome : newOrg->genomes) {
+				string name = genome.first;
+				genome.second->deserialize(genome.second->PT, orgData, name);
+			}
+			for (auto brain : group.second->templateOrg->brains) {
+				brain.second = brain.second->makeBrain(newOrg->genomes);
+				string name = brain.first;
+				brain.second->deserialize(brain.second->PT, orgData, name);
+			}
+			group.second->population.push_back(newOrg);
+		}
+
+		for (auto group : groups) {
+			cout << "GROUP: " << group.first << endl;
+			for (auto genome : group.second->population[0]->genomes) {
+				cout << genome.first << " -- " << endl;
+				genome.second->printGenome();
+				cout << endl;
+			}
+			for (auto brain : group.second->population[0]->brains) {
+				cout << brain.first << " -- " << brain.second->description() << endl;
+			}
+		}
+			//	unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
+			//	unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
+			//	for (auto genome : templateGenomes) {
+			//		newGenomes[genome.first] = genome.second->makeLike();
+			//	}
+			//	for (auto brain : templateBrains) {
+			//		brain.second->initalizeGenomes(newGenomes);
+			//	}
+			//	// create new organism using progenitor as template (i.e. to define brains) and the new genomes
+
+			//	//// must address initalizGenome in case of multi brains!!
+
+			//	newOrg = make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+
+			//	// add new organism to population
+			//	population.push_back(newOrg);
+			//}
+
+
 	//	vector<shared_ptr<AbstractGenome>> testGenomes;
 	//	cout << "loading Genomes... ";
 	//	groups[defaultGroup]->population[0]->genome->loadGenomeFile(Global::visualizePopulationFilePL->lookup(), testGenomes);
@@ -504,7 +528,7 @@ int main(int argc, const char * argv[]) {
 	//} else {
 	//	cout << "\n\nERROR: Unrecognized mode set in configuration!\n  \"" << Global::modePL->lookup() << "\" is not defined.\n\nExiting.\n" << endl;
 	//	exit(1);
-	//}
+	}
 
 	return 0;
 }

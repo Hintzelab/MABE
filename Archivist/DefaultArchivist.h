@@ -49,12 +49,12 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 	static shared_ptr<ParameterLink<string>> Arch_realtimeSequencePL;  // how often to write out data
 	static shared_ptr<ParameterLink<string>> SS_Arch_dataSequencePL;  // how often to save data
-	static shared_ptr<ParameterLink<string>> SS_Arch_genomeSequencePL;  // how often to save genomes
+	static shared_ptr<ParameterLink<string>> SS_Arch_organismSequencePL;  // how often to save genomes
 
 	static shared_ptr<ParameterLink<string>> SS_Arch_DataFilePrefixPL;  // name of the Data file
-	static shared_ptr<ParameterLink<string>> SS_Arch_GenomeFilePrefixPL;  // name of the Genome file (genomes on LOD)
+	static shared_ptr<ParameterLink<string>> SS_Arch_OrganismsFilePrefixPL;  // name of the Genome file (genomes on LOD)
 	static shared_ptr<ParameterLink<bool>> SS_Arch_writeDataFilesPL;  // if true, write data file
-	static shared_ptr<ParameterLink<bool>> SS_Arch_writeGenomeFilesPL;  // if true, write genome file
+	static shared_ptr<ParameterLink<bool>> SS_Arch_writeOrganismsFilesPL;  // if true, write genome file
 
 
 
@@ -71,17 +71,17 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	int realtimeSequenceIndex;
 
 	vector<int> realtimeDataSequence;
-	vector<int> realtimeGenomeSequence;
+	vector<int> realtimeOrganismSequence;
 	int realtimeDataSeqIndex;
-	int realtimeGenomeSeqIndex;
+	int realtimeOrganismSeqIndex;
 
 
 	string DataFilePrefix;  // name of the Data file
-	string GenomeFilePrefix;  // name of the Genome file (genomes on LOD)
+	string OrganismFilePrefix;  // name of the Genome file (genomes on LOD)
 	bool writeSnapshotDataFiles;  // if true, write data file
 	bool writeSnapshotGenomeFiles;  // if true, write genome file
 
-
+	string groupPrefix;
 
 	map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)
 	vector<string> DefaultAveFileColumns;  // what columns will be written into the AveFile
@@ -90,8 +90,8 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 	const shared_ptr<ParametersTable> PT;
 
-	DefaultArchivist(shared_ptr<ParametersTable> _PT = nullptr);
-	DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr);
+	DefaultArchivist(shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
+	DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
 	virtual ~DefaultArchivist() = default;
 
 	//save Max and average file data
@@ -99,7 +99,8 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 	void saveSnapshotData(vector<shared_ptr<Organism>> population);
 
-	void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
+	//void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
+	void saveSnapshotOrganisms(vector<shared_ptr<Organism>> population);
 
 	// save data and manage in memory data
 	// return true if next save will be > updates + terminate after
@@ -108,7 +109,7 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	//virtual void processAllLists(OldDataMap &dm);
 
 	virtual bool isDataUpdate(int checkUpdate = -1);
-	virtual bool isGenomeUpdate(int checkUpdate = -1);
+	virtual bool isOrganismUpdate(int checkUpdate = -1);
 
 };
 

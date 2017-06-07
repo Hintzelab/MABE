@@ -77,6 +77,12 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "GeneticPrograming";
+	}
+
+	virtual DataMap serialize(string& name) override;
+	virtual void deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) override;
 
 	virtual void resetBrain() override;
 

@@ -51,9 +51,9 @@ shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrain(unordered_map<string, s
 		tempValue = 0;
 		for (int j = 0; j < samplesPerValue; j++) {
 			if (valueType == 0) {
-				tempValue += genomeHandler->readInt(valueMin, valueMax);
-			} else if (valueType == 1) {
-				tempValue += genomeHandler->readDouble(valueMin, valueMax);
+				tempValue += (double)genomeHandler->readInt(valueMin, valueMax);
+			} else if (valueType == 1.0) {
+				tempValue += (double)genomeHandler->readDouble(valueMin, valueMax);
 			} else {
 				cout << "  ERROR! BRAIN_CONSTANT-valueType is invalid. current value: " << valueType << endl;
 				exit(1);
@@ -117,13 +117,13 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		while (!handler->atEOG()) {
 			if (valueType == 1) {
-				handler->writeInt(initializeConstantValue, valueMin, valueMax);
+				handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
 			} else if (valueType == 0) {
-				handler->writeInt(initializeConstantValue, valueMin, valueMax);
+				handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
 			}
 		}
 		handler->resetHandler();
-		handler->writeInt(initializeConstantValue, valueMin, valueMax);
+		handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
 	} else if (initializeUniform) {
 		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		int count = 0;
@@ -131,7 +131,7 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 		if (valueType == 1) {
 			randomValue = Random::getDouble(valueMin, valueMax);
 		} else if (valueType == 0) {
-			randomValue = Random::getInt(valueMin, valueMax);
+			randomValue = Random::getInt((int)valueMin, (int)valueMax);
 		}
 //		if (count == samplesPerValue) {
 //			if (valueType == 1) {
@@ -146,13 +146,13 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 				if (valueType == 1) {
 					randomValue = Random::getDouble(valueMin, valueMax);
 				} else if (valueType == 0) {
-					randomValue = Random::getInt(valueMin, valueMax);
+					randomValue = Random::getInt((int)valueMin, (int)valueMax);
 				}
 			}
 			if (valueType == 1) {
-				handler->writeInt(randomValue, valueMin, valueMax);
+				handler->writeInt((int)randomValue, (int)valueMin, (int)valueMax);
 			} else if (valueType == 0) {
-				handler->writeInt(randomValue, valueMin, valueMax);
+				handler->writeInt((int)randomValue, (int)valueMin, (int)valueMax);
 			}
 			count++;
 		}

@@ -58,6 +58,28 @@ public:
 
 	virtual string description() = 0;  // returns a desription of this brain in it's current state
 	virtual DataMap getStats(string& prefix) = 0;  // returns a vector of string pairs of any stats that can then be used for data tracking (etc.)
+	virtual string getType() {
+		cout << "ERROR! In AbstractBrain::getType()...\n This genome needs a getType function...\n  exiting.";
+		exit(1);
+		return "Undefined";
+	}
+
+	// convert a brain into data map with data that can be saved to file
+	virtual DataMap serialize(string& name) {
+		//cout << "ERROR! In AbstractBrain::serialize(). This method has not been written for the type of brain use are using.\n  Exiting.";
+		//exit(1);
+		// return an empty data map - this is the case for a brain built from genome where no data needs to be saved
+		DataMap tempDataMap;
+		return tempDataMap;
+	}
+
+	// given an unordered_map<string, string> and PT, load data into this brain
+	virtual void deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+		//cout << "ERROR! In AbstractBrain::deserialize(). This method has not been written for the type of brain use are using.\n  Exiting.";
+		//exit(1);
+		// do nothing... if this brain is built from genome, then nothing needs to be done.
+	}
+
 
 	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 		// do nothing by default... if this is a direct encoded brain, then no action is needed.

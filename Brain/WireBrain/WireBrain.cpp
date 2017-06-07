@@ -512,9 +512,9 @@ void WireBrain::initalize() {
 	nodesNextAddresses.resize(nrValues);
 
 	if (cacheResults) {
-		inputLookUpTable.resize(pow(2, nrValues));  // set lookup tables to be large enough to handle all possible input combinations
+		inputLookUpTable.resize((int)pow(2, nrValues));  // set lookup tables to be large enough to handle all possible input combinations
 		inputCount.clear();  // insure that the input counts are all 0.
-		inputCount.resize(pow(2, nrValues));
+		inputCount.resize((int)pow(2, nrValues));
 		for (int i = 0; i < pow(2, nrValues); i++) {
 			inputCount[i] = 0;
 		}
@@ -944,7 +944,7 @@ void WireBrain::update() {
 			//////
 			long outputValue = 0;
 			for (int i = 0; i < nrValues; i++) {  // load outputs into outputValue
-				outputValue = nextNodes[i] + (outputValue << 1);
+				outputValue = (long)nextNodes[i] + (outputValue << 1);
 			}
 			inputLookUpTable[inputLookUpValue].push_back(outputValue);  // push outputValue into the lookup table
 

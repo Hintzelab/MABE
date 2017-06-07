@@ -88,6 +88,9 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "CGP";
+	}
 
 	virtual void resetBrain() override;
 

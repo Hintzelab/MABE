@@ -174,7 +174,7 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 	shared_ptr<GeneticProgramingBrain> newBrain = dynamic_pointer_cast<GeneticProgramingBrain>(parent->makeCopy());
 	// select a node in the newBrain
 	//count all nodes
-	for (int treeIndex = 0; treeIndex < trees.size(); treeIndex++){
+	for (int treeIndex = 0; treeIndex < (int)trees.size(); treeIndex++){
 	if (Random::P(.1)){
 			vector<shared_ptr<Abstract_MTree>> nodesList;
 			trees[treeIndex]->explode(trees[treeIndex], nodesList);
@@ -187,10 +187,10 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 				trees[treeIndex] = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 				trees[treeIndex]->branches = pickNode->branches;
 				int numBranches = (trees[treeIndex]->numBranches() > 0) ? trees[treeIndex]->numBranches() : Random::getInt(2, 4);
-				while (trees[treeIndex]->branches.size() < numBranches) { // we need more branches
+				while ((int)trees[treeIndex]->branches.size() < numBranches) { // we need more branches
 					trees[treeIndex]->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 				}
-				while (trees[treeIndex]->branches.size() > numBranches) { // we need less branches
+				while ((int)trees[treeIndex]->branches.size() > numBranches) { // we need less branches
 					trees[treeIndex]->branches.pop_back();
 				}
 				for (auto b : trees[treeIndex]->branches) {
@@ -203,10 +203,10 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 					op->branches = pickNode->branches;
 
 					int numBranches = (op->numBranches() > 0) ? op->numBranches() : Random::getInt(2, 4);
-					while (op->branches.size() < numBranches) { // we need more branches
+					while ((int)op->branches.size() < numBranches) { // we need more branches
 						op->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 					}
-					while (op->branches.size() > numBranches) { // we need less branches
+					while ((int)op->branches.size() > numBranches) { // we need less branches
 						op->branches.pop_back();
 					}
 					for (auto b : op->branches) {
@@ -244,7 +244,10 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFromMany(vector<share
 
 
 string GeneticProgramingBrain::description() {
-	string S = "Genetic Programing Brain\n";
+	string S = "Genetic Programing Brain";
+	for (int i = 0; i < (int)trees.size(); i++) {
+		S = S + "\n  formula " + to_string(i) + ": " + trees[i]->getFormula();
+	}
 	return S;
 }
 
@@ -259,6 +262,51 @@ DataMap GeneticProgramingBrain::getStats(string& prefix) {
 	dataMap.Append(prefix+"nodesCount", nodesCount);
 	return (dataMap);
 }
+
+DataMap GeneticProgramingBrain::serialize(string& name) {
+	DataMap serialDataMap;
+	int numFormula = (int)trees.size();
+	serialDataMap.Set(name + "_numFormula", numFormula);
+	string formula = "\"[";
+	for (int i = 0; i < numFormula; i++) {
+		formula = formula + trees[i]->getFormula() + "::";
+	}
+	formula += "]\"";
+	serialDataMap.Set(name + "_formulas", formula);
+	return serialDataMap;
+}
+
+void GeneticProgramingBrain::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+	trees.clear();
+	if (orgData.find("BRAIN_" + name + "_numFormula") == orgData.end() || orgData.find("BRAIN_" + name + "_formulas") == orgData.end()) {
+		cout << "  In GeneticProgramingBrain::deserialize :: can not find either BRAIN_" + name + "_numFormula or BRAIN_" + name + "_formulas.\n  exiting" << endl;
+		exit(1);
+	}
+
+	int numFormula;
+	load_value(orgData["BRAIN_" + name + "_numFormula"], numFormula);
+	stringstream ss(orgData["BRAIN_" + name + "_formulas"]);
+
+	char nextChar;
+	// skip first two chars and '['
+	ss >> nextChar;
+	// load first char
+ 	ss >> nextChar;
+	string nextString;
+	
+	for (int i = 0; i < numFormula; i++) {
+		nextString = "";
+		while (nextChar != ':') {
+			nextString += nextChar;
+			ss >> nextChar;
+		}
+		//cout << "converting i = " << i << "  " << nextString << endl;
+		trees.push_back(stringToMTree(nextString));
+		ss >> nextChar; // skip second ':'
+		ss >> nextChar; // load next char
+	}
+}
+
 
 shared_ptr<AbstractBrain> GeneticProgramingBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
 	//cout << "   start Make Copy" << endl;

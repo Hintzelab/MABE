@@ -317,8 +317,27 @@ shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
 		_PT = PT;
 	}
 	auto newOrg = make_shared<Organism>(_PT);
-	newOrg->brain = brain->makeCopy();
-	newOrg->genome = genome->makeCopy();
+	for (auto genome : genomes) {
+		newOrg->genomes[genome.first] = genome.second->makeCopy();
+	}
+	for (auto brain : brains) {
+		newOrg->brains[brain.first] = brain.second->makeCopy();
+	}
+
+	if (newOrg->genomes.count("root") == 0) {
+		newOrg->genome = nullptr;
+	}
+	else {
+		newOrg->genome = newOrg->genomes["root"];
+	}
+
+	if (newOrg->brains.count("root") == 0) {
+		newOrg->brain = nullptr;
+	}
+	else {
+		newOrg->brain = newOrg->brains["root"];
+	}
+
 	newOrg->dataMap = dataMap;
 	newOrg->snapShotDataMaps = snapShotDataMaps;
 	newOrg->offspringCount = offspringCount;

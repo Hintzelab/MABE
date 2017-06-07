@@ -115,20 +115,20 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
 
 
 //create an archivist
-shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root){
+shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root, string groupPrefix = ""){
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
   string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");
   if (archivistType == "LODwAP") {
-    newArchivist = make_shared<LODwAPArchivist>(aveFileColumns, _maxFormula, PT);
+    newArchivist = make_shared<LODwAPArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "SSwD") {
-    newArchivist = make_shared<SSwDArchivist>(aveFileColumns, _maxFormula, PT);
+    newArchivist = make_shared<SSwDArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "Default") {
-    newArchivist = make_shared<DefaultArchivist>(aveFileColumns, _maxFormula, PT);
+    newArchivist = make_shared<DefaultArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (!found){

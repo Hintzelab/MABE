@@ -59,6 +59,9 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "Human";
+	}
 
 	virtual void resetBrain() override;
 

@@ -55,6 +55,9 @@ public:
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "IPD";
+	}
 
 	virtual void resetBrain() override;
 	//virtual void resetOutputs() override;

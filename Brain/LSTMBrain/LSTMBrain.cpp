@@ -293,7 +293,7 @@ void LSTMBrain::vectorMathElementalMultiply(vector<double> &A,vector<double> &B,
 }
 
 void LSTMBrain::showVector(vector<double> &V){
-    for(int i=0;i<V.size();i++){
+    for(size_t i=0;i<V.size();i++){
         printf("%f ",V[i]);
     }
     printf("\n");

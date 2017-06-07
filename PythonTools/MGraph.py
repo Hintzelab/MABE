@@ -257,10 +257,10 @@ for con in cons:
 			if args.verbose:
 				print ("loading file: " + path + conFileNames[conCount] + rep + file)
 			tempFrame =  pandas.read_csv(path + conFileNames[conCount] + rep + file)
-			if (tempFrame['update'].iat[-1] < updateMin):
-				updateMin = tempFrame['update'].iat[-1]
+			if (tempFrame[args.xAxis].iat[-1] < updateMin):
+				updateMin = tempFrame[args.xAxis].iat[-1]
 				if args.verbose:
-					print(con+"  "+rep+"  has data until: "+str(tempFrame['update'].iat[-1])+"  new shortest!")
+					print(con+"  "+rep+"  has data until: "+str(tempFrame[args.xAxis].iat[-1])+"  new shortest!")
 			tempFrame["repName"]=rep
 			tempFrame["con"]=con
 			godFrames[file] = godFrames[file].append(tempFrame, ignore_index=True)
