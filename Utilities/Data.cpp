@@ -24,6 +24,7 @@ string FileManager::outputDirectory = "./";
 map<string, vector<string>> FileManager::fileColumns;
 map<string, ofstream> FileManager::files; // list of files (NAME,ofstream)
 map<string, bool> FileManager::fileStates; // list of files states (NAME,open?)
+map<string, int> DataMap::knownOutputBehaviors = { {"LIST",LIST}, {"AVE",AVE}, {"SUM",SUM}, {"PROD",PROD}, {"STDERR",STDERR}, {"FIRST",FIRST}, {"VAR",VAR} };
 
 void FileManager::writeToFile(const string& fileName, const string& data, const string& header) {
 	openFile(fileName, header); // make sure that the file is open and ready to be written to
@@ -97,7 +98,7 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			}
 
 			if (aveOnly) {
-				OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
+				OB = OB & (AVE | FIRST | VAR); // if aveOnly, only output AVE on the entries that have been set for AVE
 			}
 
 			if (OB & FIRST) { // save first (only?) element in vector with key as column name
@@ -143,6 +144,10 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
 				headerStr = headerStr + FileManager::separator + i + "_AVE";
 				dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
+			}
+			if (OB & VAR) { // key_VAR = variance of vector (will error if of type string!)
+				headerStr = headerStr + FileManager::separator + i + "_VAR";
+				dataStr = dataStr + FileManager::separator + to_string(GetVariance(i));
 			}
 			if (OB & SUM) { // key_SUM = sum of vector
 				headerStr = headerStr + FileManager::separator + i + "_SUM";

@@ -41,10 +41,10 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 	static shared_ptr<ParameterLink<string>> Arch_outputMethodStrPL;  // string parameter for outputMethod;
 
-	static shared_ptr<ParameterLink<bool>> Arch_writePopFilePL;  // if true, ave file will be created
 	static shared_ptr<ParameterLink<bool>> Arch_writeMaxFilePL;  // if true, Max file will be created
-	static shared_ptr<ParameterLink<string>> Arch_PopFileNamePL;  // name of the Averages file (ave for all brains when file is written to)
+	static shared_ptr<ParameterLink<bool>> Arch_writePopFilePL;  // if true, pop file will be created
 	static shared_ptr<ParameterLink<string>> Arch_MaxFileNamePL;  // name of the Max file (all stats for best brain when file is writtne to)
+	static shared_ptr<ParameterLink<string>> Arch_PopFileNamePL;  // name of the Population file (ave and var for population at each timepoint)
 	static shared_ptr<ParameterLink<string>> Arch_DefaultPopFileColumnNamesPL;  // data to be saved into average file (must be values that can generate an average)
 
 	static shared_ptr<ParameterLink<string>> Arch_realtimeSequencePL;  // how often to write out data
@@ -59,10 +59,10 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 
 
-	bool writePopFile;  // if true, ave file will be created
 	bool writeMaxFile;  // if true, Max file will be created
-	string PopFileName;  // name of the Averages file (ave for all brains when file is written to)
+	bool writePopFile;  // if true, pop file will be created
 	string MaxFileName;  // name of the Max file (all stats for best brain when file is writtne to)
+	string PopFileName;  // name of the Population file (ave and var for population at each timepoint)
 	string PopFileColumnNames;  // data to be saved into average file (must be values that can generate an average)
 	shared_ptr<Abstract_MTree> maxFormula;  // what value will be used to determine which organism to write to max file
 
@@ -84,7 +84,7 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	string groupPrefix;
 
 	map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)
-	vector<string> DefaultPopFileColumns;  // what columns will be written into the AveFile
+	vector<string> DefaultPopFileColumns;  // what columns will be written into the PopFile
 
 	bool finished;  // if finished, then as far as the archivist is concerned, we can stop the run.
 
@@ -110,6 +110,8 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 
 	virtual bool isDataUpdate(int checkUpdate = -1);
 	virtual bool isOrganismUpdate(int checkUpdate = -1);
+
+	map<string, int> uniqueColumnNameToOutputBehaviors;
 
 };
 

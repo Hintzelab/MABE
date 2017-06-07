@@ -109,7 +109,7 @@ WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes
 			wireAddresses.push_back(l);
 		}
 	}
-	connectPruneAndSetAveColumns( { });  //call with empty wormhole list
+	connectPruneAndSetPopColumns( { });  //call with empty wormhole list
 }
 
 WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
@@ -495,7 +495,7 @@ WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes
 	////////^///////////////^///////////////////^///////////////////^/////////////////^////////////////////////////^////////////////////////////////
 	// a "manageable" brain for testing ////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	connectPruneAndSetAveColumns(wormholeList);
+	connectPruneAndSetPopColumns(wormholeList);
 }
 
 shared_ptr<AbstractBrain> WireBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
@@ -535,7 +535,7 @@ void WireBrain::initalize() {
 	}
 }
 
-void WireBrain::connectPruneAndSetAveColumns(vector<pair<int, int>> wormholeList) {
+void WireBrain::connectPruneAndSetPopColumns(vector<pair<int, int>> wormholeList) {
 
 // make neighbor connections
 	for (auto l : wireAddresses) {  // for every cell

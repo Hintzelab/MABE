@@ -108,42 +108,56 @@ DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abs
 	if (DefaultPopFileColumns.size() <= 0) {
 		DefaultPopFileColumns = popFileColumns;
 	}
+	for (auto key : DefaultPopFileColumns) {
+		if (key == "update") {
+			uniqueColumnNameToOutputBehaviors[key] = 0;
+			continue;
+		}
+		size_t downslashPos = key.find_last_of('_');
+		if (downslashPos != string::npos) { // if there is a downslash
+			if (DataMap::knownOutputBehaviors.find(key.substr(downslashPos+1)) == DataMap::knownOutputBehaviors.end()) { // if word after downslash does not indicate a known mask
+				cout << "In DefaultArchivist::writerealTimeFiles :: Error, key '" << key << "' specifies an unknown output behavior (part after underscore)";
+			}
+			else {
+				if (uniqueColumnNameToOutputBehaviors.find(key.substr(0,downslashPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
+					uniqueColumnNameToOutputBehaviors[key] = DataMap::knownOutputBehaviors[key];
+				} else { // key already in map
+					uniqueColumnNameToOutputBehaviors[key.substr(0,downslashPos)] |= DataMap::knownOutputBehaviors[key.substr(downslashPos+1)];
+				}
+			}
+		} else { // add key normally, because it has no special flags specified
+			if (uniqueColumnNameToOutputBehaviors.find(key) == uniqueColumnNameToOutputBehaviors.end()) {
+				uniqueColumnNameToOutputBehaviors[key] = DataMap::AVE;
+			} else {
+				uniqueColumnNameToOutputBehaviors[key] |= DataMap::AVE;
+			}
+		}
+	}
 }
 
-//save Max and average file data
+//save Max and pop file data
 //keys named all* will be converted to *. These should key for lists of values. These values will be averaged (used to average world repeats)
 void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population) {
-	// write out Average data
+	// write out population data
 
 	if (writePopFile) {
 		double aveValue;
-		DataMap AveMap;
+		DataMap PopMap;
 
-		for (auto key : DefaultPopFileColumns) {
-			if (key != "update") {
+
+		//for (auto key : DefaultPopFileColumns) {
+		//	if (key != "update") {
+		for (auto kv : uniqueColumnNameToOutputBehaviors) {
+			if (kv.first != "update") {
 				aveValue = 0;
 				for (auto org : population) {
-					aveValue += org->dataMap.GetAverage(key);
+					PopMap.Append(kv.first, org->dataMap.GetAverage(kv.first));
 				}
-				aveValue /= population.size();
-				if (population[0]->dataMap.isKeySolo(key)) {
-					AveMap.Set(key, aveValue);
-				} else {
-					AveMap.Append(key, aveValue);
-				}
-				//if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
-				//AveMap.Set(key + "_AVE", aveValue);
-				//} else {
-				//AveMap.Set(key, aveValue);
-				//}
 			}
+			PopMap.setOutputBehavior(kv.first, uniqueColumnNameToOutputBehaviors[kv.first]);
 		}
-//		for (auto key : DefaultPopFileColumns) {
-//			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
-//		}
-		AveMap.Set("update", Global::update);
-		//AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(PopFileName, { }, true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
+		PopMap.Set("update", Global::update);
+		PopMap.writeToFile(PopFileName, { }, true); // write the PopMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
 	// write out Max data
