@@ -181,12 +181,15 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 				OrgMap.Set("ID", current->ID);
 				OrgMap.Set("update", nextOrganismWrite);
 				OrgMap.setOutputBehavior("update", DataMap::FIRST);
+				string tempName;
 
 				for (auto genome : current->genomes) {
-					OrgMap.Merge(genome.second->serialize("GENOME_" + genome.first));
+					tempName = "GENOME_" + genome.first;
+					OrgMap.Merge(genome.second->serialize(tempName));
 				}
 				for (auto brain : current->brains) {
-					OrgMap.Merge(brain.second->serialize("BRAIN_" + brain.first));
+					tempName = "BRAIN_" + brain.first;
+					OrgMap.Merge(brain.second->serialize(tempName));
 				}
 				OrgMap.writeToFile(OrganismFileName); // append new data to the file
 

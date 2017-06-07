@@ -195,12 +195,15 @@ void DefaultArchivist::saveSnapshotOrganisms(vector<shared_ptr<Organism>> popula
 	for (auto org : population) {
 		DataMap OrgMap;
 		OrgMap.Set("ID", org->ID);
+		string tempName;
 
 		for (auto genome : org->genomes) {
-			OrgMap.Merge(genome.second->serialize("GENOME_" + genome.first));
+			tempName =  "GENOME_" + genome.first;
+			OrgMap.Merge(genome.second->serialize(tempName));
 		}
 		for (auto brain : org->brains) {
-			OrgMap.Merge(brain.second->serialize("BRAIN_" + brain.first));
+			tempName = "BRAIN_" + brain.first;
+			OrgMap.Merge(brain.second->serialize(tempName));
 		}
 		OrgMap.writeToFile(organismFileName); // append new data to the file
 	}
