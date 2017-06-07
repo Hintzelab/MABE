@@ -137,35 +137,35 @@ public:
 	virtual ~AbstractParametersEntry() = default;
 
 	virtual const bool getBool() {
-		cout << "  In AbstractParametersEntry::getBool() - using abstract class method.\n  Exiting!"<< endl;
+		cout << "  In AbstractParametersEntry::getBool() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
 	virtual const string getString() {
-		cout << "  In AbstractParametersEntry::getString() - using abstract class method.\n  Exiting!"<< endl;
+		cout << "  In AbstractParametersEntry::getString() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
 	virtual const int getInt() {
-		cout << "  In AbstractParametersEntry::getInt() - using abstract class method.\n  Exiting!"<< endl;
+		cout << "  In AbstractParametersEntry::getInt() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
 	virtual const double getDouble() {
-		cout << "  In AbstractParametersEntry::getDouble() - using abstract class method.\n  Exiting!"<< endl;
+		cout << "  In AbstractParametersEntry::getDouble() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
 
-	virtual const void get(bool& value, string name = "") {
+	virtual const void get(bool& value, const string& name = "") {
 		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for bool with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
 		exit(1);
 	}
-	virtual const void get(string& value, string name = "") {
+	virtual const void get(string& value, const string& name = "") {
 		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for string with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
 		exit(1);
 	}
-	virtual const void get(int& value, string name = "") {
+	virtual const void get(int& value, const string& name = "") {
 		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for int with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
 		exit(1);
 	}
-	virtual const void get(double& value, string name = "") {
+	virtual const void get(double& value, const string& name = "") {
 		cout << "  In AbstractParametersEntry::get(value,name) - using abstract class method for double with name \"" + name + "\" - suggests a type mismatch in parameter types.\n  Exiting!" << endl;
 		exit(1);
 	}
@@ -222,18 +222,18 @@ public:
 		cout << "  In AbstractParametersEntry::show() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
-	virtual shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided"){
+	virtual shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided") {
 		cout << "  In AbstractParametersEntry::makelike() - using abstract class method,\n  Exiting!" << endl;
 		exit(1);
 	}
-	virtual void setExisting(string value, string name = "none provided"){
+	virtual void setExisting(string value, string name = "none provided") {
 		cout << "  In AbstractParametersEntry::setExisting() - using abstract class method.\n  Exiting!" << endl;
 		exit(1);
 	}
 };
 
 template<typename T>
-class ParametersEntry: public AbstractParametersEntry {
+class ParametersEntry : public AbstractParametersEntry {
 private:
 	shared_ptr<T> valuePtr;
 
@@ -248,7 +248,7 @@ public:
 		return *valuePtr;
 	}
 
-	const void get(T& value, string name) override {
+	const void get(T& value, const string& name) override {
 		value = *valuePtr;
 	}
 
@@ -275,14 +275,15 @@ public:
 	void set(const T & value, bool _local = true) override {
 		if (valuePtr == nullptr) {
 			valuePtr = make_shared<T>(value);
-		} else {
+		}
+		else {
 			*valuePtr = value;
 		}
 		local = _local;
 	}
 
 	void getValuePtr(shared_ptr<T> &ptr) override {
-		if (ptr == nullptr){
+		if (ptr == nullptr) {
 			//ASSERT(valuePtr != nullptr, "in ParametersEntry(shared_ptr<T> &ptr) :: Attempt to get shared pointer from broken pointer!");
 			cout << "  In ParametersEntry::getValuePtr() - Attempt to get shared pointer from broken pointer!\n  Exiting!" << endl;
 			exit(1);
@@ -292,13 +293,13 @@ public:
 	}
 
 	void follow(shared_ptr<AbstractParametersEntry> &ptr) override {
-		if (ptr == nullptr){
+		if (ptr == nullptr) {
 			//ASSERT(ptr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: ptr = nullptr");
 			cout << "  In ParametersEntry::follow() - ptr is a nullptr" << endl;
 			exit(1);
 		}
 		shared_ptr<ParametersEntry<T>> castParametersEntry = dynamic_pointer_cast<ParametersEntry<T>>(ptr);
-		if(castParametersEntry->valuePtr == nullptr){
+		if (castParametersEntry->valuePtr == nullptr) {
 			//ASSERT(castParametersEntry->valuePtr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: value in ptr = nullptr");
 			cout << "  In ParametersEntry::follow() - value in ptr is a nullptr" << endl;
 			exit(1);
@@ -320,7 +321,7 @@ public:
 			bool foundDot = false;
 			bool foundNonZero = false;
 
-			int i = (int) value.str().size() - 1;
+			int i = (int)value.str().size() - 1;
 			while (i >= 0) {
 				if (value.str()[i] != '0') {
 					foundNonZero = true;
@@ -339,9 +340,9 @@ public:
 			if (!foundDot) {
 				trimmedValue = value.str();
 			}
-			return {trimmedValue,getTypeName()};
+			return { trimmedValue,getTypeName() };
 		}
-		return {value.str(),getTypeName()};
+		return { value.str(),getTypeName() };
 	}
 
 	void show() override {
@@ -349,26 +350,29 @@ public:
 		cout << *valuePtr << " (" << get_var_typename(*valuePtr) << ")";
 		if (local) {
 			cout << " is Local";
-		} else {
+		}
+		else {
 			cout << " is not Local";
 		}
 		cout << endl;
 		cout << "        saveOnFileWrite: ";
 		if (saveOnFileWrite) {
 			cout << "yes" << endl;
-		} else {
+		}
+		else {
 			cout << "no" << endl;
 
 		}
 	}
 
-	shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided") override{
+	shared_ptr<AbstractParametersEntry> makelike(string value, string name = "none provided") override {
 		auto newEntry = make_shared<ParametersEntry<T>>();
 		auto tempVal = *valuePtr;
-		if (load_value(value, tempVal)){
+		if (load_value(value, tempVal)) {
 			newEntry->valuePtr = make_shared<T>(tempVal);
-		} else {
-			cout << "  in ParametersEntry::makelike() attempting to setup a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting"<<endl;
+		}
+		else {
+			cout << "  in ParametersEntry::makelike() attempting to setup a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting" << endl;
 			exit(1);
 		}
 		newEntry->local = true;
@@ -376,13 +380,14 @@ public:
 		return newEntry;
 	}
 
-	void setExisting(string value, string name = "none provided") override{
+	void setExisting(string value, string name = "none provided") override {
 		auto tempVal = *valuePtr;
-		if (load_value(value, tempVal)){
+		if (load_value(value, tempVal)) {
 			*valuePtr = tempVal;
 			local = true;
-		} else {
-			cout << "  in ParametersEntry::setExisting() attempting to set a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting"<<endl;
+		}
+		else {
+			cout << "  in ParametersEntry::setExisting() attempting to set a parameter with name \"" << name << "\"... string value provided to function could not be converted to type of entry!\n  Exiting" << endl;
 			exit(1);
 		}
 	}
@@ -424,7 +429,7 @@ public:
 	ParametersTable() = delete;
 
 	ParametersTable(const string& _tableNameSpace = "", shared_ptr<ParametersTable> _rootTable = nullptr) :
-	tableNameSpace(_tableNameSpace), rootTable(_rootTable) {
+		tableNameSpace(_tableNameSpace), rootTable(_rootTable) {
 		setID();
 	}
 
@@ -439,9 +444,10 @@ public:
 	}
 
 	string getParameterType(const string& name) {
-		if(rootTable->table.find(name)==table.end()) {
+		if (rootTable->table.find(name) == table.end()) {
 			return("FAIL");
-		} else {
+		}
+		else {
 			return (rootTable->table[name]->getTypeName());
 		}
 	}
@@ -451,13 +457,14 @@ public:
 		if (_parent == nullptr) {  //this will be a root table
 			newTable->parametersTablesRegistry = make_shared<map<string, shared_ptr<ParametersTable>>>();
 			newTable->parameterDocumentation = make_shared<map<string, string>>();// for each parameter name, contains documentation
-		} else {
+		}
+		else {
 			newTable->parent = _parent;
 			newTable->parent->addChild(newTable);
 			newTable->parametersTablesRegistry = _parent->parametersTablesRegistry;
 			newTable->parameterDocumentation = _parent->parameterDocumentation;
 		}
-		(*newTable->parametersTablesRegistry)[_tableNameSpace]=newTable;
+		(*newTable->parametersTablesRegistry)[_tableNameSpace] = newTable;
 		return newTable;
 	}
 
@@ -466,21 +473,24 @@ public:
 			shared_ptr<ParametersTable> newTable = addTableWithParent(_tableNameSpace, _rootTable, nullptr);
 			newTable->rootTable = newTable;
 			return newTable;
-		} else if ((*_rootTable->parametersTablesRegistry).find(_tableNameSpace) != (*_rootTable->parametersTablesRegistry).end()) {
-			cout << "  Warning :: call to makeTable. table with nameSpace: \"" << _tableNameSpace << "\" already exists. Ignoring..."<< endl;
+		}
+		else if ((*_rootTable->parametersTablesRegistry).find(_tableNameSpace) != (*_rootTable->parametersTablesRegistry).end()) {
+			cout << "  Warning :: call to makeTable. table with nameSpace: \"" << _tableNameSpace << "\" already exists. Ignoring..." << endl;
 			return (*_rootTable->parametersTablesRegistry)[_tableNameSpace];
-		} else {
+		}
+		else {
 			shared_ptr<ParametersTable> searchTable = nullptr;
 			vector<string> nameSpaceParts = nameSpaceToNameParts(_tableNameSpace);
 			int index = 0;
 			bool looking = true;
 			string nameSpace = "";
-			while (index < (int) nameSpaceParts.size() && looking) {  // as long as we keep finding tables in the registry, keep checking down
+			while (index < (int)nameSpaceParts.size() && looking) {  // as long as we keep finding tables in the registry, keep checking down
 				nameSpace += nameSpaceParts[index];
 				auto s = (*_rootTable->parametersTablesRegistry).find(nameSpace);
 				if (s != (*_rootTable->parametersTablesRegistry).end()) {
 					searchTable = s->second;  // found a table, keep looking to see if there is one farther down
-				} else {
+				}
+				else {
 					looking = false;  // we did not find a table! searchTable is the last table we found (or nullptr) and paramaterName is in a table we must make
 				}
 				index++;
@@ -490,7 +500,7 @@ public:
 			}
 			shared_ptr<ParametersTable> newTable = addTableWithParent(nameSpace, _rootTable, searchTable);
 			searchTable = newTable;
-			while (index < (int) nameSpaceParts.size()) {
+			while (index < (int)nameSpaceParts.size()) {
 				nameSpace += nameSpaceParts[index];
 				newTable = addTableWithParent(nameSpace, _rootTable, searchTable);
 				searchTable = newTable;
@@ -504,15 +514,15 @@ public:
 	shared_ptr<ParametersTable> getTable(const string& _tableNameSpace) {
 		if ((*rootTable->parametersTablesRegistry).find(_tableNameSpace) != (*rootTable->parametersTablesRegistry).end()) {
 			return (*rootTable->parametersTablesRegistry)[_tableNameSpace];
-		} else {
+		}
+		else {
 			return makeTable(_tableNameSpace, rootTable);
 		}
 	}
 
 	// looks for a table with name space _tableNameSpace; if not found error out.
 	shared_ptr<ParametersTable> lookupTable(const string& _tableNameSpace) {
-		if ((*parametersTablesRegistry).find(_tableNameSpace) == (*parametersTablesRegistry).end()){
-			//ASSERT ((*parametersTablesRegistry).find(_tableNameSpace) != (*parametersTablesRegistry).end() , ("ERROR! :: Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting!\n"));
+		if ((*parametersTablesRegistry).find(_tableNameSpace) == (*parametersTablesRegistry).end()) {
 			cout << "  In ParametersTable::lookupTable()  - Attempt to lookup nonexistent table with name \"" + _tableNameSpace + "\". Exiting! " << endl;
 			exit(1);
 		}
@@ -523,11 +533,14 @@ public:
 	shared_ptr<ParametersTable> findTableWithNamedParameter(const string& name, shared_ptr<ParametersTable> searchTable) {
 		bool found = false;
 		while (searchTable != nullptr && !found) {  // while findTable is valid and we have not found the value
-			if (searchTable->table.find(name) == table.end()) {  // if the value is not here, point to the parent.
+			//cout << "searching" << searchTable->tableNameSpace << " for " << name << endl;
+			if (searchTable->table.find(name) == searchTable->table.end()) {  // if the value is not here, point to the parent.
 				searchTable = searchTable->parent;
-			} else if (!searchTable->table[name]->isLocal()) {  // if the value is here, but is not local, point to the parent.
+			}
+			else if (!searchTable->table[name]->isLocal()) {  // if the value is here, but is not local, point to the parent.
 				searchTable = searchTable->parent;
-			} else {  // if the value is here and is local, then set found = true
+			}
+			else {  // if the value is here and is local, then set found = true
 				found = true;
 			}
 		}
@@ -568,24 +581,23 @@ public:
 	void lookup(const string& name, T& value) {
 		// check for the name in this table
 		if (table.find(name) != table.end()) {  // if this table has entry called name
-			table[name]->get(value,name);
+			table[name]->get(value, name);
 
-		} else {
-			//value = 10.0;
+		}
+		else {
 			shared_ptr<ParametersTable> searchTable;// used to determine which ancestor table we are looking at
 			if (parent != nullptr) {
 				searchTable = parent;
-			} else {
+			}
+			else {
 				searchTable = rootTable;
 			}
 			searchTable = findTableWithNamedParameter(name, searchTable);  // find the name in the closest ancestor table with named parameter
-			if (searchTable == nullptr){
-				//ASSERT (searchTable != nullptr,"  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!");
+			if (searchTable == nullptr) {
 				cout << "  ERROR! :: in ParametersTable::lookup(const string& name, bool& value) - could not find \"" << tableNameSpace << name << "\" in parameters tables! Exiting!" << endl;
 				exit(1);
 			}
-			searchTable->table[name]->get(value,name);// assign value
-			////table[name] = make_shared<ParametersEntry<T>>(value,false);// create new entry with value and local = false
+			searchTable->table[name]->get(value, name);// assign value
 			table[name] = make_shared<ParametersEntry<T>>();
 			table[name]->follow(searchTable->table[name]);
 		}
@@ -613,9 +625,8 @@ public:
 	}
 
 	inline bool lookupBool(const string& name, const string& _tableNameSpace) {
-		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
-			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
-			cout << "  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+		if (parametersTablesRegistry->find(_tableNameSpace) == parametersTablesRegistry->end()) {
+			cout << "  ERROR! :: in ParametersTable::lookupBool(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!" << endl;
 			exit(1);
 		}
 		bool value;
@@ -623,9 +634,9 @@ public:
 		return value;
 	}
 	inline string lookupString(const string& name, const string& _tableNameSpace) {
-		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+		if (parametersTablesRegistry->find(_tableNameSpace) == parametersTablesRegistry->end()) {
 			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupstring(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
-			cout << "  ERROR! :: in ParametersTable::lookupstring(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			cout << "  ERROR! :: in ParametersTable::lookupstring(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!" << endl;
 			exit(1);
 		}
 		string value;
@@ -633,9 +644,9 @@ public:
 		return value;
 	}
 	inline int lookupInt(const string& name, const string& _tableNameSpace) {
-		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+		if (parametersTablesRegistry->find(_tableNameSpace) == parametersTablesRegistry->end()) {
 			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
-			cout << "  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			cout << "  ERROR! :: in ParametersTable::lookupInt(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!" << endl;
 			exit(1);
 		}
 		int value;
@@ -643,9 +654,9 @@ public:
 		return value;
 	}
 	inline double lookupDouble(const string& name, const string& _tableNameSpace) {
-		if (parametersTablesRegistry->find(_tableNameSpace)==parametersTablesRegistry->end()){
+		if (parametersTablesRegistry->find(_tableNameSpace) == parametersTablesRegistry->end()) {
 			//ASSERT(parametersTablesRegistry->find(_tableNameSpace)!=parametersTablesRegistry->end(),"  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!");
-			cout << "  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!"<<endl;
+			cout << "  ERROR! :: in ParametersTable::lookupDouble(const string& name) - could not find requested tableNameSpace\"" << _tableNameSpace << "\" in parameters tables! Exiting!" << endl;
 			exit(1);
 		}
 		double value;
@@ -658,17 +669,20 @@ public:
 	template<typename T>
 	void setParameter(const string& name, const T& value, const string& _tableNameSpace = "'", bool _saveOnFileWrite = false) {
 		//shared_ptr<AbstractParametersEntry> setParameter(const string& name, const T& value, const string& _tableNameSpace = "'", bool _saveOnFileWrite = false) {
-		string localTableNameSpace = (_tableNameSpace == "'")?tableNameSpace:_tableNameSpace;
+		string localTableNameSpace = (_tableNameSpace == "'") ? tableNameSpace : _tableNameSpace;
 		if (localTableNameSpace != tableNameSpace) {  // if this table is not the table we are writing to...nameSpaceToNameParts
 			if ((*parametersTablesRegistry).find(localTableNameSpace) != (*parametersTablesRegistry).end()) {  // if the table we are writing to exists...
 				return (*parametersTablesRegistry)[localTableNameSpace]->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// go to the table and set the value
-			} else {  // if the table we are writing to does not exist...
+			}
+			else {  // if the table we are writing to does not exist...
 				return makeTable(localTableNameSpace, rootTable)->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// make the table and set value in table
 			}
-		} else {  // if this is the table we are writing to...
+		}
+		else {  // if this is the table we are writing to...
 			if (table.find(name) != table.end()) {  // if this table has entry called name
 				table[name]->set(value);
-			} else {  // this table does not have entry called name
+			}
+			else {  // this table does not have entry called name
 				table[name] = make_shared<ParametersEntry<T>>(value);
 				if (parent != nullptr) {  // if this is not a root table...
 					if (rootTable->table.find(name) == rootTable->table.end()) {  // if this value is not yet set in the root table. create it there also
@@ -691,7 +705,8 @@ public:
 							checklist.push_back(*c.second);
 						}
 					}  // if isLocal we don't do anything! (if children are referencing, they are referencing here)
-				} else {  // if name is not here, add children to checklist (a child may be referencing above.)
+				}
+				else {  // if name is not here, add children to checklist (a child may be referencing above.)
 					for (auto c : checkTable.children) {  // and add it's children to checklist
 						checklist.push_back(*c.second);
 					}
@@ -706,12 +721,13 @@ public:
 
 	// setExistingParameter is used to set the value of a parameter in this table, but only if that parameter already exists.
 	// the name / value pair is string / string, and the value is converted baised on the type of the parameter as it has already been defined.
-	void setExistingParameter(string name, string value){
-		if (table.find(name) != table.end()){ // if this table has entry called name
-			table[name]->setExisting(value,name);
-		} else { // name not found in this table, check root
-			if (rootTable->table.find(name) != table.end()){ // Good, it's in the root table, we will need to add it here!
-				auto newEntry = rootTable->table[name]->makelike(value,name); // get entry from root table (this will get us the type!)
+	void setExistingParameter(string name, string value) {
+		if (table.find(name) != table.end()) { // if this table has entry called name
+			table[name]->setExisting(value, name);
+		}
+		else { // name not found in this table, check root
+			if (rootTable->table.find(name) != table.end()) { // Good, it's in the root table, we will need to add it here!
+				auto newEntry = rootTable->table[name]->makelike(value, name); // get entry from root table (this will get us the type!)
 				table[name] = newEntry; // assign it in this table
 				///// This is copied from setParameter --- it makes sure that children of this table know to look here!
 				vector<ParametersTable> checklist;  // make a checklist of all children tables from the current table
@@ -729,7 +745,8 @@ public:
 								checklist.push_back(*c.second);
 							}
 						}  // if isLocal we don't do anything! (if children are referencing, they are referencing here)
-					} else {  // if name is not here, add children to checklist (a child may be referencing above.)
+					}
+					else {  // if name is not here, add children to checklist (a child may be referencing above.)
 						for (auto c : checkTable.children) {  // and add it's children to checklist
 							checklist.push_back(*c.second);
 						}
@@ -737,17 +754,18 @@ public:
 				}
 				///// end of copy from setParameter
 
-			} else { // This value does not exist in the system!
-				cout << "  in ParametersTable::setExistingParameter():: attempting to set parameter with name \"" << name << "\" and value \"" << value << "\", but that name is not registered! Please check the name.\n  Exiting."<<endl;
+			}
+			else { // This value does not exist in the system!
+				cout << "  in ParametersTable::setExistingParameter():: attempting to set parameter with name \"" << name << "\" and value \"" << value << "\", but that name is not registered! Please check the name.\n  Exiting." << endl;
 				exit(1);
 			}
 		}
 	}
 
-// attempt to delete a value from this table also, remove any non-local children who are relying on this value.
-// if removing from root, delete all paramaters with this name in table.
+	// attempt to delete a value from this table also, remove any non-local children who are relying on this value.
+	// if removing from root, delete all paramaters with this name in table.
 	void deleteParameter(const string& name) {
-		if (table.find(name) == table.end()){
+		if (table.find(name) == table.end()) {
 			//ASSERT((table.find(name) != table.end()), "  ERROR! :: attempt to remove non-existent \"" << tableNameSpace << name << "\". Exiting");
 			cout << "  ERROR! In ParametersTable::deleteParameter(name) - attempt to remove non-existent \"" << tableNameSpace << name << "\". Exiting" << endl;
 			exit(1);
@@ -769,7 +787,8 @@ public:
 				swap(checklist.front(), checklist.back());
 				checklist.pop_back();
 			}
-		} else {  // this is not a root table, only remove parameters from child tables if not local and looking at this table.
+		}
+		else {  // this is not a root table, only remove parameters from child tables if not local and looking at this table.
 			vector<shared_ptr<ParametersTable>> checklist;
 			for (auto c : children) {
 				if (c.second->table.find(name) != c.second->table.end()) {  // if child has name...
@@ -777,7 +796,8 @@ public:
 						c.second->table.erase(name);// delete name and ...
 						checklist.push_back(c.second);// add child to checklist
 					}  // if child has name and it is local, don't do anything. (if any children are not local, they will be looking here)
-				} else {  // if child does not have name...
+				}
+				else {  // if child does not have name...
 					checklist.push_back(c.second);// add child to list (so that it's children are checked.
 				}
 			}
@@ -788,7 +808,8 @@ public:
 							c.second->table.erase(name);// delete name and ...
 							checklist.push_back(c.second);// add child to checklist
 						}  // if child has name and it is local, don't do anything. (if any children are not local, they will be looking here)
-					} else {  // if child does not have name...
+					}
+					else {  // if child does not have name...
 						checklist.push_back(c.second);// add child to list (so that it's children are checked.
 					}
 				}
@@ -804,7 +825,7 @@ public:
 	// cause the tables to remain active. This should not be a problem, as objects leave scope the tables will
 	// auto delete. Also note that shared_ptrs to parameterEntries will still be valid, and this is the desired behavior
 	void deleteParamatersTable() {
-		while (children.size()>0) {
+		while (children.size() > 0) {
 			children.begin()->second->deleteParamatersTable();
 		}
 		clearParent();
@@ -812,20 +833,22 @@ public:
 		(*parametersTablesRegistry).erase(tableNameSpace);
 	}
 
-// set the value in this table (create is needed) (and in root - see set). also assigns usage data, only registered parameters can be saved to files
+	// set the value in this table (create is needed) (and in root - see set). also assigns usage data, only registered parameters can be saved to files
 	void setSaveOnFileWrite(const string& name, bool setting = true) {
 		if (table.find(name) != table.end()) {
 			table[name]->setSaveOnFileWrite(setting);
-		} else {
-			cout << "  Warning :: call to setSaveOnFileWrite. parameter \"" << tableNameSpace << name << "\" not found. Ignoring..."<< endl;
+		}
+		else {
+			cout << "  Warning :: call to setSaveOnFileWrite. parameter \"" << tableNameSpace << name << "\" not found. Ignoring..." << endl;
 		}
 	}
 
 	void setDocumentation(const string& name, const string& _documentation) {
 		if (table.find(name) != table.end()) {
 			(*parameterDocumentation)[name] = _documentation;
-		} else {
-			cout << "  Warning :: call to set documentation. parameter \"" << tableNameSpace << name << "\" not found. Ignoring..."<< endl;
+		}
+		else {
+			cout << "  Warning :: call to set documentation. parameter \"" << tableNameSpace << name << "\" not found. Ignoring..." << endl;
 		}
 	}
 
@@ -848,12 +871,12 @@ public:
 		return kids;
 	}
 
-	void parametersToSortedList(map<string,vector<string>>& sorted_parameters) {
+	void parametersToSortedList(map<string, vector<string>>& sorted_parameters) {
 
 		sorted_parameters.clear();
 		ostringstream build_string;
 		string workingNameSpace, workingCategory, workingParameterName, workingParameterType;
-		pair<string,string> workingValue;
+		pair<string, string> workingValue;
 
 		for (auto p : table) {
 			if (p.second->saveOnWrite()) {
@@ -862,12 +885,12 @@ public:
 				while (p.first[i] != '-' && i < (int)p.first.size()) {  // find "-", separator between category and name
 					i++;
 				}
-				if (i >= (int)p.first.size()-1) {  // if there is not a "-" and at least one character after that... there is a problem.
-					cout << "  ERROR :: in ParametersTable::parametersToSortedList(), found misformatted parameter with name \"" << p.first << "\". Possibly missing category. Exiting!"<< endl;
+				if (i >= (int)p.first.size() - 1) {  // if there is not a "-" and at least one character after that... there is a problem.
+					cout << "  ERROR :: in ParametersTable::parametersToSortedList(), found misformatted parameter with name \"" << p.first << "\". Possibly missing category. Exiting!" << endl;
 					exit(1);
 				}
-				workingCategory = p.first.substr(0,i);
-				workingParameterName = p.first.substr(i+1,p.first.size());
+				workingCategory = p.first.substr(0, i);
+				workingParameterName = p.first.substr(i + 1, p.first.size());
 
 				workingParameterType = getParameterType(p.first);
 
@@ -890,20 +913,23 @@ public:
 		cout << "\nTABLE: ";
 		if (parent == nullptr) {
 			cout << "(ROOT) " << tableNameSpace;
-		} else {
+		}
+		else {
 			cout << tableNameSpace;
 		}
 		cout << "\n    ID: " << getID() << endl;
 		if (parent != nullptr) {
 			if (parent->parent == nullptr) {
 				cout << "    parent name space: (ROOT) " << parent->tableNameSpace << endl;
-			} else {
+			}
+			else {
 				cout << "    parent name space: " << parent->tableNameSpace << endl;
 			}
-		} else {
+		}
+		else {
 			cout << "    parent name space: NULLPTR (this is ROOT) " << endl;
 		}
-		cout << "    Children ("<<children.size()<<"):  ";
+		cout << "    Children (" << children.size() << "):  ";
 		for (auto c : children) {
 			cout << c.second->tableNameSpace << "  ";
 		}
@@ -931,7 +957,7 @@ public:
 	shared_ptr<ParametersTable> table;
 
 	ParameterLink(string _name, shared_ptr<ParametersEntry<T>> _entry, shared_ptr<ParametersTable> _table) :
-			name(_name), entry(_entry), table(_table) {
+		name(_name), entry(_entry), table(_table) {
 	}
 
 	~ParameterLink() = default;
@@ -943,7 +969,8 @@ public:
 	void set(T value) {
 		if (entry->isLocal() == true) {
 			entry->set(value);
-		} else {
+		}
+		else {
 			table->setParameter(name, value);
 		}
 	}
@@ -978,7 +1005,7 @@ public:
 	static unordered_map<string, string> readParametersFile(string fileName);
 	static bool initializeParameters(int argc, const char * argv[]);
 	static void saveSettingsFile(const string& nameSpace, stringstream& FILE, vector<string> categoryList, int _maxLineLength, int _commentIndent, bool alsoChildren = false, int nameSpaceLevel = 0);
-	static void saveSettingsFiles(int _maxLineLength, int _commentIndent, vector<string> nameSpaceList = { "*" }, vector<pair<string, vector<string>>> categoryLists = { {"settings.cfg", {""}}});
+	static void saveSettingsFiles(int _maxLineLength, int _commentIndent, vector<string> nameSpaceList = { "*" }, vector<pair<string, vector<string>>> categoryLists = { {"settings.cfg", {""}} });
 	static void printParameterWithWraparound(stringstream& FILE, string _currentIndent, string _parameter, int _maxLineLength, int _commentIndent);
 };
 

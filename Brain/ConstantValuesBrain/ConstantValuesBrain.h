@@ -38,9 +38,12 @@ public:
 	static shared_ptr<ParameterLink<bool>> initializeConstantPL;
 	static shared_ptr<ParameterLink<int>> initializeConstantValuePL;
 
+	static shared_ptr<ParameterLink<string>> genomeNamePL;
+	string genomeName;
+
 	double valueMin;
 	double valueMax;
-	double valueType;
+	int valueType;
 	int samplesPerValue;
 
 	bool initializeUniform;
@@ -55,15 +58,22 @@ public:
 
 	virtual void update() override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+
+	virtual unordered_set<string> requiredGenomes() override {
+		return { genomeName };
+	}
 
 	virtual string description() override;
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "ConstantValues";
+	}
 
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;
 
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
+	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 };
 
 inline shared_ptr<AbstractBrain> ConstantValuesBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {

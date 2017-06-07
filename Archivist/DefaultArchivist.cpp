@@ -11,44 +11,60 @@
 #include "DefaultArchivist.h"
 using namespace std;
 
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter("ARCHIVIST-outputMethod", (string) "Default", "output method, [default, LODwAP (Line of Decent with Aggressive Pruning), SSwD (SnapShot with Delay)]");  // string parameter for outputMethod;
+////// ARCHIVIST-outputMethod is actually set by Modules.h //////
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter("ARCHIVIST-outputMethod", (string) "This_string_is_set_by_modules.h",
+		"This_string_is_set_by_modules.h");  // string parameter for outputMethod;
+////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-realtimeSequence", (string) ":10", "How often to write to realtime data files. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataSequence", (string) ":100", "How often to save a realtime snapshot data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_genomeSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotGenomeSequence", (string) ":1000", "How often to save a realtime snapshot genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-realtimeSequence", (string) ":10",
+		"How often to write to realtime data files. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataSequence", (string) ":100",
+		"How often to save a realtime snapshot data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismSequence", (string) ":1000",
+		"How often to save a realtime snapshot genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeAveFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeAveFile", true, "Save data to average file?");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeDominantFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeDominantFile", true, "Save data to dominant file?");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_AveFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileName", (string) "ave.csv", "name of average file (saves population averages)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DominantFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-dominantFileName", (string) "dominant.csv", "name of dominant file (saves data on dominant organism)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultAveFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileColumns", (string) "[]", "data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_DominantFileShowAllListsPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-dominantFileShowAllLists", true, "lists named 'all'* in data map will be averaged and added to file. if true, raw 'all'* lists will also be added to the file");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writePopFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writePopFile", true, "Save data to average file?");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeMaxFile", true, "Save data to Max file?");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_PopFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileName", (string) "pop.csv", "name of population data file (saves population averages)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_MaxFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-maxFileName", (string) "max.csv", "name of max file (saves data on organism with max \"score\" as determined by Optimizer)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultPopFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileColumns", (string) "[]",
+		"data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
 
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataFilePrefix", (string) "snapshotData", "prefix for name of snapshot genome file (stores genomes)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_GenomeFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotGenomeFilePrefix", (string) "snapshotGenome", "prefix for name of snapshot data file (stores everything but genomes)");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotDataFiles", false, "if true, snapshot data files will be written (with all non genome data for entire population)");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeGenomeFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotGenomeFiles", false, "if true, snapshot genome files will be written (with all genomes for entire population)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataFilePrefix", (string) "snapshotData", "prefix for name of snapshot data file");
+shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_OrganismsFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismFilePrefix", (string) "snapshotOrganisms", "prefix for name of snapshot organism file");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotDataFiles", false,
+		"if true, snapshot data files will be written (with all non genome data for entire population)");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles", false, "if true, snapshot organism files will be written (with all organisms for entire population)");
 
-DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
-		PT(_PT) {
+DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+		PT(_PT), groupPrefix(_groupPrefix) {
 
-	writeAveFile = (PT == nullptr) ? Arch_writeAveFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeAveFile");
-	writeDominantFile = (PT == nullptr) ? Arch_writeDominantFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeDominantFile");
-	AveFileName = (PT == nullptr) ? Arch_AveFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileName");
-	DominantFileName = (PT == nullptr) ? Arch_DominantFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-dominantFileName");
-	AveFileColumnNames = (PT == nullptr) ? Arch_DefaultAveFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileColumns");
-	DominantFileShowAllLists = (PT == nullptr) ? Arch_DominantFileShowAllListsPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-dominantFileShowAllLists");
+	writePopFile = (PT == nullptr) ? Arch_writePopFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writePopFile");
+	writeMaxFile = (PT == nullptr) ? Arch_writeMaxFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeMaxFile");
+
+
+	PopFileName = (PT == nullptr) ? Arch_PopFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileName");
+	PopFileName = (groupPrefix == "") ? PopFileName : groupPrefix + "__" + PopFileName;
+
+	MaxFileName = (PT == nullptr) ? Arch_MaxFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-maxFileName");
+	MaxFileName = (groupPrefix == "") ? MaxFileName : groupPrefix + "__" + MaxFileName;
+
+	PopFileColumnNames = (PT == nullptr) ? Arch_DefaultPopFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileColumns");
 
 	DataFilePrefix = (PT == nullptr) ? SS_Arch_DataFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataFilePrefix");
-	GenomeFilePrefix = (PT == nullptr) ? SS_Arch_GenomeFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeFilePrefix");
+	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
+
+	OrganismFilePrefix = (PT == nullptr) ? SS_Arch_OrganismsFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotOrganismFilePrefix");
+	OrganismFilePrefix = (groupPrefix == "") ? OrganismFilePrefix : groupPrefix + "__" + OrganismFilePrefix;
+
 	writeSnapshotDataFiles = (PT == nullptr) ? SS_Arch_writeDataFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotDataFiles");
-	writeSnapshotGenomeFiles = (PT == nullptr) ? SS_Arch_writeGenomeFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotGenomeFiles");
+	writeSnapshotGenomeFiles = (PT == nullptr) ? SS_Arch_writeOrganismsFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles");
 
 	realtimeSequence.push_back(0);
 	realtimeDataSequence.push_back(0);
-	realtimeGenomeSequence.push_back(0);
+	realtimeOrganismSequence.push_back(0);
 
-	if (writeAveFile != false || writeDominantFile != false) {
+	if (writePopFile != false || writeMaxFile != false) {
 		string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
 		realtimeSequence.clear();
 		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
@@ -69,76 +85,91 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT) :
 	}
 
 	if (writeSnapshotGenomeFiles != false) {
-		string genomeIntervalStr = (PT == nullptr) ? SS_Arch_genomeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotGenomeSequence");
-		realtimeGenomeSequence.clear();
-		realtimeGenomeSequence = seq(genomeIntervalStr, Global::updatesPL->lookup(), true);
-		if (realtimeGenomeSequence.size() == 0) {
-			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotGenomeSequence \"" << genomeIntervalStr << "\".\nExiting." << endl;
+		string organismIntervalStr = (PT == nullptr) ? SS_Arch_organismSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotOrganismSequence");
+		realtimeOrganismSequence.clear();
+		realtimeOrganismSequence = seq(organismIntervalStr, Global::updatesPL->lookup(), true);
+		if (realtimeOrganismSequence.size() == 0) {
+			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismSequence \"" << organismIntervalStr << "\".\nExiting." << endl;
 			exit(1);
 		}
 	}
 
 	realtimeSequenceIndex = 0;
 	realtimeDataSeqIndex = 0;
-	realtimeGenomeSeqIndex = 0;
+	realtimeOrganismSeqIndex = 0;
 
 	finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT) :
-		DefaultArchivist(_PT) {
-	convertCSVListToVector(AveFileColumnNames, DefaultAveFileColumns);
+DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+		DefaultArchivist(_PT, _groupPrefix) {
+	convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
 	maxFormula = _maxFormula;
-	if (DefaultAveFileColumns.size() <= 0) {
-		DefaultAveFileColumns = aveFileColumns;
+	if (DefaultPopFileColumns.size() <= 0) {
+		DefaultPopFileColumns = popFileColumns;
+	}
+	for (auto key : DefaultPopFileColumns) {
+		if (key == "update") {
+			uniqueColumnNameToOutputBehaviors[key] = 0;
+			continue;
+		}
+		size_t downslashPos = key.find_last_of('_');
+		if (downslashPos != string::npos) { // if there is a downslash
+			if (DataMap::knownOutputBehaviors.find(key.substr(downslashPos+1)) == DataMap::knownOutputBehaviors.end()) { // if word after downslash does not indicate a known mask
+				cout << "In DefaultArchivist::writerealTimeFiles :: Error, key '" << key << "' specifies an unknown output behavior (part after underscore)";
+			}
+			else {
+				if (uniqueColumnNameToOutputBehaviors.find(key.substr(0,downslashPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
+					uniqueColumnNameToOutputBehaviors[key] = DataMap::knownOutputBehaviors[key];
+				} else { // key already in map
+					uniqueColumnNameToOutputBehaviors[key.substr(0,downslashPos)] |= DataMap::knownOutputBehaviors[key.substr(downslashPos+1)];
+				}
+			}
+		} else { // add key normally, because it has no special flags specified
+			if (uniqueColumnNameToOutputBehaviors.find(key) == uniqueColumnNameToOutputBehaviors.end()) {
+				uniqueColumnNameToOutputBehaviors[key] = DataMap::AVE;
+			} else {
+				uniqueColumnNameToOutputBehaviors[key] |= DataMap::AVE;
+			}
+		}
 	}
 }
 
-//save dominant and average file data
+//save Max and pop file data
 //keys named all* will be converted to *. These should key for lists of values. These values will be averaged (used to average world repeats)
 void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population) {
-	// write out Average data
-	if (writeAveFile) {
-		double aveValue;
-		DataMap AveMap;
+	// write out population data
 
-		for (auto key : DefaultAveFileColumns) {
-			if (key != "update") {
+	if (writePopFile) {
+		double aveValue;
+		DataMap PopMap;
+
+
+		//for (auto key : DefaultPopFileColumns) {
+		//	if (key != "update") {
+		for (auto kv : uniqueColumnNameToOutputBehaviors) {
+			if (kv.first != "update") {
 				aveValue = 0;
 				for (auto org : population) {
-					aveValue += org->dataMap.GetAverage(key);
+					PopMap.Append(kv.first, org->dataMap.GetAverage(kv.first));
 				}
-				aveValue /= population.size();
-				if (population[0]->dataMap.isKeySolo(key)){
-					AveMap.Set(key,aveValue);
-				} else {
-					AveMap.Append(key,aveValue);
-				}
-				//if(population[0]->dataMap.outputBehavior[key] & DataMap::AVE){ // if the value in question has it's AVE flag set...
-					//AveMap.Set(key + "_AVE", aveValue);
-				//} else {
-					//AveMap.Set(key, aveValue);
-				//}
 			}
+			PopMap.setOutputBehavior(kv.first, uniqueColumnNameToOutputBehaviors[kv.first]);
 		}
-//		for (auto key : DefaultAveFileColumns) {
-//			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
-//		}
-		AveMap.Set("update", Global::update);
-		//AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(AveFileName,{},true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
+		PopMap.Set("update", Global::update);
+		PopMap.writeToFile(PopFileName, { }, true); // write the PopMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
-	// write out Dominant data
-	if (writeDominantFile && maxFormula!=nullptr) {
+	// write out Max data
+	if (writeMaxFile && maxFormula != nullptr) {
 		vector<double> Scores;
 		for (auto org : population) {
-			Scores.push_back(maxFormula->eval(org->dataMap,org->PT)[0]);
+			Scores.push_back(maxFormula->eval(org->dataMap, org->PT)[0]);
 		}
 
 		int best = findGreatestInVector(Scores);
 		population[best]->dataMap.Set("update", Global::update);
-		population[best]->dataMap.writeToFile(DominantFileName);
+		population[best]->dataMap.writeToFile(MaxFileName);
 		population[best]->dataMap.Clear("update");
 	}
 }
@@ -162,39 +193,47 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 		org->snapshotAncestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
 
 		org->dataMap.Set("update", Global::update);
-		org->dataMap.setOutputBehavior("update", DataMap::AVE);
+		org->dataMap.setOutputBehavior("update", DataMap::FIRST);
 
 		org->dataMap.writeToFile(dataFileName, files["snapshotData"]);  // append new data to the file
-
 		org->dataMap.Clear("snapshotAncestors");
 		org->dataMap.Clear("update");
 	}
+	FileManager::closeFile(dataFileName); // since this is a snapshot, we will not be writting to this file again.
 }
 
-void DefaultArchivist::saveSnapshotGenomes(vector<shared_ptr<Organism>> population) {
+void DefaultArchivist::saveSnapshotOrganisms(vector<shared_ptr<Organism>> population) {
+	// write out organims
+	string organismFileName = OrganismFilePrefix + "_" + to_string(Global::update) + ".csv";
 
-	// write out genomes
-	string genomeFileName = GenomeFilePrefix + "_" + to_string(Global::update) + ".csv";
-
-	string dataString;
 	for (auto org : population) {
-		org->genome->dataMap.Set("sites", org->genome->genomeToStr());
-		org->genome->dataMap.Set("ID", org->dataMap.GetIntVector("ID")[0]);
-		org->genome->dataMap.Set("update", Global::update);
+		DataMap OrgMap;
+		OrgMap.Set("ID", org->ID);
+		string tempName;
 
-		org->genome->dataMap.writeToFile(genomeFileName, org->genome->genomeFileColumns);		// append new data to the file
-		org->genome->dataMap.Clear("update");		// we dont' need this anymore.
+		for (auto genome : org->genomes) {
+			tempName =  "GENOME_" + genome.first;
+			OrgMap.Merge(genome.second->serialize(tempName));
+		}
+		for (auto brain : org->brains) {
+			tempName = "BRAIN_" + brain.first;
+			OrgMap.Merge(brain.second->serialize(tempName));
+		}
+		OrgMap.writeToFile(organismFileName); // append new data to the file
 	}
+	FileManager::closeFile(organismFileName); // since this is a snapshot, we will not be writting to this file again.
 }
+
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
 bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
-	if (finished){
+
+	if (finished) {
 		return finished;
 	}
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
-			writeRealTimeFiles(population);  // write to dominant and average files
+			writeRealTimeFiles(population);  // write to Max and average files
 			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}
@@ -206,10 +245,11 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 				realtimeDataSeqIndex++;
 			}
 		}
-		if ((Global::update == realtimeGenomeSequence[realtimeGenomeSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
-			saveSnapshotGenomes(population);
-			if (realtimeGenomeSeqIndex + 1 < (int) realtimeGenomeSequence.size()) {
-				realtimeGenomeSeqIndex++;
+		if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
+			//saveSnapshotGenomes(population);
+			saveSnapshotOrganisms(population);
+			if (realtimeOrganismSeqIndex + 1 < (int) realtimeOrganismSequence.size()) {
+				realtimeOrganismSeqIndex++;
 			}
 		}
 
@@ -218,7 +258,7 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 		}
 	}
 	// if we are at the end of the run
-	finished =Global::update >= Global::updatesPL->lookup();
+	finished = Global::update >= Global::updatesPL->lookup();
 	return finished;
 }
 
@@ -250,10 +290,10 @@ bool DefaultArchivist::isDataUpdate(int checkUpdate) {
 	return check;
 }
 
-bool DefaultArchivist::isGenomeUpdate(int checkUpdate) {
+bool DefaultArchivist::isOrganismUpdate(int checkUpdate) {
 	if (checkUpdate == -1) {
 		checkUpdate = Global::update;
 	}
-	bool check = find(realtimeGenomeSequence.begin(), realtimeGenomeSequence.end(), checkUpdate) != realtimeGenomeSequence.end();
+	bool check = find(realtimeOrganismSequence.begin(), realtimeOrganismSequence.end(), checkUpdate) != realtimeOrganismSequence.end();
 	return check;
 }

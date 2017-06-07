@@ -45,19 +45,34 @@ public:
 
 	virtual void update() override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) override;
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+
+	//virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) override {
+	//	//cout << "  in makeMutatedBrainFrom" << endl;
+	//	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
+	//}
+
+	//virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents) override {
+	//	//cout << "  in makeMutatedBrainFromMany" << endl;
+	//	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
+	//}
 
 	virtual string description() override;
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "Human";
+	}
 
 	virtual void resetBrain() override;
 
-	virtual void initalizeGenome(shared_ptr<AbstractGenome> _genome);
+	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	
 };
 
 inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
 	return make_shared<HumanBrain>(ins, outs, PT);
 }
+
 
 
 #endif /* defined(__BasicMarkovBrainTemplate__HumanBrain__) */

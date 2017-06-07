@@ -19,7 +19,6 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTab
 	actionMapFileName = (PT == nullptr) ? actionMapFileNamePL->lookup() : PT->lookupString("BRAIN_HUMAN-actionMapFileName");
 
 
-
 	if (useActionMap) {  // if using an action map, load map with lines of format char output1 output2 output3... file must match brain # of outputs
 		string fileName = actionMapFileName;
 		ifstream FILE(fileName);
@@ -46,10 +45,10 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTab
 	}
 
 // columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 }
 
-shared_ptr<AbstractBrain> HumanBrain::makeBrainFromGenome(shared_ptr<AbstractGenome> _genome) {
+shared_ptr<AbstractBrain> HumanBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	shared_ptr<HumanBrain> newBrain = make_shared<HumanBrain>(nrInputValues, nrOutputValues);
 	return newBrain;
 }
@@ -110,12 +109,12 @@ string HumanBrain::description() {
 	return S;
 }
 
-DataMap HumanBrain::getStats() {
+DataMap HumanBrain::getStats(string& prefix) {
 	DataMap dataMap;
 	return (dataMap);
 }
 
-void HumanBrain::initalizeGenome(shared_ptr<AbstractGenome> _genome) {
+void HumanBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 // do nothing;
 }
 

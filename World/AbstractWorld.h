@@ -29,19 +29,21 @@ public:
 	
 	const shared_ptr<ParametersTable> PT;
 
-	vector<string> aveFileColumns;
+	string groupName = "root";
+	vector<string> popFileColumns;
 
 	AbstractWorld(shared_ptr<ParametersTable> _PT = nullptr) :
 			PT(_PT) {
 	}
 	virtual ~AbstractWorld() = default;
-	virtual int requiredInputs() = 0;
-	virtual int requiredOutputs() = 0;
-	virtual bool requireGenome(){
-		return false;
-	}
-	virtual bool requireBrain(){
-		return true;
+
+	virtual int requiredInputs() { return 0; }
+	virtual int requiredOutputs() { return 0; }
+
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() {
+		//string groupName = "root";
+		string brainName = "root";
+		return { { groupName,{"B:"+ brainName+","+to_string(requiredInputs())+","+to_string(requiredOutputs())}} }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0);

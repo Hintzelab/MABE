@@ -92,6 +92,10 @@ public:
 		}
 
 		virtual void writeInt(int value, int valueMin, int valueMax) = 0;
+		virtual void writeDouble(double value, double valueMin, double valueMax) {
+			cout << "ERROR: writeDouble(double value, double valueMin, double valueMax) in AbstractGenome::Handler was called!\n This has not been implemented yet the chromosome class you are using!\n";
+			exit(1);
+		}
 		virtual vector<vector<int>> readTable(pair<int, int> tableSize, pair<int, int> tableMaxSize, pair<int, int> valueRange, int code = -1, int CodingRegionIndex = 0)=0;
 		virtual void advanceIndex(int distance = 1) = 0;
 
@@ -121,7 +125,7 @@ public:
 
 	DataMap dataMap;
 	vector<string> genomeFileColumns;  // = {"ID","alphabetSize","chromosomeCount","chromosomeLength","sitesCount","genomeAncestors","sites"};
-	vector<string> aveFileColumns;  // = {"genomeLength"};
+	vector<string> popFileColumns;  // = {"genomeLength"};
 
 	AbstractGenome() = delete;
 	AbstractGenome(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {}
@@ -151,10 +155,24 @@ public:
 	//// gets data about genome which can be added to a data map
 	//// data is in pairs of strings (key, value)
 	//// the undefined action is to return an empty vector
-	virtual DataMap getStats() {
+	virtual DataMap getStats(string& name) {
 		DataMap data;
 		cout << "Warning! In AbstractGenome::getStats()...\n";
 		return data;
+	}
+
+	// convert a genome into data map with data that can be saved to file
+	virtual DataMap serialize(string& name) {
+		cout << "ERROR! In AbstractGenome::serialize(). This method has not been written for the type of genome use are using.\n  Exiting.";
+		exit(1);
+		DataMap tempDataMap;
+		return tempDataMap;
+	}
+
+	// given a an unordered_map<string, string> and PT, load data into this genome
+	virtual void deserialize (shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+		cout << "ERROR! In AbstractGenome::deserialize(). This method has not been written for the type of genome use are using.\n  Exiting.";
+		exit(1);
 	}
 
 	virtual string genomeToStr() {
@@ -194,6 +212,12 @@ public:
 	virtual int countSites() {
 		cout << "Warning! In AbstractGenome::countSites()...\n";
 		return 0;
+	}
+
+	virtual string getType() {
+		cout << "ERROR! In AbstractGenome::getType()...\n This genome needs a getType function...\n  exiting.";
+		exit(1);
+		return "Undefined";
 	}
 
 	virtual void recordDataMap() = 0;

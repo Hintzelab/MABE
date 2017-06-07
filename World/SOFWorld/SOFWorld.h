@@ -26,8 +26,12 @@ public:
 	//parameters
 	static shared_ptr<ParameterLink<string>> scoreMapFilenamePL;
 
-	
-	vector<int> scoreMatrix;
+	static shared_ptr<ParameterLink<string>> groupNamePL;
+	static shared_ptr<ParameterLink<string>> brainNamePL;
+	//string groupName;
+	string brainName;
+
+	vector<double> scoreMatrix;
 	int x, y;
 
 	
@@ -35,8 +39,11 @@ public:
 	virtual ~SOFWorld() = default;
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) override;
 
-	virtual int requiredInputs() override;
-	virtual int requiredOutputs() override;
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		return { { groupName,{ "B:" + brainName + ",1,2" } } }; // default requires a root group and a brain (in root namespace) and no genome 
+	}
+
+
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__WorldSOF__) */

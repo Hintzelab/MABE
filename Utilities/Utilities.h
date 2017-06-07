@@ -16,6 +16,7 @@
 #include <fstream>
 #include <iostream>
 #include <map>
+#include <unordered_map>
 #include <sstream>
 #include <set>
 #include <vector>
@@ -502,5 +503,74 @@ inline bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
 	return FILE.eof();
 }
 
+
+
+// load all genomes from a file
+inline void loadIndexedCSVFile(const string& fileName, unordered_map<int,unordered_map<string,string>>& data, string& indexName) {
+	data.clear();
+	std::ifstream FILE(fileName);
+	string rawLine;
+	vector<string> keys,tempValues;
+	int numKeys,index;
+	if (FILE.is_open()) {  // if the file named by configFileName can be opened
+		getline(FILE, rawLine);
+		// extract header
+		rawLine = "[" + rawLine + "]";
+		convertCSVListToVector(rawLine, keys);
+		numKeys = keys.size();
+		// find indexIndex
+		auto index = find(keys.begin(), keys.end(), indexName) - keys.begin();
+		while (getline(FILE, rawLine)) {
+			rawLine = "[" + rawLine + "]";
+			convertCSVListToVector(rawLine, tempValues);
+			int mapKey;
+			stringToValue(tempValues[index], mapKey);
+			for (int i = 0; i < numKeys; i++) {
+				data[mapKey][keys[i]] = tempValues[i];
+				//cout << keys[i] << " = " << tempValues[i] << "   --  " << flush;
+			}
+			//cout << endl;
+		}
+	}
+	else {
+		cout << "\n\nERROR: In MultiGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting\n" << endl;
+		exit(1);
+	}
+}
+
+/*
+// must add vector<T> to CSVString function
+inline string GetStringOfVector(const string &key) { // retrieve a string from a dataMap with "key" - if not already string, will be converted
+		string returnString = "\"[";
+		dataMapType typeOfKey = findKeyInData(key);
+		if (typeOfKey == NONE) {
+			cout << "  In DataMap::GetString() :: key \"" << key << "\" is not in data map!\n  exiting." << endl;
+			exit(1);
+		} else {
+			if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+				for (auto e : boolData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+				for (auto e : doubleData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == INT || typeOfKey == INTSOLO) {
+				for (auto e : intData[key]) {
+					returnString += to_string(e) + ",";
+				}
+			} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+				for (auto e : stringData[key]) {
+					returnString += e + ",";
+				}
+			}
+		}
+		if (returnString.size() > 2) { // if vector was not empty
+			returnString.pop_back(); // remove trailing ","
+		}
+		returnString += "]\"";
+		return returnString;
+	}
+*/
 
 #endif // __BasicMarkovBrainTemplate__Utilities__

@@ -192,7 +192,14 @@ public:
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-	virtual DataMap getStats() override;
+	virtual DataMap getStats(string& prefix) override;
+
+	virtual string getType() override{
+		return "Circular";
+	}
+
+	virtual DataMap serialize(string& name) override;
+	virtual void deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) override;
 
 	virtual void recordDataMap() override;
 

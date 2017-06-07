@@ -291,8 +291,8 @@ void Gate_Builder::setupGates() {
 			int operation = genomeHandler->readInt(0, 8, AbstractGate::DATA_CODE, gateID);
 			vector<double> constValues;
 			for (int i = 0; i < 4; i++) {
-				double constValueMin = (_PT == nullptr) ? GPGate::constValueMinPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMin");
-				double constValueMax = (_PT == nullptr) ? GPGate::constValueMaxPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMax");
+				double constValueMin = (_PT == nullptr) ? GPGate::constValueMinPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMin");
+				double constValueMax = (_PT == nullptr) ? GPGate::constValueMaxPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMax");
 				constValues.push_back(genomeHandler->readDouble(constValueMin, constValueMax,AbstractGate::DATA_CODE, gateID));
 			}
 			if (genomeHandler->atEOC()) {
@@ -371,27 +371,27 @@ void Gate_Builder::setupGates() {
 				dischargeBehavior = genomeHandler->readInt(0, 2, AbstractGate::DATA_CODE, gateID);
 			}
 
-			double defaultThresholdMin = (_PT == nullptr) ? NeuronGate::defaultThresholdMinPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdMin");
-			double defaultThresholdMax = (_PT == nullptr) ? NeuronGate::defaultThresholdMaxPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdMax");
+			double defaultThresholdMin = (_PT == nullptr) ? NeuronGate::defaultThresholdMinPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_NEURON-thresholdMin");
+			double defaultThresholdMax = (_PT == nullptr) ? NeuronGate::defaultThresholdMaxPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_NEURON-thresholdMax");
 			double thresholdValue = genomeHandler->readDouble(defaultThresholdMin, defaultThresholdMax, AbstractGate::DATA_CODE, gateID);
 
 			bool thresholdActivates = 1;
-			bool defaultAllowRepression = (_PT == nullptr) ? NeuronGate::defaultAllowRepressionPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-allowRepression");
+			bool defaultAllowRepression = (_PT == nullptr) ? NeuronGate::defaultAllowRepressionPL->lookup() : _PT->lookupBool("BRAIN_MARKOV_GATES_NEURON-allowRepression");
 			if (defaultAllowRepression == 1) {
 				thresholdActivates = genomeHandler->readInt(0, 1, AbstractGate::DATA_CODE, gateID);
 			}
 
 			double decayRate = genomeHandler->readDouble(NeuronGate::defaultDecayRateMinPL->lookup(), NeuronGate::defaultDecayRateMaxPL->lookup(), AbstractGate::DATA_CODE, gateID);
 			double deliveryCharge = genomeHandler->readDouble(NeuronGate::defaultDeliveryChargeMinPL->lookup(), NeuronGate::defaultDeliveryChargeMaxPL->lookup(), AbstractGate::DATA_CODE, gateID);
-			double deliveryError = (_PT == nullptr) ? NeuronGate::defaultDeliveryErrorPL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-deliveryError");
+			double deliveryError = (_PT == nullptr) ? NeuronGate::defaultDeliveryErrorPL->lookup() : _PT->lookupDouble("BRAIN_MARKOV_GATES_NEURON-deliveryError");
 
 			int ThresholdFromNode = -1;
 			int DeliveryChargeFromNode = -1;
-			bool defaultThresholdFromNode = (_PT == nullptr) ? NeuronGate::defaultThresholdFromNodePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
+			bool defaultThresholdFromNode = (_PT == nullptr) ? NeuronGate::defaultThresholdFromNodePL->lookup() : _PT->lookupBool("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
 			if (defaultThresholdFromNode) {
 				ThresholdFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
-			bool defaultDeliveryChargeFromNode = (_PT == nullptr) ? NeuronGate::defaultDeliveryChargeFromNodePL->lookup() : _PT->lookupInt("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
+			bool defaultDeliveryChargeFromNode = (_PT == nullptr) ? NeuronGate::defaultDeliveryChargeFromNodePL->lookup() : _PT->lookupBool("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode");
 			if (defaultDeliveryChargeFromNode) {
 				DeliveryChargeFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->lookup()) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}

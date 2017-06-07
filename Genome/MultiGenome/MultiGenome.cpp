@@ -287,8 +287,8 @@ MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
 	genomeFileColumns.push_back("chromosomeLengths");
 	genomeFileColumns.push_back("sites");
 	// define columns to added to ave files
-	aveFileColumns.clear();
-	aveFileColumns.push_back("genomeLength");
+	popFileColumns.clear();
+	popFileColumns.push_back("genomeLength");
 }
 
 // make a genome with 1 chromosome
@@ -441,9 +441,9 @@ void MultiGenome::mutate() {
 }
 
 // make a mutated genome. from this genome
-// the undefined action is to return a new genome
+// inherit the ParamatersTable from the calling instance
 shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<MultiGenome>(parent->PT);
+	auto newGenome = make_shared<MultiGenome>(PT);
 	newGenome->copyFrom(parent);
 	newGenome->mutate();
 	newGenome->recordDataMap();
@@ -451,7 +451,7 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<Abstrac
 }
 
 // make a mutated genome from a vector or genomes
-// inherit the ParamatersTable from the 0th parent
+// inherit the ParamatersTable from the calling instance
 // assumes all genomes have the same number of chromosomes and same ploidy
 // if haploid, then all chromosomes are directly crossed (i.e. if there are 4 parents,
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
@@ -475,7 +475,7 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 		}
 
 	}
-	auto newGenome = make_shared<MultiGenome>(castParent0->PT);
+	auto newGenome = make_shared<MultiGenome>(PT);
 	newGenome->ploidy = castParent0->ploidy;  // copy ploidy from 0th parent
 	int crossCount = crossCountLPL->lookup();
 	if (ploidy == 1) {  // if haploid then cross chromosomes from all parents
@@ -519,10 +519,43 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-DataMap MultiGenome::getStats() {
+DataMap MultiGenome::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set("genomeLength",countSites());
+	dataMap.Set(prefix +"genomeLength",countSites());
 	return (dataMap);
+}
+
+DataMap MultiGenome::serialize(string& name) {
+	DataMap serialDataMap;
+
+	string chromosomeLengths = "\"[";
+	for (size_t c = 0; c < chromosomes.size(); c++) {
+		chromosomeLengths += to_string(chromosomes[c]->size()) + ",";
+	}
+	chromosomeLengths.pop_back();
+	chromosomeLengths += "]\"";
+	serialDataMap.Set(name + "_chromosomeLengths", chromosomeLengths);
+	serialDataMap.Set(name + "_sites", genomeToStr());
+	return serialDataMap;
+}
+
+// given a DataMap and PT, return genome [name] from the DataMap
+void MultiGenome::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+	// make sure that data has needed columns
+	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_chromosomeLengths") == orgData.end()) {
+		cout << "  In MultiGenome::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << endl;
+		exit(1);
+	}
+
+	vector<int> _chromosomeLengths;
+	convertCSVListToVector(orgData["GENOME_" + name + "_chromosomeLengths"], _chromosomeLengths);
+	string sitesType = (PT == nullptr) ? AbstractGenome::genomeSitesTypePL->lookup() : PT->lookupString("GENOME-sitesType");
+	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size()-1);
+	std::stringstream ss(allSites);
+	for (size_t i = 0; i < _chromosomeLengths.size(); i++) {
+		//cout << i << "  :  " << ss.str() << endl;
+		chromosomes[i]->readChromosomeFromSS(ss, _chromosomeLengths[i]);
+	}
 }
 
 /////////////// FIX FIX FIX ////////////////////
@@ -530,8 +563,11 @@ DataMap MultiGenome::getStats() {
 void MultiGenome::recordDataMap() {
 	dataMap.Merge(chromosomes[0]->getFixedStats());
 	dataMap.Set("ploidy", ploidy);
+	dataMap.setOutputBehavior("ploidy", DataMap::FIRST);
 	dataMap.Set("chromosomeCount", (int)chromosomes.size());
+	dataMap.setOutputBehavior("chromosomeCount", DataMap::FIRST);
 	dataMap.Set("sitesCount", countSites());
+	dataMap.setOutputBehavior("sitesCount", DataMap::FIRST);
 	dataMap.Clear("chromosomeLengths");
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		dataMap.Append("chromosomeLengths", chromosomes[c]->size());

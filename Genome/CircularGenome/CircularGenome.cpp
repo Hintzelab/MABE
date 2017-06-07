@@ -127,13 +127,32 @@ int CircularGenome<T>::Handler::readInt(int valueMin, int valueMax, int code, in
 	//codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
 	advanceIndex();  // EOC = end of chromosome
 	while ((valueMax - valueMin + 1) > currentMax) {  // we don't have enough bits of information
-		value = (value * genome->alphabetSize) + (int) genome->sites[siteIndex];  // next site
+		value = (value * (int)genome->alphabetSize) + (int) genome->sites[siteIndex];  // next site
 		//codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
 		advanceIndex();
 		currentMax = currentMax * genome->alphabetSize;
 	}
 	return (value % (valueMax - valueMin + 1)) + valueMin;;
 }
+
+// when an int is read from a double chromosome, only one site is read (since it has sufficent accuracy) and then this value is
+// scaled by alphabet size, then by valueMin, valueMax and then rounded.
+template<>
+int CircularGenome<double>::Handler::readInt(int valueMin, int valueMax, int code, int CodingRegionIndex) {
+	double value;
+	if (valueMin > valueMax) {
+		int temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	valueMax += 1; // do this so that range is inclusive!
+	value = genome->sites[siteIndex];
+	advanceIndex();
+	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
+	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin << endl;
+	return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
+}
+
 
 template<class T>
 double CircularGenome<T>::Handler::readDouble(double valueMin, double valueMax, int code, int CodingRegionIndex) {
@@ -147,7 +166,8 @@ double CircularGenome<T>::Handler::readDouble(double valueMin, double valueMax, 
 	//codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
 	advanceIndex();
 	//scale the value
-	return (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin;
+	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
+	return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
 }
 
 template<class T>
@@ -166,8 +186,8 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 	}
 	while (writeValueBase > genome->alphabetSize) {  // load value in alphabetSize chunks into decomposedValue
 		decomposedValue.push_back(value % ((int) genome->alphabetSize));
-		value = value / genome->alphabetSize;
-		writeValueBase = writeValueBase / genome->alphabetSize;
+		value = (int)((double)value / genome->alphabetSize);
+		writeValueBase = (int)((double)writeValueBase / genome->alphabetSize);
 	}
 	decomposedValue.push_back(value);
 	while ((int)decomposedValue.size() > 0) {  // starting with the last element in decomposedValue, copy into genome.
@@ -176,6 +196,26 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 		decomposedValue.pop_back();
 	}
 }
+
+// when writing an int into a double genome, a number should be generated such that a read int will extract the same value.
+// thus, value (an int) is scaled between valueMin and valueMax to a value between 0 and 1 and then scaled up by alphabet size.
+
+template<>
+void CircularGenome<double>::Handler::writeInt(int value, int valueMin, int valueMax) {
+	if (valueMin > valueMax) {
+		int temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	valueMax += 1; // do this so that range is inclusive!
+	//if (value  > valueMax) {
+	//	cout << "ERROR : attempting to write value to <double> Circular Genome. \n value is too large!" << endl;
+	//	exit(1);
+	//}
+	genome->sites[siteIndex] = (((double)(value - valueMin) / (double)(valueMax - valueMin)) * genome->alphabetSize);
+	advanceIndex();
+}
+
 template<class T>
 shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
 	auto newGenomeHandler = make_shared<CircularGenome<T>::Handler>(genome, readDirection);
@@ -266,8 +306,8 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	genomeFileColumns.push_back("genomeLength");
 	genomeFileColumns.push_back("sites");
 	// define columns to added to ave files
-	aveFileColumns.clear();
-	aveFileColumns.push_back("genomeLength");
+	popFileColumns.clear();
+	popFileColumns.push_back("genomeLength");
 
 	recordDataMap();
 }
@@ -400,7 +440,7 @@ bool CircularGenome<T>::isEmpty() {
 
 template<class T>
 void CircularGenome<T>::pointMutate() {
-	sites[Random::getIndex((int)sites.size())] = Random::getIndex(alphabetSize);
+	sites[Random::getIndex((int)sites.size())] = Random::getIndex((int)alphabetSize);
 }
 
 template<>
@@ -468,10 +508,10 @@ void CircularGenome<T>::mutate() {
 }
 
 // make a mutated genome. from this genome
-// the undefined action is to return a new genome
+// inherit the ParamatersTable from the calling instance
 template<class T>
 shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<CircularGenome<T>>(parent->PT);
+	auto newGenome = make_shared<CircularGenome<T>>(PT);
 	newGenome->copyFrom(parent);
 	newGenome->mutate();
 	newGenome->recordDataMap();
@@ -479,7 +519,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<A
 }
 
 // make a mutated genome from a vector or genomes
-// inherit the ParamatersTable from the 0th parent
+// inherit the ParamatersTable from the calling instance
 // assumes all genomes have the same numbe000000r of chromosomes and same ploidy
 // if haploid, then all chromosomes are directly crossed (i.e. if there are 4 parents,
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
@@ -491,7 +531,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 	// first, check to make sure that parent genomes are conpatable.
 	auto castParent0 = dynamic_pointer_cast<CircularGenome<T>>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 
-	auto newGenome = make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,castParent0->PT);
+	auto newGenome = make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,PT);
 	//newGenome->alphabetSize = castParent0->alphabetSize;
 
 //	vector<shared_ptr<AbstractChromosome>> parentChromosomes;
@@ -564,10 +604,53 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 // the undefined action is to return an empty vector
 
 template<class T>
-DataMap CircularGenome<T>::getStats() {
+DataMap CircularGenome<T>::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set("genomeLength", countSites());
+	dataMap.Set(prefix + "genomeLength", countSites());
 	return (dataMap);
+}
+
+
+template<class T>
+DataMap CircularGenome<T>::serialize(string& name) {
+	DataMap serialDataMap;
+	serialDataMap.Set(name + "_genomeLength", countSites());
+	serialDataMap.Set(name + "_sites", genomeToStr());
+	return serialDataMap;
+}
+
+// given a DataMap and PT, return genome [name] from the DataMap
+template<class T>
+void CircularGenome<T>::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+	char nextChar;
+	string nextString;
+	T value;
+	char rubbish;
+	// make sure that data has needed columns
+	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
+		cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << endl;
+		exit(1);
+	}
+	int genomeLength;
+	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+
+	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::stringstream ss(allSites);
+
+	sites.clear();
+	ss >> nextChar;
+	for (int i = 0; i < genomeLength; i++) {
+		nextString = "";
+		while (nextChar != ',' && nextChar != ']') {
+			nextString += nextChar;
+			ss >> nextChar;
+		}
+		load_value(nextString, value);
+		//cout << nextString << " = " << value << ", ";
+		sites.push_back(value);
+		ss >> nextChar;
+	}
+	//cout << endl;
 }
 
 template<class T>

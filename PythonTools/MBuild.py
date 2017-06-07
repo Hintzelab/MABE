@@ -136,13 +136,13 @@ outFile.write('}\n')
 # makeArchivist
 
 outFile.write('\n\n//create an archivist\n')
-outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root){\n')
+outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root, string groupPrefix = ""){\n')
 outFile.write('  shared_ptr<DefaultArchivist> newArchivist;\n')
 outFile.write('  bool found = false;\n')
 outFile.write('  string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");\n')
 for option in options["Archivist"]:
 	outFile.write('  if (archivistType == "'+option+'") {\n')
-	outFile.write('    newArchivist = make_shared<'+option+'Archivist>(aveFileColumns, _maxFormula, PT);\n')
+	outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT, groupPrefix);\n')
 	outFile.write('    found = true;\n')	
 	outFile.write('    }\n')
 outFile.write('  if (!found){\n')
@@ -174,15 +174,14 @@ outFile.write('}\n')
 # makeTemplateBrain
 
 outFile.write('\n\n//create a template brain\n')
-outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(shared_ptr<AbstractWorld> world, shared_ptr<ParametersTable> PT = nullptr){\n')
+outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT = nullptr){\n')
 outFile.write('  shared_ptr<AbstractBrain> newBrain;\n')
 outFile.write('  bool found = false;\n')
 outFile.write('  string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");\n')
 #outFile.write('  int hiddenNodes = (PT == nullptr) ? AbstractBrain::hiddenNodesPL->lookup() : PT->lookupInt("BRAIN-hiddenNodes");\n')
 for option in options["Brain"]:
 	outFile.write('  if (brainType == "'+option+'") {\n')
-#	outFile.write('    newBrain = '+option+'Brain_brainFactory(world->requiredInputs(), world->requiredOutputs(), hiddenNodes,PT);\n')
-	outFile.write('    newBrain = '+option+'Brain_brainFactory(world->requiredInputs(), world->requiredOutputs(), PT);\n')
+	outFile.write('    newBrain = '+option+'Brain_brainFactory(inputs, outputs, PT);\n')
 	outFile.write('    found = true;\n')	
 	outFile.write('    }\n')
 outFile.write('  if (found == false){\n')

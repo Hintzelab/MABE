@@ -16,7 +16,7 @@
 
 using namespace std;
 
-shared_ptr<ParameterLink<string>> GAOptimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "DM[score]", "value to optimize");
+shared_ptr<ParameterLink<string>> GAOptimizer::optimizeFormulaPL = Parameters::register_parameter("OPTIMIZER_GA-optimizeValue", (string) "DM_AVE[score]", "value to optimize");
 shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_parameter("OPTIMIZER_GA-elitism", 0, "The highest scoring organism will be included in the next generation this many times (0 = no elitism)?");
 
 /*
@@ -27,7 +27,7 @@ shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_par
  * to the next generation and mutate the copy. If it is too low, keep drawing genomes till you get one
  * which is good enough.
  */
-void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
+vector<shared_ptr<Organism>> GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	vector<shared_ptr<Organism>> nextPopulation;
 
 	vector<double> Scores;
@@ -36,6 +36,7 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 	for (auto org : population) {
 		Scores.push_back(optimizeFormula->eval(org->dataMap,PT)[0]);
 		aveScore += Scores.back();
+		org->dataMap.Append("optimizeValue", Scores.back());
 	}
 
 	aveScore /= population.size();
@@ -58,13 +59,12 @@ void GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
 			}
 		}
 		nextPopulation.push_back(population[who]->makeMutatedOffspringFrom(population[who]));
-
 	}
-	for (size_t i = 0; i < population.size(); i++) {
-		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
-	}
-	population = nextPopulation;
-	cout << "max = " << maxScore << "\tave = " << aveScore;
+	//for (size_t i = 0; i < population.size(); i++) {
+	//	population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
+	//}
+	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
+	return nextPopulation;
 
 }
 

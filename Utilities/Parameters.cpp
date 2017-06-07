@@ -195,8 +195,8 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 					cout << "    While reading a nameSpace name, found invalid first character after \"+\".\n" << endl;
 					exit(1);
 				}
-				// get rest of name, must be numbers or letters (no '_'s)
-				while (index < line.length() && isalnum(line[index])) {
+				// get rest of name, must be numbers or letters (no '_'s) -- why no '_'?? changed this (see next line).
+				while (index < line.length() && (isalnum(line[index]) || line[index]=='_')) {
 					newNestingName += line[index];
 					index++;
 				}

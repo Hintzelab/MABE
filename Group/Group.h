@@ -21,6 +21,7 @@ using namespace std;
 class Group {
  public:
 	vector<shared_ptr<Organism>> population;
+	shared_ptr<Organism> templateOrg;
 	shared_ptr<DefaultArchivist> archivist;
 	shared_ptr<AbstractOptimizer> optimizer;
 
@@ -29,7 +30,7 @@ class Group {
 	~Group();
 
 	bool archive(int flush = 0);
-	void optimize();
+	vector<shared_ptr<Organism>> optimize();
 };
 
 #endif /* defined(__BasicMarkovBrainTemplate__Group__) */
