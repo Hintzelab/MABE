@@ -790,7 +790,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 			}
 		}
 		// check to see if MTree is a DataMap lookup
-		else if (formula.size() > (index + 6) && formula.substr(index, 6) == "DM_AVE") {
+		else if ((int)formula.size() > (index + 6) && formula.substr(index, 6) == "DM_AVE") {
 		//else if (formula.substr(index, 6) == "DM_AVE") {
 			string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
 			index = index + 6 + 1; // move past 'DM_AVE['
@@ -807,7 +807,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 			//exit(1);
 		}
 		// check to see if MTree is a DataMap Sum lookup
-		else if (formula.size() > (index + 6) && formula.substr(index, 6) == "DM_SUM") {
+		else if ((int)formula.size() > (index + 6) && formula.substr(index, 6) == "DM_SUM") {
 		//else if (formula.substr(index, 6) == "DM_SUM") {
 			string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
 			index = index + 6 + 1; // move past 'DM_SUM['
@@ -841,7 +841,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 			vector<string> argStrings;
 
 			while (nesting > 0) {
-				//////cout << index << "  " << formula[index] << "  formula size: " << formulaSize << "  nesting: " << nesting << endl;
+				//cout << index << "  " << formula[index] << "  formula size: " << formulaSize << "  nesting: " << nesting << endl;
 				if (index >= formulaSize) {
 					cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '(' opening parentheses.\n  Exiting." << endl;
 					exit(1);
@@ -889,11 +889,39 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 					foundType = true;
 					string argsString;// = formula.substr(testType.size() + 1, (formula.size() - testType.size()) - 2);
 					index = index + testType.size() + 1; // move past '['
-					while (formula[index] != ']') { // read args into a string till ']'
+					int nestingDepth = 0;
+					int blockDepth = 0;
+					while (formula[index] != ']' || nestingDepth != 0 || blockDepth != 0) { // read args into a string till ']'
+						//cout << index << "  " << formula[index] << "  nestingDepth = " << nestingDepth << "  blockDepth = " << blockDepth << endl;
+						if (formula[index] == '(') {
+							nestingDepth++;
+						}
+						else if (formula[index] == ')') {
+							nestingDepth--;
+							if (nestingDepth < 0) {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched ')'.\n  Exiting." << endl;
+								exit(1);
+							}
+						}
+						if (formula[index] == '[') {
+							blockDepth++;
+						}
+						else if (formula[index] == ']') {
+							blockDepth--;
+							if (blockDepth < 0) {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched ']'.\n  Exiting." << endl;
+								exit(1);
+							}
+						}
 						argsString.push_back(formula[index]);
 						index++;
 						if (index > formulaSize) {
-							cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '[' opening braket.\n  Exiting." << endl;
+							if (nestingDepth != 0) {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '('.\n  Exiting." << endl;
+							}
+							else {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched '[' opening braket.\n  Exiting." << endl;
+							}
 							exit(1);
 						}
 					}
@@ -903,8 +931,28 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 					vector<shared_ptr<Abstract_MTree>> args;
 					int argsIndex = 0;
 					while (argsIndex < (int)argsString.size()) { // convert args string to MTree args
+						if (argsString[argsIndex] == '(') {
+							nestingDepth++;
+						}
+						else if (argsString[argsIndex] == ')') {
+							nestingDepth--;
+							if (nestingDepth < 0) {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched ')'.\n  Exiting." << endl;
+								exit(1);
+							}
+						}
+						if (argsString[argsIndex] == '[') {
+							blockDepth++;
+						}
+						else if (argsString[argsIndex] == ']') {
+							blockDepth--;
+							if (blockDepth < 0) {
+								cout << "  In stringToMTree() :: while converting " << formula << ", found unmatched ']'.\n  Exiting." << endl;
+								exit(1);
+							}
+						}
 
-						if (argsString[argsIndex] == ',') { // this is a ',' seperated list
+						if (argsString[argsIndex] == ',' && nestingDepth == 0 && blockDepth == 0) { // this is a ',' seperated list
 							args.push_back(stringToMTree(arg));
 							arg.clear();
 						}
@@ -914,7 +962,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 						argsIndex++;
 					}
 					args.push_back(stringToMTree(arg));
-					op->show();
+					//op->show();
 					branches.push_back(op->makeCopy(args));
 					op->parent = parent;
 					for (auto b : op->branches) {
