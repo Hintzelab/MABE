@@ -32,6 +32,7 @@ parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','bar
 parser.add_argument('-numCol', type=str, metavar='#', default = '3', help='if ploting a multi plot (default), how many columns in plot - default : 3', required=False)
 parser.add_argument('-combineConditions', action='store_true', default = False, help='if ploting multiple conditions, adding this flag will combine data from files with same name - default (if not set) : OFF', required=False)
 parser.add_argument('-combineData', action='store_true', default = False, help='if ploting multiple data lines, adding this flag will combine data into one plot - default (if not set) : OFF', required=False)
+parser.add_argument('-lastOnly', action='store_true', default = False, help='shows only the last data point of all conditions - default (if not set) : OFF', required=False)
 
 parser.add_argument('-verbose', action='store_true', default = False, help='adding this flag will provide more text output while running (useful if you are working with a lot of data to make sure that you are not hanging) - default (if not set) : OFF', required=False)
 
@@ -117,7 +118,10 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 	if XCoordinateName in NamesList:
 		NamesList.remove(XCoordinateName)
 	
-	title += '    x axis = ' + XCoordinateName
+	if args.lastOnly:
+		title += '    x axis = conditions'
+	else:
+		title += '    x axis = ' + XCoordinateName
 	if (args.title != 'NONE'):
 		title = args.title
 	plt.suptitle(title, fontsize=MajorFontSize, fontweight='bold')
@@ -149,48 +153,65 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 					ThisLabel = ConditionsList[conditionCount] + ' ' + NamesList[nameCount]
 			if args.grid:
 				plt.grid(b=True, which='major', color=(0,0,0), linestyle='-', alpha = .25)
-			if 'reps' in PltWhat:
-				firstRep = 1
-				for Rep in Reps:
-					if firstRep == 1:
-						firstRep = 0
-						plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
-							data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
-							PltStyle, alpha = .25, color = PltColor, label = ThisLabel + "_rep")
-					else:
-						plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
-							data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
-							PltStyle, alpha = .25, color = PltColor,label='_nolegend_')
-
-			if ('ave' in PltWhat) or ('error' in PltWhat):
-				aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
-				aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
-				#plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel) ## plot below so it's on top
-			if 'error' in PltWhat:
-				if (ErrorMethod == "stderr"):
-					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
-					errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).std(axis=1)
+			if args.lastOnly:
+				#aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
+				#aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
+				quantity = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns = 'repName', values = NamesList[nameCount]).mean(axis=1).tail(1)
+				quantity = quantity.iloc[0]
+				if 'error' in PltWhat:
+					quantityErr = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns = 'repName', values = NamesList[nameCount]).std(axis=1).tail(1)
+					plt.bar([conditionCount], [quantity], yerr=quantityErr)
 				else:
-					print ('ERROR: errorMethod "' + ErrorMethod + '" not found.')
-					exit()
-				if (ErrorStyle == 'bar'):
-					plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-				if (ErrorStyle == 'barX'):
-					plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,color = PltColor, alpha = .5,fmt='.')
-				if (ErrorStyle == 'barXY'):
-					plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-				if (ErrorStyle == 'region'):
-					plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
-			if ('ave' in PltWhat):
-				plt.plot(aveXCoordinate, aveLine, PltStyle, markersize = 10, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
+					plt.bar([conditionCount], [quantity])
+			else:
+				if 'reps' in PltWhat:
+					firstRep = 1
+					for Rep in Reps:
+						if firstRep == 1:
+							firstRep = 0
+							plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
+								data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
+								PltStyle, alpha = .25, color = PltColor, label = ThisLabel + "_rep")
+						else:
+							plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
+								data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
+								PltStyle, alpha = .25, color = PltColor,label='_nolegend_')
+
+				if ('ave' in PltWhat) or ('error' in PltWhat):
+					aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
+					aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
+					#plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel) ## plot below so it's on top
+				if 'error' in PltWhat:
+					if (ErrorMethod == "stderr"):
+						errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
+						errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).std(axis=1)
+					else:
+						print ('ERROR: errorMethod "' + ErrorMethod + '" not found.')
+						exit()
+					if (ErrorStyle == 'bar'):
+						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
+					if (ErrorStyle == 'barX'):
+						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,color = PltColor, alpha = .5,fmt='.')
+					if (ErrorStyle == 'barXY'):
+						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
+					if (ErrorStyle == 'region'):
+						plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
+				if ('ave' in PltWhat):
+					plt.plot(aveXCoordinate, aveLine, PltStyle, markersize = 10, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
 			if ((len(ConditionsList) > 1) or (CombineData))and legendLocation != '':
-				plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
+				if args.lastOnly:
+					plt.xlabel('Conditions', fontsize=MinorFontSize)
+				else:
+					plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
 				leg = plt.legend(fontsize=LegendFontSize,loc=legendLocation, shadow=True)                    # add a legend
 				if (args.legendLineWeight > 0):
 					for legobj in leg.legendHandles:
 						legobj.set_linewidth(args.legendLineWeight)
+			if args.lastOnly: ## combineConditions
+				plt.xticks(range(len(ConditionsList)), ConditionsList, rotation=45, ha='right')
+			else:
+				plt.ticklabel_format(useOffset=False, style='plain')
 			plt.tick_params(labelsize=TickFontSize)
-			plt.ticklabel_format(useOffset=False, style='plain')
 			if len(xRange) == 2:
 				plt.xlim(xRange[0],xRange[1])
 			if len(yRange) == 2:
@@ -311,6 +332,8 @@ else:
 			if args.verbose:
 				print ("generating plot for: " + con + "__" + file)
 			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
+
+plt.tight_layout()
 
 if args.save == '':
 	plt.show()
