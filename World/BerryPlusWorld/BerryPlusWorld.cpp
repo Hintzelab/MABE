@@ -401,22 +401,22 @@ BerryPlusWorld::BerryPlusWorld(shared_ptr<ParametersTable> _PT) :
 	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_BERRY_PLUS_NAMES-brainName");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
-	aveFileColumns.push_back("total");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("total");
 
-	aveFileColumns.push_back("novelty");
-	aveFileColumns.push_back("repeated");
+	popFileColumns.push_back("novelty");
+	popFileColumns.push_back("repeated");
 
 	if (foodTypes > 1) {
-		aveFileColumns.push_back("switches");
+		popFileColumns.push_back("switches");
 	}
 	for (int i = 0; i <= foodTypes; i++) {
 		string temp_name = "food" + to_string(i);  // make food names i.e. food1, food2, etc.
-		aveFileColumns.push_back(temp_name);
+		popFileColumns.push_back(temp_name);
 	}
 	if (recordConsumptionRatio) {  // consumption ratio displays high value of org favors one food over the other and low values if both are being consumed. works on food[0] and food[1] only
-		aveFileColumns.push_back("consumptionRatio");
+		popFileColumns.push_back("consumptionRatio");
 	}
 }
 

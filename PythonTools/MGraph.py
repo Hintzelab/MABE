@@ -9,7 +9,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument('-path', type=str, metavar='PATH', default = '',  help='path to files - default : none (will read files in current directory)', required=False)
 parser.add_argument('-conditions', type=str, metavar=('CONDITION'), default = [''],  help='names of condition directories - default: none (will use files in path directly)',nargs='+', required=False)
 parser.add_argument('-conditionNames', type=str, metavar=('CONDITION_NAME'), default = [''],  help='names to dispaly. must have same number of elements as conditions if defined - default: none (will use conditionNames)', nargs='+',required=False)
-parser.add_argument('-files', type=str, metavar='FILE_PREFIX', default = ['ave.csv','max.csv'], help='file name(s) - default: ave.csv dominant.csv', nargs='+', required=False)
+parser.add_argument('-files', type=str, metavar='FILE_PREFIX', default = ['pop.csv','max.csv'], help='file name(s) - default: pop.csv dominant.csv', nargs='+', required=False)
 parser.add_argument('-repRange', type=int, metavar=('FIRST','LAST'), default = [1,0],  help='replicate range - default: none (will use files in path directly)', nargs=2, required=False)
 parser.add_argument('-repList', type=str, metavar='REP', default = [],  help='replicate list. useful if you are missing a replicat. cannot be used with repRange - default: none (will use files in path directly)', nargs='+', required=False)
 

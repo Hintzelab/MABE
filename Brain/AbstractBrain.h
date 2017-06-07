@@ -30,7 +30,7 @@ public:
 
 	const shared_ptr<ParametersTable> PT;
 
-	vector<string> aveFileColumns;
+	vector<string> popFileColumns;
 
 	bool recordActivity;
 	string recordActivityFileName;

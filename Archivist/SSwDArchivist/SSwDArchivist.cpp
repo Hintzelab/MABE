@@ -22,8 +22,8 @@ shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_OrganismFilePrefixPL 
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeDataFiles", true, "if true, data files will be written");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismFiles", true, "if true, genome files will be written");
 
-SSwDArchivist::SSwDArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
-		DefaultArchivist(aveFileColumns, _maxFormula, _PT, _groupPrefix) {
+SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+		DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
 
 	dataDelay = (PT == nullptr) ? SSwD_Arch_dataDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-dataDelay");
 	organismDelay = (PT == nullptr) ? SSwD_Arch_organismDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-organismDelay");

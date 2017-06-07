@@ -30,7 +30,7 @@ public:
 	const shared_ptr<ParametersTable> PT;
 
 	string groupName = "root";
-	vector<string> aveFileColumns;
+	vector<string> popFileColumns;
 
 	AbstractWorld(shared_ptr<ParametersTable> _PT = nullptr) :
 			PT(_PT) {

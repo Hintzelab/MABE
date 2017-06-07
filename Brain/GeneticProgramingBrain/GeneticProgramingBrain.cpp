@@ -78,10 +78,10 @@ GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, 
 		////cout << trees.back()->getFormula() << endl;
 	}
 // columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("nodesCount");
+	popFileColumns.clear();
+	popFileColumns.push_back("nodesCount");
 	//for (int i = 0; i < nrOutputValues; i++) {
-	//	aveFileColumns.push_back("brainValue" + to_string(i));
+	//	popFileColumns.push_back("brainValue" + to_string(i));
 	//}
 
 	////cout << "done init" << endl;

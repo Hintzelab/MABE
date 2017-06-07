@@ -26,8 +26,8 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-brainName");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
 }
 
 // score is number of outputs set to 1 (i.e. output > 0) squared

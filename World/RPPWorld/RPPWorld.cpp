@@ -32,16 +32,16 @@ RPPWorld::RPPWorld(shared_ptr<ParametersTable> _PT) :
 	randomB = (PT == nullptr) ? randomBPL->lookup() : PT->lookupBool("WORLD_RPP-randomB");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
-	aveFileColumns.push_back("wins");
-	aveFileColumns.push_back("ties");
-	aveFileColumns.push_back("winRate");
-	aveFileColumns.push_back("tieRate");
-	aveFileColumns.push_back("Rock");
-	aveFileColumns.push_back("Paper");
-	aveFileColumns.push_back("Scissor");
-	aveFileColumns.push_back("badPlay");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("wins");
+	popFileColumns.push_back("ties");
+	popFileColumns.push_back("winRate");
+	popFileColumns.push_back("tieRate");
+	popFileColumns.push_back("Rock");
+	popFileColumns.push_back("Paper");
+	popFileColumns.push_back("Scissor");
+	popFileColumns.push_back("badPlay");
 }
 
 void RPPWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {

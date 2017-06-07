@@ -125,7 +125,7 @@ public:
 
 	DataMap dataMap;
 	vector<string> genomeFileColumns;  // = {"ID","alphabetSize","chromosomeCount","chromosomeLength","sitesCount","genomeAncestors","sites"};
-	vector<string> aveFileColumns;  // = {"genomeLength"};
+	vector<string> popFileColumns;  // = {"genomeLength"};
 
 	AbstractGenome() = delete;
 	AbstractGenome(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {}

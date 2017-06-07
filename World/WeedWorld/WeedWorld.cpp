@@ -252,25 +252,25 @@ WeedWorld::WeedWorld(shared_ptr<ParametersTable> _PT) :
 	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_WEED_NAMES-brainName");
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("score");
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
 
-	aveFileColumns.push_back("food");
-	aveFileColumns.push_back("water");
-	aveFileColumns.push_back("light");
-	aveFileColumns.push_back("energy");
-	aveFileColumns.push_back("numOffspring");
-	aveFileColumns.push_back("produceFailed");
-	aveFileColumns.push_back("stalkHeight");
-	aveFileColumns.push_back("rootGirth");
-	aveFileColumns.push_back("rootSpread");
-	aveFileColumns.push_back("leafCoverage");
-	aveFileColumns.push_back("stalkHeightInvestment");
-	aveFileColumns.push_back("rootGirthInvestment");
-	aveFileColumns.push_back("rootSpreadInvestment");
-	aveFileColumns.push_back("leafCoverageInvestment");
-	aveFileColumns.push_back("x");
-	aveFileColumns.push_back("y");
+	popFileColumns.push_back("food");
+	popFileColumns.push_back("water");
+	popFileColumns.push_back("light");
+	popFileColumns.push_back("energy");
+	popFileColumns.push_back("numOffspring");
+	popFileColumns.push_back("produceFailed");
+	popFileColumns.push_back("stalkHeight");
+	popFileColumns.push_back("rootGirth");
+	popFileColumns.push_back("rootSpread");
+	popFileColumns.push_back("leafCoverage");
+	popFileColumns.push_back("stalkHeightInvestment");
+	popFileColumns.push_back("rootGirthInvestment");
+	popFileColumns.push_back("rootSpreadInvestment");
+	popFileColumns.push_back("leafCoverageInvestment");
+	popFileColumns.push_back("x");
+	popFileColumns.push_back("y");
 
 }
 

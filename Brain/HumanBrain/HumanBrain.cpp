@@ -45,7 +45,7 @@ HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTab
 	}
 
 // columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 }
 
 shared_ptr<AbstractBrain> HumanBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {

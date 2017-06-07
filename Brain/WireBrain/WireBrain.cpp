@@ -737,9 +737,9 @@ void WireBrain::connectPruneAndSetAveColumns(vector<pair<int, int>> wormholeList
 //cout << "  made wire brain with : " << connectionsCount << " connections and " << wireCount << " wires." << endl;
 
 // columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("wireBrainWireCount");
-	aveFileColumns.push_back("wireBrainConnectionsCount");
+	popFileColumns.clear();
+	popFileColumns.push_back("wireBrainWireCount");
+	popFileColumns.push_back("wireBrainConnectionsCount");
 }
 
 void WireBrain::chargeUpdate() {

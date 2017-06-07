@@ -39,10 +39,10 @@ MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes
 	GLB = make_shared<ClassicGateListBuilder>(PT);
 	gates = _gates;
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("gates");
+	popFileColumns.clear();
+	popFileColumns.push_back("gates");
 	for (auto name : GLB->getInUseGateNames()) {
-		aveFileColumns.push_back(name + "Gates");
+		popFileColumns.push_back(name + "Gates");
 	}
 
 	fillInConnectionsLists();
@@ -58,10 +58,10 @@ MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNode
 	makeNodeMap(nodeMap, Gate_Builder::bitsPerBrainAddressPL->lookup(), nrNodes);
 
 	// columns to be added to ave file
-	aveFileColumns.clear();
-	aveFileColumns.push_back("gates");
+	popFileColumns.clear();
+	popFileColumns.push_back("gates");
 	for (auto name : GLB->getInUseGateNames()) {
-		aveFileColumns.push_back(name + "Gates");
+		popFileColumns.push_back(name + "Gates");
 	}
 
 	fillInConnectionsLists();

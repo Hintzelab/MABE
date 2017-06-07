@@ -23,11 +23,11 @@ shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_dataSequencePL = Par
 shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismSequence", (string) ":1000",
 		"How often to save a realtime snapshot genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 
-shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeAveFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeAveFile", true, "Save data to average file?");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writePopFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writePopFile", true, "Save data to average file?");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeMaxFile", true, "Save data to Max file?");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_AveFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileName", (string) "ave.csv", "name of average file (saves population averages)");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_PopFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileName", (string) "pop.csv", "name of population data file (saves population averages)");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_MaxFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-maxFileName", (string) "max.csv", "name of max file (saves data on organism with max \"score\" as determined by Optimizer)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultAveFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-aveFileColumns", (string) "[]",
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultPopFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileColumns", (string) "[]",
 		"data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
 
 shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataFilePrefix", (string) "snapshotData", "prefix for name of snapshot data file");
@@ -39,17 +39,17 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL 
 DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 		PT(_PT), groupPrefix(_groupPrefix) {
 
-	writeAveFile = (PT == nullptr) ? Arch_writeAveFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeAveFile");
+	writePopFile = (PT == nullptr) ? Arch_writePopFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writePopFile");
 	writeMaxFile = (PT == nullptr) ? Arch_writeMaxFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeMaxFile");
 
 
-	AveFileName = (PT == nullptr) ? Arch_AveFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileName");
-	AveFileName = (groupPrefix == "") ? AveFileName : groupPrefix + "__" + AveFileName;
+	PopFileName = (PT == nullptr) ? Arch_PopFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileName");
+	PopFileName = (groupPrefix == "") ? PopFileName : groupPrefix + "__" + PopFileName;
 
 	MaxFileName = (PT == nullptr) ? Arch_MaxFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-maxFileName");
 	MaxFileName = (groupPrefix == "") ? MaxFileName : groupPrefix + "__" + MaxFileName;
 
-	AveFileColumnNames = (PT == nullptr) ? Arch_DefaultAveFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-aveFileColumns");
+	PopFileColumnNames = (PT == nullptr) ? Arch_DefaultPopFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileColumns");
 
 	DataFilePrefix = (PT == nullptr) ? SS_Arch_DataFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataFilePrefix");
 	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
@@ -64,7 +64,7 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	realtimeDataSequence.push_back(0);
 	realtimeOrganismSequence.push_back(0);
 
-	if (writeAveFile != false || writeMaxFile != false) {
+	if (writePopFile != false || writeMaxFile != false) {
 		string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
 		realtimeSequence.clear();
 		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
@@ -101,12 +101,12 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 		DefaultArchivist(_PT, _groupPrefix) {
-	convertCSVListToVector(AveFileColumnNames, DefaultAveFileColumns);
+	convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
 	maxFormula = _maxFormula;
-	if (DefaultAveFileColumns.size() <= 0) {
-		DefaultAveFileColumns = aveFileColumns;
+	if (DefaultPopFileColumns.size() <= 0) {
+		DefaultPopFileColumns = popFileColumns;
 	}
 }
 
@@ -115,11 +115,11 @@ DefaultArchivist::DefaultArchivist(vector<string> aveFileColumns, shared_ptr<Abs
 void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &population) {
 	// write out Average data
 
-	if (writeAveFile) {
+	if (writePopFile) {
 		double aveValue;
 		DataMap AveMap;
 
-		for (auto key : DefaultAveFileColumns) {
+		for (auto key : DefaultPopFileColumns) {
 			if (key != "update") {
 				aveValue = 0;
 				for (auto org : population) {
@@ -138,12 +138,12 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 				//}
 			}
 		}
-//		for (auto key : DefaultAveFileColumns) {
+//		for (auto key : DefaultPopFileColumns) {
 //			AveMap.outputBehavior[key] = population[0]->dataMap.outputBehavior[key];
 //		}
 		AveMap.Set("update", Global::update);
 		//AveMap.setOutputBehavior("update", DataMap::FIRST);
-		AveMap.writeToFile(AveFileName, { }, true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
+		AveMap.writeToFile(PopFileName, { }, true); // write the AveMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
 	// write out Max data

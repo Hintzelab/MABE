@@ -20,9 +20,9 @@ IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_IPD_NAMES-genomeName");
 
 // columns to be added to ave file
-	aveFileColumns.clear();
+	popFileColumns.clear();
 	for (auto i:availableStrategies) {
-		aveFileColumns.push_back("IPD_" + to_string(i));
+		popFileColumns.push_back("IPD_" + to_string(i));
 	}
 }
 
