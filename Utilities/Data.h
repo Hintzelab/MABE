@@ -399,7 +399,6 @@ public:
 					}
 					if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
 						Append(key, otherDataMap.GetStringVector(key));
-						Append(key, otherDataMap.GetIntVector(key));
 						if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO) {
 							inUse[key] = STRINGSOLO;
 						} else {
@@ -592,101 +591,7 @@ public:
 	}
 
 	// take two strings (header and data), and a list of keys, and whether or not to save "{LIST}"s. convert data from data map to header and data strings
-	inline void constructHeaderAndDataStrings(string& headerStr, string& dataStr, const vector<string>& keys, bool aveOnly = false) {
-		headerStr = ""; // make sure the strings are clean
-		dataStr = "";
-		dataMapType typeOfKey;
-		int OB; // holds output behavior so it can be over ridden for ave file output!
-
-		if (keys.size() > 0) {  // if keys is not empty
-			for (int n = 0; n < int(keys.size()); n++) {
-				string i = keys[n];
-				typeOfKey = findKeyInData(i);
-				if (typeOfKey == NONE) {
-					cout << "  in DataMap::writeToFile() - key \"" << i << "\" can not be found in data map!\n  exiting." << endl;
-					exit(1);
-				}
-
-				// the following code makes use of bit masks! in short, AVE,SUM,LIST,etc each use only one bit of an int.
-				// therefore if we apply that mask the the outputBehavior, we can see if that type of output is needed.
-
-				OB = outputBehavior[i];
-				if (OB == NONE && typeOfKey == STRING) {
-					OB = LIST; // if no output behavior is assigned, make it list.
-					if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
-						OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
-					}
-				}
-				if (OB == NONE && typeOfKey != STRING) {
-					OB = LIST | AVE; // if no output behavior is assigned, make it list.
-					if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO || typeOfKey == STRINGSOLO) {
-						OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
-					}
-				}
-
-				if (aveOnly) {
-					OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
-				}
-
-				if (OB & FIRST) { // save first (only?) element in vector with key as column name
-					headerStr = headerStr + FileManager::separator + i;
-					if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
-						if (GetBoolVector(i).size() > 0) {
-							dataStr = dataStr + FileManager::separator + to_string(GetBoolVector(i)[0]);
-						} else {
-							dataStr = dataStr + '0';
-							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
-						}
-					}
-					if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
-						if (GetDoubleVector(i).size() > 0) {
-							dataStr = dataStr + FileManager::separator + to_string(GetDoubleVector(i)[0]);
-						} else {
-							dataStr = dataStr + '0';
-							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
-						}
-					}
-					if (typeOfKey == INT || typeOfKey == INTSOLO) {
-						if (GetIntVector(i).size() > 0) {
-							dataStr = dataStr + FileManager::separator + to_string(GetIntVector(i)[0]);
-						} else {
-							dataStr = dataStr + '0';
-							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
-						}
-					}
-					if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-						if (GetStringVector(i).size() > 0) {
-							dataStr = dataStr + FileManager::separator + to_string(GetStringVector(i)[0]);
-						} else {
-							dataStr = dataStr + '0';
-							cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
-						}
-					}
-
-				}
-				if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
-					headerStr = headerStr + FileManager::separator + i + "_AVE";
-					dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
-				}
-				if (OB & SUM) { // key_SUM = sum of vector
-					headerStr = headerStr + FileManager::separator + i + "_SUM";
-					dataStr = dataStr + FileManager::separator + to_string(GetSum(i));
-				}
-				if (OB & PROD) { // key_PROD = product of vector
-					cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;
-				}
-				if (OB & STDERR) { // key_STDERR = standard error of vector
-					cout << "  WARNING OUTPUT METHOD STDERR IS HAS YET TO BE WRITTEN!" << endl;
-				}
-				if (OB & LIST) { //key_LIST = save all elements in vector in csv list format
-					headerStr = headerStr + FileManager::separator + i + "_LIST";
-					dataStr = dataStr + FileManager::separator + GetStringOfVector(i);
-				}
-			}
-			headerStr.erase(headerStr.begin());  // clip off the leading separator
-			dataStr.erase(dataStr.begin());  // clip off the leading separator
-		}
-	}
+	void constructHeaderAndDataStrings(string& headerStr, string& dataStr, const vector<string>& keys, bool aveOnly = false);
 
 	inline void writeToFile(const string &fileName, const vector<string>& keys = { }, bool aveOnly = false) {
 		//Set("score{LIST}",10.0);
@@ -744,6 +649,48 @@ public:
 //	 * takes a vector of string with key value pairs. Calls set for each pair.
 //	 */
 //	void SetMany(vector<string> dataPairs);
+	
+
+	inline DataMap remakeDataMapWithPrefix(string prefix, bool stringify = 0) {
+		DataMap copyDataMap;
+		dataMapType entryType;
+		if (!stringify) {
+			for (auto key : getKeys()) {
+				entryType = findKeyInData(key);
+				if (entryType == BOOL || entryType == BOOLSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetBoolVector(key));
+				}
+				if (entryType == STRING || entryType == STRINGSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetStringVector(key));
+				}
+				if (entryType == INT || entryType == INTSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetIntVector(key));
+				}
+				if (entryType == DOUBLE || entryType == DOUBLESOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetDoubleVector(key));
+				}
+				copyDataMap.setOutputBehavior(prefix + "_" + key, outputBehavior[key]);
+			}
+		}
+		else {
+			for (auto key : getKeys()) {
+				entryType = findKeyInData(key);
+				if (entryType == BOOL || entryType == BOOLSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetBoolVector(key));
+				}
+				if (entryType == STRING || entryType == STRINGSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetStringVector(key));
+				}
+				if (entryType == INT || entryType == INTSOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetIntVector(key));
+				}
+				if (entryType == DOUBLE || entryType == DOUBLESOLO) {
+					copyDataMap.Set(prefix + "_" + key, GetDoubleVector(key));
+				}
+			}
+		}
+		return copyDataMap;
+	}
 
 };
 

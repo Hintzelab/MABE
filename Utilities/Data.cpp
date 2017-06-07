@@ -56,6 +56,113 @@ void FileManager::closeFile(const string& fileName) {
 
 
 
+
+// take two strings (header and data), and a list of keys, and whether or not to save "{LIST}"s. convert data from data map to header and data strings
+void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, const vector<string>& keys, bool aveOnly) {
+	headerStr = ""; // make sure the strings are clean
+	dataStr = "";
+	dataMapType typeOfKey;
+	int OB; // holds output behavior so it can be over ridden for ave file output!
+	if (keys.size() > 0) {  // if keys is not empty
+		for (int n = 0; n < int(keys.size()); n++) {
+			string i = keys[n];
+			typeOfKey = findKeyInData(i);
+			if (typeOfKey == NONE) {
+				cout << "  in DataMap::writeToFile() - key \"" << i << "\" can not be found in data map!\n  exiting." << endl;
+				exit(1);
+			}
+
+			// the following code makes use of bit masks! in short, AVE,SUM,LIST,etc each use only one bit of an int.
+			// therefore if we apply that mask the the outputBehavior, we can see if that type of output is needed.
+
+			OB = outputBehavior[i];
+
+			if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+				if (OB == NONE && typeOfKey == STRING) {
+					OB = LIST; // if no output behavior is assigned, make it list.
+				}
+				else if (OB == NONE && typeOfKey == STRINGSOLO) {
+					OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
+				}
+				else if (!(OB == LIST || OB == FIRST)) {
+					cout << "  in constructHeaderAndDataStrings :: attempt to write string not in either LIST or FIRST formatte. This is not allowed! Exiting..." << endl;
+					exit(1);
+				}
+			}
+			else if (OB == NONE) { // this is not a string or stringsolo...
+				OB = LIST | AVE; // if no output behavior is assigned, make it list and also record the average.
+				if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO || typeOfKey == INTSOLO) {
+					OB = FIRST; // unless the value is a solo value (i.e. it was set up with a Set(value) function), then make it first.
+				}
+			}
+
+			if (aveOnly) {
+				OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
+			}
+
+			if (OB & FIRST) { // save first (only?) element in vector with key as column name
+				headerStr = headerStr + FileManager::separator + i;
+				if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
+					if (GetBoolVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(GetBoolVector(i)[0]);
+					}
+					else {
+						dataStr = dataStr + '0';
+						cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
+					}
+				}
+				if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
+					if (GetDoubleVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(GetDoubleVector(i)[0]);
+					}
+					else {
+						dataStr = dataStr + '0';
+						cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
+					}
+				}
+				if (typeOfKey == INT || typeOfKey == INTSOLO) {
+					if (GetIntVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(GetIntVector(i)[0]);
+					}
+					else {
+						dataStr = dataStr + '0';
+						cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
+					}
+				}
+				if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+					if (GetStringVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(GetStringVector(i)[0]);
+					}
+					else {
+						dataStr = dataStr + '0';
+						cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: while getting value for FIRST with key \"" << i << "\" vector is empty!" << endl;
+					}
+				}
+
+			}
+			if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
+				headerStr = headerStr + FileManager::separator + i + "_AVE";
+				dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
+			}
+			if (OB & SUM) { // key_SUM = sum of vector
+				headerStr = headerStr + FileManager::separator + i + "_SUM";
+				dataStr = dataStr + FileManager::separator + to_string(GetSum(i));
+			}
+			if (OB & PROD) { // key_PROD = product of vector
+				cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;
+			}
+			if (OB & STDERR) { // key_STDERR = standard error of vector
+				cout << "  WARNING OUTPUT METHOD STDERR IS HAS YET TO BE WRITTEN!" << endl;
+			}
+			if (OB & LIST) { //key_LIST = save all elements in vector in csv list format
+				headerStr = headerStr + FileManager::separator + i + "_LIST";
+				dataStr = dataStr + FileManager::separator + GetStringOfVector(i);
+			}
+		}
+		headerStr.erase(headerStr.begin());  // clip off the leading separator
+		dataStr.erase(dataStr.begin());  // clip off the leading separator
+	}
+}
 ///////////////////////////////////////
 // need to add support for output prefix directory
 // need to add support for population file name prefixes
