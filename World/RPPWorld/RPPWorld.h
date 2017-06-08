@@ -47,7 +47,7 @@ public:
 
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override;
 
-	void RPPWorld::evaluateMatch(shared_ptr<Organism> orgA, shared_ptr<Organism> orgB, int analyse, int visualize, int debug);
+	void evaluateMatch(shared_ptr<Organism> orgA, shared_ptr<Organism> orgB, int analyse, int visualize, int debug);
 		//void RPPWorld::evaluateMatch(shared_ptr<Organism> orgA, shared_ptr<Organism> orgB, int analyse, int visualize, int debug);
 
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
