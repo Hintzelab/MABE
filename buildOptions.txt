@@ -1,12 +1,12 @@
 % World
-  * Weed
+  + Weed
   + MorrisTest
   + Berry
   + BerryPlus
   + IPD
   + NumeralClassifier
   + SOF
-  + Test
+  * Test
   + RPP
 
 % Genome
@@ -14,8 +14,8 @@
   * Circular
   
 % Brain
-  + Markov
-  * CGP
+  * Markov
+  + CGP
   + LSTM
   + ConstantValues
   + GeneticPrograming

@@ -115,8 +115,8 @@ NumeralClassifierWorld::NumeralClassifierWorld(shared_ptr<ParametersTable> _PT) 
 	popFileColumns.push_back("score");
 
 	for (int i = 0; i < 10; i++) {
-		popFileColumns.push_back(to_string(i) + "_correct");
-		popFileColumns.push_back(to_string(i) + "_incorrect");
+		popFileColumns.push_back(to_string(i) + "-correct");
+		popFileColumns.push_back(to_string(i) + "-incorrect");
 	}
 	popFileColumns.push_back("totalCorrect");
 	popFileColumns.push_back("totalIncorrect");
@@ -357,12 +357,12 @@ void NumeralClassifierWorld::evaluateSolo(shared_ptr<Organism> org, int analyse,
 		total_correct += correct[i];
 		total_incorrect += incorrect[i];
 
-		temp_name = to_string(i) + "_correct";  // make food names i.e. food1, food2, etc.
+		temp_name = to_string(i) + "-correct";  // make food names i.e. food1, food2, etc.
 		(counts[i] > 0) ? val = (double) correct[i] / (double) counts[i] : val = 0;
 		org->dataMap.Append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
 
-		temp_name = to_string(i) + "_incorrect";  // make food names i.e. food1, food2, etc.
+		temp_name = to_string(i) + "-incorrect";  // make food names i.e. food1, food2, etc.
 		(counts[i] < testsPreWorldEval) ? val = (double) incorrect[i] / ((double) testsPreWorldEval - counts[i]) : val = 0;
 		org->dataMap.Append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);

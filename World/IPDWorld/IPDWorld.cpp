@@ -109,7 +109,7 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	popFileColumns.push_back("DC");
 	if (playsVsFixedStrategies > 0) {
 		for (auto s : fixedStrategies) {
-			popFileColumns.push_back("score_vs_" + s);
+			popFileColumns.push_back("score-vs-" + s); // don't use underscores unless they are for specifying _VAR _AVE etc.
 		}
 	}
 }
@@ -238,11 +238,11 @@ void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int
 		for (int fixedOrgsCount = 0; fixedOrgsCount < (int)fixedOrgs.size(); fixedOrgsCount++) {
 			//cout << "fixedOrgsCount:" << fixedOrgsCount << "  fixedOrgs.size()" << fixedOrgs.size() << endl;
 			for (int j = 0; j < playsVsFixedStrategies; j++) {
-				//cout << "score_vs_" + fixedStrategies[fixedOrgsCount] << endl;
+				//cout << "score-vs-" + fixedStrategies[fixedOrgsCount] << endl;
 				//cout << "j:" << j << "  playsVsFixedStrategies:" << playsVsFixedStrategies << endl;
 				pair<double,double> scores = runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
 				//cout << scores.first << "  " << scores.second << endl;
-				group->population[i]->dataMap.Append("score_vs_" + fixedStrategies[fixedOrgsCount], scores.first);
+				group->population[i]->dataMap.Append("score-vs-" + fixedStrategies[fixedOrgsCount], scores.first);
 				
 				////runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
 			}
