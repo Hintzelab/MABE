@@ -1,12 +1,12 @@
 % World
-  * Weed
+  + Weed
   + MorrisTest
   + Berry
   + BerryPlus
   + IPD
   + NumeralClassifier
   + SOF
-  + Test
+  * Test
   + RPP
 
 % Genome
