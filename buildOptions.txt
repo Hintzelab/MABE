@@ -14,8 +14,8 @@
   * Circular
   
 % Brain
-  + Markov
-  * CGP
+  * Markov
+  + CGP
   + LSTM
   + ConstantValues
   + GeneticPrograming
