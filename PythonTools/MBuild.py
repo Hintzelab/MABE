@@ -247,42 +247,17 @@ alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp'
 
 options['Archivist'].remove('Default')
 
-'''
 moduleSources = []
-for o in options:
-	for t in options[o]:
-		moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+t+o+'.cpp')
-		dirs = [d for d in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/') if os.path.isdir(os.path.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
-		for d in dirs:
-                    contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
-                    for content in contents:
-                        moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/'+content)
+for mod in  options:
+    for typ in  options[mod]:
+        allCPPfiles = pathToMABE + mod + '/' + typ + mod + '/' 
+        for path, subd, files in os.walk( allCPPfiles):	# recursively add all sources
+            for fn in files:
+                if fn[-4:] == ".cpp" and fn[0] != '.':      # ignore hidden files and non-source files
+                    moduleSources.append(  path + '/' + fn )
 
 alwaysSources = [pathToMABE+'/'+e for e in alwaysSources]
 sources = alwaysSources + moduleSources
-'''
-nonWorldModuleSources = []
-for o in options:
-    if o != 'World': 
-        for t in options[o]:
-            nonWorldModuleSources .append(pathToMABE+'/'+o+'/'+t+o+'/'+t+o+'.cpp')
-            dirs = [d for d in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/') if os.path.isdir(os.path.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
-            for d in dirs:
-                contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
-                for content in contents:
-                    nonWorldModuleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/'+content)
-
-
-worldSources = []
-for anyWorld in  options['World']:
-    allCPPfiles = pathToMABE + 'World/' + anyWorld + 'World/' 
-    for path, subd, files in os.walk( allCPPfiles):
-        for fn in files:
-            if fn[-4:] == ".cpp":
-                worldSources.append(  path + '/' + fn )
-
-alwaysSources = [pathToMABE+'/'+e for e in alwaysSources]
-sources = alwaysSources + nonWorldModuleSources  + worldSources
 
 
 objects = []
