@@ -47,7 +47,7 @@ vector<shared_ptr<Organism>> GAOptimizer::makeNextGeneration(vector<shared_ptr<O
 	//now to roulette wheel selection:
 	while (nextPopulation.size() < population.size()) {
 		int who;
-		if (elitismLPL->lookup()) {
+		if ((int) nextPopulation.size() < elitismLPL->lookup()) {
 			who = best;
 		} else {
 			if (maxScore > 0.0) {  // if anyone has fitness > 0

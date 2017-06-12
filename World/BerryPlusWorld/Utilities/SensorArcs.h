@@ -21,9 +21,8 @@
 #include <sstream>
 #include <set>
 #include <vector>
-#include "VectorNd.h"
-
-#include "Utilities.h"
+#include "../../Utilities/VectorNd.h"
+#include "../../Utilities/Utilities.h"
 
 using namespace std;
 
