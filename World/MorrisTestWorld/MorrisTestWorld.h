@@ -17,10 +17,10 @@
 #include <thread>
 #include <vector>
 #include "../../Utilities/Data.h"
-#include "../../Utilities/WorldUtilities.h"
 #include "../../Utilities/VectorNd.h"
 #include "../../Utilities/PointNd.h"
-#include "../../Utilities/TurnTable.h"
+#include "Utilities/SensorArcs.h"
+#include "Utilities/TurnTable.h"
 
 using namespace std;
 

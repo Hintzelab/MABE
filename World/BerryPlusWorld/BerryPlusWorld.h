@@ -16,7 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <iterator>
-#include "../../Utilities/WorldUtilities.h"
+#include "Utilities/SensorArcs.h"
 
 #include "../AbstractWorld.h"
 
