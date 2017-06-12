@@ -25,7 +25,7 @@
 #include "Utilities/Random.h"
 #include "Utilities/Data.h"
 #include "Utilities/Utilities.h"
-#include "Utilities/WorldUtilities.h"
+//#include "Utilities/WorldUtilities.h"
 #include "Utilities/MTree.h"
 
 #include "modules.h"
@@ -304,11 +304,9 @@ int main(int argc, const char * argv[]) {
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[groupInfo.first] = make_shared<Group>(population, optimizer, archivist);
 
-		cout << "AAA" << endl;
 		groups[groupInfo.first]->templateOrg = progenitor->makeCopy();
 		// the progenitor has served it's purpose. Killing an organsim is important as it allows for cleanup.
 		progenitor->kill();
-		cout << "BBB" << endl;
 
 		//report on what was just built
 		if (PT == nullptr) {

@@ -14,9 +14,8 @@
 #include "../AbstractWorld.h"
 
 #include "../../Utilities/PointNd.h"
-#include "../../Utilities/WorldUtilities.h"
 #include "../../Utilities/VectorNd.h"
-#include "../../Utilities/TurnTable.h"
+#include "Utilities/TurnTable.h"
 
 #include <stdlib.h>
 #include <thread>
