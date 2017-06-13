@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__NumeralClassifierWorld__
-#define __BasicMarkovBrainTemplate__NumeralClassifierWorld__
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -70,5 +69,3 @@ public:
 	}
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__NumeralClassifierWorld__) */

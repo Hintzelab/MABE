@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__WorldMorrisTest__
-#define __BasicMarkovBrainTemplate__WorldMorrisTest__
+#pragma once
 
 #include "../AbstractWorld.h"
 
@@ -19,10 +18,11 @@
 #include "../../Utilities/Data.h"
 #include "../../Utilities/VectorNd.h"
 #include "../../Utilities/PointNd.h"
-#include "Utilities/SensorArcs.h"
-#include "Utilities/TurnTable.h"
+#include "../../Utilities/SensorArcs.h"
+#include "../../Utilities/TurnTable.h"
 
 using namespace std;
+
 
 //shared_ptr<ParameterLink<int>> MorrisTestWorld::numberOfDirectionsPL = Parameters::register_parameter("WORLD_BERRY_PLUS-numberOfDirections", 36, "number of rotational positions");
 //shared_ptr<ParameterLink<int>> MorrisTestWorld::visionSensorDistanceMaxPL = Parameters::register_parameter("WORLD_BERRY_PLUS-visionSensorDistanceMax", 5, "how far can orgs see?");
@@ -120,4 +120,3 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__WorldMorrisTest__) */

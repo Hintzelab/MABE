@@ -8,15 +8,13 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__TurnTable__
-#define __BasicMarkovBrainTemplate__TurnTable__
+#pragma once
 
 #include <vector>
 #include <iostream>
-#include "../../../Utilities/PointNd.h"
+#include "PointNd.h"
 
 using namespace std;
-
 // creates a look up table of directions related to directions. The default is 360 degrees
 // numDirections can be used to determine what value will be associated with 360 degrees
 // numSlices determines the resolution of the lookup table (i.e. directions will be rounded to the nearest slice value)
@@ -33,7 +31,7 @@ public:
 	void show() {
 		cout << "showing values in TurnTable:" << endl;
 		for (int i = 0; i < (int)numSlices; i++) {
-			cout << "slice: " << i << " direction: " << (i/numSlices) * numDirections << " degree: " << i * degPerSlice << "  -> ";
+			cout << "slice: " << i << " direction: " << (i / numSlices) * numDirections << " degree: " << i * degPerSlice << "  -> ";
 			moveDeltas[i].show();
 		}
 	}
@@ -103,4 +101,3 @@ turnTable8.movePoint(8, p1, 1).show();
 
 exit(1);
 */
-#endif // __BasicMarkovBrainTemplate__PointNd__

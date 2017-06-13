@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Analyse__
-#define __BasicMarkovBrainTemplate__Analyse__
+#pragma once
 
 //#include <stdio.h>
 //#include <vector>
@@ -33,4 +32,3 @@
 //	static double getDensity(vector<vector<int>> M);
 //};
 
-#endif /* defined(__BasicMarkovBrainTemplate__Analyse__) */

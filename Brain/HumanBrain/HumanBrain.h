@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__HumanBrain__
-#define __BasicMarkovBrainTemplate__HumanBrain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -72,7 +71,3 @@ public:
 inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
 	return make_shared<HumanBrain>(ins, outs, PT);
 }
-
-
-
-#endif /* defined(__BasicMarkovBrainTemplate__HumanBrain__) */

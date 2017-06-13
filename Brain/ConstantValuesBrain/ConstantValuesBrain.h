@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__ConstantValuesBrain__
-#define __BasicMarkovBrainTemplate__ConstantValuesBrain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -80,4 +79,3 @@ inline shared_ptr<AbstractBrain> ConstantValuesBrain_brainFactory(int ins, int o
 	return make_shared<ConstantValuesBrain>(ins, outs, PT);
 }
 
-#endif /* defined(__BasicMarkovBrainTemplate__ConstantValuesBrain__) */

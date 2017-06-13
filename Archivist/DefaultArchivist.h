@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__DefaultArchivist__
-#define __BasicMarkovBrainTemplate__DefaultArchivist__
+#pragma once
 
 #include <algorithm>
 #include <memory>
@@ -114,5 +113,3 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	map<string, int> uniqueColumnNameToOutputBehaviors;
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__DefaultArchivist__) */

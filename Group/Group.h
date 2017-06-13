@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Group__
-#define __BasicMarkovBrainTemplate__Group__
+#pragma once
 
 #include "../Archivist/DefaultArchivist.h"
 #include "../Global.h"
@@ -33,4 +32,3 @@ class Group {
 	vector<shared_ptr<Organism>> optimize();
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Group__) */

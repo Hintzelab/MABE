@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Utilities__
-#define __BasicMarkovBrainTemplate__Utilities__
+#pragma once
 
 #include <algorithm>
 #include <cctype>
@@ -572,5 +571,3 @@ inline string GetStringOfVector(const string &key) { // retrieve a string from a
 		return returnString;
 	}
 */
-
-#endif // __BasicMarkovBrainTemplate__Utilities__

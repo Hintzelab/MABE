@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__VoidGate__
-#define __BasicMarkovBrainTemplate__VoidGate__
+#pragma once
 
 #include "DeterministicGate.h"
 
@@ -37,5 +36,3 @@ public:
 	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__VoidGate__) */

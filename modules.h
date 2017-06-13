@@ -10,8 +10,8 @@
 
 //  This file was auto-generated with MBuilder.py
 
-#ifndef __AutoBuild__Modules__
-#define __AutoBuild__Modules__
+#pragma once
+
 #include "World/WeedWorld/WeedWorld.h"
 #include "World/MorrisTestWorld/MorrisTestWorld.h"
 #include "World/BerryWorld/BerryWorld.h"
@@ -222,6 +222,3 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("WORLD-worldType", (string)"Weed");
   Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Weed, MorrisTest, Berry, BerryPlus, IPD, NumeralClassifier, SOF, Test, RPP]");
 }
-
-
-#endif /* __AutoBuild__Modules__ */

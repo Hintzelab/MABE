@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__GP_Gate__
-#define __BasicMarkovBrainTemplate__GP_Gate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -44,4 +43,3 @@ class GPGate : public AbstractGate {
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__GP_Gate__) */

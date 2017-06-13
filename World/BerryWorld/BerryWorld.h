@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__BerryWorld__
-#define __BasicMarkovBrainTemplate__BerryWorld__
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -357,5 +356,3 @@ public:
 
 	void SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset = false);
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__BerryWorld__) */

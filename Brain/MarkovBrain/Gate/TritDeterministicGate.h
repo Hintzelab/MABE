@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__TritGate__
-#define __BasicMarkovBrainTemplate__TritGate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -41,7 +40,6 @@ class TritDeterministicGate : public AbstractGate {
 	//double voidOutput;
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__TritGate__) */
 
 
 

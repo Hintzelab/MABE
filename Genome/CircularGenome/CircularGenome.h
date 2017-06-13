@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__CircularGenome__
-#define __BasicMarkovBrainTemplate__CircularGenome__
+#pragma once
 
 #include <stdlib.h>
 #include <vector>
@@ -239,5 +238,3 @@ inline shared_ptr<AbstractGenome> CircularGenome_genomeFactory(shared_ptr<Parame
 	return newGenome;
 }
 
-
-#endif /* defined(__BasicMarkovBrainTemplate__CircularGenome__) */
