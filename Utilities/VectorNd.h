@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__VectorNd__
-#define __BasicMarkovBrainTemplate__VectorNd__
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -226,6 +225,3 @@ public:
 	}
 
 };
-
-
-#endif // __BasicMarkovBrainTemplate__VectorNd__

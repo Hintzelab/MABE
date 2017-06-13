@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__MTree__
-#define __BasicMarkovBrainTemplate__MTree__
+#pragma once
 
 #include <cwctype>
 #include <cmath> // pow
@@ -1028,4 +1027,3 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 	exit(1);
 }
 
-#endif /* defined(__BasicMarkovBrainTemplate__MTree__) */

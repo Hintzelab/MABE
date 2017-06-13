@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Gate__
-#define __BasicMarkovBrainTemplate__Gate__
+#pragma once
 
 #include <deque>
 #include <functional>
@@ -66,5 +65,3 @@ public:
 		return connectionsLists;
 	}
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__Gate__) */

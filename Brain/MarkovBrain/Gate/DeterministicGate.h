@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__DeterministicGate__
-#define __BasicMarkovBrainTemplate__DeterministicGate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -38,4 +37,3 @@ public:
 };
 
 
-#endif /* defined(__BasicMarkovBrainTemplate__DeterministicGate__) */

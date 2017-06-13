@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__ProbabilisticGate__
-#define __BasicMarkovBrainTemplate__ProbabilisticGate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -35,5 +34,3 @@ public:
 	}
 	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__ProbabilisticGate__) */

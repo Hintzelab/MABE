@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__AbstractChromosome__
-#define __BasicMarkovBrainTemplate__AbstractChromosome__
+#pragma once
 
 #include <algorithm>
 #include <set>
@@ -141,6 +140,4 @@ class AbstractChromosome {
 		exit(1);
 	}
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__AbstractChromosome__) */
 

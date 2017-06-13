@@ -9,8 +9,7 @@
 //         github.com/ahnt/MABE/wiki/License
 
 
-#ifndef __BasicMarkovBrainTemplate__GateListBuilder__
-#define __BasicMarkovBrainTemplate__GateListBuilder__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -84,4 +83,3 @@ class ClassicGateListBuilder : public AbstractGateListBuilder {
 	                                               vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT);
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__GateListBuilder__) */

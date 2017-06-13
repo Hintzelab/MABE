@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__GeneticProgrammingBrain__
-#define __BasicMarkovBrainTemplate__GeneticProgrammingBrain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -101,5 +100,3 @@ public:
 inline shared_ptr<AbstractBrain> GeneticProgramingBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
 	return make_shared<GeneticProgramingBrain>(ins, outs, PT);
 }
-
-#endif /* defined(__BasicMarkovBrainTemplate__cwGeneticProgramingBrain__) */

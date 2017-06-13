@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__MultiGenome__
-#define __BasicMarkovBrainTemplate__MultiGenome__
+#pragma once
 
 #include <stdlib.h>
 #include <vector>
@@ -228,4 +227,3 @@ inline shared_ptr<AbstractGenome> MultiGenome_genomeFactory(shared_ptr<Parameter
 
 
 
-#endif /* defined(__BasicMarkovBrainTemplate__MultiGenome__) */

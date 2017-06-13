@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Data__
-#define __BasicMarkovBrainTemplate__Data__
+#pragma once
 
 #include <cwctype>
 #include <fstream>
@@ -744,5 +743,3 @@ public:
 	}
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__Data__) */

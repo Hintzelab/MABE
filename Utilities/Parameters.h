@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __MABE__Parameters__
-#define __MABE__Parameters__
+#pragma once
 
 
 
@@ -1023,6 +1022,4 @@ public:
 	static void saveSettingsFiles(int _maxLineLength, int _commentIndent, vector<string> nameSpaceList = { "*" }, vector<pair<string, vector<string>>> categoryLists = { {"settings.cfg", {""}} });
 	static void printParameterWithWraparound(stringstream& FILE, string _currentIndent, string _parameter, int _maxLineLength, int _commentIndent);
 };
-
-#endif // __MABE__Parameters__
 

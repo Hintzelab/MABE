@@ -8,14 +8,13 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__WorldWeed__
-#define __BasicMarkovBrainTemplate__WorldWeed__
+#pragma once
 
 #include "../AbstractWorld.h"
 
 #include "../../Utilities/PointNd.h"
 #include "../../Utilities/VectorNd.h"
-#include "Utilities/TurnTable.h"
+#include "../../Utilities/TurnTable.h"
 
 #include <stdlib.h>
 #include <thread>
@@ -299,5 +298,3 @@ public:
 	}
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__WorldWeed__) */

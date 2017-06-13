@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__LODwAP_Archivist__
-#define __BasicMarkovBrainTemplate__LODwAP_Archivist__
+#pragma once
 
 #include "../DefaultArchivist.h"
 
@@ -61,4 +60,3 @@ public:
 	virtual bool isOrganismUpdate(int checkUpdate = -1) override;
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__LODwAP_Archivist__) */

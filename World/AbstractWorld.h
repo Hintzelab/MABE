@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__World__
-#define __BasicMarkovBrainTemplate__World__
+#pragma once
 
 #include <stdlib.h>
 #include <thread>
@@ -52,5 +51,3 @@ public:
 		exit(1);
 	};
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__World__) */

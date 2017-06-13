@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__GA_Optimizer__
-#define __BasicMarkovBrainTemplate__GA_Optimizer__
+#pragma once
 
 #include "../AbstractOptimizer.h"
 
@@ -40,4 +39,3 @@ class GAOptimizer : public AbstractOptimizer {
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__GA_Optimizer__) */
