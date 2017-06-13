@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Gate_Builder__
-#define __BasicMarkovBrainTemplate__Gate_Builder__
+#pragma once
 
 #include "../../../Utilities/Parameters.h"
 #include "../Gate/DeterministicGate.h"
@@ -79,5 +78,4 @@ public:
 	//function<shared_ptr<Gate>(shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID)> Gate_Builder::makeGate[256];
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Gate_Builder__) */
 

@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__TemplatedChromosome__
-#define __BasicMarkovBrainTemplate__TemplatedChromosome__
+#pragma once
 
 #include <algorithm>
 #include <set>
@@ -142,5 +141,4 @@ template<class T> class TemplatedChromosome : public AbstractChromosome {
 	virtual void crossover(vector<shared_ptr<AbstractChromosome>> parents, int crossCount) override;
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__TemplatedChromosome__) */
 

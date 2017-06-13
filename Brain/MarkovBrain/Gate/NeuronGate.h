@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__NeuronGate__
-#define __BasicMarkovBrainTemplate__NeuronGate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -134,4 +133,3 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__NeuronGate__) */

@@ -9,8 +9,7 @@
 //         github.com/ahnt/MABE/wiki/License
 
 
-#ifndef __BasicMarkovBrainTemplate__SSwD_Archivist__
-#define __BasicMarkovBrainTemplate__SSwD_Archivist__
+#pragma once
 
 #include "../DefaultArchivist.h"
 
@@ -70,5 +69,3 @@ class SSwDArchivist : public DefaultArchivist {  // SnapShot with Delay
 	virtual bool isOrganismUpdate(int checkUpdate = -1) override;
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__SSwD_Archivist__) */

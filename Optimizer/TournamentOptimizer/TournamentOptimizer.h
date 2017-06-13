@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Tournament_Optimizer__
-#define __BasicMarkovBrainTemplate__Tournament_Optimizer__
+#pragma once
 
 #include "../AbstractOptimizer.h"
 
@@ -38,5 +37,3 @@ class TournamentOptimizer : public AbstractOptimizer {
 		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT-optimizeValue");
 	}
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__Tournament_Optimizer__) */

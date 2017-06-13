@@ -8,15 +8,14 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__BerryWorldPlus__
-#define __BasicMarkovBrainTemplate__BerryWorldPlus__
+#pragma once
 
 #include <iostream>
 #include <fstream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <iterator>
-#include "Utilities/SensorArcs.h"
+#include "../../Utilities/SensorArcs.h"
 
 #include "../AbstractWorld.h"
 
@@ -397,5 +396,3 @@ public:
 
 	void SaveWorldState(string fileName, Vector2d<int> grid, Vector2d<int> vistedGrid, vector<pair<double, double>> currentLocation, vector<int> facing, bool reset = false);
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__BerryWorldPlus__) */

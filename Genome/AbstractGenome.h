@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Genome__
-#define __BasicMarkovBrainTemplate__Genome__
+#pragma once
 
 #include <stdlib.h>
 #include <vector>
@@ -224,4 +223,3 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Genome__) */

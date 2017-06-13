@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__IPDWorld__
-#define __BasicMarkovBrainTemplate__IPDWorld__
+#pragma once
 
 #include <iostream>
 #include <fstream>
@@ -87,4 +86,3 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__IPDWorld__) */

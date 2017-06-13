@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__MarkovBrain__
-#define __BasicMarkovBrainTemplate__MarkovBrain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -117,4 +116,3 @@ inline shared_ptr<AbstractBrain> MarkovBrain_brainFactory(int ins, int outs, sha
 	return make_shared<MarkovBrain>(make_shared<ClassicGateListBuilder>(PT), ins, outs, PT);
 }
 
-#endif /* defined(__BasicMarkovBrainTemplate__MarkovBrain__) */

@@ -13,8 +13,7 @@
 // base can work with a global seed if they want, as well as some
 // utility functions for getting common number types easily.
 
-#ifndef __BasicMarkovBrainTemplate__Random__
-#define __BasicMarkovBrainTemplate__Random__
+#pragma once
 
 #include <random>
 
@@ -78,5 +77,3 @@ inline double getNormal(const double mu, const double sigma, Generator& gen = ge
 }
 
 }
-
-#endif // __BasicMarkovBrainTemplate__Random__

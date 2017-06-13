@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Organism__
-#define __BasicMarkovBrainTemplate__Organism__
+#pragma once
 
 #include <stdlib.h>
 #include <vector>
@@ -89,5 +88,4 @@ class Organism {
 	virtual void clearHistory();  // clear all historical data (used when only saving real time data)
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Organism__) */
 

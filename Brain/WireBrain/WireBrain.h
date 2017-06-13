@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__WireBrain__
-#define __BasicMarkovBrainTemplate__WireBrain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -156,4 +155,3 @@ inline shared_ptr<AbstractBrain> WireBrain_brainFactory(int ins, int outs, share
 	return make_shared<WireBrain>(ins, outs, PT);
 }
 
-#endif /* defined(__BasicMarkovBrainTemplate__WireBrain__) */

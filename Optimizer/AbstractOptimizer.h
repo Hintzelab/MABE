@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Optimizer__
-#define __BasicMarkovBrainTemplate__Optimizer__
+#pragma once
 
 #include <iostream>
 #include <stdlib.h>
@@ -65,4 +64,3 @@ class AbstractOptimizer {
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Optimizer__) */

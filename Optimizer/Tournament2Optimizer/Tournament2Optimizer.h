@@ -8,8 +8,6 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Tournament2_Optimizer__
-#define __BasicMarkovBrainTemplate__Tournament2_Optimizer__
 
 #include "../AbstractOptimizer.h"
 #include "../../Utilities/VectorNd.h"
@@ -49,4 +47,3 @@ class Tournament2Optimizer : public AbstractOptimizer {
 	}
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__Tournament2_Optimizer__) */

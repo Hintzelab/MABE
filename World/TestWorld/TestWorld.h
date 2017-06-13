@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__WorldTest__
-#define __BasicMarkovBrainTemplate__WorldTest__
+#pragma once
 
 #include "../AbstractWorld.h"
 
@@ -48,4 +47,3 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__WorldTest__) */

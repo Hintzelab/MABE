@@ -62,7 +62,6 @@ shared_ptr<ParameterLink<bool>> WeedWorld::sexSelfIfNoMatePL = Parameters::regis
 shared_ptr<ParameterLink<string>> WeedWorld::groupNamePL = Parameters::register_parameter("WORLD_WEED_NAMES-groupName", (string)"root", "name of group to be evaluated");
 shared_ptr<ParameterLink<string>> WeedWorld::brainNamePL = Parameters::register_parameter("WORLD_WEED_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
-
 bool WeedWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName, shared_ptr<ParametersTable> parentPT, Vector2d<double> grid, int worldSizeCourse) {
 	fileName = _fileName;
 	string parameterName, parameterValue;

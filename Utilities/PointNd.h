@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__PointNd__
-#define __BasicMarkovBrainTemplate__PointNd__
+#pragma once
 
 #include <vector>
 #include <iostream>
@@ -260,5 +259,3 @@ public:
 //cout << "3d test done!" << endl;
 //
 //exit(1);
-
-#endif // __BasicMarkovBrainTemplate__PointNd__

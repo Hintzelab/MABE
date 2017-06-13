@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__Brain__
-#define __BasicMarkovBrainTemplate__Brain__
+#pragma once
 
 #include <math.h>
 #include <memory>
@@ -196,5 +195,3 @@ public:
 	}
 
 };
-
-#endif /* defined(__BasicMarkovBrainTemplate__Brain__) */
