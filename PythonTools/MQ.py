@@ -20,6 +20,7 @@
 # may find that string values are preferable.
 
 from subprocess import call
+from subprocess import Popen as callNoWait
 import glob
 import argparse
 import os
@@ -309,7 +310,7 @@ for i in range(len(combinations)):
 			print("  workDir = " + workDir)
 			print("  qsub " + qsubFileName)
 			if not args.noRun:
-				call(["qsub", qsubFileName]) # run the job
+				callNoWait(["qsub", qsubFileName]) # run the job
 
 if args.noRun:
 	print("")
