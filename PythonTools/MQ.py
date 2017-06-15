@@ -27,6 +27,7 @@ import sys
 #import pwd
 import shutil
 import datetime
+import getpass ## for getuser() gets current username
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
 	outFile = open(qsubFileName, 'w')
@@ -238,7 +239,7 @@ if not (args.runLocal or args.runHPCC):
 	print("")
 
 
-userName = "bohmclif" #pwd.getpwuid( os.getuid() )[ 0 ] # get the user name
+userName = getpass.getuser()
 print(userName)
 absLocalDir = os.getcwd() # this is needed so we can get back to the launch direcotry
 localDirParts = absLocalDir.split('/') # turn path into list so we can trim of verything before ~
