@@ -45,6 +45,7 @@ public:
 	virtual void update() override;
 
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	//virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) override {
 	//	//cout << "  in makeMutatedBrainFrom" << endl;

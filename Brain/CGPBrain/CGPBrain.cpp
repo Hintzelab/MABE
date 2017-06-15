@@ -405,18 +405,16 @@ DataMap CGPBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
-	//cout << "   start Make Copy" << endl;
-	shared_ptr<CGPBrain> newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _PT);
-
-
-	cout << "CGPBrain::makeCopy needs to be written" << endl;
-	exit(1);
-
-	//cout << "   done Make Copy" << endl;
-	return newBrain;
-}
-
 void CGPBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeName]->fillRandom();
+}
+
+shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _PT);
+	newBrain->brainVectors = brainVectors;
+	return newBrain;
 }

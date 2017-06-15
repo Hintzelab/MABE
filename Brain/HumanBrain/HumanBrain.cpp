@@ -118,3 +118,13 @@ void HumanBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenom
 // do nothing;
 }
 
+shared_ptr<AbstractBrain> HumanBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<HumanBrain>(nrInputValues, nrOutputValues, _PT);
+	return newBrain;
+}
+
+
