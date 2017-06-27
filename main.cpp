@@ -184,7 +184,6 @@ int main(int argc, const char * argv[]) {
 			else {
 				cout << "    ... building a " << Parameters::root->lookupString("BRAIN-brainType") << " brain using \"root\" name space" << endl;
 			}
-			//templateBrains[brainName] = makeTemplateBrain(world->requiredInputs(brainName), world->requiredOutputs(brainName), This_PT);
 			templateBrains[brainName] = makeTemplateBrain(brainIns[brainName], brainOuts[brainName], This_PT);
 			strSet = templateBrains[brainName]->requiredGenomes();
 			if (strSet.size() > 0) {
@@ -209,7 +208,7 @@ int main(int argc, const char * argv[]) {
 			if (genomeName == "root") { // if brain name is "root" then this brain's namespace will be at the root level (i.e. ignore group name)
 				This_PT = nullptr;
 			}
-			else { // this brain is not at root
+			else { // this genome is not at root
 				if (genomeName.size() > 6 && genomeName.substr(0, 7) == "GROUP::") {
 					// This brain's will be in the name space of this group (which may be empty),
 					// this brain can exist in more then one group and will then have a unique local name space for each group
@@ -297,7 +296,7 @@ int main(int argc, const char * argv[]) {
 		}
 
 		// create an archivist of type determined by ARCHIVIST-outputMethod
-		shared_ptr<DefaultArchivist> archivist = makeArchivist(popFileColumns, optimizer->optimizeFormula, PT, groupInfo.first);
+		shared_ptr<DefaultArchivist> archivist = makeArchivist(popFileColumns, optimizer->optimizeFormula, PT, (groupInfo.first == "root") ? "" : groupInfo.first);
 
 		// create a new group with the new population, optimizer and archivist and place this group in the map groups
 		groups[groupInfo.first] = make_shared<Group>(population, optimizer, archivist);
@@ -497,14 +496,11 @@ int main(int argc, const char * argv[]) {
 		while (!done){//!groups[defaultGroup]->archivist->finished) {
 			world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			cout << "update: " << Global::update << "   " << flush;
-			//Global::update++; // advance time to create new population(s)
 			done = true; // until we find out otherwise, assume we are done.
 			for (auto group : groups) {
 				if (!group.second->archivist->finished) {
 					group.second->optimize(); // create the next updates population
-					//Global::update--; // back up time to archive last generation
 					group.second->archive(); // save data, update memory and delete unneeded data;
-					//Global::update++; // the last updates data is now saved, jump forward again.
 					if (!group.second->archivist->finished) {
 						done = false; // if any groups archivist says we are not done, then we are not done
 					}
