@@ -112,13 +112,15 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 			password.push_back(Random::getInt(0, 1));
 		}
 	}
-    org->brain->resetBrain();
+	
+	auto brain = org->brains[brainName];
+    brain->resetBrain();
 
 	// load initial values
 	for (int i = 0; i<int(mask.size()) - 1; i++) {
-		//org->brain->resetOutputs();
-		org->brain->setInput(0, password[i]);
-		org->brain->update();
+		//brain->resetOutputs();
+		brain->setInput(0, password[i]);
+		brain->update();
 	}
 
     // iterate over all remaining values in password one input per world update,
@@ -126,16 +128,16 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 
 	for(int update = 0; update < worldUpdates; update++){
 		int pw_index = update + (int)mask.size() - 1; // position pw_index (password index) at next value in password to input to brain
-        //org->brain->resetOutputs();
-        org->brain->setInput(0, password[pw_index]);
-        org->brain->update();
+        //brain->resetOutputs();
+        brain->setInput(0, password[pw_index]);
+        brain->update();
         int brainOutputIndex = 0; // this will index into brain output - only moved forward for mask values != 0
 		for (int mask_index = 0; mask_index < (int)mask.size(); mask_index++) {
             int maskValue = mask[mask_index];
 			//cout << "mask[" << mask_index << "]: " << maskValue;
 			if (maskValue != 0) { // if the position in mask is being observed...
 				int passWordValue=password[pw_index - mask_index];
-				int guess = Bit(org->brain->readOutput(brainOutputIndex++));
+				int guess = Bit(brain->readOutput(brainOutputIndex++));
 				//cout << "   checking... passWordValue = " << passWordValue << "  brainOutput[" << brainOutputIndex - 1 << "] = " << guess;
 				if ((maskValue==1 && passWordValue==guess) || (maskValue == -1 && passWordValue != guess)){
                     scores[mask_index]++;

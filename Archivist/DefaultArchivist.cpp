@@ -165,19 +165,31 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 		PopMap.writeToFile(PopFileName, { }, true); // write the PopMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
+
 	// write out Max data
 	if (writeMaxFile && maxFormula != nullptr) {
-		vector<double> Scores;
-		for (auto org : population) {
-			if (org->timeOfBirth < Global::update || saveNewOrgs) {
-				Scores.push_back(maxFormula->eval(org->dataMap, org->PT)[0]);
+		double bestScore;
+		shared_ptr<Organism> bestOrg;
+		for (size_t i = 0; i < population.size(); i++) {
+			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
+				// find a valid score!
+				bestScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
+				bestOrg = population[i];
+				i = population.size();
 			}
 		}
-
-		int best = findGreatestInVector(Scores);
-		population[best]->dataMap.Set("update", Global::update);
-		population[best]->dataMap.writeToFile(MaxFileName);
-		population[best]->dataMap.Clear("update");
+		for (auto org : population) {
+			if (org->timeOfBirth < Global::update || saveNewOrgs) {
+				double newScore = maxFormula->eval(org->dataMap, org->PT)[0] > bestScore;
+				if (newScore > bestScore) {
+					bestScore = newScore;
+					bestOrg = org;
+				}
+			}
+		}
+		bestOrg->dataMap.Set("update", Global::update);
+		bestOrg->dataMap.writeToFile(MaxFileName);
+		bestOrg->dataMap.Clear("update");
 	}
 }
 
