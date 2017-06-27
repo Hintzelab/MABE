@@ -80,7 +80,7 @@ class MarkovBrain : public AbstractBrain {
 
 	virtual ~MarkovBrain() = default;
 
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	void readParameters();
 

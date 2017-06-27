@@ -29,6 +29,7 @@ class Group {
 	~Group();
 
 	bool archive(int flush = 0);
-	vector<shared_ptr<Organism>> optimize();
+	void optimize();
+	void cleanup();
 };
 
