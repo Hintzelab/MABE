@@ -26,8 +26,14 @@ public:
 
 	static shared_ptr<ParameterLink<string>> maskPL;
 	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
-    static shared_ptr<ParameterLink<int>> worldUpdatesPL;
-	
+	static shared_ptr<ParameterLink<int>> worldUpdatesPL;
+
+	static shared_ptr<ParameterLink<int>> refreshPasswordPL;
+	static shared_ptr<ParameterLink<int>> refreshMaskPL;
+	int refreshPassword;
+	int refreshMask;
+
+
 	static shared_ptr<ParameterLink<string>> groupNamePL;
 	static shared_ptr<ParameterLink<string>> brainNamePL;
 	string brainName;
