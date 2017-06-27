@@ -26,6 +26,8 @@ class Tournament2Optimizer : public AbstractOptimizer {
 	shared_ptr<ParameterLink<int>> tournamentSizeLPL;
 	shared_ptr<ParameterLink<double>> selfRateLPL;
 
+	shared_ptr<ParameterLink<int>> popSizeLPL;
+
 	shared_ptr<Abstract_MTree> surviveFormula;
 
 	Tournament2Optimizer(shared_ptr<ParametersTable> _PT = nullptr) : AbstractOptimizer(_PT) {
@@ -35,12 +37,16 @@ class Tournament2Optimizer : public AbstractOptimizer {
 		tournamentSizeLPL = (PT == nullptr) ? tournamentSizePL : Parameters::getIntLink("OPTIMIZER_TOURNAMENT2-tournamentSize", PT);
 		selfRateLPL = (PT == nullptr) ? selfRatePL : Parameters::getDoubleLink("OPTIMIZER_TOURNAMENT2-selfRate", PT);
 
+		popSizeLPL = (PT == nullptr) ? Global::popSizePL : Parameters::getIntLink("GLOBAL-popSize", PT);
+
 		popFileColumns.clear();
+		popFileColumns.push_back("optimizeValue");
+
 		//popFileColumns.push_back("Tournament2_numOffspring");
 
 	}
 
-	virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+	virtual void optimize(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
 		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT2-optimizeValue");

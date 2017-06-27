@@ -26,7 +26,7 @@ shared_ptr<ParameterLink<int>> TournamentOptimizer::tournamentSizePL = Parameter
  * for each next population genome, randomly select (with replacement) n genomes (where n = Optimizer::tournamentSize)
  * copy to the next generation and mutate the copy.
  */
-vector<shared_ptr<Organism>> TournamentOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
+void TournamentOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	//cout << "In TournamentOptimizer::makeNextGeneration\n";
 	vector<shared_ptr<Organism>> nextPopulation;
 
@@ -75,8 +75,4 @@ vector<shared_ptr<Organism>> TournamentOptimizer::makeNextGeneration(vector<shar
 //		population.pop_back();
 //	}
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
-	return nextPopulation;
-
-
-
 }

@@ -51,7 +51,7 @@ class Organism {
 	int timeOfDeath;  // the time this organism stopped being alive (this organism may be stored for archival reasons)
 
 	bool alive;  // is this organism alive (1) or dead (0)
-	bool trackGenome = false; // if false, genome will be deleted when organism dies.
+	bool trackOrganism = false; // if false, genome will be deleted when organism dies.
 
 	void initOrganism(shared_ptr<ParametersTable> _PT);
 
@@ -85,7 +85,6 @@ class Organism {
 	virtual shared_ptr<Organism> makeMutatedOffspringFrom(shared_ptr<Organism> parent);
 	virtual shared_ptr<Organism> makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from);
 	virtual shared_ptr<Organism> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
-	virtual void clearHistory();  // clear all historical data (used when only saving real time data)
 };
 
 

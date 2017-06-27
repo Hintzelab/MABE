@@ -104,7 +104,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 
 	if (writeOrganismFile && find(organismSequence.begin(), organismSequence.end(), Global::update) != organismSequence.end()) {
 		for (auto org : population) {  // if this update is in the genome sequence, turn on genome tracking.
-			org->trackGenome = true;
+			org->trackOrganism = true;
 		}
 
 	}
@@ -112,30 +112,6 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	if ((Global::update % pruneInterval == 0) || (flush == 1)) {
 
 		if (files.find(DataFileName) == files.end()) {  // if file has not be initialized yet
-//			if (dataFileConvertAllLists) {
-//				OldDataMap TempMap;
-//				for (auto key : population[0]->dataMap.getKeys()) {
-//					if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
-//						double temp = 0;
-//						vector<double> values;
-//						convertCSVListToVector(population[0]->dataMap.Get(key), values);
-//						for (auto v : values) {
-//							temp += v;
-//						}
-//						temp /= (double) values.size();
-//						TempMap.Set(key.substr(3, key.size() - 1), temp);
-//						if (dataFileShowAllLists) {
-//							TempMap.Set(key, population[0]->dataMap.Get(key));
-//						}
-//					} else {
-//						TempMap.Set(key, population[0]->dataMap.Get(key));
-//					}
-//				}
-//				files[DataFileName] = TempMap.getKeys();  // store keys from data map associated with file name
-//			} else {
-//				files[DataFileName] = population[0]->dataMap.getKeys();  // store keys from data map associated with file name
-//			}
-				//files[DataFileName] = population[0]->dataMap.getKeys();  // store keys from data map associated with file name
 			files[DataFileName].push_back("update");
 			for (auto key : population[0]->dataMap.getKeys()) {  // store keys from data map associated with file name
 				files[DataFileName].push_back(key);
