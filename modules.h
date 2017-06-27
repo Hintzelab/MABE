@@ -10,8 +10,9 @@
 
 //  This file was auto-generated with MBuilder.py
 
-#pragma once
-
+#ifndef __AutoBuild__Modules__
+#define __AutoBuild__Modules__
+#include "World/TestWorld/TestWorld.h"
 #include "World/WeedWorld/WeedWorld.h"
 #include "World/MorrisTestWorld/MorrisTestWorld.h"
 #include "World/BerryWorld/BerryWorld.h"
@@ -19,12 +20,12 @@
 #include "World/IPDWorld/IPDWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/SOFWorld/SOFWorld.h"
-#include "World/TestWorld/TestWorld.h"
+#include "World/MemoryWorld/MemoryWorld.h"
 #include "World/RPPWorld/RPPWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
 #include "Genome/MultiGenome/MultiGenome.h"
-#include "Brain/CGPBrain/CGPBrain.h"
 #include "Brain/MarkovBrain/MarkovBrain.h"
+#include "Brain/CGPBrain/CGPBrain.h"
 #include "Brain/LSTMBrain/LSTMBrain.h"
 #include "Brain/ConstantValuesBrain/ConstantValuesBrain.h"
 #include "Brain/GeneticProgramingBrain/GeneticProgramingBrain.h"
@@ -45,6 +46,10 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   shared_ptr<AbstractWorld> newWorld;
   bool found = false;
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
+  if (worldType == "Test") {
+    newWorld = make_shared<TestWorld>(PT);
+    found = true;
+    }
   if (worldType == "Weed") {
     newWorld = make_shared<WeedWorld>(PT);
     found = true;
@@ -73,8 +78,8 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
     newWorld = make_shared<SOFWorld>(PT);
     found = true;
     }
-  if (worldType == "Test") {
-    newWorld = make_shared<TestWorld>(PT);
+  if (worldType == "Memory") {
+    newWorld = make_shared<MemoryWorld>(PT);
     found = true;
     }
   if (worldType == "RPP") {
@@ -115,20 +120,20 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
 
 
 //create an archivist
-shared_ptr<DefaultArchivist> makeArchivist(vector<string> aveFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root, string groupPrefix = ""){
+shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root, string groupPrefix = ""){
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
   string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");
   if (archivistType == "LODwAP") {
-    newArchivist = make_shared<LODwAPArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<LODwAPArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "SSwD") {
-    newArchivist = make_shared<SSwDArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<SSwDArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "Default") {
-    newArchivist = make_shared<DefaultArchivist>(aveFileColumns, _maxFormula, PT, groupPrefix);
+    newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (!found){
@@ -165,12 +170,12 @@ shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<
   shared_ptr<AbstractBrain> newBrain;
   bool found = false;
   string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");
-  if (brainType == "CGP") {
-    newBrain = CGPBrain_brainFactory(inputs, outputs, PT);
-    found = true;
-    }
   if (brainType == "Markov") {
     newBrain = MarkovBrain_brainFactory(inputs, outputs, PT);
+    found = true;
+    }
+  if (brainType == "CGP") {
+    newBrain = CGPBrain_brainFactory(inputs, outputs, PT);
     found = true;
     }
   if (brainType == "LSTM") {
@@ -207,8 +212,8 @@ shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<
 
 //configure Defaults and Documentation
 void configureDefaultsAndDocumentation(){
-  Parameters::root->setParameter("BRAIN-brainType", (string)"CGP");
-  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [CGP, Markov, LSTM, ConstantValues, GeneticPrograming, Human, IPD, Wire]");
+  Parameters::root->setParameter("BRAIN-brainType", (string)"Markov");
+  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [Markov, CGP, LSTM, ConstantValues, GeneticPrograming, Human, IPD, Wire]");
 
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
   Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");
@@ -219,6 +224,9 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
 
-  Parameters::root->setParameter("WORLD-worldType", (string)"Weed");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Weed, MorrisTest, Berry, BerryPlus, IPD, NumeralClassifier, SOF, Test, RPP]");
+  Parameters::root->setParameter("WORLD-worldType", (string)"Test");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Test, Weed, MorrisTest, Berry, BerryPlus, IPD, NumeralClassifier, SOF, Memory, RPP]");
 }
+
+
+#endif /* __AutoBuild__Modules__ */
