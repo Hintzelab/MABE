@@ -22,16 +22,18 @@ class GAOptimizer : public AbstractOptimizer {
 	static shared_ptr<ParameterLink<int>> elitismPL;
 
 	shared_ptr<ParameterLink<int>> elitismLPL;
+	shared_ptr<ParameterLink<int>> popSizeLPL;
 
 	GAOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : AbstractOptimizer(_PT) {
 		optimizeFormula = (PT == nullptr) ? stringToMTree(optimizeFormulaPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_GA-optimizeValue"));
 		elitismLPL = (PT == nullptr) ? elitismPL : Parameters::getIntLink("OPTIMIZER_GA-elitism", PT);
+		popSizeLPL = (PT == nullptr) ? Global::popSizePL : Parameters::getIntLink("GLOBAL-popSize", PT);
 		// columns to be added to ave file
 		popFileColumns.clear();
 		popFileColumns.push_back("optimizeValue");
-		popFileColumns.push_back("optimizeValue");
 	}
-	virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+	//virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) override;
+	virtual void optimize(vector<shared_ptr<Organism>> &population) override;
 
 	virtual string maxValueName() override {
 		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_GA-optimizeValue");

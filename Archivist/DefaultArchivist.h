@@ -80,6 +80,8 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	bool writeSnapshotDataFiles;  // if true, write data file
 	bool writeSnapshotGenomeFiles;  // if true, write genome file
 
+	bool saveNewOrgs = false;
+
 	string groupPrefix;
 
 	map<string, vector<string>> files;  // list of files (NAME,LIST OF COLUMNS)

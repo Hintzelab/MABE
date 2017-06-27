@@ -11,9 +11,9 @@
 #include "SSwDArchivist.h"
 
 shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string) ":100",
-		"when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+	"when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_organismSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismSequence", (string) ":1000",
-		"when to save a organism file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+	"when to save a organism file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_organismDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving organisms ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
@@ -23,7 +23,7 @@ shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeDataFilesPL = Para
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismFiles", true, "if true, genome files will be written");
 
 SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
-		DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
+	DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
 
 	dataDelay = (PT == nullptr) ? SSwD_Arch_dataDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-dataDelay");
 	organismDelay = (PT == nullptr) ? SSwD_Arch_organismDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-organismDelay");
@@ -88,7 +88,8 @@ void SSwDArchivist::cleanup() {
 					if (auto org = weakPtrToOrg.lock()) {  // if this ptr is still good
 						if ((!org->alive) && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) {  // and if the organism was dead before the current interesting data
 							org->parents.clear();  // clear this organisms parents
-						} else {
+						}
+						else {
 							checkpointEmpty = false;  // there is an organism in this checkpoint that was alive later then (Global::update - intervalDelay)
 													  // this could organism could still be active
 						}
@@ -116,20 +117,20 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 			writeRealTimeFiles(population);  // write to Max and average files
-			if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
+			if (realtimeSequenceIndex + 1 < (int)realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}
 		}
 
 		if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) && (flush == 0) && writeSnapshotDataFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotData(population);
-			if (realtimeDataSeqIndex + 1 < (int) realtimeDataSequence.size()) {
+			if (realtimeDataSeqIndex + 1 < (int)realtimeDataSequence.size()) {
 				realtimeDataSeqIndex++;
 			}
 		}
 		if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
 			saveSnapshotOrganisms(population);
-			if (realtimeOrganismSeqIndex + 1 < (int) realtimeOrganismSequence.size()) {
+			if (realtimeOrganismSeqIndex + 1 < (int)realtimeOrganismSequence.size()) {
 				realtimeOrganismSeqIndex++;
 			}
 		}
@@ -143,35 +144,145 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 		if ((Global::update == nextOrganismCheckPoint && writeOrganismFiles) || (Global::update == nextDataCheckPoint && writeDataFiles)) {  // if we are at a data or genome interval...
 			// we need to make a checkpoint of the current population
-			for (auto org : population) {  // add the current population to checkPointTracker
-				checkpoints[Global::update].push_back(org);
-				org->snapShotDataMaps[Global::update] = make_shared<DataMap>(org->dataMap);  // back up state of dataMap
+					
+			
+			// if this is a data snapshot update we need to collect some info (who will be saved and oldest org to be saved)
+			vector<shared_ptr<Organism>> saveList;
+			int minBrithTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {
 
-				if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // if this is a data interval, add ancestors to snapshot dataMap
-					for (auto ancestor : org->ancestors) {
-						org->snapShotDataMaps[Global::update].Append("ancestors", ancestor);
+				if (saveNewOrgs) {
+					saveList = population;
+					for (auto org : population) {
+						minBrithTime = min(org->timeOfBirth, minBrithTime);
 					}
-					org->ancestors.clear();  // clear ancestors (this data is safe in the checkPoint)
-					org->ancestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
-													 // also, if this survives over intervals, it'll be pointing to self as ancestor in files (which is good)
 				}
+				else {
+					for (auto org : population) {
+						if (org->timeOfBirth < Global::update) {
+							saveList.push_back(org);
+						}
+						minBrithTime = min(org->timeOfBirth, minBrithTime);
+					}
+				}
+			}
+
+			for (auto org : population) {  // add the current population to checkPointTracker
+				if (saveNewOrgs || org->timeOfBirth < Global::update) { // if we are saving all orgs or this org is atleast 1 update old...
+					// ... checkpoint org
+					checkpoints[Global::update].push_back(org);
+					org->snapShotDataMaps[Global::update] = make_shared<DataMap>(org->dataMap);  // back up state of dataMap
+				}
+				if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {
+					// if this is a data interval, add ancestors to snapshot dataMap
+					// first we need to make sure that ancestor lists are up to date
+
+
+					if (org->ancestors.size() != 1 || org->ancestors.find(org->ID) == org->ancestors.end()) {
+						// if this org does not only contain only itself in snapshotAncestors then it has not been saved before.
+						// we must confirm that snapshotAncestors is correct because things may have changed while we were not looking
+						// this process does 2 things:
+						// a) if this org is being saved then it makes sure it's up to date
+						// b) it makes sure that it's ancestor list is correct so that it's offspring will pass on the correct ancestor info.
+						//
+						// How does it work? (good question)
+						// get a checklist of parents of the current org
+						// for each parent, if they are going to be saved in this update, yay, we can just assign their ID to the ancestor list
+						// ... if they are not going to be saved then we need to check their ancestors to see if they are going to be saved,
+						// unless they are atleast as old as the oldest org being saved to this file.
+						// if they are at least as old as the oldest org being saved to this file then we can simply append their ancestors
+
+						org->ancestors.clear();
+						vector<shared_ptr<Organism>> parentCheckList = org->parents;
+
+						while (parentCheckList.size() > 0) {
+							auto parent = parentCheckList.back(); // this is "this parent"
+							parentCheckList.pop_back(); // remove this parent from checklist
+
+							//cout << "\n org: " << org->ID << " parent: " << parent->ID << endl;
+							if (find(saveList.begin(), saveList.end(), parent) != saveList.end()) { // if this parent is being saved, they will serve as an ancestor
+								org->ancestors.insert(parent->ID);
+							}
+							else { // this parent is not being saved
+								if (parent->timeOfBirth < minBrithTime || (parent->ancestors.size() == 1 && parent->ancestors.find(parent->ID) != parent->ancestors.end())) {
+									// if this parent is old enough that it can not have a parent in the save list (and is not in save list),
+									// or this parent has self in it's ancestor list (i.e. it has already been saved to another file),
+									// copy ancestors from this parent
+									//cout << "getting ancestors for " << org->ID << " parent " << parent->ID << " is old enough or has self as ancestor..." << endl;
+									for (auto ancestorID : parent->ancestors) {
+										//cout << "adding from parent " << parent->ID << " ancestor " << ancestorID << endl;
+										org->ancestors.insert(ancestorID);
+									}
+								}
+								else { // this parent not old enough (see if above), add this parents parents to check list (we need to keep looking)
+									for (auto p : parent->parents) {
+										parentCheckList.push_back(p);
+									}
+								}
+							}
+						}
+
+						/* // uncomment to see updated ancesstors list
+						cout << "  new snapshotAncestors List: ";
+						for (auto a : org->snapshotAncestors) {
+						cout << a << "  ";
+						}
+						cout << endl;
+						*/
+
+					}
+					else { // org has self for ancestor
+						if (org->timeOfBirth >= Global::update) { // if this is a new org...
+							cout << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found new org (age < 1) with self as ancestor (with ID: " << org->ID << "... this will result in a new root to the phylogony tree!" << endl;
+							if (saveNewOrgs) {
+								cout << "    this org is being saved" << endl;
+							}
+							else {
+								cout << "    this org is not being saved (this may be very bad...)" << endl;
+							}
+						}
+					}
+					// now that we know that ancestor list is good for this org...
+
+
+
+
+
+					if (saveNewOrgs || org->timeOfBirth < Global::update) { // if this org is set up to be saved in this snapshot
+						for (auto ancestor : org->ancestors) {
+							org->snapShotDataMaps[Global::update].Append("ancestors", ancestor);
+						}
+						org->ancestors.clear();  // clear ancestors (this data is safe in the checkPoint)
+						org->ancestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
+														 // also, if this survives over intervals, it'll be pointing to self as ancestor in files (which is good)
+
+					}
+				}
+
+
+
+
+
+
 				if (Global::update == nextOrganismCheckPoint && writeOrganismFiles) {
-					org->trackGenome = true; // since this update is in the genome sequence, set the flag to track genome
+					org->trackOrganism = true; // since this update is in the genome sequence, set the flag to track genome
 				}
 			}
 			if (Global::update == nextOrganismCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a genome checkpoint, advance nextGenomeCheckPoint to get ready for the next interval
-				if ((int) organismSequence.size() > checkPointOrganismSeqIndex + 1) {
+				if ((int)organismSequence.size() > checkPointOrganismSeqIndex + 1) {
 					checkPointOrganismSeqIndex++;
 					nextOrganismCheckPoint = organismSequence[checkPointOrganismSeqIndex];
-				} else {
+				}
+				else {
 					nextOrganismCheckPoint = Global::updatesPL->lookup() + 1;
 				}
 			}
 			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a data checkpoint, advance nextDataCheckPoint to get ready for the next interval
-				if ((int) dataSequence.size() > checkPointDataSeqIndex + 1) {
+				if ((int)dataSequence.size() > checkPointDataSeqIndex + 1) {
 					checkPointDataSeqIndex++;
 					nextDataCheckPoint = dataSequence[checkPointDataSeqIndex];
-				} else {
+				}
+				else {
 					nextDataCheckPoint = Global::updatesPL->lookup() + 1;
 				}
 			}
@@ -203,7 +314,8 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					}
 					OrgMap.writeToFile(organismFileName); // append new data to the file
 					index++;
-				} else {  // this ptr is expired - cut it out of the vector
+				}
+				else {  // this ptr is expired - cut it out of the vector
 					swap(checkpoints[nextOrganismWrite][index], checkpoints[nextOrganismWrite].back());  // swap expired ptr to back of vector
 					checkpoints[nextOrganismWrite].pop_back();  // pop expired ptr from back of vector
 				}
@@ -212,10 +324,11 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			FileManager::closeFile(organismFileName); // since this is a snapshot, we will not be writting to this file again.
 
 
-			if ((int) organismSequence.size() > writeOrganismSeqIndex + 1) {
+			if ((int)organismSequence.size() > writeOrganismSeqIndex + 1) {
 				writeOrganismSeqIndex++;
 				nextOrganismWrite = organismSequence[writeOrganismSeqIndex];  //genomeInterval;
-			} else {
+			}
+			else {
 				nextOrganismWrite = Global::updatesPL->lookup() + 1;
 			}
 		}
@@ -234,7 +347,8 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					if (auto temp_org = checkpoints[nextDataWrite][0].lock()) {  // this ptr is still good
 						org = temp_org;
 						found = true;
-					} else {  // it' empty, swap to back and remove.
+					}
+					else {  // it' empty, swap to back and remove.
 						swap(checkpoints[nextDataWrite][0], checkpoints[nextDataWrite].back());  // swap expired ptr to back of vector
 						checkpoints[nextDataWrite].pop_back();  // pop expired ptr from back of vector
 					}
@@ -257,15 +371,17 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					org->snapShotDataMaps[nextDataWrite].setOutputBehavior("update", DataMap::FIRST);
 					org->snapShotDataMaps[nextDataWrite].writeToFile(dataFileName, files["data"]);  // append new data to the file
 					index++;  // advance to nex element
-				} else {  // this ptr is expired - cut it out of the vector
+				}
+				else {  // this ptr is expired - cut it out of the vector
 					swap(checkpoints[nextDataWrite][index], checkpoints[nextDataWrite].back());  // swap expired ptr to back of vector
 					checkpoints[nextDataWrite].pop_back();  // pop expired ptr from back of vector
 				}
 			}
-			if ((int) dataSequence.size() > writeDataSeqIndex + 1) {
+			if ((int)dataSequence.size() > writeDataSeqIndex + 1) {
 				writeDataSeqIndex++;
 				nextDataWrite = dataSequence[writeDataSeqIndex];  //genomeInterval;
-			} else {
+			}
+			else {
 				nextDataWrite = Global::updatesPL->lookup() + 1;
 			}
 		}

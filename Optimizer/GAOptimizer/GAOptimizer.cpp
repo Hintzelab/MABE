@@ -27,16 +27,22 @@ shared_ptr<ParameterLink<int>> GAOptimizer::elitismPL = Parameters::register_par
  * to the next generation and mutate the copy. If it is too low, keep drawing genomes till you get one
  * which is good enough.
  */
-vector<shared_ptr<Organism>> GAOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
-	vector<shared_ptr<Organism>> nextPopulation;
-
+void GAOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
+	
+	int oldPopulationSize = (int)population.size();
+	
+	int nextPopulationTargetSize = popSizeLPL->lookup();
+	int nextPopulationSize = 0;
 	vector<double> Scores;
 	double aveScore = 0;
+
+	killList.clear();
 
 	for (auto org : population) {
 		Scores.push_back(optimizeFormula->eval(org->dataMap,PT)[0]);
 		aveScore += Scores.back();
 		org->dataMap.Append("optimizeValue", Scores.back());
+		killList.insert(org);
 	}
 
 	aveScore /= population.size();
@@ -45,26 +51,25 @@ vector<shared_ptr<Organism>> GAOptimizer::makeNextGeneration(vector<shared_ptr<O
 	double maxScore = Scores[best];
 
 	//now to roulette wheel selection:
-	while (nextPopulation.size() < population.size()) {
-		int who;
-		if ((int) nextPopulation.size() < elitismLPL->lookup()) {
-			who = best;
+	while (nextPopulationSize < nextPopulationTargetSize) {
+		int p1;
+		if (nextPopulationSize < elitismLPL->lookup()) {
+			p1 = best;
 		} else {
 			if (maxScore > 0.0) {  // if anyone has fitness > 0
 				do {
-					who = Random::getIndex(population.size());  //keep choosing a random genome from population until we get one that's good enough
-				} while (pow(1.05, Random::getDouble(1)) > pow(1.05, (Scores[who] / maxScore)));
+					p1 = Random::getIndex(oldPopulationSize);  //keep choosing a random genome from population until we get one that's good enough
+				} while (pow(1.05, Random::getDouble(1)) > pow(1.05, (Scores[p1] / maxScore)));
 			} else {
-				who = Random::getIndex(population.size());  // otherwise, just pick a random genome from population
+				p1 = Random::getIndex(oldPopulationSize);  // otherwise, just pick a random genome from population
 			}
 		}
-		nextPopulation.push_back(population[who]->makeMutatedOffspringFrom(population[who]));
+		population.push_back(population[p1]->makeMutatedOffspringFrom(population[p1]));
+		nextPopulationSize++;
 	}
 	//for (size_t i = 0; i < population.size(); i++) {
 	//	population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
 	//}
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
-	return nextPopulation;
-
 }
 

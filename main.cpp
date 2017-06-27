@@ -243,8 +243,6 @@ int main(int argc, const char * argv[]) {
 		// make a organism with a templateGenomes and templateBrains - progenitor serves as an ancestor to all and a template organism
 		shared_ptr<Organism> progenitor = make_shared<Organism>(templateGenomes, templateBrains, PT);
 		
-		Global::update = 0;  // the beginning of time - now we construct the first population
-
 		int popSize = (PT == nullptr) ? Global::popSizePL->lookup() : PT->lookupInt("GLOBAL-popSize");
 		
 		
@@ -326,8 +324,171 @@ int main(int argc, const char * argv[]) {
 		// end of report
 	}
 
+	Global::update = 0;  // the beginning of time - now we construct the first population
+
 	// in run mode we evolve organsims
 	bool done = false;
+	
+	/*
+	/////////////////////////////////////////////////
+	//// test populations... ////////////////////////
+	/////////////////////////////////////////////////
+	//groups["root"]->archivist->saveNewOrgs = true;
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	cout << "ah?" << endl;
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+	cout << "bh?" << endl;
+
+	//groups["root"]->archive();
+	cout << "eh?" << endl;
+	//Global::update++;
+
+	// make new 7, 8 and, 9
+	groups["root"]->population[9] = groups["root"]->population[9]->makeMutatedOffspringFromMany({ groups["root"]->population[0], groups["root"]->population[1] });
+	groups["root"]->population[8] = groups["root"]->population[8]->makeMutatedOffspringFromMany({ groups["root"]->population[0], groups["root"]->population[2] });
+	groups["root"]->population[7] = groups["root"]->population[7]->makeMutatedOffspringFromMany({ groups["root"]->population[0], groups["root"]->population[3] });
+
+	// kill 0
+	cout << "killing: " << groups["root"]->population[0]->ID << endl;
+	groups["root"]->population[0] = groups["root"]->population[0]->makeMutatedOffspringFromMany({ groups["root"]->population[1], groups["root"]->population[2] });
+	//14
+	
+	groups["root"]->population[6] = groups["root"]->population[0]->makeMutatedOffspringFromMany({ groups["root"]->population[9], groups["root"]->population[1] });
+	//15
+
+	groups["root"]->population[5] = groups["root"]->population[0]->makeMutatedOffspringFromMany({ groups["root"]->population[6], groups["root"]->population[1] });
+	// 16
+
+	// kill 9
+	groups["root"]->population[9] = groups["root"]->population[0]->makeMutatedOffspringFromMany({ groups["root"]->population[1], groups["root"]->population[2] });
+	// kill 6
+	groups["root"]->population[6] = groups["root"]->population[0]->makeMutatedOffspringFromMany({ groups["root"]->population[1], groups["root"]->population[3] });
+
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	cout << endl;
+	groups["root"]->archive();
+	Global::update++;
+	groups["root"]->archive();
+	Global::update++;
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	//world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+
+	cout << endl << Global::update << endl;
+	groups["root"]->optimize();
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+
+	cout << endl << Global::update << endl;
+	groups["root"]->optimize();
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+
+	cout << endl << Global::update << endl;
+	groups["root"]->optimize();
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+
+	cout << endl << Global::update << endl;
+	groups["root"]->optimize();
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+
+	cout << endl << Global::update << endl;
+	groups["root"]->optimize();
+	world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
+	for (auto org : groups["root"]->population) {
+		org->dataMap.Append("optimizeValue", org->dataMap.GetAverage("score"));
+	}
+
+
+	cout << "pop now: ";
+	for (auto org : groups["root"]->population) {
+		cout << org->ID << "(" << org->dataMap.GetAverage("score") << ") ";
+	}
+	groups["root"]->archive();
+	groups["root"]->cleanup();
+
+	Global::update++;
+
+	cout << endl << Global::update << endl;
+
+
+	exit(1);
+	*/
+
 	if (Global::modePL->lookup() == "run") {
 		////////////////////////////////////////////////////////////////////////////////////
 		// run mode - evolution loop
@@ -336,33 +497,37 @@ int main(int argc, const char * argv[]) {
 		while (!done){//!groups[defaultGroup]->archivist->finished) {
 			world->evaluate(groups, false, false, AbstractWorld::debugPL->lookup());  // evaluate each organism in the population using a World
 			cout << "update: " << Global::update << "   " << flush;
-			Global::update++; // advance time to create new population(s)
+			//Global::update++; // advance time to create new population(s)
 			done = true; // until we find out otherwise, assume we are done.
 			for (auto group : groups) {
 				if (!group.second->archivist->finished) {
-					vector<shared_ptr<Organism>> nextPopulation = group.second->optimize(); // create the next updates population
-					Global::update--; // back up time to archive last generation
+					group.second->optimize(); // create the next updates population
+					//Global::update--; // back up time to archive last generation
 					group.second->archive(); // save data, update memory and delete unneeded data;
-					Global::update++; // the last updates data is now saved, jump forward again.
+					//Global::update++; // the last updates data is now saved, jump forward again.
 					if (!group.second->archivist->finished) {
 						done = false; // if any groups archivist says we are not done, then we are not done
 					}
-					for (auto org : group.second->population) { // kill orgs that did not survive so there memory can be recycled
-						if (find(nextPopulation.begin(),nextPopulation.end(),org) == nextPopulation.end()) {  // if this org is not in the current population, it must be killed (sad.)
-							org->kill();
-						}
-					}
-					group.second->population = nextPopulation;  // swap in the new population
+					group.second->optimizer->cleanup(group.second->population);
+					//////  MOVE INTO OPTIMIZE::CLEANUP();
+					//for (auto org : group.second->population) { // kill orgs that did not survive so there memory can be recycled
+					//	if (find(nextPopulation.begin(),nextPopulation.end(),org) == nextPopulation.end()) {  // if this org is not in the current population, it must be killed (sad.)
+					//		org->kill();
+					//	}
+					//}
+					//group.second->population = nextPopulation;  // swap in the new population
+					//////
+
 				}
 			}
 			cout << endl;
+			Global::update++; // advance time to create new population(s)
 		}
 
 		// the run is finished... flush any data that has not been output yet
 		for (auto group : groups) {
 			group.second->archive(1);
 		}
-
 	}
 
 	//// in visualize mode we load in organisms (usually genomes) and rerun them to collect addtional data
