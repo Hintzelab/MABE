@@ -187,6 +187,35 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	//cout << "\nHERE" << endl;
 	//cout << Global::update << " >= " << Global::updatesPL->lookup() << " + " << terminateAfter << endl;
 	finished = finished || (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+
+	/*
+	////////////////////////////////////////////////////////
+	// code to support defualt archivist snapshotData
+	////////////////////////////////////////////////////////
+	vector<shared_ptr<Organism>> toCheck;
+	unordered_set<shared_ptr<Organism>> checked;
+	int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+
+	for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
+		if (!writeSnapshotDataFiles) {
+			org->parents.clear();
+		}
+		else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end()) { // if ancestors contains self, then this org has been saved and it's ancestor list has been collapsed
+			org->parents.clear();
+			checked.insert(org); // make a note, so we don't check this org later
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+		else { // org has not ever been saved to file...
+			toCheck.push_back(org); // we will need to check to see if we can do clean up related to this org
+			checked.insert(org); // make a note, so we don't check twice
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+	}
+	////////////////////////////////////////////////////////
+	// end code to support defualt archivist snapshotData
+	////////////////////////////////////////////////////////
+	*/
+
 	return finished;
 }
 

@@ -132,7 +132,7 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 				}
 				if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
 					if (GetStringVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + to_string(GetStringVector(i)[0]);
+						dataStr = dataStr + FileManager::separator + GetStringVector(i)[0];
 					}
 					else {
 						dataStr = dataStr + '0';

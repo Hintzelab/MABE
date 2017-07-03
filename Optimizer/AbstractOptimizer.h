@@ -56,7 +56,9 @@ class AbstractOptimizer {
 				org->kill(); // if in kill list, call kill
 			}
 		}
+
 		population = newPopulation;
+		killList.clear();
 	}
 
 	virtual string maxValueName() {

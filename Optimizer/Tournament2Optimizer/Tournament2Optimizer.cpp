@@ -19,7 +19,6 @@ shared_ptr<ParameterLink<int>> Tournament2Optimizer::tournamentSizePL = Paramete
 shared_ptr<ParameterLink<double>> Tournament2Optimizer::selfRatePL = Parameters::register_parameter("OPTIMIZER_TOURNAMENT2-selfRate", 0.0, "prabablity that organsim will not choose mate, and rather will cross with self");
 
 void Tournament2Optimizer::optimize(vector<shared_ptr<Organism>> &population) {
-
 	int oldPopulationSize = (int)population.size();
 
 	int nextPopulationTargetSize = popSizeLPL->lookup();
@@ -37,11 +36,13 @@ void Tournament2Optimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	vector<double> Scores;
 	double aveScore = 0;
 	vector<double> surviveRates;
+	
+	killList.clear();
 
 	for (int i = 0; i < (int)population.size(); i++) {
 		Scores.push_back(optimizeFormula->eval(population[i]->dataMap, PT)[0]);
 		aveScore += Scores.back();
-		population[i]->dataMap.Append("optimizeValue", Scores.back());
+		population[i]->dataMap.Set("optimizeValue", Scores.back());
 
 		surviveRates.push_back(surviveFormula->eval(population[i]->dataMap, PT)[0]);
 
@@ -104,13 +105,16 @@ void Tournament2Optimizer::optimize(vector<shared_ptr<Organism>> &population) {
 				}
 			}
 			population.push_back(population[p1]->makeMutatedOffspringFromMany({ population[p1], population[p2] }));
+			//population.push_back(population[p1]->makeMutatedOffspringFrom(population[p1]));
+
 			nextPopulationSize++;
 		}
 
 	}
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore) << "  survive,other,self: " << surviveCount << "," << otherCount << "," << selfCount;
 	for (auto org : population) {
-		org->dataMap.Set("Tournament2_numOffspring", org->offspringCount);
+		//org->dataMap.Set("Tournament2_numOffspring", org->offspringCount);
 	}
+
 }
 

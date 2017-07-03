@@ -712,16 +712,14 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 // convert a chromosome to a string
 template<class T>
 string CircularGenome<T>::genomeToStr() {
-	string S = "\"[";
+	stringstream ss;
+	ss << "\"[";
 
-	S.reserve(((int)sites.size() * 2) + 10);
-
-	for (size_t i = 0; i < sites.size(); i++) {
-		S.append(to_string(sites[i]) + FileManager::separator);
+	for (size_t i = 0; i < sites.size()-1; i++) {
+		ss << sites[i] << FileManager::separator;
 	}
-	S.pop_back();  // clip off the trailing separator
-	S .append("]\"");
-	return S;
+	ss << sites[sites.size() - 1] << "]\"";
+	return ss.str();
 }
 
 template<class T>

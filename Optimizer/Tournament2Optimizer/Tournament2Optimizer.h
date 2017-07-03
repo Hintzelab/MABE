@@ -41,9 +41,6 @@ class Tournament2Optimizer : public AbstractOptimizer {
 
 		popFileColumns.clear();
 		popFileColumns.push_back("optimizeValue");
-
-		//popFileColumns.push_back("Tournament2_numOffspring");
-
 	}
 
 	virtual void optimize(vector<shared_ptr<Organism>> &population) override;
