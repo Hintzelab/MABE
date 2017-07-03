@@ -203,6 +203,7 @@ Organism::~Organism() {
  */
 void Organism::kill() {
 	alive = false;
+	timeOfDeath = Global::update;
 	if (!trackOrganism) { // if the archivist is not tracking is organism, we can clear it's genomes and brains.
 		genome = nullptr;
 		brain = nullptr;

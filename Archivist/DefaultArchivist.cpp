@@ -204,12 +204,12 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 
 	// first, determine which orgs in population need to be saved.
 	vector<shared_ptr<Organism>> saveList;
-	int minBrithTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+	int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
 
 	if (saveNewOrgs) {
 		saveList = population;
 		for (auto org : population) {
-			minBrithTime = min(org->timeOfBirth, minBrithTime);
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
 		}
 	}
 	else {
@@ -217,20 +217,20 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 			if (org->timeOfBirth < Global::update) {
 				saveList.push_back(org);
 			}
-			minBrithTime = min(org->timeOfBirth, minBrithTime);
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
 		}
 	}
 
 	// now for each org, update ancestors and save if in saveList
 	for (auto org : population) {
-		
+
 		//cout << "---------------\n now looking at: " << org->ID << endl;
 		//cout << "  with parents List (" << org->parents.size() << "): ";
 		//for (auto a : org->parents) {
 		//	cout << a->ID << "  ";
 		//}
 		//cout << endl;
-		
+
 
 		if (org->snapshotAncestors.size() != 1 || org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
 			// if this org does not only contain only itself in snapshotAncestors then it has not been saved before.
@@ -248,7 +248,7 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 
 			org->snapshotAncestors.clear();
 			vector<shared_ptr<Organism>> parentCheckList = org->parents;
-			
+
 			while (parentCheckList.size() > 0) {
 				auto parent = parentCheckList.back(); // this is "this parent"
 				parentCheckList.pop_back(); // remove this parent from checklist
@@ -258,7 +258,7 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 					org->snapshotAncestors.insert(parent->ID);
 				}
 				else { // this parent is not being saved
-					if (parent->timeOfBirth < minBrithTime || (parent->snapshotAncestors.size() == 1 && parent->snapshotAncestors.find(parent->ID)!=parent->snapshotAncestors.end())) {
+					if (parent->timeOfBirth < minBirthTime || (parent->snapshotAncestors.size() == 1 && parent->snapshotAncestors.find(parent->ID) != parent->snapshotAncestors.end())) {
 						// if this parent is old enough that it can not have a parent in the save list (and is not in save list),
 						// or this parent has self in it's ancestor list (i.e. it has already been saved to another file),
 						// copy ancestors from this parent
@@ -275,7 +275,7 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 					}
 				}
 			}
-		
+
 			/* // uncomment to see updated ancesstors list
 			cout << "  new snapshotAncestors List: ";
 			for (auto a : org->snapshotAncestors) {
@@ -284,8 +284,9 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 			cout << endl;
 			*/
 
-		} else { // org has self for ancestor
-			if (org->timeOfBirth >= Global::update){ // if this is a new org...
+		}
+		else { // org has self for ancestor
+			if (org->timeOfBirth >= Global::update) { // if this is a new org...
 				cout << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found new org (age < 1) with self as ancestor (with ID: " << org->ID << "... this will result in a new root to the phylogony tree!" << endl;
 				if (saveNewOrgs) {
 					cout << "    this org is being saved" << endl;
@@ -368,11 +369,42 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 			}
 		}
 
+		vector<shared_ptr<Organism>> toCheck;
+		unordered_set<shared_ptr<Organism>> checked;
+		int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+
 		for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
-			if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end()) { // if ancestors contains self, then this org has been saved and it's ancestor list has been collapsed
+			if (!writeSnapshotDataFiles) {
 				org->parents.clear();
 			}
+			else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end()) { // if ancestors contains self, then this org has been saved and it's ancestor list has been collapsed
+				org->parents.clear();
+				checked.insert(org); // make a note, so we don't check this org later
+				minBirthTime = min(org->timeOfBirth, minBirthTime);
+			}
+			else { // org has not ever been saved to file...
+				toCheck.push_back(org); // we will need to check to see if we can do clean up related to this org
+				checked.insert(org); // make a note, so we don't check twice
+				minBirthTime = min(org->timeOfBirth, minBirthTime);
+			}
 		}
+
+		while (toCheck.size() > 0) {
+			auto org = toCheck.back();
+			toCheck.pop_back();
+			if (org->timeOfBirth < minBirthTime) { // no living org can be this orgs ancestor
+				org->parents.clear(); // we can safely release parents
+			}
+			else {
+				for (auto p : org->parents) { // we need to check parents (if any)
+					if (checked.find(p) == checked.end()) { // if parent is not already in checked list (i.e. either checked or going to be)
+						toCheck.push_back(p);
+						checked.insert(org); // make a note, so we don't check twice
+					}
+				}
+			}
+		}
+
 
 	}
 	// if we are at the end of the run

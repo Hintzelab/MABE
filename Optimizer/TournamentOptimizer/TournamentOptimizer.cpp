@@ -27,15 +27,20 @@ shared_ptr<ParameterLink<int>> TournamentOptimizer::tournamentSizePL = Parameter
  * copy to the next generation and mutate the copy.
  */
 void TournamentOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
-	//cout << "In TournamentOptimizer::makeNextGeneration\n";
-	vector<shared_ptr<Organism>> nextPopulation;
+	int oldPopulationSize = (int)population.size();
 
+	int nextPopulationTargetSize = popSizeLPL->lookup();
+	int nextPopulationSize = 0;
 	vector<double> Scores;
 	double aveScore = 0;
+
+	killList.clear();
 
 	for (auto org : population) {
 		Scores.push_back(optimizeFormula->eval(org->dataMap, PT)[0]);
 		aveScore += Scores.back();
+		org->dataMap.Set("optimizeValue", Scores.back());
+		killList.insert(org);
 	}
 
 	aveScore /= population.size();
@@ -43,36 +48,21 @@ void TournamentOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	int best = findGreatestInVector(Scores);
 	double maxScore = Scores[best];
 
-	while (nextPopulation.size() < population.size()) {
+	while (nextPopulationSize < nextPopulationTargetSize) {
 		int winner, challanger;
-		if ((int) nextPopulation.size() < elitismLPL->lookup()) {
+		if ((int) nextPopulationSize < elitismLPL->lookup()) {
 			winner = best;
 		} else {
-			winner = Random::getIndex(population.size());
+			winner = Random::getIndex(oldPopulationSize);
 			for (int i = 0; i < tournamentSizeLPL->lookup() - 1; i++) {
-				challanger = Random::getIndex(population.size());
+				challanger = Random::getIndex(oldPopulationSize);
 				if (Scores[challanger] > Scores[winner]) {
 					winner = challanger;
 				}
 			}
 		}
-		nextPopulation.push_back(population[winner]->makeMutatedOffspringFrom(population[winner]));
-		//nextPopulation.push_back(population[winner]);
+		population.push_back(population[winner]->makeMutatedOffspringFrom(population[winner]));
+		nextPopulationSize++;
 	}
-	//for (size_t i = 0; i < population.size(); i++) {
-	//	population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
-	//}
-	//population = nextPopulation;
-	//population.resize(0);
-//	while (population.size() > 0){
-//		cout << population.size() << " " << flush;
-//		auto keys = population[population.size()-1]->dataMap.getKeys();
-//		for (auto key:keys){
-//			cout << key << " = " << flush << population[population.size()-1]->dataMap.Get(key) << "   " << flush;
-//
-//		}
-//		cout << "   done keys" << endl;
-//		population.pop_back();
-//	}
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
 }

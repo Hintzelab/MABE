@@ -52,6 +52,7 @@ void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualiz
 			score = 0.0;
 		}
 		org->dataMap.Append("score", score);
-	}
+		
+	}	
 }
 

@@ -22,7 +22,7 @@ IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 // columns to be added to ave file
 	popFileColumns.clear();
 	for (auto i:availableStrategies) {
-		popFileColumns.push_back("IPD_" + to_string(i));
+		popFileColumns.push_back("IPD_" + i);
 	}
 }
 

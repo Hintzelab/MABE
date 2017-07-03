@@ -87,7 +87,8 @@ void SSwDArchivist::cleanup() {
 				for (auto weakPtrToOrg : checkpoints[checkpoint.first]) {  // than for each element in that checkpoint
 					if (auto org = weakPtrToOrg.lock()) {  // if this ptr is still good
 						if ((!org->alive) && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) {  // and if the organism was dead before the current interesting data
-							org->parents.clear();  // clear this organisms parents
+							//org->parents.clear();  // clear this organisms parents :: NOTE this was assuming that Default snapshot was not interested in parents.
+							// really we can only clear parents if org is older then oldest in current populaiton This is not addressed later in this function
 						}
 						else {
 							checkpointEmpty = false;  // there is an organism in this checkpoint that was alive later then (Global::update - intervalDelay)
@@ -144,17 +145,17 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 		if ((Global::update == nextOrganismCheckPoint && writeOrganismFiles) || (Global::update == nextDataCheckPoint && writeDataFiles)) {  // if we are at a data or genome interval...
 			// we need to make a checkpoint of the current population
-					
-			
+
+
 			// if this is a data snapshot update we need to collect some info (who will be saved and oldest org to be saved)
 			vector<shared_ptr<Organism>> saveList;
-			int minBrithTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+			int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
 			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {
 
 				if (saveNewOrgs) {
 					saveList = population;
 					for (auto org : population) {
-						minBrithTime = min(org->timeOfBirth, minBrithTime);
+						minBirthTime = min(org->timeOfBirth, minBirthTime);
 					}
 				}
 				else {
@@ -162,7 +163,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 						if (org->timeOfBirth < Global::update) {
 							saveList.push_back(org);
 						}
-						minBrithTime = min(org->timeOfBirth, minBrithTime);
+						minBirthTime = min(org->timeOfBirth, minBirthTime);
 					}
 				}
 			}
@@ -204,7 +205,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 								org->ancestors.insert(parent->ID);
 							}
 							else { // this parent is not being saved
-								if (parent->timeOfBirth < minBrithTime || (parent->ancestors.size() == 1 && parent->ancestors.find(parent->ID) != parent->ancestors.end())) {
+								if (parent->timeOfBirth < minBirthTime || (parent->ancestors.size() == 1 && parent->ancestors.find(parent->ID) != parent->ancestors.end())) {
 									// if this parent is old enough that it can not have a parent in the save list (and is not in save list),
 									// or this parent has self in it's ancestor list (i.e. it has already been saved to another file),
 									// copy ancestors from this parent
@@ -233,7 +234,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					}
 					else { // org has self for ancestor
 						if (org->timeOfBirth >= Global::update) { // if this is a new org...
-							cout << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found new org (age < 1) with self as ancestor (with ID: " << org->ID << "... this will result in a new root to the phylogony tree!" << endl;
+							cout << "  WARRNING :: in SSwD::archive(), while adding to a snapshot data found new org (age < 1) with self as ancestor (with ID: " << org->ID << "... this will result in a new root to the phylogony tree!" << endl;
 							if (saveNewOrgs) {
 								cout << "    this org is being saved" << endl;
 							}
@@ -388,6 +389,51 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	}
 	// if enough time has passed to save all data and genomes, then we are done!
 	finished = finished || ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextOrganismWrite > Global::updatesPL->lookup() || !(writeOrganismFiles)) && Global::update >= Global::updatesPL->lookup());
+
+	////////////////////////////////////////////////
+	//
+	////////////////////////////////////////////////
+	vector<shared_ptr<Organism>> toCheck;
+	unordered_set<shared_ptr<Organism>> checked;
+	int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+
+	for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
+		if (!writeSnapshotDataFiles && !writeDataFiles && !writeOrganismFiles) {
+			org->parents.clear();
+			cout << "HERE?" << endl;
+		}
+		else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end() && org->ancestors.find(org->ID) != org->ancestors.end() && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) { // if ancestors and snapshotAncestors contains self, then this org has been saved and it's ancestor list has been collapsed
+			org->parents.clear();
+			checked.insert(org); // make a note, so we don't check this org later
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+		else { // org has not ever been saved to either snapshot_Data or SSwD_Data
+			toCheck.push_back(org); // we will need to check to see if we can do clean up related to this org
+			checked.insert(org); // make a note, so we don't check twice
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+	}
+
+	while (toCheck.size() > 0) {
+		auto org = toCheck.back();
+		toCheck.pop_back();
+		if ((org->timeOfBirth < minBirthTime) && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) { // no living org can be this orgs ancestor and this org died long enough ago that they can not be in a SSwD snapshot
+			//cout << "minBirthTime: " << minBirthTime << " org->timeOfBirth: " << org->timeOfBirth << " org->timeOfDeath: " << org->timeOfDeath << "max(dataDelay, organismDelay): " << max(dataDelay, organismDelay) << endl;
+			org->parents.clear(); // we can safely release parents
+		}
+		else {
+			for (auto p : org->parents) { // we need to check parents (if any)
+				if (checked.find(p) == checked.end()) { // if parent is not already in checked list (i.e. either checked or going to be)
+					toCheck.push_back(p);
+					checked.insert(org); // make a note, so we don't check twice
+				}
+			}
+		}
+	}
+	////////////////////////////////////////////////
+	//
+	////////////////////////////////////////////////
+
 	return finished;
 }
 

@@ -41,7 +41,7 @@ void GAOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	for (auto org : population) {
 		Scores.push_back(optimizeFormula->eval(org->dataMap,PT)[0]);
 		aveScore += Scores.back();
-		org->dataMap.Append("optimizeValue", Scores.back());
+		org->dataMap.Set("optimizeValue", Scores.back());
 		killList.insert(org);
 	}
 

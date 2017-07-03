@@ -505,15 +505,6 @@ int main(int argc, const char * argv[]) {
 						done = false; // if any groups archivist says we are not done, then we are not done
 					}
 					group.second->optimizer->cleanup(group.second->population);
-					//////  MOVE INTO OPTIMIZE::CLEANUP();
-					//for (auto org : group.second->population) { // kill orgs that did not survive so there memory can be recycled
-					//	if (find(nextPopulation.begin(),nextPopulation.end(),org) == nextPopulation.end()) {  // if this org is not in the current population, it must be killed (sad.)
-					//		org->kill();
-					//	}
-					//}
-					//group.second->population = nextPopulation;  // swap in the new population
-					//////
-
 				}
 			}
 			cout << endl;
@@ -539,12 +530,15 @@ int main(int argc, const char * argv[]) {
 		//which orgs do I need to make?
 		// lets make all orgs required by world.
 		unordered_map<int, unordered_map<string, string>> data;
-		string fileName = "TOM__snapshotOrganisms_100.csv";
+		string fileName = Global::visualizePopulationFilePL->lookup();
+		cout << "loading file " << fileName << endl;
 		string indexName = "ID";
+		vector<int> IDs;
+		convertCSVListToVector(Global::visualizeOrgIDPL->lookup(), IDs);
+		int orgID = IDs[0];
 
 		loadIndexedCSVFile(fileName, data, indexName);
-		unordered_map<string, string> orgData = data[10077];
-
+		unordered_map<string, string> orgData = data[orgID];
 
 		for (auto group : groups) {
 			shared_ptr<Organism> newOrg = group.second->templateOrg->makeCopy();
@@ -552,10 +546,13 @@ int main(int argc, const char * argv[]) {
 				string name = genome.first;
 				genome.second->deserialize(genome.second->PT, orgData, name);
 			}
-			for (auto brain : group.second->templateOrg->brains) {
-				brain.second = brain.second->makeBrain(newOrg->genomes);
+			for (auto brain : newOrg->brains) {
+				cout << brain.first << "  before brain: " << brain.second->description() << endl;
+				newOrg->brains[brain.first] = brain.second->makeBrain(newOrg->genomes);
+				cout << brain.first << "  after brain: " << brain.second->description() << endl;
 				string name = brain.first;
 				brain.second->deserialize(brain.second->PT, orgData, name);
+				cout << brain.first << "  after brain: " << brain.second->description() << endl;
 			}
 			group.second->population.push_back(newOrg);
 		}
@@ -568,9 +565,14 @@ int main(int argc, const char * argv[]) {
 				cout << endl;
 			}
 			for (auto brain : group.second->population[0]->brains) {
-				cout << brain.first << " -- " << brain.second->description() << endl;
+				cout << group.second->population[0]->brains.size() << "  SIZE" << endl;
+				cout << "brain: " << brain.first << " -- " << brain.second->description() << endl;
 			}
 		}
+
+		world->evaluate(groups, 0, 1, 0);
+		cout << "org with ID: " << orgData["ID"] << "  generated score: " << groups["root"]->population[0]->dataMap.GetAverage("score") << endl;
+
 			//	unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
 			//	unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
 			//	for (auto genome : templateGenomes) {
