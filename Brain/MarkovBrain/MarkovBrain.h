@@ -99,6 +99,9 @@ class MarkovBrain : public AbstractBrain {
 	}
 
 	virtual void resetBrain() override;
+	virtual void resetOutputs()override;
+	virtual void resetInputs() override;
+
 	virtual string gateList();
 	virtual vector<vector<int>> getConnectivityMatrix();
 	virtual int brainSize();

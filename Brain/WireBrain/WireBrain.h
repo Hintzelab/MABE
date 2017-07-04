@@ -133,6 +133,8 @@ public:
 	virtual void initalize();
 	virtual void connectPruneAndSetPopColumns(vector<pair<int, int>> wormholeList);
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+
 	virtual void chargeUpdate();
 	virtual void chargeUpdateTrit();
 	virtual void update() override;
