@@ -89,6 +89,16 @@ void MarkovBrain::resetBrain() {
 		gates[i]->resetGate();
 	}
 }
+void MarkovBrain::resetInputs() {
+	for (int i = 0; i < nrInputValues; i++) {
+		nodes[i] = 0.0;
+	}
+}
+void MarkovBrain::resetOutputs() {
+	for (int i = 0; i < nrOutputValues; i++) {
+		nodes[nrInputValues + i] = 0.0;
+	}
+}
 
 void MarkovBrain::update() {
 	nextNodes.assign(nrNodes, 0.0);
