@@ -25,7 +25,8 @@
   + Wire
 	
 % Optimizer
-  * GA
+  * Simple
+  + GA
   + Tournament
   + Tournament2
 

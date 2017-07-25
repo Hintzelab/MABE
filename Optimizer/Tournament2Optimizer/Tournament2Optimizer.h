@@ -8,6 +8,8 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
+#pragma once
+
 
 #include "../AbstractOptimizer.h"
 #include "../../Utilities/VectorNd.h"
@@ -45,8 +47,8 @@ class Tournament2Optimizer : public AbstractOptimizer {
 
 	virtual void optimize(vector<shared_ptr<Organism>> &population) override;
 
-	virtual string maxValueName() override {
-		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT2-optimizeValue");
-	}
+	//virtual string maxValueName() override {
+	//	return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT2-optimizeValue");
+	//}
 };
 

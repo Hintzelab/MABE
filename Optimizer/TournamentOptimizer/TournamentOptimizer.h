@@ -40,7 +40,7 @@ class TournamentOptimizer : public AbstractOptimizer {
 
 	virtual void optimize(vector<shared_ptr<Organism>> &population) override;
 
-	virtual string maxValueName() override {
-		return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT-optimizeValue");
-	}
+	//virtual string maxValueName() override {
+	//	return (PT == nullptr) ? optimizeFormulaPL->lookup() : PT->lookupString("OPTIMIZER_TOURNAMENT-optimizeValue");
+	//}
 };

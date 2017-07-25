@@ -61,9 +61,9 @@ class AbstractOptimizer {
 		killList.clear();
 	}
 
-	virtual string maxValueName() {
-		return("score");
-	}
+	//virtual string maxValueName() {
+	//	return("score");
+	//}
 
 	virtual bool requireGenome() {
 		return false;

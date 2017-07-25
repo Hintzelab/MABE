@@ -32,6 +32,7 @@
 #include "Brain/HumanBrain/HumanBrain.h"
 #include "Brain/IPDBrain/IPDBrain.h"
 #include "Brain/WireBrain/WireBrain.h"
+#include "Optimizer/SimpleOptimizer/SimpleOptimizer.h"
 #include "Optimizer/GAOptimizer/GAOptimizer.h"
 #include "Optimizer/TournamentOptimizer/TournamentOptimizer.h"
 #include "Optimizer/Tournament2Optimizer/Tournament2Optimizer.h"
@@ -99,6 +100,10 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
   shared_ptr<AbstractOptimizer> newOptimizer;
   bool found = false;
   string optimizerType = (PT == nullptr) ? AbstractOptimizer::Optimizer_MethodStrPL->lookup() : PT->lookupString("OPTIMIZER-optimizer");
+  if (optimizerType == "Simple") {
+    newOptimizer = make_shared<SimpleOptimizer>(PT);
+    found = true;
+    }
   if (optimizerType == "GA") {
     newOptimizer = make_shared<GAOptimizer>(PT);
     found = true;
@@ -221,8 +226,8 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"LODwAP");
   Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [LODwAP, SSwD, Default]");
 
-  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
-  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
+  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"Simple");
+  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [Simple, GA, Tournament, Tournament2]");
 
   Parameters::root->setParameter("WORLD-worldType", (string)"Test");
   Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Test, Weed, MorrisTest, Berry, BerryPlus, IPD, NumeralClassifier, SOF, Memory, RPP]");

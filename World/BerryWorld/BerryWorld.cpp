@@ -484,6 +484,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 		}
 	}
 
+	bool lastActionWasMove = false;
 	numWorlds = max(numWorlds, (int) worldList.size());
 	//cout << "numWorlds: " << numWorlds;
 	for (int worldCount = 0; worldCount < numWorlds; worldCount++) {
@@ -813,7 +814,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					}
 				}
 
-				if (output2 == 1) {  // if org tried to eat
+				if ((output2 == 1 && !alwaysEat) || (alwaysEat && lastActionWasMove)) {  // if org tried to eat or always eat and last action was move
 					int foodHere = getGridValue(grid, currentLocation[orgIndex]);
 					if ((recordFoodList && foodHere != 0) || (recordFoodList && recordFoodListEatEmpty)) {
 						group->population[orgIndex]->dataMap.Append("foodList", foodHere);  // record that org ate food (or tried to at any rate)
@@ -839,7 +840,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 						group->population[orgIndex]->dataMap.Append("foodList", -1);  // record that org did not try to eat this time
 					}
 				}
-
+				lastActionWasMove = false;
 				if ((output2 == 0) || (allowMoveAndEat == 1)) {  // if we did not eat or we allow moving and eating in the same world update
 					switch (output1) {
 					case 0:  //nothing
@@ -854,6 +855,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 						break;
 					case 3:  //move forward
 						if (getGridValue(grid, moveOnGrid(currentLocation[orgIndex], facing[orgIndex])) != WALL && getGridValue(orgPositionsGrid, moveOnGrid(currentLocation[orgIndex], facing[orgIndex])) != 1) {  // if the proposed move is not a wall and is not occupied by another org
+							lastActionWasMove = true;
 							scores[orgIndex] += rewardForMove;
 							if (getGridValue(grid, currentLocation[orgIndex]) == EMPTY) {  // if the current location is empty...
 								//cout << replacement << endl;
@@ -915,7 +917,6 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				BerryWorld::SaveWorldState(visualizationFileName, grid, visitedGrid, currentLocation, facing);
 			}
 		}
-
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			int total_eaten = 0;
 			for (int f = 0; f <= foodTypes; f++) {
@@ -943,6 +944,11 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 			summedScores[i] += scores[i] / MAXSCORE;
 		}
 	}
+
+	if (visualize) {  // save endflag.
+		FileManager::writeToFile(visualizationFileName, "*end*", "8," + to_string(WorldX) + ',' + to_string(WorldY));  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+	}
+
 	for (int orgIndex = 0; orgIndex < (int) group->population.size(); orgIndex++) {
 
 		//group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;

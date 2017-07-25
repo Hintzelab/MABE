@@ -547,26 +547,26 @@ int main(int argc, const char * argv[]) {
 				genome.second->deserialize(genome.second->PT, orgData, name);
 			}
 			for (auto brain : newOrg->brains) {
-				cout << brain.first << "  before brain: " << brain.second->description() << endl;
+				//cout << brain.first << "  before brain: " << brain.second->description() << endl;
 				newOrg->brains[brain.first] = brain.second->makeBrain(newOrg->genomes);
-				cout << brain.first << "  after brain: " << brain.second->description() << endl;
+				//cout << brain.first << "  after brain: " << brain.second->description() << endl;
 				string name = brain.first;
 				brain.second->deserialize(brain.second->PT, orgData, name);
-				cout << brain.first << "  after brain: " << brain.second->description() << endl;
+				//cout << brain.first << "  after brain: " << brain.second->description() << endl;
 			}
 			group.second->population.push_back(newOrg);
 		}
 
 		for (auto group : groups) {
-			cout << "GROUP: " << group.first << endl;
+			//cout << "GROUP: " << group.first << endl;
 			for (auto genome : group.second->population[0]->genomes) {
-				cout << genome.first << " -- " << endl;
-				genome.second->printGenome();
-				cout << endl;
+				//cout << genome.first << " -- " << endl;
+				//genome.second->printGenome();
+				//cout << endl;
 			}
 			for (auto brain : group.second->population[0]->brains) {
-				cout << group.second->population[0]->brains.size() << "  SIZE" << endl;
-				cout << "brain: " << brain.first << " -- " << brain.second->description() << endl;
+				//cout << group.second->population[0]->brains.size() << "  SIZE" << endl;
+				//cout << "brain: " << brain.first << " -- " << brain.second->description() << endl;
 			}
 		}
 
