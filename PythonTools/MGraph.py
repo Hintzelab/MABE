@@ -328,6 +328,8 @@ allGraphs = {}
 
 if args.combineConditions:
 	for file in files:
+		if args.verbose:
+			print ("generating plot for: " + file)
 	
 		##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
 		##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
@@ -349,8 +351,6 @@ if args.combineConditions:
 		#####
 		#####
 
-		if args.verbose:
-			print ("generating plot for: " + file)
 		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
 
 else:
@@ -358,6 +358,8 @@ else:
 	
 
 		for file in files:
+			if args.verbose:
+				print ("generating plot for: " + con + "__" + file)
 		
 			##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
 			##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
@@ -379,8 +381,6 @@ else:
 			#####
 			#####
 		
-			if args.verbose:
-				print ("generating plot for: " + con + "__" + file)
 			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
 
 #plt.tight_layout()
