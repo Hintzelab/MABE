@@ -37,7 +37,7 @@ public:
 
 	static shared_ptr<ParameterLink<string>> outputDirectoryPL;  // where files will be written
 
-	static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
+	//static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
 
 //	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
 //	// i.e. ceil(bitsPerBrainAddress/8) = number of genome sites used
