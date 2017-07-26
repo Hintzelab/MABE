@@ -24,6 +24,7 @@ shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::
 
 
 SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOptimizer(_PT) {
+	
 	selectionMethod = (PT == nullptr) ? selectionMethodPL->lookup() : PT->lookupString("OPTIMIZER_SIMPLE-selectionMethod");
 	numberParents = (PT == nullptr) ? numberParentsPL->lookup() : PT->lookupInt("OPTIMIZER_SIMPLE-numberParents");
 	
@@ -32,6 +33,8 @@ SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOpti
 	selfRateMT = (PT == nullptr) ? stringToMTree(selfRatePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-selfRate"));
 	elitismCountMT = (PT == nullptr) ? stringToMTree(elitismCountPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismCount"));
 	elitismRangeMT = (PT == nullptr) ? stringToMTree(elitismRangePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismRange"));
+
+	optimizeFormula = optimizeValueMT;
 
 	popSizeLPL = (PT == nullptr) ? Global::popSizePL : Parameters::getIntLink("GLOBAL-popSize", PT);
 
