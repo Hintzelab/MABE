@@ -80,7 +80,6 @@ import matplotlib.cm as cm
 
 import ast
 
-
 def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','error'], PltStyle = 'line', ErrorMethod = 'stderr', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = []):
 	MajorFontSize = args.fontSizeMajor
 	MinorFontSize = args.fontSizeMinor
@@ -130,12 +129,13 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		Columns = 1;
 	if len(NamesList) == 2:
 		Columns = 2;
-	
+							
 	Rows = math.ceil(float(len(NamesList))/float(Columns))      # calcualate how many rows we need
 	for conditionCount in range(len(ConditionsList)):
 		for nameCount in range(len(NamesList)):
 			#plt.tick_params(labelsize=TickFontSize)
 			#plt.ticklabel_format(useOffset=False, style='plain')
+							
 			if not CombineData:
 				ax = plt.subplot(Rows,Columns,nameCount+1)
 				plt.title(NamesList[nameCount], fontsize=MinorFontSize) 	              # set the title for this plot
@@ -167,6 +167,12 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 				if 'reps' in PltWhat:
 					firstRep = 1
 					for Rep in Reps:
+						print("XXX",flush = True)
+						if NamesList[nameCount] in data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]]:
+							print("found " + NamesList[nameCount],flush = True)
+						else:
+							print("can't find " + NamesList[nameCount],flush = True)
+							
 						if firstRep == 1:
 							firstRep = 0
 							plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
@@ -270,7 +276,7 @@ godFrames = {}
 for file in files:
 	godFrames[file]=pandas.DataFrame()
 conCount = 0
-updateMin = 1000000;
+updateMin = 1000000000;
 
 for con in cons:
 	for file in files:
@@ -322,18 +328,62 @@ allGraphs = {}
 
 if args.combineConditions:
 	for file in files:
+	
+		##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
+		##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
+		##### THIS DATA CONTAINS THE SAME NAME, WITHOUT _AVE, uses that instead.
+		thisNamesList = []
+		thisData = godFrames[file]
+		for nameCount in range(len(namesList)):
+			if namesList[nameCount] in thisData[thisData["con"] == cons[0]].columns:
+				thisNamesList.append(namesList[nameCount])
+			else:
+				if args.verbose:
+					print("  can't find: '" + namesList[nameCount]+"'",flush = True)
+				if namesList[nameCount][-4:]=="_AVE":
+					if namesList[nameCount][0:-4] in thisData[thisData["con"] == cons[0]].columns:
+						if args.verbose:
+							print("         but I did find: '" + namesList[nameCount][0:-4]+"'")
+						thisNamesList.append(namesList[nameCount][0:-4])
+		#####
+		#####
+		#####
+
 		if args.verbose:
 			print ("generating plot for: " + file)
-		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
+		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
 
 else:
 	for con in cons:
+	
+
 		for file in files:
+		
+			##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
+			##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
+			##### THIS DATA CONTAINS THE SAME NAME, WITHOUT _AVE, uses that instead.
+			thisNamesList = []
+			thisData = godFrames[file]
+			for nameCount in range(len(namesList)):
+				if namesList[nameCount] in thisData[thisData["con"] == cons[0]].columns:
+					thisNamesList.append(namesList[nameCount])
+				else:
+					if args.verbose:
+						print("  can't find '" + namesList[nameCount]+"'",flush = True)
+					if namesList[nameCount][-4:]=="_AVE":
+						if namesList[nameCount][0:-4] in thisData[thisData["con"] == cons[0]].columns:
+							if args.verbose:
+								print("     did find: '" + namesList[nameCount][0:-4]+"'")
+							thisNamesList.append(namesList[nameCount][0:-4])
+			#####
+			#####
+			#####
+		
 			if args.verbose:
 				print ("generating plot for: " + con + "__" + file)
-			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = namesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
+			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
 
-plt.tight_layout()
+#plt.tight_layout()
 
 if args.save == '':
 	plt.show()
