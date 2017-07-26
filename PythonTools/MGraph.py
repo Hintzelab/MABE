@@ -166,13 +166,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 			else:
 				if 'reps' in PltWhat:
 					firstRep = 1
-					for Rep in Reps:
-						print("XXX",flush = True)
-						if NamesList[nameCount] in data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]]:
-							print("found " + NamesList[nameCount],flush = True)
-						else:
-							print("can't find " + NamesList[nameCount],flush = True)
-							
+					for Rep in Reps:							
 						if firstRep == 1:
 							firstRep = 0
 							plt.plot(data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][XCoordinateName],
