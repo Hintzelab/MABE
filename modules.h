@@ -2,25 +2,25 @@
 //     for general research information:
 //         http://hintzelab.msu.edu/
 //     for MABE documentation:
-//         https://github.com/ahnt/BasicMarkovBrainTemplate/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//          https://github.com/ahnt/BasicMarkovBrainTemplate/wiki/license
+//          github.com/Hintzelab/MABE/wiki
 
 //  This file was auto-generated with MBuilder.py
 
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
-#include "World/TestWorld/TestWorld.h"
+#include "World/BerryWorld/BerryWorld.h"
 #include "World/WeedWorld/WeedWorld.h"
 #include "World/MorrisTestWorld/MorrisTestWorld.h"
-#include "World/BerryWorld/BerryWorld.h"
+#include "World/MemoryWorld/MemoryWorld.h"
 #include "World/BerryPlusWorld/BerryPlusWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/SOFWorld/SOFWorld.h"
-#include "World/MemoryWorld/MemoryWorld.h"
+#include "World/TestWorld/TestWorld.h"
 #include "World/RPPWorld/RPPWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
 #include "Genome/MultiGenome/MultiGenome.h"
@@ -32,13 +32,11 @@
 #include "Brain/HumanBrain/HumanBrain.h"
 #include "Brain/IPDBrain/IPDBrain.h"
 #include "Brain/WireBrain/WireBrain.h"
-#include "Optimizer/GAOptimizer/GAOptimizer.h"
-#include "Optimizer/TournamentOptimizer/TournamentOptimizer.h"
-#include "Optimizer/Tournament2Optimizer/Tournament2Optimizer.h"
+#include "Optimizer/SimpleOptimizer/SimpleOptimizer.h"
 
 #include "Archivist/DefaultArchivist.h"
-#include "Archivist/LODwAPArchivist/LODwAPArchivist.h"
 #include "Archivist/SSwDArchivist/SSwDArchivist.h"
+#include "Archivist/LODwAPArchivist/LODwAPArchivist.h"
 
 
 //create a world
@@ -46,8 +44,8 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
   shared_ptr<AbstractWorld> newWorld;
   bool found = false;
   string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
-  if (worldType == "Test") {
-    newWorld = make_shared<TestWorld>(PT);
+  if (worldType == "Berry") {
+    newWorld = make_shared<BerryWorld>(PT);
     found = true;
     }
   if (worldType == "Weed") {
@@ -58,8 +56,8 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
     newWorld = make_shared<MorrisTestWorld>(PT);
     found = true;
     }
-  if (worldType == "Berry") {
-    newWorld = make_shared<BerryWorld>(PT);
+  if (worldType == "Memory") {
+    newWorld = make_shared<MemoryWorld>(PT);
     found = true;
     }
   if (worldType == "BerryPlus") {
@@ -78,8 +76,8 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
     newWorld = make_shared<SOFWorld>(PT);
     found = true;
     }
-  if (worldType == "Memory") {
-    newWorld = make_shared<MemoryWorld>(PT);
+  if (worldType == "Test") {
+    newWorld = make_shared<TestWorld>(PT);
     found = true;
     }
   if (worldType == "RPP") {
@@ -99,16 +97,8 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
   shared_ptr<AbstractOptimizer> newOptimizer;
   bool found = false;
   string optimizerType = (PT == nullptr) ? AbstractOptimizer::Optimizer_MethodStrPL->lookup() : PT->lookupString("OPTIMIZER-optimizer");
-  if (optimizerType == "GA") {
-    newOptimizer = make_shared<GAOptimizer>(PT);
-    found = true;
-    }
-  if (optimizerType == "Tournament") {
-    newOptimizer = make_shared<TournamentOptimizer>(PT);
-    found = true;
-    }
-  if (optimizerType == "Tournament2") {
-    newOptimizer = make_shared<Tournament2Optimizer>(PT);
+  if (optimizerType == "Simple") {
+    newOptimizer = make_shared<SimpleOptimizer>(PT);
     found = true;
     }
   if (!found){
@@ -124,16 +114,16 @@ shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
   string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");
-  if (archivistType == "LODwAP") {
-    newArchivist = make_shared<LODwAPArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
+  if (archivistType == "Default") {
+    newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (archivistType == "SSwD") {
     newArchivist = make_shared<SSwDArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
-  if (archivistType == "Default") {
-    newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
+  if (archivistType == "LODwAP") {
+    newArchivist = make_shared<LODwAPArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
     }
   if (!found){
@@ -218,14 +208,14 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setParameter("GENOME-genomeType", (string)"Circular");
   Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [Circular, Multi]");
 
-  Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"LODwAP");
-  Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [LODwAP, SSwD, Default]");
+  Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"Default");
+  Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [Default, SSwD, LODwAP]");
 
-  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"GA");
-  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [GA, Tournament, Tournament2]");
+  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"Simple");
+  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [Simple]");
 
-  Parameters::root->setParameter("WORLD-worldType", (string)"Test");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Test, Weed, MorrisTest, Berry, BerryPlus, IPD, NumeralClassifier, SOF, Memory, RPP]");
+  Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, Weed, MorrisTest, Memory, BerryPlus, IPD, NumeralClassifier, SOF, Test, RPP]");
 }
 
 

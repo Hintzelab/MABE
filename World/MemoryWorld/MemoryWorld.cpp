@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "MemoryWorld.h"
 
@@ -118,7 +118,7 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 
 	// load initial values
 	for (int i = 0; i<int(mask.size()) - 1; i++) {
-		//brain->resetOutputs();
+		brain->resetOutputs();
 		brain->setInput(0, password[i]);
 		brain->update();
 	}
@@ -128,7 +128,7 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 
 	for(int update = 0; update < worldUpdates; update++){
 		int pw_index = update + (int)mask.size() - 1; // position pw_index (password index) at next value in password to input to brain
-        //brain->resetOutputs();
+        brain->resetOutputs();
         brain->setInput(0, password[pw_index]);
         brain->update();
         int brainOutputIndex = 0; // this will index into brain output - only moved forward for mask values != 0

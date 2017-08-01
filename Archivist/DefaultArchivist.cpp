@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "DefaultArchivist.h"
 using namespace std;
@@ -113,18 +113,17 @@ DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abs
 			uniqueColumnNameToOutputBehaviors[key] = 0;
 			continue;
 		}
-		size_t downslashPos = key.find_last_of('_');
-		if (downslashPos != string::npos) { // if there is a downslash
-			if (DataMap::knownOutputBehaviors.find(key.substr(downslashPos + 1)) == DataMap::knownOutputBehaviors.end()) { // if word after downslash does not indicate a known mask
-				cout << "In DefaultArchivist::writerealTimeFiles :: Error, key '" << key << "' specifies an unknown output behavior (part after underscore)";
+
+		// Now check to see if key ends in an '_' and a known output method (from DataMap i.e. AVE, PROD, etc.)
+		size_t seperatorCharPos = key.find_last_of('_');
+		if (seperatorCharPos != string::npos && DataMap::knownOutputBehaviors.find(key.substr(seperatorCharPos + 1)) != DataMap::knownOutputBehaviors.end()) { // if there is an '&'
+			// if it does end in a known output method then add this method to the cuiqueColumnNameToOutputBehaviors map for that key
+																																							   //key[seperatorCharPos] = '_';
+			if (uniqueColumnNameToOutputBehaviors.find(key.substr(0, seperatorCharPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
+				uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] = DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
 			}
-			else {
-				if (uniqueColumnNameToOutputBehaviors.find(key.substr(0, downslashPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
-					uniqueColumnNameToOutputBehaviors[key] = DataMap::knownOutputBehaviors[key];
-				}
-				else { // key already in map
-					uniqueColumnNameToOutputBehaviors[key.substr(0, downslashPos)] |= DataMap::knownOutputBehaviors[key.substr(downslashPos + 1)];
-				}
+			else { // key already in map
+				uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |= DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
 			}
 		}
 		else { // add key normally, because it has no special flags specified
@@ -350,7 +349,7 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 	}
 	if (flush != 1) {
 		if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
-			writeRealTimeFiles(population);  // write to Max and average files
+			writeRealTimeFiles(population);  // write to Max and Pop files
 			if (realtimeSequenceIndex + 1 < (int)realtimeSequence.size()) {
 				realtimeSequenceIndex++;
 			}

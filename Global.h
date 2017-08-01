@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #pragma once
 
@@ -37,7 +37,7 @@ public:
 
 	static shared_ptr<ParameterLink<string>> outputDirectoryPL;  // where files will be written
 
-	static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
+	//static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
 
 //	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
 //	// i.e. ceil(bitsPerBrainAddress/8) = number of genome sites used
