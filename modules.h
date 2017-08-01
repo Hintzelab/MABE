@@ -13,15 +13,12 @@
 #ifndef __AutoBuild__Modules__
 #define __AutoBuild__Modules__
 #include "World/BerryWorld/BerryWorld.h"
-#include "World/WeedWorld/WeedWorld.h"
-#include "World/MorrisTestWorld/MorrisTestWorld.h"
 #include "World/MemoryWorld/MemoryWorld.h"
 #include "World/BerryPlusWorld/BerryPlusWorld.h"
 #include "World/IPDWorld/IPDWorld.h"
 #include "World/NumeralClassifierWorld/NumeralClassifierWorld.h"
 #include "World/SOFWorld/SOFWorld.h"
 #include "World/TestWorld/TestWorld.h"
-#include "World/RPPWorld/RPPWorld.h"
 #include "Genome/CircularGenome/CircularGenome.h"
 #include "Genome/MultiGenome/MultiGenome.h"
 #include "Brain/MarkovBrain/MarkovBrain.h"
@@ -48,14 +45,6 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
     newWorld = make_shared<BerryWorld>(PT);
     found = true;
     }
-  if (worldType == "Weed") {
-    newWorld = make_shared<WeedWorld>(PT);
-    found = true;
-    }
-  if (worldType == "MorrisTest") {
-    newWorld = make_shared<MorrisTestWorld>(PT);
-    found = true;
-    }
   if (worldType == "Memory") {
     newWorld = make_shared<MemoryWorld>(PT);
     found = true;
@@ -78,10 +67,6 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
     }
   if (worldType == "Test") {
     newWorld = make_shared<TestWorld>(PT);
-    found = true;
-    }
-  if (worldType == "RPP") {
-    newWorld = make_shared<RPPWorld>(PT);
     found = true;
     }
   if (!found){
@@ -215,7 +200,7 @@ void configureDefaultsAndDocumentation(){
   Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [Simple]");
 
   Parameters::root->setParameter("WORLD-worldType", (string)"Berry");
-  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, Weed, MorrisTest, Memory, BerryPlus, IPD, NumeralClassifier, SOF, Test, RPP]");
+  Parameters::root->setDocumentation("WORLD-worldType","world to be used, [Berry, Memory, BerryPlus, IPD, NumeralClassifier, SOF, Test]");
 }
 
 
