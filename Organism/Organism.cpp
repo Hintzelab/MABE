@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include <algorithm>
 
@@ -203,13 +203,16 @@ Organism::~Organism() {
  */
 void Organism::kill() {
 	alive = false;
-	if (!trackGenome) {
+	timeOfDeath = Global::update;
+	if (!trackOrganism) { // if the archivist is not tracking is organism, we can clear it's genomes and brains.
 		genome = nullptr;
+		brain = nullptr;
+		genomes.clear();
+		brains.clear();
 	}
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> from) {
-	shared_ptr<Organism> newOrg;
 
 	unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
 	unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
@@ -222,15 +225,11 @@ shared_ptr<Organism> Organism::makeMutatedOffspringFrom(shared_ptr<Organism> fro
 		newBrains[brain.first] = brain.second->makeBrainFrom(brain.second,newGenomes);
 		newBrains[brain.first]->mutate();
 	}
-
-	newOrg = make_shared<Organism>(from, newGenomes, newBrains, PT);
 	
-	return newOrg;
+	return make_shared<Organism>(from, newGenomes, newBrains, PT);
 }
 
 shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Organism>> from) {
-
-	shared_ptr<Organism> newOrg;
 
 	unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
 	unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
@@ -255,8 +254,7 @@ shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(vector<shared_ptr<Or
 		newBrains[brain.first]->mutate();
 	}
 
-	newOrg = make_shared<Organism>(from, newGenomes, newBrains, PT);
-	return newOrg;
+	return make_shared<Organism>(from, newGenomes, newBrains, PT);
 }
 
 /*
@@ -307,10 +305,6 @@ shared_ptr<Organism> Organism::getMostRecentCommonAncestor(vector<shared_ptr<Org
 	return LOD.back();  // a currently active genome will have referenceCounter = 1 but may be the Most Recent Common Ancestor
 }
 
-// clear all historical data (used when only saving real time data)
-void Organism::clearHistory() {
-	parents.clear();
-}
 
 shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
 	if (_PT == nullptr) {
@@ -349,6 +343,5 @@ shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
 	newOrg->timeOfBirth = timeOfBirth;
 	newOrg->timeOfDeath = timeOfDeath;
 	newOrg->alive = alive;
-	newOrg->ID = registerOrganism();
 	return newOrg;
 }

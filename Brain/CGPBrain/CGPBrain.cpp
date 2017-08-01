@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #define CGPBRAIN_DEBUG 0
 
@@ -73,7 +73,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 	// columns to be added to ave file
 	popFileColumns.clear();
 	if (buildMode == "codon") {
-		popFileColumns.push_back("aveFormulaLength");
+		popFileColumns.push_back("cgpBrainAveFormulaLength");
 	}
 
 }
@@ -398,25 +398,23 @@ DataMap CGPBrain::getStats(string& prefix) {
 			aveFormulaLength += (double)(vec.size());
 		}
 		aveFormulaLength /= double(brainVectors.size());
-		dataMap.Set(prefix + "aveFormulaLength", aveFormulaLength);
+		dataMap.Set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
 	}
 	// get stats
 	//cout << "warning:: getStats for CGPBrain needs to be written." << endl;
 	return (dataMap);
 }
 
-shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
-	//cout << "   start Make Copy" << endl;
-	shared_ptr<CGPBrain> newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _PT);
-
-
-	cout << "CGPBrain::makeCopy needs to be written" << endl;
-	exit(1);
-
-	//cout << "   done Make Copy" << endl;
-	return newBrain;
-}
-
 void CGPBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeName]->fillRandom();
+}
+
+shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _PT);
+	newBrain->brainVectors = brainVectors;
+	return newBrain;
 }

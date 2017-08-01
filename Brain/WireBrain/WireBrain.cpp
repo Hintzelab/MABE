@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "WireBrain.h"
 
@@ -899,8 +899,9 @@ void WireBrain::update() {
 		}
 		//cout << " = " << inputLookUpValue << endl << "  count: " << inputCount[inputLookUpValue] << endl;
 		if (inputCount[inputLookUpValue] >= cacheResultsCount) {  // if we have seen this value at least cacheResultsCount
-			long outputValue = inputLookUpTable[inputLookUpValue][Random::getIndex(cacheResultsCount)];  // pull a stored value randomly
-			//cout << "                                                                     outputValue: " << outputValue << " = ";
+			//long outputValue = inputLookUpTable[inputLookUpValue][Random::getIndex(cacheResultsCount)];  // pull a stored value randomly
+			long outputValue = inputLookUpTable[inputLookUpValue][0];  // pull a stored value randomly
+																										 //cout << "                                                                     outputValue: " << outputValue << " = ";
 			for (int i = nrValues - 1; i > -1; i--) {  // load outputValue into nodesNext
 				nextNodes[i] = outputValue & 1;  // get right most bit
 				outputValue = outputValue >> 1;  // clip off right most bit
@@ -944,7 +945,7 @@ void WireBrain::update() {
 			//////
 			long outputValue = 0;
 			for (int i = 0; i < nrValues; i++) {  // load outputs into outputValue
-				outputValue = (long)nextNodes[i] + (outputValue << 1);
+				outputValue = (long)Bit(nextNodes[i]) + (outputValue << 1);
 			}
 			inputLookUpTable[inputLookUpValue].push_back(outputValue);  // push outputValue into the lookup table
 
@@ -952,18 +953,55 @@ void WireBrain::update() {
 		inputCount[inputLookUpValue]++;
 
 	} else {  // no caching
+		/*
 		for (auto w : wireAddresses) {  // clear out anything that is charged or decay from last update
 			allCells[w] = 1;
 		}
+
+
 		for (int i = 0; i < nrValues; i++) {  // set up inputs and outputs
 			nextNodes[i] = 0;  // reset nodesNext
-			if (nodes[i] == 1 && allCells[nodesAddresses[i]] == WIRE) {  // if this node is on and connects to wire
+			if (Bit(nodes[i]) == 1 && allCells[nodesAddresses[i]] == WIRE) {  // if this node is on and connects to wire
 				allCells[nodesAddresses[i]] = CHARGE;
 			}
 		}
 
 		for (int count = 0; count < chargeUpdatesPerUpdate; count++) {
 			chargeUpdate();
+		}
+		*/
+		for (auto w : wireAddresses) {  // clear out any wire that is charged or decay from last update
+			allCells[w] = 1;
+		}
+		for (int i = 0; i < nrValues; i++) {  // set up inputs and outputs
+			nextNodes[i] = 0;  // reset all nodesNext
+			if (!allowNegativeCharge) {
+				if (Bit(nodes[i]) == 1 && allCells[nodesAddresses[i]] == WIRE) {  // for each node if it is on and connects to wire
+					allCells[nodesAddresses[i]] = CHARGE;  // charge the wire
+				}
+			}
+			else {
+				if (Trit(nodes[i]) != 0 && allCells[nodesAddresses[i]] == WIRE) {  // for each node if it is on and connects to wire
+					allCells[nodesAddresses[i]] = CHARGE * Trit(nodes[i]);  // charge the wire
+				}
+			}
+			//// for testing only!!!////
+			//allCells[0]=CHARGE;
+			/////////////////////////////
+		}
+		if (recordActivity) {
+			SaveBrainState("wireBrain.run");
+		}
+		for (int count = 0; count < chargeUpdatesPerUpdate; count++) {
+			if (!allowNegativeCharge) {
+				chargeUpdate();
+			}
+			else {
+				chargeUpdateTrit();
+			}
+			if (recordActivity) {
+				SaveBrainState(recordActivityFileName);
+			}
 		}
 	}
 
@@ -1082,9 +1120,9 @@ string WireBrain::description() {
 DataMap WireBrain::getStats(string& prefix) {
 	DataMap dataMap;
 
-	dataMap.Set(prefix + "brainWidth",width);
-	dataMap.Set(prefix + "brainHeight",height);
-	dataMap.Set(prefix + "brainDepth",depth);
+	dataMap.Set(prefix + "wireBrainWidth",width);
+	dataMap.Set(prefix + "wireBrainHeight",height);
+	dataMap.Set(prefix + "wireBrainDepth",depth);
 
 	dataMap.Set(prefix + "wireBrainWireCount",(int)wireAddresses.size());
 
@@ -1116,4 +1154,24 @@ void WireBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome
 		}
 	}
 }
+
+shared_ptr<AbstractBrain> WireBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<WireBrain>(nrInputValues, nrOutputValues, _PT);
+
+	newBrain->allCells = allCells;
+	newBrain->wireAddresses = wireAddresses;
+	newBrain->neighbors = neighbors;
+	newBrain->inputLookUpTable = inputLookUpTable;
+	newBrain->inputCount = inputCount;
+	newBrain->connectionsCount = connectionsCount;
+
+	newBrain->nrValues = nrValues;
+
+	return newBrain;
+}
+
 

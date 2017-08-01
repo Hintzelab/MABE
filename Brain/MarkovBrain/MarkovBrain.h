@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #pragma once
 
@@ -80,7 +80,7 @@ class MarkovBrain : public AbstractBrain {
 
 	virtual ~MarkovBrain() = default;
 
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr);
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	void readParameters();
 
@@ -99,6 +99,9 @@ class MarkovBrain : public AbstractBrain {
 	}
 
 	virtual void resetBrain() override;
+	virtual void resetOutputs()override;
+	virtual void resetInputs() override;
+
 	virtual string gateList();
 	virtual vector<vector<int>> getConnectivityMatrix();
 	virtual int brainSize();

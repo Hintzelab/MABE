@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #pragma once
 
@@ -79,6 +79,8 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_MaxFileShowAllListsPL = P
 	string OrganismFilePrefix;  // name of the Genome file (genomes on LOD)
 	bool writeSnapshotDataFiles;  // if true, write data file
 	bool writeSnapshotGenomeFiles;  // if true, write genome file
+
+	bool saveNewOrgs = false;
 
 	string groupPrefix;
 

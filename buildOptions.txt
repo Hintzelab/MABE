@@ -1,12 +1,13 @@
 % World
+  + Memory
   + Weed
   + MorrisTest
-  + Berry
+  * Berry
   + BerryPlus
   + IPD
   + NumeralClassifier
   + SOF
-  * Test
+  + Test
   + RPP
 
 % Genome
@@ -24,11 +25,9 @@
   + Wire
 	
 % Optimizer
-  * GA
-  + Tournament
-  + Tournament2
+  * Simple
 
 % Archivist
-  + Default
+  * Default
   + SSwD
-  * LODwAP
+  + LODwAP

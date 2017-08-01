@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "TemplatedChromosome.h"
 
@@ -260,15 +260,25 @@ template<class T> void TemplatedChromosome<T>::readChromosomeFromSS(std::strings
 
 // convert a chromosome to a string
 template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
-	string S = "";
+//	string S = "";
+//
+//	//S.reserve(((int)sites.size() * 2) + 10);
+//
+//	for (size_t i = 0; i < sites.size(); i++) {
+//		S.append(to_string(sites[i]) + FileManager::separator);
+//	}
+//	S.pop_back();  // clip off the leading separator
+//	return S;
 
-	//S.reserve(((int)sites.size() * 2) + 10);
+	stringstream ss;
+	ss << "";
 
-	for (size_t i = 0; i < sites.size(); i++) {
-		S.append(to_string(sites[i]) + FileManager::separator);
+	for (size_t i = 0; i < sites.size() - 1; i++) {
+		ss << sites[i] << FileManager::separator;
 	}
-	S.pop_back();  // clip off the leading separator
-	return S;
+	ss << sites[sites.size() - 1];
+	return ss.str();
+
 }
 
 template<class T> void TemplatedChromosome<T>::resize(int size) {

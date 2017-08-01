@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include <cstring>
 #include <memory>
@@ -132,7 +132,7 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 				}
 				if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
 					if (GetStringVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + to_string(GetStringVector(i)[0]);
+						dataStr = dataStr + FileManager::separator + GetStringVector(i)[0];
 					}
 					else {
 						dataStr = dataStr + '0';

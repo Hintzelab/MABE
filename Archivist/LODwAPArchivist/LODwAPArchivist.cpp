@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "LODwAPArchivist.h"
 
@@ -15,7 +15,7 @@ shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL = 
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-organismSequence", (string) ":1000",
 		"How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_pruneIntervalPL = Parameters::register_parameter("ARCHIVIST_LODWAP-pruneInterval", 100, "How often to attempt to prune LOD and actually write out to files");
-shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 100, "how long to run after updates (to get allow time for coalescence)");
+shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 10, "how long to run after updates (to get allow time for coalescence)");
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_DataFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileName", (string) "LOD_data.csv", "name of genome file (stores genomes for line of decent)");
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_OrganismFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeFileName", (string) "LOD_organism.csv", "name of data file (stores everything but genomes)");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeDataFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeDataFile", true, "if true, a data file will be written");
@@ -104,7 +104,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 
 	if (writeOrganismFile && find(organismSequence.begin(), organismSequence.end(), Global::update) != organismSequence.end()) {
 		for (auto org : population) {  // if this update is in the genome sequence, turn on genome tracking.
-			org->trackGenome = true;
+			org->trackOrganism = true;
 		}
 
 	}
@@ -112,30 +112,6 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	if ((Global::update % pruneInterval == 0) || (flush == 1)) {
 
 		if (files.find(DataFileName) == files.end()) {  // if file has not be initialized yet
-//			if (dataFileConvertAllLists) {
-//				OldDataMap TempMap;
-//				for (auto key : population[0]->dataMap.getKeys()) {
-//					if (key[0] == 'a' && key[1] == 'l' && key[2] == 'l') {
-//						double temp = 0;
-//						vector<double> values;
-//						convertCSVListToVector(population[0]->dataMap.Get(key), values);
-//						for (auto v : values) {
-//							temp += v;
-//						}
-//						temp /= (double) values.size();
-//						TempMap.Set(key.substr(3, key.size() - 1), temp);
-//						if (dataFileShowAllLists) {
-//							TempMap.Set(key, population[0]->dataMap.Get(key));
-//						}
-//					} else {
-//						TempMap.Set(key, population[0]->dataMap.Get(key));
-//					}
-//				}
-//				files[DataFileName] = TempMap.getKeys();  // store keys from data map associated with file name
-//			} else {
-//				files[DataFileName] = population[0]->dataMap.getKeys();  // store keys from data map associated with file name
-//			}
-				//files[DataFileName] = population[0]->dataMap.getKeys();  // store keys from data map associated with file name
 			files[DataFileName].push_back("update");
 			for (auto key : population[0]->dataMap.getKeys()) {  // store keys from data map associated with file name
 				files[DataFileName].push_back(key);
@@ -211,6 +187,35 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 	//cout << "\nHERE" << endl;
 	//cout << Global::update << " >= " << Global::updatesPL->lookup() << " + " << terminateAfter << endl;
 	finished = finished || (Global::update >= Global::updatesPL->lookup() + terminateAfter || lastPrune >= Global::updatesPL->lookup());
+
+	/*
+	////////////////////////////////////////////////////////
+	// code to support defualt archivist snapshotData
+	////////////////////////////////////////////////////////
+	vector<shared_ptr<Organism>> toCheck;
+	unordered_set<shared_ptr<Organism>> checked;
+	int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
+
+	for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
+		if (!writeSnapshotDataFiles) {
+			org->parents.clear();
+		}
+		else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end()) { // if ancestors contains self, then this org has been saved and it's ancestor list has been collapsed
+			org->parents.clear();
+			checked.insert(org); // make a note, so we don't check this org later
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+		else { // org has not ever been saved to file...
+			toCheck.push_back(org); // we will need to check to see if we can do clean up related to this org
+			checked.insert(org); // make a note, so we don't check twice
+			minBirthTime = min(org->timeOfBirth, minBirthTime);
+		}
+	}
+	////////////////////////////////////////////////////////
+	// end code to support defualt archivist snapshotData
+	////////////////////////////////////////////////////////
+	*/
+
 	return finished;
 }
 
