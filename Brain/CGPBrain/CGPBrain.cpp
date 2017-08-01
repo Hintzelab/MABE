@@ -146,8 +146,8 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 					int f = gateGenomeHandler->readInt(0, nrOutputTotal - 1);
 					// Now read the opperator and inputs
 					int op = availableOps[gateGenomeHandler->readInt(0, availableOpsCount - 1,2)];
-					int in1 = gateGenomeHandler->readInt(0, _genomes[genomeName]->getAlphabetSize() - 1,2);
-					int in2 = gateGenomeHandler->readInt(0, _genomes[genomeName]->getAlphabetSize() - 1,2);
+					int in1 = gateGenomeHandler->readInt(0, (int)(_genomes[genomeName]->getAlphabetSize() - 1),2);
+					int in2 = gateGenomeHandler->readInt(0, (int)(_genomes[genomeName]->getAlphabetSize() - 1),2);
 #if CGPBRAIN_DEBUG == 1
 					cout << "got values:   f: " << f << "  op : " << op << "  in1: " << in1 << "  in2: " << in2 << endl;
 #endif					
@@ -227,7 +227,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 #if CGPBRAIN_DEBUG == 1
 				cout << "f: " << f << "  :: ";
 #endif
-				for (int i = 0; i < brainVectors[f].size(); i+=3) {
+				for (int i = 0; i < (int)brainVectors[f].size(); i+=3) {
 #if CGPBRAIN_DEBUG == 1
 					cout << brainVectors[f][i] << "  ";
 					cout << " (" << brainVectors[f][i + 1] << "%" << nrInputTotal + (i / 3) << ") ";
@@ -284,13 +284,13 @@ void CGPBrain::update() {
 	cout << "***********************************\nSTART" << endl;
 #endif
 
-	for (int vec = 0; vec < brainVectors.size(); vec++) {
+	for (int vec = 0; vec < (int)brainVectors.size(); vec++) {
 #if CGPBRAIN_DEBUG == 1
 		cout << "vec: " << vec << endl;
 #endif
 		values.clear();
 		values = readFromValues;
-		for (int site = 0; site < brainVectors[vec].size(); site += 3) {
+		for (int site = 0; site < (int)brainVectors[vec].size(); site += 3) {
 			double op1 = values[brainVectors[vec][site + 1]];
 			double op2 = values[brainVectors[vec][site + 2]];
 			switch (brainVectors[vec][site]) {

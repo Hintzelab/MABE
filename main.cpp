@@ -560,9 +560,9 @@ int main(int argc, const char * argv[]) {
 		for (auto group : groups) {
 			//cout << "GROUP: " << group.first << endl;
 			for (auto genome : group.second->population[0]->genomes) {
-				//cout << genome.first << " -- " << endl;
-				//genome.second->printGenome();
-				//cout << endl;
+				cout << genome.first << " -- " << endl;
+				genome.second->printGenome();
+				cout << endl;
 			}
 			for (auto brain : group.second->population[0]->brains) {
 				//cout << group.second->population[0]->brains.size() << "  SIZE" << endl;

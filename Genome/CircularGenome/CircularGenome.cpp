@@ -150,7 +150,7 @@ int CircularGenome<double>::Handler::readInt(int valueMin, int valueMax, int cod
 	advanceIndex();
 	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
 	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin << endl;
-	return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
+	return (int)(((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin);
 }
 
 
@@ -319,7 +319,7 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 
 template<class T>
 CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
-	setupCircularGenome(_alphabetSize, _size);
+	setupCircularGenome(_size, _alphabetSize);
 	cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char" << endl;
 	exit(1);
 }
@@ -382,7 +382,7 @@ double CircularGenome<T>::getAlphabetSize() {
 template<class T>
 void CircularGenome<T>::fillRandom() {
 	for (size_t i = 0; i < sites.size(); i++) {
-		sites[i] = (T) Random::getIndex(alphabetSize);
+		sites[i] = (T) Random::getDouble(alphabetSize);
 	}
 }
 
@@ -625,7 +625,6 @@ void CircularGenome<T>::deserialize(shared_ptr<ParametersTable> PT, unordered_ma
 	char nextChar;
 	string nextString;
 	T value;
-	char rubbish;
 	// make sure that data has needed columns
 	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
 		cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << endl;
@@ -653,13 +652,47 @@ void CircularGenome<T>::deserialize(shared_ptr<ParametersTable> PT, unordered_ma
 	//cout << endl;
 }
 
+template<>
+void CircularGenome<unsigned char>::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+	char nextChar;
+	string nextString;
+	int value;
+	// make sure that data has needed columns
+	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
+		cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << endl;
+		exit(1);
+	}
+	int genomeLength;
+	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+
+	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::stringstream ss(allSites);
+
+	sites.clear();
+	ss >> nextChar;
+	for (int i = 0; i < genomeLength; i++) {
+		nextString = "";
+		while (nextChar != ',' && nextChar != ']') {
+			nextString += nextChar;
+			ss >> nextChar;
+		}
+		load_value(nextString, value);
+		//cout << nextString << " = " << value << ", ";
+		sites.push_back((unsigned char)value);
+		ss >> nextChar;
+	}
+	//cout << endl;
+}
+
+
+
 template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.Set("alphabetSize", alphabetSize);
 	dataMap.Set("genomeLength", countSites());
 
 }
-
+/*
 // load all genomes from a file
 template<class T>
 void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) {
@@ -674,15 +707,6 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 		getline(FILE, rawLine);  // bypass first line
 		while (getline(FILE, rawLine)) {  // keep loading one line from the file at a time into "line" until we get to the end of the file
 			std::stringstream ss(rawLine);
-//				ss >> target;
-//				if (ss.fail()) {
-//					return false;
-//				} else {
-//					string remaining;
-//					ss >> remaining;
-//					// stream failure means nothing left in stream, which is what we want
-//					return ss.fail();
-//				}
 			ss >> _update >> rubbish >> _ID >> rubbish >> _alphabetSize >> rubbish >> _genomeLength >> rubbish >> rubbish >> rubbish;
 
 			shared_ptr<CircularGenome<T>> newGenome = make_shared<CircularGenome<T>>(PT);
@@ -690,7 +714,7 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 			newGenome->sites.clear();
 			for (int i = 0; i < _genomeLength; i++) {
 				ss >> value >> rubbish;
-				newGenome->sites.push_back(value);
+				newGenome->sites.push_back((T)value);
 			}
 			newGenome->dataMap.Set("update", _update);
 			newGenome->dataMap.Set("ID", _ID);
@@ -700,13 +724,45 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 		cout << "\n\nERROR: In CircularGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting." << endl;
 		exit(1);
 	}
+}
 
+template<>
+void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) {
+	genomes.clear();
+	std::ifstream FILE(fileName);
+	string rawLine;
+	int _update, _ID, _genomeLength;
+	double _alphabetSize;
+	double value;
+	char rubbish;
+	if (FILE.is_open()) {  // if the file named by configFileName can be opened
+		getline(FILE, rawLine);  // bypass first line
+		while (getline(FILE, rawLine)) {  // keep loading one line from the file at a time into "line" until we get to the end of the file
+			std::stringstream ss(rawLine);
+			ss >> _update >> rubbish >> _ID >> rubbish >> _alphabetSize >> rubbish >> _genomeLength >> rubbish >> rubbish >> rubbish;
+
+			shared_ptr<CircularGenome<unsigned char>> newGenome = make_shared<CircularGenome<unsigned char>>(PT);
+			newGenome->alphabetSize = _alphabetSize;
+			newGenome->sites.clear();
+			for (int i = 0; i < _genomeLength; i++) {
+				ss >> value >> rubbish;
+				newGenome->sites.push_back((unsigned char)value);
+			}
+			newGenome->dataMap.Set("update", _update);
+			newGenome->dataMap.Set("ID", _ID);
+			genomes.push_back(newGenome);
+		}
+	}
+	else {
+		cout << "\n\nERROR: In CircularGenome::loadGenomeFile<unsigned char>, unable to open file \"" << fileName << "\"\n\nExiting." << endl;
+		exit(1);
+	}
 }
 // load a genome from CSV file with headers - will return genome from saved organism with key / keyvalue pair
 // the undefined action is to take no action
 //virtual void loadGenome(string fileName, string key, string keyValue) {
 //}
-
+*/
 // Translation functions - convert genomes into usefull stuff
 
 // convert a chromosome to a string
@@ -721,6 +777,20 @@ string CircularGenome<T>::genomeToStr() {
 	ss << sites[sites.size() - 1] << "]\"";
 	return ss.str();
 }
+
+string CircularGenome<unsigned char>::genomeToStr() {
+	stringstream ss;
+	ss << "\"[";
+
+	for (size_t i = 0; i < sites.size() - 1; i++) {
+		ss << (int)sites[i] << FileManager::separator;
+	}
+	ss << (int)sites[sites.size() - 1] << "]\"";
+	return ss.str();
+}
+
+
+
 
 template<class T>
 void CircularGenome<T>::printGenome() {

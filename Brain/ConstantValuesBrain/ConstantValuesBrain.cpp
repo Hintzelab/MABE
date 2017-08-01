@@ -51,7 +51,7 @@ shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrain(unordered_map<string, s
 		tempValue = 0;
 		for (int j = 0; j < samplesPerValue; j++) {
 			if (valueType == 0) {
-				tempValue += (double)genomeHandler->readInt(valueMin, valueMax);
+				tempValue += (double)genomeHandler->readInt((int)valueMin, (int)valueMax);
 			} else if (valueType == 1.0) {
 				tempValue += (double)genomeHandler->readDouble(valueMin, valueMax);
 			} else {
