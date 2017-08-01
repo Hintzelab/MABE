@@ -2,17 +2,17 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "Global.h"
 
 //global variables that should be accessible to all
 shared_ptr<ParameterLink<int>> Global::randomSeedPL = Parameters::register_parameter("GLOBAL-randomSeed", 101, "seed for random number generator, if -1 random number generator will be seeded randomly");
-shared_ptr<ParameterLink<int>> Global::updatesPL = Parameters::register_parameter("GLOBAL-updates", 20, "how long the program will run");
+shared_ptr<ParameterLink<int>> Global::updatesPL = Parameters::register_parameter("GLOBAL-updates", 50, "how long the program will run");
 shared_ptr<ParameterLink<int>> Global::popSizePL = Parameters::register_parameter("GLOBAL-popSize", 100, "number of genomes in the population");
 shared_ptr<ParameterLink<string>> Global::modePL = Parameters::register_parameter("GLOBAL-mode", (string) "run", "mode to run MABE in [run,visualize]");
 

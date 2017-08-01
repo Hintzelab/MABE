@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "MarkovBrain.h"
 
@@ -40,9 +40,9 @@ MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes
 	gates = _gates;
 	// columns to be added to ave file
 	popFileColumns.clear();
-	popFileColumns.push_back("gates");
+	popFileColumns.push_back("markovBrainGates");
 	for (auto name : GLB->getInUseGateNames()) {
-		popFileColumns.push_back(name + "Gates");
+		popFileColumns.push_back("markovBrain" + name + "Gates");
 	}
 
 	fillInConnectionsLists();
@@ -59,9 +59,10 @@ MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNode
 
 	// columns to be added to ave file
 	popFileColumns.clear();
-	popFileColumns.push_back("gates");
+	popFileColumns.push_back("markovBrainGates");
+	popFileColumns.push_back("markovBrainGates_VAR");
 	for (auto name : GLB->getInUseGateNames()) {
-		popFileColumns.push_back(name + "Gates");
+		popFileColumns.push_back("markovBrain" + name + "Gates");
 	}
 
 	fillInConnectionsLists();
@@ -162,7 +163,7 @@ void MarkovBrain::fillInConnectionsLists() {
 }
 DataMap MarkovBrain::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set(prefix+"gates",(int)gates.size());
+	dataMap.Set(prefix+"markovBrainGates",(int)gates.size());
 	map<string, int> gatecounts;
 	for (auto n : GLB->getInUseGateNames()) {
 		gatecounts[n + "Gates"] = 0;
@@ -172,7 +173,7 @@ DataMap MarkovBrain::getStats(string& prefix) {
 	}
 
 	for (auto n : GLB->getInUseGateNames()) {
-		dataMap.Set(prefix+n + "Gates", gatecounts[n + "Gates"]);
+		dataMap.Set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
 	}
 
 	vector<int> nodesConnectionsList;
@@ -182,9 +183,9 @@ DataMap MarkovBrain::getStats(string& prefix) {
 		nodesConnectionsList.push_back(nodesConnections[i]);
 		nextNodesConnectionsList.push_back(nextNodesConnections[i]);
 	}
-	dataMap.Set(prefix+"nodesConnections", nodesConnectionsList);
+	dataMap.Set(prefix+"markovBrain_nodesConnections", nodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nodesConnections", DataMap::LIST);
-	dataMap.Set(prefix+"nextNodesConnections", nextNodesConnectionsList);
+	dataMap.Set(prefix+"markovBrain_nextNodesConnections", nextNodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nextNodesConnections", DataMap::LIST);
 
 	return (dataMap);

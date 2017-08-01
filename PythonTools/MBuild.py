@@ -71,14 +71,14 @@ outFile.write('//  MABE is a product of The Hintza Lab @ MSU\n')
 outFile.write('//     for general research information:\n')
 outFile.write('//         http://hintzelab.msu.edu/\n')
 outFile.write('//     for MABE documentation:\n')
-outFile.write('//         https://github.com/ahnt/BasicMarkovBrainTemplate/wiki\n')
+outFile.write('//         github.com/Hintzelab/MABE/wiki\n')
 outFile.write('//\n')
 outFile.write('//  Copyright (c) 2015 Michigan State University. All rights reserved.\n')
 outFile.write('//     to view the full license, visit:\n')
-outFile.write('//          https://github.com/ahnt/BasicMarkovBrainTemplate/wiki/license\n\n')
+outFile.write('//          github.com/Hintzelab/MABE/wiki\n\n')
 outFile.write('//  This file was auto-generated with MBuilder.py\n\n')
 
-# #includes
+# includes
 
 outFile.write('#ifndef __AutoBuild__Modules__\n')
 outFile.write('#define __AutoBuild__Modules__\n')

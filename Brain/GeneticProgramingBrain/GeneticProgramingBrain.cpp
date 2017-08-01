@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "../GeneticProgramingBrain/GeneticProgramingBrain.h"
 
@@ -79,7 +79,7 @@ GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, 
 	}
 // columns to be added to ave file
 	popFileColumns.clear();
-	popFileColumns.push_back("nodesCount");
+	popFileColumns.push_back("geneticProgramingBrainNodesCount");
 	//for (int i = 0; i < nrOutputValues; i++) {
 	//	popFileColumns.push_back("brainValue" + to_string(i));
 	//}
@@ -259,7 +259,7 @@ DataMap GeneticProgramingBrain::getStats(string& prefix) {
 		t->explode(t, nodesList);
 		nodesCount = (int)nodesList.size();
 	}
-	dataMap.Append(prefix+"nodesCount", nodesCount);
+	dataMap.Append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
 	return (dataMap);
 }
 

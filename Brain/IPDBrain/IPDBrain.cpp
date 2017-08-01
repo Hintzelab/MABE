@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "../IPDBrain/IPDBrain.h"
 
@@ -22,7 +22,7 @@ IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 // columns to be added to ave file
 	popFileColumns.clear();
 	for (auto i:availableStrategies) {
-		popFileColumns.push_back("IPD_" + i);
+		popFileColumns.push_back("ipdBrainStrategy" + i);
 	}
 }
 
@@ -142,9 +142,9 @@ DataMap IPDBrain::getStats(string& prefix) {
 
 	for (auto i : availableStrategies) {
 		if (strategy == i){
-			dataMap.Set(prefix + "IPD_" + i,1.0);
+			dataMap.Set(prefix + "ipdBrainStrategy" + i,1.0);
 		} else {
-			dataMap.Set(prefix + "IPD_" + i,0.0);
+			dataMap.Set(prefix + "ipdBrainStrategy" + i,0.0);
 		}
 	}
 	return (dataMap);
@@ -152,5 +152,13 @@ DataMap IPDBrain::getStats(string& prefix) {
 
 void IPDBrain::initalizeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeName]->fillRandom();
+}
+
+shared_ptr<AbstractBrain> IPDBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
+	//cout << "   start Make Copy" << endl;
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues, _PT);
+
+	newBrain->strategy = strategy;	//cout << "   done Make Copy" << endl;
+	return newBrain;
 }
 

@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #pragma once
 
@@ -181,19 +181,19 @@ public:
 	}
 };
 
-class fromDataMapPop_MTree : public Abstract_MTree {
+class fromDataMapAve_MTree : public Abstract_MTree {
 public:
 
 	string key;
 
-	fromDataMapPop_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
+	fromDataMapAve_MTree(shared_ptr<Abstract_MTree> _parent = nullptr) {
 		parent = _parent;
 	}
-	fromDataMapPop_MTree(string _key) : key(_key) {
+	fromDataMapAve_MTree(string _key) : key(_key) {
 	}
-	virtual ~fromDataMapPop_MTree() = default;
+	virtual ~fromDataMapAve_MTree() = default;
 	virtual shared_ptr<Abstract_MTree> makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
-		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapPop_MTree>(key);
+		shared_ptr<Abstract_MTree> newTree = make_shared<fromDataMapAve_MTree>(key);
 		return newTree;
 	}
 
@@ -203,7 +203,7 @@ public:
 		return output;
 	}
 	virtual void show(int indent = 0) override {
-		cout << string(indent, '\t') << "** fromDataMapPop_MTree\t\"" << key << "\"" << endl;
+		cout << string(indent, '\t') << "** fromDataMapAve_MTree\t\"" << key << "\"" << endl;
 	}
 	virtual string getFormula() override {
 		return "DM_AVE[" + key + "]";
@@ -750,6 +750,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 	allOps.push_back(make_shared <MULT_MTree>());
 	allOps.push_back(make_shared <SUBTRACT_MTree>());
 	allOps.push_back(make_shared <DIVIDE_MTree>());
+	allOps.push_back(make_shared <POW_MTree>());
 	allOps.push_back(make_shared <SIN_MTree>());
 	allOps.push_back(make_shared <COS_MTree>());
 	allOps.push_back(make_shared <MANY_MTree>());
@@ -801,7 +802,7 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 				}
 			}
 			index++; // move index to char after ']'
-			branches.push_back(make_shared<fromDataMapPop_MTree>(argsString));
+			branches.push_back(make_shared<fromDataMapAve_MTree>(argsString));
 			//cout << "in DM_AVE['" << argsString << "'].  index = " << index << endl;
 			//exit(1);
 		}

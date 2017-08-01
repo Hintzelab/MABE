@@ -16,7 +16,7 @@ parser.add_argument('-repList', type=str, metavar='REP', default = [],  help='re
 parser.add_argument('-title', type=str, default = 'NONE',  help='title of image (and name of file) - default: none (MGraph will make something up)', required=False)
 parser.add_argument('-save', type=str, choices=('pdf','png'), default = '',  help='save files rather then display as either pdf or png - default: none (display image)', required=False)
 
-parser.add_argument('-data', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be graphed - default : none (will attempt to graph all columns from all files)',nargs='+', required=False)
+parser.add_argument('-data', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be graphed. Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
 parser.add_argument('-dataFromFile', type=str, metavar='FILE_NAME', default = 'ave',  help='this file will be used to determine with column names of data will be graphed. If this file is not in files, then all data will be plotted - default : ave', required=False)
 parser.add_argument('-xAxis', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used on x axis - default : update', required=False)
 parser.add_argument('-dataIndex', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used as index when generating averages - default : update', required=False)
@@ -48,7 +48,9 @@ parser.add_argument('-fontSizeLegend', type=int, default = 8, help='size of font
 
 parser.add_argument('-whereValue', type=str, default = 'update', help='only plot data where this column has values defined by whereRange - default : update', required=False)
 parser.add_argument('-whereRange', type=int, default = [], help='only plot data where column with name set by whereValue has values defined this range. Single value, just this value. Two values, inclusive range. Three values, inclusive range with step. - default : none', nargs='+', required=False)
-parser.add_argument('-whereRangeLimitToData', action='store_true', default = False, help='if true, set whereRange max based on rep with least data - default : OFF', required=False)
+parser.add_argument('-whereRangeLimitToData', action='store_true', default = False, help='set whereRange max based on rep with least data - default : OFF', required=False)
+
+parser.add_argument('-showDataNames', action='store_true', default = False, help='print the names of the columns in the first file listed - default : OFF', required=False)
 
 ## trick to allow "-" in an argument name! Parse it seperatly and then remove from sys.argv
 #tempPltStyle = '-'
@@ -77,7 +79,7 @@ import getopt
 #from scipy import stats
 
 import matplotlib.cm as cm
-
+import fnmatch
 import ast
 
 def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','error'], PltStyle = 'line', ErrorMethod = 'stderr', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = []):
@@ -135,7 +137,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		for nameCount in range(len(NamesList)):
 			#plt.tick_params(labelsize=TickFontSize)
 			#plt.ticklabel_format(useOffset=False, style='plain')
-							
+			ThisLabel= ''		
 			if not CombineData:
 				ax = plt.subplot(Rows,Columns,nameCount+1)
 				plt.title(NamesList[nameCount], fontsize=MinorFontSize) 	              # set the title for this plot
@@ -146,7 +148,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 				ThisLabel = ConditionsList[conditionCount]
 			elif len(ConditionsList) > 1 or len(NamesList) > 1:
 				PltStyle = styleList[conditionCount + (nameCount * len(ConditionsList))]
-				PltColor = colorMap(conditionCount/len(ConditionsList))#styleListColor[conditionCount + (nameCount * len(ConditionsList))]
+				PltColor = colorMap((conditionCount + (nameCount * len(ConditionsList)))/(len(ConditionsList)+len(NamesList)))#styleListColor[conditionCount + (nameCount * len(ConditionsList))]
 				if (len(ConditionsList) == 1):
 					ThisLabel = NamesList[nameCount]
 				else:
@@ -186,7 +188,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 						errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
 						errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).std(axis=1)
 					else:
-						print ('ERROR: errorMethod "' + ErrorMethod + '" not found.')
+						print ('ERROR: errorMethod "' + ErrorMethod + '" not found.',flush=True)
 						exit()
 					if (ErrorStyle == 'bar'):
 						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
@@ -224,7 +226,7 @@ path = args.path
 
 
 if args.repRange != [1,0] and args.repList != []:
-	print ('Error in input. -repRange and -repList are mutualy exclusive, please only define one!')
+	print ('Error in input. -repRange and -repList are mutualy exclusive, please only define one!',flush=True)
 	exit()
 rangeStart = args.repRange[0]
 rangeEnd = args.repRange[1]
@@ -253,7 +255,7 @@ else:
 	cons = args.conditionNames
 
 if (len(cons) != len(conFileNames)):
-	print ('Error in input. -conditions and -conditionNames must have the same number of arguments')
+	print ('Error in input. -conditions and -conditionNames must have the same number of arguments',flush=True)
 	exit()
 
 #if conFileNames != ['']:
@@ -276,12 +278,12 @@ for con in cons:
 	for file in files:
 		for rep in reps:
 			if args.verbose:
-				print ("loading file: " + path + conFileNames[conCount] + rep + file)
+				print ("loading file: " + path + conFileNames[conCount] + rep + file,flush=True)
 			tempFrame =  pandas.read_csv(path + conFileNames[conCount] + rep + file)
 			if (tempFrame[args.xAxis].iat[-1] < updateMin):
 				updateMin = tempFrame[args.xAxis].iat[-1]
 				if args.verbose:
-					print(con+"  "+rep+"  has data until: "+str(tempFrame[args.xAxis].iat[-1])+"  new shortest!")
+					print(con+"  "+rep+"  has data until: "+str(tempFrame[args.xAxis].iat[-1])+"  new shortest!",flush=True)
 			tempFrame["repName"]=rep
 			tempFrame["con"]=con
 			godFrames[file] = godFrames[file].append(tempFrame, ignore_index=True)
@@ -291,6 +293,13 @@ for con in cons:
 			namesList.remove("con")
 	conCount = conCount + 1
 
+if args.showDataNames is True:
+	print('showing data column names:',flush=True)
+	for name in list(godFrames[files[0]].columns.values):
+		print(name,end=', ',flush=True)
+	print('',flush=True)
+	exit()
+	
 if (len(args.whereRange) == 0 and args.whereRangeLimitToData):
 	args.whereRange.append(0)
 	args.whereRange.append(updateMin)
@@ -304,6 +313,23 @@ if namesList == ['']:
 	namesList.remove("con")
 	if args.xAxis in namesList:
 		namesList.remove(args.xAxis)
+
+newNamesList = []
+for name in namesList:
+	if '*' in name or '[' in name or ']' in name:
+		if args.verbose:
+			print("found column name with wildcard: " + name,flush=True)
+		for dataName in list(godFrames[files[0]].columns.values):
+			if fnmatch.fnmatch(dataName,name):
+				if args.verbose:
+					print("   ... found match, adding " + dataName + " to data.",flush=True)
+				newNamesList.append(dataName)
+	else:
+		newNamesList.append(name)
+		
+namesList = newNamesList
+
+				
 if args.dataIndex == 'undefined':
 	args.dataIndex = args.xAxis
 
@@ -323,7 +349,7 @@ allGraphs = {}
 if args.combineConditions:
 	for file in files:
 		if args.verbose:
-			print ("generating plot for: " + file)
+			print ("generating plot for: " + file,flush=True)
 	
 		##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
 		##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
@@ -339,7 +365,7 @@ if args.combineConditions:
 				if namesList[nameCount][-4:]=="_AVE":
 					if namesList[nameCount][0:-4] in thisData[thisData["con"] == cons[0]].columns:
 						if args.verbose:
-							print("         but I did find: '" + namesList[nameCount][0:-4]+"'")
+							print("         but I did find: '" + namesList[nameCount][0:-4]+"'",flush=True)
 						thisNamesList.append(namesList[nameCount][0:-4])
 		#####
 		#####
@@ -353,7 +379,7 @@ else:
 
 		for file in files:
 			if args.verbose:
-				print ("generating plot for: " + con + "__" + file)
+				print ("generating plot for: " + con + "__" + file,flush=True)
 		
 			##### THIS BLOCK OF CODE SUPPORTS PLOTTING MAX.CSV from POP.CSV COLUMN NAMES
 			##### IT CHECKS, FOR EACH COLUMN IN NAMESLIST TO SEE IF IT IS _AVE, AND IF
@@ -369,7 +395,7 @@ else:
 					if namesList[nameCount][-4:]=="_AVE":
 						if namesList[nameCount][0:-4] in thisData[thisData["con"] == cons[0]].columns:
 							if args.verbose:
-								print("     did find: '" + namesList[nameCount][0:-4]+"'")
+								print("     did find: '" + namesList[nameCount][0:-4]+"'",flush=True)
 							thisNamesList.append(namesList[nameCount][0:-4])
 			#####
 			#####

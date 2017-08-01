@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "ProbabilisticGate.h"
 shared_ptr<ParameterLink<string>> ProbabilisticGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_PROBABILISTIC-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");

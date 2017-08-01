@@ -2,18 +2,18 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #include "SimpleOptimizer.h"
 
 using namespace std;
 
 
-shared_ptr<ParameterLink<string>> SimpleOptimizer::selectionMethodPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selectionMethod", (string) "Roulette()", "how are parents selected? options: Roullette([Exp=VAL or Lin=VAL]),Tounament(size=VAL)");
+shared_ptr<ParameterLink<string>> SimpleOptimizer::selectionMethodPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selectionMethod", (string) "Roulette()", "how are parents selected? options: Roullette(),Tounament(size=VAL)");
 shared_ptr<ParameterLink<int>> SimpleOptimizer::numberParentsPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-numberParents", 1, "number of parents used to produce offspring");
 
 shared_ptr<ParameterLink<string>> SimpleOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-optimizeValue", (string) "DM_AVE[score]", "value to optimize (MTree)");
@@ -111,9 +111,18 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	int elitismCount = (int)elitismCountMT->eval(PT)[0];
 	for (int i = 0; i < elitismRange; i++) { // get handles for elite orgs
 		elites.push_back(findGreatestInVector(tempScores));
-		tempScores[elites.back()] = tempScores.back();
-		tempScores.pop_back();
+		tempScores[elites.back()] = minScore;
 	}
+	
+	/*
+	for (auto p : population) {
+		cout << optimizeValueMT->eval(p->dataMap, PT)[0] << ", ";
+	}
+	cout << endl;
+	for (auto elite : elites) {
+		cout << population[elite]->ID << ":" << optimizeValueMT->eval(population[elite]->dataMap, PT)[0] << "  ..." << endl;
+	}
+	*/
 
 	// first add elitism offspring for each of the best elitismRange organisms (assuming there is room)
 	int currentElite = 0;

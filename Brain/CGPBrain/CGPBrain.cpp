@@ -2,11 +2,11 @@
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
-//         github.com/ahnt/MABE/wiki
+//         github.com/Hintzelab/MABE/wiki
 //
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
-//         github.com/ahnt/MABE/wiki/License
+//         github.com/Hintzelab/MABE/wiki/License
 
 #define CGPBRAIN_DEBUG 0
 
@@ -73,7 +73,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 	// columns to be added to ave file
 	popFileColumns.clear();
 	if (buildMode == "codon") {
-		popFileColumns.push_back("aveFormulaLength");
+		popFileColumns.push_back("cgpBrainAveFormulaLength");
 	}
 
 }
@@ -398,7 +398,7 @@ DataMap CGPBrain::getStats(string& prefix) {
 			aveFormulaLength += (double)(vec.size());
 		}
 		aveFormulaLength /= double(brainVectors.size());
-		dataMap.Set(prefix + "aveFormulaLength", aveFormulaLength);
+		dataMap.Set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
 	}
 	// get stats
 	//cout << "warning:: getStats for CGPBrain needs to be written." << endl;
