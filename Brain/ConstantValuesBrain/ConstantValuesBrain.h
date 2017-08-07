@@ -35,7 +35,7 @@ public:
 
 	static shared_ptr<ParameterLink<bool>> initializeUniformPL;
 	static shared_ptr<ParameterLink<bool>> initializeConstantPL;
-	static shared_ptr<ParameterLink<int>> initializeConstantValuePL;
+	static shared_ptr<ParameterLink<double>> initializeConstantValuePL;
 
 	static shared_ptr<ParameterLink<string>> genomeNamePL;
 	string genomeName;
@@ -47,7 +47,7 @@ public:
 
 	bool initializeUniform;
 	bool initializeConstant;
-	int initializeConstantValue;
+	double initializeConstantValue;
 
 	ConstantValuesBrain() = delete;
 
@@ -71,6 +71,8 @@ public:
 
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;
+
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 };
