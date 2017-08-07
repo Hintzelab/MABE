@@ -1,14 +1,11 @@
 % World
   + Memory
-  + Weed
-  + MorrisTest
   * Berry
   + BerryPlus
   + IPD
   + NumeralClassifier
   + SOF
   + Test
-  + RPP
 
 % Genome
   + Multi

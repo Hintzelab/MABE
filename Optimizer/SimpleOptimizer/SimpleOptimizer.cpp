@@ -152,7 +152,7 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 				population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0]));
 			}
 			else {
-				while (parents.size() < numberParents) {
+				while ((int)parents.size() < numberParents) {
 					parents.push_back(population[selector->select()]);
 				}
 				population.push_back(parents[0]->makeMutatedOffspringFromMany(parents));

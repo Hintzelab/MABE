@@ -203,7 +203,7 @@ public:
 	virtual void recordDataMap() override;
 
 	// load all genomes from a file
-	virtual void loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) override;
+	//virtual void loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) override;
 // load a genome from CSV file with headers - will return genome from saved organism with key / keyvalue pair
 // the undefined action is to take no action
 //	virtual void loadGenome(string fileName, string key, string keyValue);

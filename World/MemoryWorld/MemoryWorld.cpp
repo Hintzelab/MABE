@@ -108,7 +108,7 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 	if (makeNewPassword) {
 		password.clear();
 		//fills password with worldUpdates+(outMask.size()-1) binary values (i.e. enough to run world updates + enough to program initial values in brain)
-		for (int i = 0; i < worldUpdates + mask.size(); i++) {
+		for (int i = 0; i < worldUpdates + (int)mask.size(); i++) {
 			password.push_back(Random::getInt(0, 1));
 		}
 	}
