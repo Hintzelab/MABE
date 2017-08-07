@@ -193,6 +193,13 @@ void MultiGenome::Handler::writeInt(int value, int valueMin, int valueMax) {
 	}
 }
 
+void MultiGenome::Handler::writeDouble(double value, double valueMin, double valueMax) {
+	modulateIndex();
+	if (genome->chromosomes[chromosomeIndex]->writeDouble(siteIndex, value, valueMin, valueMax, readDirection)) {
+		advanceChromosome();
+	}
+}
+
 shared_ptr<AbstractGenome::Handler> MultiGenome::Handler::makeCopy() {
 	auto newGenomeHandler = make_shared<MultiGenome::Handler>(genome, readDirection);
 	newGenomeHandler->EOG = EOG;

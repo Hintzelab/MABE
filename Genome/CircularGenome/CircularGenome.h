@@ -100,6 +100,7 @@ public:
 		virtual double readDouble(double valueMin, double valueMax, int code = -1, int CodingRegionIndex = 0) override;
 
 		virtual void writeInt(int value, int valueMin, int valueMax) override;
+		virtual void writeDouble(double value, double valueMin, double valueMax) override;
 
 		virtual shared_ptr<AbstractGenome::Handler> makeCopy() override;
 
