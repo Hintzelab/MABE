@@ -178,11 +178,11 @@ template<class T> bool TemplatedChromosome<T>::writeDouble(int &siteIndex, doubl
 		valueMin = temp;
 	}
 	if ((value - valueMin) > (valueMax - valueMin)) {
-		cout << "Error: attempting to write double. given range is to small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: << valueMin\n";
+		cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
 		exit(1);
 	}
 	value = ((value - valueMin) / (valueMax - valueMin)) * alphabetSize;
-	sites[siteIndex] = (bool)value;
+	sites[siteIndex] = (T)value;
 	EOC = EOC | advanceIndex(siteIndex, readDirection);
 	return EOC;
 }
@@ -211,6 +211,17 @@ template<class T> void TemplatedChromosome<T>::fillRandom(int length) {
 	sites.resize(length);
 	for (int i = 0; i < length; i++) {
 		sites[i] = (T)Random::getDouble(alphabetSize);
+	}
+}
+
+template<> void TemplatedChromosome<bool>::fillRandom(int length) {
+	if (length == -1) {
+		length = sites.size();
+	}
+	sites.resize(length);
+	for (int i = 0; i < length; i++) {
+		cout << "alphabetSize: " << alphabetSize << "   " << Random::getDouble(alphabetSize) << endl;
+		sites[i] = (bool)((int)Random::getDouble(alphabetSize));
 	}
 }
 

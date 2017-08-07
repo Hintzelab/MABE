@@ -216,6 +216,27 @@ void CircularGenome<double>::Handler::writeInt(int value, int valueMin, int valu
 	advanceIndex();
 }
 
+
+// scale value using valueMin and valueMax to alphabetSize and write at siteIndex
+// value - MIN(valueMin,valueMax) must be < ABS(valueMax - valueMin)
+template<class T> 
+void CircularGenome<T>::Handler::writeDouble(double value, double valueMin, double valueMax) {
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	if ((value - valueMin) > (valueMax - valueMin)) {
+		cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
+		exit(1);
+	}
+	value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	genome->sites[siteIndex] = (T)value;
+	advanceIndex();
+}
+
+
+
 template<class T>
 shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
 	auto newGenomeHandler = make_shared<CircularGenome<T>::Handler>(genome, readDirection);
@@ -389,6 +410,12 @@ void CircularGenome<T>::fillRandom() {
 template<> inline void CircularGenome<double>::fillRandom() {
 	for (size_t i = 0; i < sites.size(); i++) {
 		sites[i] = Random::getDouble(0, alphabetSize);
+	}
+}
+
+template<> inline void CircularGenome<bool>::fillRandom() {
+	for (size_t i = 0; i < sites.size(); i++) {
+		sites[i] = (bool)((int)Random::getDouble(alphabetSize));
 	}
 }
 

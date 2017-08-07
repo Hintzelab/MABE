@@ -17,7 +17,7 @@ shared_ptr<ParameterLink<int>> ConstantValuesBrain::samplesPerValuePL = Paramete
 
 shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
 shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
-shared_ptr<ParameterLink<int>> ConstantValuesBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
+shared_ptr<ParameterLink<double>> ConstantValuesBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0.0, "If initialized constant, this value is used to initialize entire genome.");
 
 shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CONSTANT_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
 
@@ -30,7 +30,7 @@ ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared
 
 	initializeUniform = (PT == nullptr) ? initializeUniformPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeUniform");
 	initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
-	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
+	initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-initializeConstantValue");
 
 	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_CONSTANT_NAMES-genomeName");
 
@@ -52,7 +52,7 @@ shared_ptr<AbstractBrain> ConstantValuesBrain::makeBrain(unordered_map<string, s
 		for (int j = 0; j < samplesPerValue; j++) {
 			if (valueType == 0) {
 				tempValue += (double)genomeHandler->readInt((int)valueMin, (int)valueMax);
-			} else if (valueType == 1.0) {
+			} else if (valueType == 1) {
 				tempValue += (double)genomeHandler->readDouble(valueMin, valueMax);
 			} else {
 				cout << "  ERROR! BRAIN_CONSTANT-valueType is invalid. current value: " << valueType << endl;
@@ -117,13 +117,13 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		while (!handler->atEOG()) {
 			if (valueType == 1) {
-				handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
+				handler->writeDouble(initializeConstantValue, valueMin, valueMax);
 			} else if (valueType == 0) {
 				handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
 			}
 		}
-		handler->resetHandler();
-		handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
+		//handler->resetHandler();
+		//handler->writeInt(initializeConstantValue, (int)valueMin, (int)valueMax);
 	} else if (initializeUniform) {
 		auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
 		int count = 0;
@@ -150,7 +150,7 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 				}
 			}
 			if (valueType == 1) {
-				handler->writeInt((int)randomValue, (int)valueMin, (int)valueMax);
+				handler->writeDouble(randomValue, valueMin, valueMax);
 			} else if (valueType == 0) {
 				handler->writeInt((int)randomValue, (int)valueMin, (int)valueMax);
 			}
@@ -161,3 +161,16 @@ void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<Abst
 	}
 }
 
+shared_ptr<AbstractBrain> ConstantValuesBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<ConstantValuesBrain>(nrInputValues, nrOutputValues, _PT);
+
+	for (int i = 0; i < nrOutputValues; i++) {
+		newBrain->outputValues[i] = outputValues[i];
+	}
+
+	return newBrain;
+}
