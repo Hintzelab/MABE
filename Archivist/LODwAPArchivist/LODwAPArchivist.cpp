@@ -113,6 +113,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 
 		if (files.find(DataFileName) == files.end()) {  // if file has not be initialized yet
 			files[DataFileName].push_back("update");
+			files[DataFileName].push_back("timeToCoalescence");
 			for (auto key : population[0]->dataMap.getKeys()) {  // store keys from data map associated with file name
 				files[DataFileName].push_back(key);
 			}
@@ -121,28 +122,38 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 		// get the MRCA
 		vector<shared_ptr<Organism>> LOD = population[0]->getLOD(population[0]);  // get line of decent
 		shared_ptr<Organism> effective_MRCA;
+		shared_ptr<Organism> real_MRCA;
 		if (flush) {  // if flush then we don't care about coalescence
 			cout << "flushing LODwAP: using population[0] as Most Recent Common Ancestor (MRCA)" << endl;
 			effective_MRCA = population[0]->parents[0];  // this assumes that a population was created, but not tested at the end of the evolution loop!
+			real_MRCA = population[0]->getMostRecentCommonAncestor(LOD);  // find the convergance point in the LOD.
 		} else {
 			effective_MRCA = population[0]->getMostRecentCommonAncestor(LOD);  // find the convergance point in the LOD.
+			real_MRCA = effective_MRCA;
 		}
 
 		// Save Data
+		int TTC;
 		if (writeDataFile) {
 			while ((effective_MRCA->timeOfBirth >= nextDataWrite) && (nextDataWrite <= Global::updatesPL->lookup())) {  // if there is convergence before the next data interval
 				shared_ptr<Organism> current = LOD[nextDataWrite - lastPrune];
 				current->dataMap.Set("update", nextDataWrite);
 				current->dataMap.setOutputBehavior("update", DataMap::FIRST);
+				TTC = max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
+				current->dataMap.Set("timeToCoalescence", TTC);
+				current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
 				current->dataMap.writeToFile(DataFileName, files[DataFileName]);  // append new data to the file
 				current->dataMap.Clear("update");
+				current->dataMap.Clear("timeToCoalescence");
 				if ((int) dataSequence.size() > dataSeqIndex + 1) {
 					dataSeqIndex++;
 					nextDataWrite = dataSequence[dataSeqIndex];
 				} else {
 					nextDataWrite = Global::updatesPL->lookup() + terminateAfter + 1;
 				}
-
+			}
+			if (flush) {
+				cout << "Most Recent Common Ancestor/Time to Coalescence was " << TTC << " updates ago."<<endl;
 			}
 		}
 
