@@ -50,16 +50,16 @@ public:
 	//shared_ptr<ParameterLink<int>> initialPloidyLPL;
 	//shared_ptr<ParameterLink<int>> initialChromosomesLPL;
 	//shared_ptr<ParameterLink<int>> initialChromosomeSizeLPL;
-	shared_ptr<ParameterLink<double>> pointMutationRateLPL;
-	shared_ptr<ParameterLink<double>> insertionRateLPL;
-	shared_ptr<ParameterLink<int>> insertionMinSizeLPL;
-	shared_ptr<ParameterLink<int>> insertionMaxSizeLPL;
-	shared_ptr<ParameterLink<double>> deletionRateLPL;
-	shared_ptr<ParameterLink<int>> deletionMinSizeLPL;
-	shared_ptr<ParameterLink<int>> deletionMaxSizeLPL;
-	shared_ptr<ParameterLink<int>> maxChromosomeSizeLPL;
-	shared_ptr<ParameterLink<int>> minChromosomeSizeLPL;
-	shared_ptr<ParameterLink<int>> crossCountLPL;  // number of crosses to make when performing crossover
+	//shared_ptr<ParameterLink<double>> pointMutationRateLPL;
+	//shared_ptr<ParameterLink<double>> insertionRateLPL;
+	//shared_ptr<ParameterLink<int>> insertionMinSizeLPL;
+	//shared_ptr<ParameterLink<int>> insertionMaxSizeLPL;
+	//shared_ptr<ParameterLink<double>> deletionRateLPL;
+	//shared_ptr<ParameterLink<int>> deletionMinSizeLPL;
+	//shared_ptr<ParameterLink<int>> deletionMaxSizeLPL;
+	//shared_ptr<ParameterLink<int>> maxChromosomeSizeLPL;
+	//shared_ptr<ParameterLink<int>> minChromosomeSizeLPL;
+	//shared_ptr<ParameterLink<int>> crossCountLPL;  // number of crosses to make when performing crossover
 
 	class Handler: public AbstractGenome::Handler {
 	public:
@@ -120,10 +120,10 @@ public:
 	vector<shared_ptr<AbstractChromosome>> chromosomes;
 
 	MultiGenome() = delete;
-	MultiGenome(shared_ptr<ParametersTable> _PT = nullptr);
-	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> _PT = nullptr);
-	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _plodiy, shared_ptr<ParametersTable> _PT = nullptr);
-	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	MultiGenome(shared_ptr<ParametersTable> _PT);
+	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> _PT);
+	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _plodiy, shared_ptr<ParametersTable> _PT);
+	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT) override;
 	virtual ~MultiGenome() = default;
 
 	virtual shared_ptr<AbstractGenome> makeLike() override {
@@ -206,11 +206,11 @@ public:
 
 inline shared_ptr<AbstractGenome> MultiGenome_genomeFactory(shared_ptr<ParametersTable> PT) {
 	shared_ptr<AbstractChromosome> templateChromosome;
-	string sitesType = (PT == nullptr) ? AbstractGenome::genomeSitesTypePL->lookup() : PT->lookupString("GENOME-sitesType");
-	double alphabetSize = (PT == nullptr) ? AbstractGenome::alphabetSizePL->lookup() : PT->lookupDouble("GENOME-alphabetSize");
-	int chromosomeSizeInitial = (PT == nullptr) ? MultiGenome::initialChromosomeSizePL->lookup() : PT->lookupInt("GENOME_MULTI-chromosomeSizeInitial");
-	int chromosome_sets = (PT == nullptr) ? MultiGenome::initialChromosomesPL->lookup() : PT->lookupInt("GENOME_MULTI-chromosome_sets");
-	int chromosome_ploidy = (PT == nullptr) ? MultiGenome::initialPloidyPL->lookup() : PT->lookupInt("GENOME_MULTI-chromosome_ploidy");
+	string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
+	double alphabetSize = AbstractGenome::alphabetSizePL->get(PT);
+	int chromosomeSizeInitial = MultiGenome::initialChromosomeSizePL->get(PT);
+	int chromosome_sets = MultiGenome::initialChromosomesPL->get(PT);
+	int chromosome_ploidy = MultiGenome::initialPloidyPL->get(PT);
 	if (sitesType == "char") {
 		templateChromosome = make_shared<TemplatedChromosome<unsigned char>>(chromosomeSizeInitial, alphabetSize);
 	} else if (sitesType == "int") {

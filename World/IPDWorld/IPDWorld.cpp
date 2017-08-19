@@ -33,31 +33,31 @@ shared_ptr<ParameterLink<bool>> IPDWorld::saveMovesListPL = Parameters::register
 shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use");
 shared_ptr<ParameterLink<int>> IPDWorld::playsVsFixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-playsVsFixedStrategies", 1, "number of matches each organism will play against each fixed strategy");
 
-shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root", "name of group to be evaluated");
-shared_ptr<ParameterLink<string>> IPDWorld::brainNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root::", "namespace for group to be evaluated");
+shared_ptr<ParameterLink<string>> IPDWorld::brainNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
 
 IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
 
-	roundsFixedPerGeneration = (PT == nullptr) ? roundsFixedPerGenerationPL->lookup() : PT->lookupBool("WORLD_IPD-roundsFixedPerGeneration");
+	roundsFixedPerGeneration = roundsFixedPerGenerationPL->get(PT);
 
-	roundsMax = (PT == nullptr) ? roundsMaxPL->lookup() : PT->lookupInt("WORLD_IPD-roundsMax");
-	roundsMin = (PT == nullptr) ? roundsMinPL->lookup() : PT->lookupInt("WORLD_IPD-roundsMin");
+	roundsMax = roundsMaxPL->get(PT);
+	roundsMin = roundsMinPL->get(PT);
 
-	R_payOff = (PT == nullptr) ? R_payOffPL->lookup() : PT->lookupDouble("WORLD_IPD-R_payOff");
-	S_payOff = (PT == nullptr) ? S_payOffPL->lookup() : PT->lookupDouble("WORLD_IPD-S_payOff");
-	T_payOff = (PT == nullptr) ? T_payOffPL->lookup() : PT->lookupDouble("WORLD_IPD-T_payOff");
-	P_payOff = (PT == nullptr) ? P_payOffPL->lookup() : PT->lookupDouble("WORLD_IPD-P_payOff");
+	R_payOff = R_payOffPL->get(PT);
+	S_payOff = S_payOffPL->get(PT);
+	T_payOff = T_payOffPL->get(PT);
+	P_payOff = P_payOffPL->get(PT);
 
-	numCompetitors = (PT == nullptr) ? numCompetitorsPL->lookup() : PT->lookupInt("WORLD_IPD-numCompetitors");
+	numCompetitors = numCompetitorsPL->get(PT);
 
-	C = (PT == nullptr) ? CPL->lookup() : PT->lookupBool("WORLD_IPD-C");
+	C = CPL->get(PT);
 	D = !C;
 
-	skipFirstMove = (PT == nullptr) ? skipFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-skipFirstMove");
-	randomFirstMove = (PT == nullptr) ? randomFirstMovePL->lookup() : PT->lookupBool("WORLD_IPD-randomFirstMove");
+	skipFirstMove = skipFirstMovePL->get(PT);
+	randomFirstMove = randomFirstMovePL->get(PT);
 
-	saveMovesList = (PT == nullptr) ? saveMovesListPL->lookup() : PT->lookupBool("WORLD_IPD-saveMovesList");
+	saveMovesList = saveMovesListPL->get(PT);
 
 	inputNodesCount = 2;  // this is first move, other players last move
 	outputNodesCount = 1;  // my move
@@ -67,15 +67,15 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 	// set up fixed strat organisms
 
-	playsVsFixedStrategies = (PT == nullptr) ? playsVsFixedStrategiesPL->lookup() : PT->lookupInt("WORLD_IPD-playsVsFixedStrategies");
+	playsVsFixedStrategies = playsVsFixedStrategiesPL->get(PT);
 
 	shared_ptr<AbstractBrain> templateBrain = IPDBrain_brainFactory(inputNodesCount, outputNodesCount, PT);
 	shared_ptr<IPDBrain> castBrain = dynamic_pointer_cast<IPDBrain>(templateBrain);
 	
-	convertCSVListToVector((PT == nullptr) ? fixedStrategiesPL->lookup() : PT->lookupString("WORLD_IPD-fixedStrategies"), fixedStrategies);
+	convertCSVListToVector(fixedStrategiesPL->get(PT), fixedStrategies);
 
-	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_IPD_NAMES-groupName");
-	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_IPD_NAMES-brainName");
+	string groupName = groupNamePL->get(PT);
+	brainName = brainNamePL->get(PT);
 	
 	for (auto s : fixedStrategies) {
 		bool foundStrat = false;
@@ -84,7 +84,7 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 			if (s == castBrain->availableStrategies[i]) {
 				unordered_map<string, shared_ptr<AbstractGenome>> tempGenomes;
 				unordered_map<string, shared_ptr<AbstractBrain>> tempBrains;
-				tempBrains[brainName] = castBrain->makeBrainFromValues({ (double)i });
+				tempBrains[brainName] = castBrain->makeBrainFromValues({ (double)i },PT);
 			
 				fixedOrgs.push_back(make_shared<Organism>(tempGenomes, tempBrains, PT));
 				foundStrat = true;
@@ -116,8 +116,8 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 
 pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	auto brain1 = p1->brains[brainName];
-	auto brain2 = p2->brains[brainName];
+	auto brain1 = p1->brains[brainNamePL->get(PT)];
+	auto brain2 = p2->brains[brainNamePL->get(PT)];
 
 	int p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 	int p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
@@ -224,7 +224,7 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 
 
 void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
-	shared_ptr<Group> group = groups[groupName];
+	shared_ptr<Group> group = groups[groupNamePL->get(PT)];
 	//if (group->population.size() < 2) {
 	//	cout << "  IPDWorld must be run with WORLD::groupEvaluation = true (1) and must be passed a group who's population size > 1.\n  Please update your parameters and rerun." << endl;
 	//	exit(1);

@@ -12,15 +12,15 @@
 
 
 
-/********* 				Synctatic sugar for Paramter Link registration  ********/
-#define _DECL_PARAM_(Type,Name) Type Name; static shared_ptr<ParameterLink<Type>> Name##PL;
-#define _REG_PARAM_(World,Type,Name,DefaultVal,Message) shared_ptr<ParameterLink<Type>> World::Name##PL = Parameters::register_parameter( "WORLD_"#World"-"#Name , DefaultVal , Message );
-#define _INIT_PARAM_(World,Type,Name) Name = (PT == nullptr) ? Name##PL->lookup(): PT->lookup##Type( "WORLD_"#World"-"#Name );
-/*Then in ExampleWorld.h  what used to be int exampleVariable; static shared_ptr<ParameterLink<int>> exampleVariablePL; now becomes simply _DECL_PARAM_(int,exampleVariable)
-And in ExampleWorld.cpp, instead of globally registering the parameter as shared_ptr<ParameterLink<int>> ExampleWorld::exampleVariablePL = Parameters::register_parameter("WORLD_ExampleWorld-exampleVariable",  42, "Example messagge for this variable"); we now simply say _REG_PARAM_(ExampleWorld, int, exampleVariable, 42, ""Example messagge for this variable")
-And in the ExampleWorld constructor, instead of looking it up like exampleVariable = (PT == nullptr) ? exampleVariablePL->lookup(): PT->lookupInt("WORLD_ExampleWorld-exampleVariable"); we can say _INIT_PARAM_(ExampleWorldWorld, Int, exameVariable)
-*/
-/********* 	End of 			Synctatic sugar for Paramter Link registration  ********/
+///********* 				Synctatic sugar for Paramter Link registration  ********/
+//#define _DECL_PARAM_(Type,Name) Type Name; static shared_ptr<ParameterLink<Type>> Name##PL;
+//#define _REG_PARAM_(World,Type,Name,DefaultVal,Message) shared_ptr<ParameterLink<Type>> World::Name##PL = Parameters::register_parameter( "WORLD_"#World"-"#Name , DefaultVal , Message );
+//#define _INIT_PARAM_(World,Type,Name) Name = (PT == nullptr) ? Name##PL->lookup(): PT->lookup##Type( "WORLD_"#World"-"#Name );
+///*Then in ExampleWorld.h  what used to be int exampleVariable; static shared_ptr<ParameterLink<int>> exampleVariablePL; now becomes simply _DECL_PARAM_(int,exampleVariable)
+//And in ExampleWorld.cpp, instead of globally registering the parameter as shared_ptr<ParameterLink<int>> ExampleWorld::exampleVariablePL = Parameters::register_parameter("WORLD_ExampleWorld-exampleVariable",  42, "Example messagge for this variable"); we now simply say _REG_PARAM_(ExampleWorld, int, exampleVariable, 42, ""Example messagge for this variable")
+//And in the ExampleWorld constructor, instead of looking it up like exampleVariable = (PT == nullptr) ? exampleVariablePL->lookup(): PT->lookupInt("WORLD_ExampleWorld-exampleVariable"); we can say _INIT_PARAM_(ExampleWorldWorld, Int, exameVariable)
+//*/
+///********* 	End of 			Synctatic sugar for Paramter Link registration  ********/
 
 
 
@@ -308,13 +308,11 @@ public:
 
 	void follow(shared_ptr<AbstractParametersEntry> &ptr) override {
 		if (ptr == nullptr) {
-			//ASSERT(ptr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: ptr = nullptr");
 			cout << "  In ParametersEntry::follow() - ptr is a nullptr" << endl;
 			exit(1);
 		}
 		shared_ptr<ParametersEntry<T>> castParametersEntry = dynamic_pointer_cast<ParametersEntry<T>>(ptr);
 		if (castParametersEntry->valuePtr == nullptr) {
-			//ASSERT(castParametersEntry->valuePtr != nullptr, "in follow(shared_ptr<AbstractParametersEntry> &ptr) :: value in ptr = nullptr");
 			cout << "  In ParametersEntry::follow() - value in ptr is a nullptr" << endl;
 			exit(1);
 		}
@@ -451,6 +449,16 @@ public:
 
 	long long getID() {
 		return ID;
+	}
+
+	shared_ptr<AbstractParametersEntry> getEntry(const string & name) {
+		if (table.find(name) != table.end()) {
+			return table[name];
+		}
+		else {
+			cout << "   in ParametersTable::getEntry :: can not find entry with name \"" << name << "\".\n  exiting." << endl;
+			exit(1);
+		}
 	}
 
 	string getTableNameSpace() {
@@ -678,23 +686,29 @@ public:
 		return value;
 	}
 
-	// set value in named table (creates if needed) - will also set this value in rootTable if the value does not exist
+	// set value in this table, or named table if provided (creates if needed) - will also set this value in rootTable if the value does not exist
 	// add or overwrite to this table and add to root if not there.
 	template<typename T>
 	void setParameter(const string& name, const T& value, const string& _tableNameSpace = "'", bool _saveOnFileWrite = false) {
-		//shared_ptr<AbstractParametersEntry> setParameter(const string& name, const T& value, const string& _tableNameSpace = "'", bool _saveOnFileWrite = false) {
 		string localTableNameSpace = (_tableNameSpace == "'") ? tableNameSpace : _tableNameSpace;
+		//cout << "in setParameter :: tableNameSpace: " << tableNameSpace << "   localTableNameSpace: " << localTableNameSpace << endl;
 		if (localTableNameSpace != tableNameSpace) {  // if this table is not the table we are writing to...nameSpaceToNameParts
 			if ((*parametersTablesRegistry).find(localTableNameSpace) != (*parametersTablesRegistry).end()) {  // if the table we are writing to exists...
-				return (*parametersTablesRegistry)[localTableNameSpace]->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// go to the table and set the value
+				(*parametersTablesRegistry)[localTableNameSpace]->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// go to the table and set the value
 			}
 			else {  // if the table we are writing to does not exist...
-				return makeTable(localTableNameSpace, rootTable)->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// make the table and set value in table
+				makeTable(localTableNameSpace, rootTable)->setParameter(name, value, localTableNameSpace, _saveOnFileWrite);// make the table and set value in table
 			}
 		}
 		else {  // if this is the table we are writing to...
 			if (table.find(name) != table.end()) {  // if this table has entry called name
-				table[name]->set(value);
+				if (table[name]->isLocal()) {
+					table[name]->set(value);
+				}
+				else { // if this paramerter (in this table) is not local, then we must make a new local entry in this table!
+					table[name] = make_shared<ParametersEntry<T>>();
+					table[name]->set(value);
+				}
 			}
 			else {  // this table does not have entry called name
 				table[name] = make_shared<ParametersEntry<T>>(value);
@@ -713,7 +727,7 @@ public:
 				checklist.pop_back();
 				if (checkTable.table.find(name) != checkTable.table.end()) {  // if this table has entry called name
 					if (!checkTable.table[name]->isLocal()) {  // if it's not local, then we need to change where it's looking
-						//checkTable.table[name]->set(name,false);
+						cout << "checkTable name: " << checkTable.tableNameSpace << endl;
 						checkTable.table[name]->follow(table[name]);
 						for (auto c : checkTable.children) {  // and add it's children to checklist
 							checklist.push_back(*c.second);
@@ -731,15 +745,16 @@ public:
 			}
 			//return table[name];
 		}
+
 	}
 
 	// setExistingParameter is used to set the value of a parameter in this table, but only if that parameter already exists.
 	// the name / value pair is string / string, and the value is converted baised on the type of the parameter as it has already been defined.
 	void setExistingParameter(string name, string value) {
-		if (table.find(name) != table.end()) { // if this table has entry called name
+		if (table.find(name) != table.end() && table[name]->isLocal()) { // if this table has entry called name and it is local
 			table[name]->setExisting(value, name);
 		}
-		else { // name not found in this table, check root
+		else { // name not found in this table, or it is here, but not local, check root
 			if (rootTable->table.find(name) != table.end()) { // Good, it's in the root table, we will need to add it here!
 				auto newEntry = rootTable->table[name]->makelike(value, name); // get entry from root table (this will get us the type!)
 				table[name] = newEntry; // assign it in this table
@@ -967,8 +982,9 @@ template<typename T>
 class ParameterLink {
 public:
 	string name;
-	shared_ptr<ParametersEntry<T>> entry;
-	shared_ptr<ParametersTable> table;
+	shared_ptr<ParametersEntry<T>> entry; // points to a parameters entry
+	shared_ptr<ParametersTable> table; // the table that owns this entry
+	map<long long, shared_ptr<ParametersEntry<T>>> entriesCache; // used to track entries in other name spaces
 
 	ParameterLink(string _name, shared_ptr<ParametersEntry<T>> _entry, shared_ptr<ParametersTable> _table) :
 		name(_name), entry(_entry), table(_table) {
@@ -976,16 +992,60 @@ public:
 
 	~ParameterLink() = default;
 
-	T lookup() {
+
+	T get() {
 		return entry->get();
 	}
 
-	void set(T value) {
-		if (entry->isLocal() == true) {
-			entry->set(value);
+	T get(shared_ptr<ParametersTable> lookupTable) {
+		//cout << "in lookup with PT    with name: " << name << endl;
+		if (lookupTable == nullptr) {
+			cout << "  in ParameterLink::get(lookupTable) :: while looking up \"" << name << "\", lookupTable passed is a nullptr! I can not get an ID!. exiting..." << endl;
+			exit(1);
 		}
-		else {
-			table->setParameter(name, value);
+		auto mapRecord = entriesCache.find(lookupTable->getID());
+		if (mapRecord == entriesCache.end()) { // if the cache does not contain this table
+			T lookupValue;
+			lookupTable->lookup(name, lookupValue);
+			entriesCache[lookupTable->getID()] = dynamic_pointer_cast<ParametersEntry<T>>(lookupTable->getEntry(name));
+			return lookupValue;
+		}
+		return entriesCache[lookupTable->getID()]->get();
+	}
+
+	//T lookup() {
+	//	return get();
+	//}
+
+	//T lookup(shared_ptr<ParametersTable> lookupTable) {
+	//	return get(lookupTable);
+	//}
+
+	void set(T value) {
+		table->setParameter(name, value);
+		entriesCache[table->getID()] = dynamic_pointer_cast<ParametersEntry<T>>(table->getEntry(name));
+	}
+
+	void set(T value, shared_ptr<ParametersTable> lookupTable) {
+		lookupTable->setParameter(name, value);
+		entriesCache[lookupTable->getID()] = dynamic_pointer_cast<ParametersEntry<T>>(lookupTable->getEntry(name));
+	}
+
+	void clearCache() {
+		entriesCache.clear();
+	}
+	
+	void clearCache(shared_ptr<ParametersTable> _table) {
+		auto mapRecord = entriesCache.find(_table->getID());
+		if (mapRecord != entriesCache.end()) { // if the cache contain this _table(parameterstable)
+			entriesCache.erase(mapRecord) // remove the entry from the entiresCache
+		}
+		// else do nothing, there is not entry for _table in this PL
+	}
+
+	void clearCache(vector<shared_ptr<ParametersTable>> _tables) {
+		for (auto table : tables) { // clear each parametersTables entry in the entriesCache
+			clearCache(table);
 		}
 	}
 

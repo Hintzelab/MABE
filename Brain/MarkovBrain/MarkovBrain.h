@@ -36,12 +36,14 @@ class MarkovBrain : public AbstractBrain {
 
 	static shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
 	static shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
+	static shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMinPL;
 	static shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMaxPL;
 	static shared_ptr<ParameterLink<int>> hiddenNodesPL;
 	static shared_ptr<ParameterLink<string>> genomeNamePL;
 
 	bool randomizeUnconnectedOutputs;
 	bool randomizeUnconnectedOutputsType;
+	double randomizeUnconnectedOutputsMin;
 	double randomizeUnconnectedOutputsMax;
 	int hiddenNodes;
 	string genomeName;
@@ -110,7 +112,7 @@ class MarkovBrain : public AbstractBrain {
 	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
-		return {genomeName};
+		return {genomeNamePL->get(PT)};
 	}
 
 };

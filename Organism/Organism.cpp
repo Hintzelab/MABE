@@ -60,7 +60,7 @@ Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
 		dataMap.Merge(genome.second->getStats(prefix));
 	}
 
@@ -68,22 +68,22 @@ Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
 		dataMap.Merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	ancestors.insert(ID);  // it is it's own Ancestor for data tracking purposes
@@ -101,7 +101,7 @@ Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<A
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
 		dataMap.Merge(genome.second->getStats(prefix));
 	}
 
@@ -109,22 +109,22 @@ Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<A
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
 		dataMap.Merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	parents.push_back(from);
@@ -148,7 +148,7 @@ Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shar
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
 		dataMap.Merge(genome.second->getStats(prefix));
 	}
 
@@ -156,22 +156,22 @@ Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shar
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
 		dataMap.Merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	for (auto parent : from) {
@@ -307,29 +307,26 @@ shared_ptr<Organism> Organism::getMostRecentCommonAncestor(vector<shared_ptr<Org
 
 
 shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
-	if (_PT == nullptr) {
-		_PT = PT;
-	}
 	auto newOrg = make_shared<Organism>(_PT);
 	for (auto genome : genomes) {
-		newOrg->genomes[genome.first] = genome.second->makeCopy();
+		newOrg->genomes[genome.first] = genome.second->makeCopy(genome.second->PT);
 	}
 	for (auto brain : brains) {
-		newOrg->brains[brain.first] = brain.second->makeCopy();
+		newOrg->brains[brain.first] = brain.second->makeCopy(brain.second->PT);
 	}
 
-	if (newOrg->genomes.count("root") == 0) {
+	if (newOrg->genomes.count("root::") == 0) {
 		newOrg->genome = nullptr;
 	}
 	else {
-		newOrg->genome = newOrg->genomes["root"];
+		newOrg->genome = newOrg->genomes["root::"];
 	}
 
-	if (newOrg->brains.count("root") == 0) {
+	if (newOrg->brains.count("root::") == 0) {
 		newOrg->brain = nullptr;
 	}
 	else {
-		newOrg->brain = newOrg->brains["root"];
+		newOrg->brain = newOrg->brains["root::"];
 	}
 
 	newOrg->dataMap = dataMap;

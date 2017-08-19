@@ -89,10 +89,6 @@ public:
 
 	virtual unordered_set<string> requiredGenomes() override {
 		return {};
-		// "root" = use empty name space
-		// "GROUP::" = use group name space
-		// "blah" = use "blah namespace at root level
-		// "Group::blah" = use "blah" name space inside of group name space
 	}
 
 };

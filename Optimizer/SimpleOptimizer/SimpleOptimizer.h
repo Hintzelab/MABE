@@ -144,8 +144,6 @@ class SimpleOptimizer : public AbstractOptimizer {
 
 	shared_ptr<Abstract_MTree> optimizeValueMT, surviveRateMT, selfRateMT, elitismCountMT, elitismRangeMT;
 
-	shared_ptr<ParameterLink<int>> popSizeLPL;
-
 	SimpleOptimizer(shared_ptr<ParametersTable> _PT = nullptr);
 	
 	virtual void optimize(vector<shared_ptr<Organism>> &population) override;

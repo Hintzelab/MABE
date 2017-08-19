@@ -38,16 +38,6 @@ public:
 	static shared_ptr<ParameterLink<double>> initializeConstantValuePL;
 
 	static shared_ptr<ParameterLink<string>> genomeNamePL;
-	string genomeName;
-
-	double valueMin;
-	double valueMax;
-	int valueType;
-	int samplesPerValue;
-
-	bool initializeUniform;
-	bool initializeConstant;
-	double initializeConstantValue;
 
 	ConstantValuesBrain() = delete;
 
@@ -60,7 +50,7 @@ public:
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
-		return { genomeName };
+		return { genomeNamePL->get(PT) };
 	}
 
 	virtual string description() override;

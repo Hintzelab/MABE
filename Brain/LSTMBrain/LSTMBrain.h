@@ -41,7 +41,7 @@ public:
     
 	LSTMBrain() = delete;
 
-	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
 
 	virtual ~LSTMBrain() = default;
 
@@ -73,7 +73,7 @@ public:
     virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
-		return { genomeName };
+		return { genomeNamePL->get(PT) };
 	}
 
 };

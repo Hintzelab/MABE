@@ -10,15 +10,6 @@
 
 #include "../GeneticProgramingBrain/GeneticProgramingBrain.h"
 
-//shared_ptr<ParameterLink<double>> GeneticProgramingBrain::valueMinPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMin", 0.0, "Minmum value that brain will deliver");
-//shared_ptr<ParameterLink<double>> GeneticProgramingBrain::valueMaxPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMax", 100.0, "Maximum value that brain will deliver");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::valueTypePL = Parameters::register_parameter("BRAIN_CONSTANT-valueType", 0, "0 = int, 1 = double");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::samplesPerValuePL = Parameters::register_parameter("BRAIN_CONSTANT-samplesPerValue", 1, "for each brain value, this many samples will be taken from genome and averaged");
-
-//shared_ptr<ParameterLink<bool>> GeneticProgramingBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
-//shared_ptr<ParameterLink<bool>> GeneticProgramingBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
-
 shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeTypes, int depth, int maxDepth) {
 	if (depth < maxDepth) {
 		shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
@@ -39,17 +30,7 @@ shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeT
 }
 GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
-	//valueMin = (PT == nullptr) ? valueMinPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMin");
-	//valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
-	//valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
-	//samplesPerValue = (PT == nullptr) ? samplesPerValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-samplesPerValue");
-
-	//initializeUniform = (PT == nullptr) ? initializeUniformPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeUniform");
-	//initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
-	//initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
-	
-	//cout << "init" << endl;
-	
+		
 	initialTreeDepth = 3;
 	nodeTypes = { "SUM","MULT","SUBTRACT","DIVIDE","SIN","COS","VECT" };
 

@@ -42,43 +42,42 @@ shared_ptr<ParameterLink<int>> WireBrain::hiddenValuesPL = Parameters::register_
 
 shared_ptr<ParameterLink<int>> WireBrain::bitsPerCodonPL = Parameters::register_parameter("BRAIN_WIRE-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
 
-shared_ptr<ParameterLink<string>> WireBrain::genomeNamePL = Parameters::register_parameter("BRAIN_WIRE_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> WireBrain::genomeNamePL = Parameters::register_parameter("BRAIN_WIRE_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes,  _PT) {
 
-	allowNegativeCharge =  (PT == nullptr) ? allowNegativeChargePL->lookup() : PT->lookupBool("BRAIN_WIRE-allowNegativeCharge");
-	defaultWidth =  (PT == nullptr) ? defaultWidthPL->lookup() : PT->lookupInt("BRAIN_WIRE-size_width");
-	defaultHeight =  (PT == nullptr) ? defaultHeightPL->lookup() : PT->lookupInt("BRAIN_WIRE-size_height");
-	defaultDepth =  (PT == nullptr) ? defaultDepthPL->lookup() : PT->lookupInt("BRAIN_WIRE-size_depth");
-	worldConnectionsSeparation =  (PT == nullptr) ? worldConnectionsSeparationPL->lookup() : PT->lookupInt("BRAIN_WIRE-worldConnectionsSeparation");
-	overchargeThreshold =  (PT == nullptr) ? overchargeThresholdPL->lookup() : PT->lookupInt("BRAIN_WIRE-overchargeThreshold");
-	decayDuration =  (PT == nullptr) ? decayDurationPL->lookup() : PT->lookupInt("BRAIN_WIRE-decayDuration");
-	chargeUpdatesPerUpdate =  (PT == nullptr) ? chargeUpdatesPerUpdatePL->lookup() : PT->lookupInt("BRAIN_WIRE-chargeUpdatesPerUpdate");
-	constantInputs =  (PT == nullptr) ? constantInputsPL->lookup() : PT->lookupBool("BRAIN_WIRE-constantInputs");
-	cacheResults =  (PT == nullptr) ? cacheResultsPL->lookup() : PT->lookupBool("BRAIN_WIRE-cacheResults");
-	cacheResultsCount =  (PT == nullptr) ? cacheResultsCountPL->lookup() : PT->lookupInt("BRAIN_WIRE-cacheResultsCount");
+	allowNegativeCharge = allowNegativeChargePL->get(PT);
+	defaultWidth = defaultWidthPL->get(PT);
+	defaultHeight = defaultHeightPL->get(PT);
+	defaultDepth = defaultDepthPL->get(PT);
+	worldConnectionsSeparation = worldConnectionsSeparationPL->get(PT);
+	overchargeThreshold = overchargeThresholdPL->get(PT);
+	decayDuration = decayDurationPL->get(PT);
+	chargeUpdatesPerUpdate = chargeUpdatesPerUpdatePL->get(PT);
+	constantInputs = constantInputsPL->get(PT);
+	cacheResults = cacheResultsPL->get(PT);
+	cacheResultsCount = cacheResultsCountPL->get(PT);
 
-	genomeDecodingMethod =  (PT == nullptr) ? genomeDecodingMethodPL->lookup() : PT->lookupString("BRAIN_WIRE-genomeDecodingMethod");
-	wiregenesInitialGeneCount =  (PT == nullptr) ? wiregenesInitialGeneCountPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-initialGeneCount");
-	bitmapInitialFillRatio =  (PT == nullptr) ? bitmapInitialFillRatioPL->lookup() : PT->lookupDouble("BRAIN_WIRE-bitmap_InitialFillRatio");
+	genomeDecodingMethod = genomeDecodingMethodPL->get(PT);
+	wiregenesInitialGeneCount = wiregenesInitialGeneCountPL->get(PT);
+	bitmapInitialFillRatio = bitmapInitialFillRatioPL->get(PT);
 
-	wiregenesAllowSimpleWires =  (PT == nullptr) ? wiregenesAllowSimpleWiresPL->lookup() : PT->lookupBool("BRAIN_WIRE_WIREGENE-allowSimpeWires");
-	wiregenesSimpleWireMaxLength =  (PT == nullptr) ? wiregenesSimpleWireMaxLengthPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-simpleWireMaxLength");
-	wiregenesSimpleWireDirections =  (PT == nullptr) ? wiregenesSimpleWireDirectionsPL->lookup() : PT->lookupString("BRAIN_WIRE_WIREGENE-simpleWireDirections");
+	wiregenesAllowSimpleWires = wiregenesAllowSimpleWiresPL->get(PT);
+	wiregenesSimpleWireMaxLength = wiregenesSimpleWireMaxLengthPL->get(PT);
+	wiregenesSimpleWireDirections = wiregenesSimpleWireDirectionsPL->get(PT);
 
-	wiregenesAllowWormholes =  (PT == nullptr) ? wiregenesAllowWormholesPL->lookup() : PT->lookupBool("BRAIN_WIRE_WIREGENE-allowWormholes");
-	wiregenesWormholesBidirectional =  (PT == nullptr) ? wiregenesWormholesBidirectionalPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-wormholesBidirectional");
+	wiregenesAllowWormholes = wiregenesAllowWormholesPL->get(PT);
+	wiregenesWormholesBidirectional = wiregenesWormholesBidirectionalPL->get(PT);
 
-	wiregenesAllowSquiggleWires =  (PT == nullptr) ? wiregenesAllowSquiggleWiresPL->lookup() : PT->lookupBool("BRAIN_WIRE_WIREGENE-allowSquiggleWires");
-	wiregenesSquiggleWireMinLength =  (PT == nullptr) ? wiregenesSquiggleWireMinLengthPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-squiggleWireMinLength");
-	wiregenesSquiggleWireMaxLength =  (PT == nullptr) ? wiregenesSquiggleWireMaxLengthPL->lookup() : PT->lookupInt("BRAIN_WIRE_WIREGENE-squiggleWireMaxLength");
-	wiregenesSquiggleWireDirections =  (PT == nullptr) ? wiregenesSquiggleWireDirectionsPL->lookup() : PT->lookupString("BRAIN_WIRE_WIREGENE-squiggleWireDirections");
+	wiregenesAllowSquiggleWires = wiregenesAllowSquiggleWiresPL->get(PT);
+	wiregenesSquiggleWireMinLength = wiregenesSquiggleWireMinLengthPL->get(PT);
+	wiregenesSquiggleWireMaxLength = wiregenesSquiggleWireMaxLengthPL->get(PT);
+	wiregenesSquiggleWireDirections = wiregenesSquiggleWireDirectionsPL->get(PT);
 
-	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_WIRE_NAMES-genomeName");
+	genomeName = genomeNamePL->get(PT);
 
-	nrHiddenValues = (PT == nullptr) ? hiddenValuesPL->lookup() : PT->lookupInt("BRAIN_WIRE-hiddenNodes");
-
+	nrHiddenValues = hiddenValuesPL->get(PT);
 
 	nrValues = nrInputValues + nrOutputValues + nrHiddenValues;
 	width = defaultWidth;
@@ -93,6 +92,9 @@ WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
 	nodes.resize(nrValues);
 	nextNodes.resize(nrValues);
 
+	popFileColumns.clear();
+	popFileColumns.push_back("wireBrainWireCount");
+	popFileColumns.push_back("wireBrainConnectionsCount");
 }
 
 WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
@@ -110,6 +112,10 @@ WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes
 		}
 	}
 	connectPruneAndSetPopColumns( { });  //call with empty wormhole list
+
+	popFileColumns.clear();
+	popFileColumns.push_back("wireBrainWireCount");
+	popFileColumns.push_back("wireBrainConnectionsCount");
 }
 
 WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
@@ -124,7 +130,7 @@ WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes
 
 	vector<pair<int, int>> wormholeList;
 
-	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->get(PT)) - 1;
 
 	if (!_genomes[genomeName]->isEmpty()) {
 		if (genomeDecodingMethod == "bitmap") {
@@ -1132,7 +1138,7 @@ DataMap WireBrain::getStats(string& prefix) {
 }
 
 void WireBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-	int codonMax = (1 << WireBrain::bitsPerCodonPL->lookup()) - 1;
+	int codonMax = (1 << WireBrain::bitsPerCodonPL->get(PT)) - 1;
 
 	if (genomeDecodingMethod == "bitmap") {
 		auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName]);

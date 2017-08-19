@@ -38,7 +38,7 @@ class AbstractOptimizer {
 
 	unordered_set <shared_ptr<Organism>> killList; // set of organisms to be killed after archive 
 
-	AbstractOptimizer(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
+	AbstractOptimizer(shared_ptr<ParametersTable> _PT) : PT(_PT) {
 
 	}
 

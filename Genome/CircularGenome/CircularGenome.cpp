@@ -305,17 +305,17 @@ vector<vector<int>> CircularGenome<T>::Handler::readTable(pair<int, int> tableSi
 
 template<class T>
 void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
-	initialSizeLPL = (PT == nullptr) ? CircularGenomeParameters::sizeInitialPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeInitial", PT);
-	mutationPointRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationPointRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationPointRate", PT);
-	mutationCopyRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationCopyRate", PT);
-	mutationCopyMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMinSize", PT);
-	mutationCopyMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMaxSize", PT);
-	mutationDeleteRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationDeleteRate", PT);
-	mutationDeleteMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMinSize", PT);
-	mutationDeleteMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMaxSize", PT);
-	sizeMinLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMinPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMin", PT);
-	sizeMaxLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMaxPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMax", PT);
-	mutationCrossCountLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCrossCountPL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCrossCount", PT);
+	//initialSizeLPL = (PT == nullptr) ? CircularGenomeParameters::sizeInitialPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeInitial", PT);
+	//mutationPointRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationPointRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationPointRate", PT);
+	//mutationCopyRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationCopyRate", PT);
+	//mutationCopyMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMinSize", PT);
+	//mutationCopyMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMaxSize", PT);
+	//mutationDeleteRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationDeleteRate", PT);
+	//mutationDeleteMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMinSize", PT);
+	//mutationDeleteMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMaxSize", PT);
+	//sizeMinLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMinPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMin", PT);
+	//sizeMaxLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMaxPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMax", PT);
+	//mutationCrossCountLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCrossCountPL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCrossCount", PT);
 
 	sites.resize(_size);
 	alphabetSize = _alphabetSize;
@@ -478,17 +478,17 @@ void CircularGenome<double>::pointMutate() {
 // apply mutations to this genome
 template<class T>
 void CircularGenome<T>::mutate() {
-	int howManyPoint = Random::getBinomial((int)sites.size(), mutationPointRateLPL->lookup());
-	int howManyCopy = Random::getBinomial((int)sites.size(), mutationCopyRateLPL->lookup());
-	int howManyDelete = Random::getBinomial((int)sites.size(), mutationDeleteRateLPL->lookup());
+	int howManyPoint = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationPointRatePL->get(PT));
+	int howManyCopy = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationCopyRatePL->get(PT));
+	int howManyDelete = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationDeleteRatePL->get(PT));
 	// do some point mutations
 	for (int i = 0; i < howManyPoint; i++) {
 		pointMutate();
 	}
 	// do some copy mutations
-	int MaxGenomeSize = sizeMaxLPL->lookup();
-	int IMax = mutationCopyMaxSizeLPL->lookup();
-	int IMin = mutationCopyMinSizeLPL->lookup();
+	int MaxGenomeSize = CircularGenomeParameters::sizeMaxPL->get(PT);
+	int IMax = CircularGenomeParameters::mutationCopyMaxSizePL->get(PT);
+	int IMin = CircularGenomeParameters::mutationCopyMinSizePL->get(PT);
 	for (int i = 0; (i < howManyCopy) && (((int)sites.size()) < MaxGenomeSize); i++) {
 		//chromosome->mutateCopy(PT.lookup("mutationCopyMinSize"), PT.lookup("mutationCopyMaxSize"), PT.lookup("chromosomeSizeMax"));
 
@@ -515,9 +515,9 @@ void CircularGenome<T>::mutate() {
 		//cout << sites.size() << endl;
 	}
 	// do some deletion mutations
-	int MinGenomeSize = sizeMinLPL->lookup();
-	int DMax = mutationDeleteMaxSizeLPL->lookup();
-	int DMin = mutationDeleteMinSizeLPL->lookup();
+	int MinGenomeSize = CircularGenomeParameters::sizeMinPL->get(PT);
+	int DMax = CircularGenomeParameters::mutationDeleteMaxSizePL->get(PT);
+	int DMin = CircularGenomeParameters::mutationDeleteMinSizePL->get(PT);
 	for (int i = 0; (i < howManyDelete) && (((int)sites.size()) > MinGenomeSize); i++) {
 		//chromosome->mutateDelete(PT.lookup("mutationDeletionMinSize"), PT.lookup("mutationDeletionMaxSize"), PT.lookup("chromosomeSizeMin"));
 
@@ -586,7 +586,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 
 		// randomly determine crossCount number crossLocations
 		vector<double> crossLocations;
-		int crossCount = mutationCrossCountLPL->lookup();
+		int crossCount = CircularGenomeParameters::mutationCrossCountPL->get(PT);
 		for (int i = 0; i < crossCount; i++) {  // get some cross locations (% of length of chromosome)
 			crossLocations.push_back(Random::getDouble(1.0));
 		}

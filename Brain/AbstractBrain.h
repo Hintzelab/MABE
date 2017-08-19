@@ -41,7 +41,7 @@ public:
 
 	AbstractBrain() = delete;
 
-	AbstractBrain(int ins, int outs, shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
+	AbstractBrain(int ins, int outs, shared_ptr<ParametersTable> _PT) : PT(_PT) {
 		nrInputValues = ins;
 		nrOutputValues = outs;
 		recordActivity = false;
@@ -187,7 +187,7 @@ public:
 	}
 
 	virtual unordered_set<string> requiredGenomes() {
-		return { "root" };
+		return { "root::" };
 		// "root" = use empty name space
 		// "GROUP::" = use group name space
 		// "blah" = use "blah namespace at root level

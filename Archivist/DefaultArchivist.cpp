@@ -39,35 +39,35 @@ shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL 
 DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	PT(_PT), groupPrefix(_groupPrefix) {
 
-	writePopFile = (PT == nullptr) ? Arch_writePopFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writePopFile");
-	writeMaxFile = (PT == nullptr) ? Arch_writeMaxFilePL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeMaxFile");
+	writePopFile = Arch_writePopFilePL->get(PT);
+	writeMaxFile = Arch_writeMaxFilePL->get(PT);
 
 
-	PopFileName = (PT == nullptr) ? Arch_PopFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileName");
+	PopFileName = Arch_PopFileNamePL->get(PT);
 	PopFileName = (groupPrefix == "") ? PopFileName : groupPrefix + "__" + PopFileName;
 
-	MaxFileName = (PT == nullptr) ? Arch_MaxFileNamePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-maxFileName");
+	MaxFileName = Arch_MaxFileNamePL->get(PT);
 	MaxFileName = (groupPrefix == "") ? MaxFileName : groupPrefix + "__" + MaxFileName;
 
-	PopFileColumnNames = (PT == nullptr) ? Arch_DefaultPopFileColumnNamesPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-popFileColumns");
+	PopFileColumnNames = Arch_DefaultPopFileColumnNamesPL->get(PT);
 
-	DataFilePrefix = (PT == nullptr) ? SS_Arch_DataFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataFilePrefix");
+	DataFilePrefix = SS_Arch_DataFilePrefixPL->get(PT);
 	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
 
-	OrganismFilePrefix = (PT == nullptr) ? SS_Arch_OrganismsFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotOrganismFilePrefix");
+	OrganismFilePrefix = SS_Arch_OrganismsFilePrefixPL->get(PT);
 	OrganismFilePrefix = (groupPrefix == "") ? OrganismFilePrefix : groupPrefix + "__" + OrganismFilePrefix;
 
-	writeSnapshotDataFiles = (PT == nullptr) ? SS_Arch_writeDataFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotDataFiles");
-	writeSnapshotGenomeFiles = (PT == nullptr) ? SS_Arch_writeOrganismsFilesPL->lookup() : PT->lookupBool("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles");
+	writeSnapshotDataFiles = SS_Arch_writeDataFilesPL->get(PT);
+	writeSnapshotGenomeFiles = SS_Arch_writeOrganismsFilesPL->get(PT);
 
 	realtimeSequence.push_back(0);
 	realtimeDataSequence.push_back(0);
 	realtimeOrganismSequence.push_back(0);
 
 	if (writePopFile != false || writeMaxFile != false) {
-		string realtimeSequenceStr = (PT == nullptr) ? Arch_realtimeSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-realtimeSequence");
+		string realtimeSequenceStr = Arch_realtimeSequencePL->get(PT);
 		realtimeSequence.clear();
-		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->lookup(), true);
+		realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->get(), true);
 		if (realtimeSequence.size() == 0) {
 			cout << "unable to translate ARCHIVIST_DEFAULT-realtimeSequence \"" << realtimeSequenceStr << "\".\nExiting." << endl;
 			exit(1);
@@ -75,9 +75,9 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	}
 
 	if (writeSnapshotDataFiles != false) {
-		string dataSequenceStr = (PT == nullptr) ? SS_Arch_dataSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotDataSequence");
+		string dataSequenceStr = SS_Arch_dataSequencePL->get(PT);
 		realtimeDataSequence.clear();
-		realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
+		realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
 		if (realtimeDataSequence.size() == 0) {
 			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
 			exit(1);
@@ -85,9 +85,9 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	}
 
 	if (writeSnapshotGenomeFiles != false) {
-		string organismIntervalStr = (PT == nullptr) ? SS_Arch_organismSequencePL->lookup() : PT->lookupString("ARCHIVIST_DEFAULT-snapshotOrganismSequence");
+		string organismIntervalStr = SS_Arch_organismSequencePL->get(PT);
 		realtimeOrganismSequence.clear();
-		realtimeOrganismSequence = seq(organismIntervalStr, Global::updatesPL->lookup(), true);
+		realtimeOrganismSequence = seq(organismIntervalStr, Global::updatesPL->get(), true);
 		if (realtimeOrganismSequence.size() == 0) {
 			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismSequence \"" << organismIntervalStr << "\".\nExiting." << endl;
 			exit(1);
@@ -177,12 +177,12 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 				i = population.size();
 			}
 		}
-		for (auto org : population) {
-			if (org->timeOfBirth < Global::update || saveNewOrgs) {
-				double newScore = maxFormula->eval(org->dataMap, org->PT)[0] > bestScore;
+		for (size_t i = 0; i < population.size(); i++) {
+			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
+				double newScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
 				if (newScore > bestScore) {
 					bestScore = newScore;
-					bestOrg = org;
+					bestOrg = population[i];
 				}
 			}
 		}
@@ -407,7 +407,7 @@ bool DefaultArchivist::archive(vector<shared_ptr<Organism>> population, int flus
 
 	}
 	// if we are at the end of the run
-	finished = Global::update >= Global::updatesPL->lookup();
+	finished = Global::update >= Global::updatesPL->get();
 	return finished;
 }
 

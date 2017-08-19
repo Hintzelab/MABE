@@ -41,7 +41,7 @@ public:
 
 	IPDBrain() = delete;
 
-	IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
 
 	virtual ~IPDBrain() = default;
 
@@ -50,8 +50,8 @@ public:
 	// Make a brain like the brain that called this function, using genomes and initalizing other elements.
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
-	virtual shared_ptr<AbstractBrain> makeBrainFromValues(vector<double> values);
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual shared_ptr<AbstractBrain> makeBrainFromValues(vector<double> values, shared_ptr<ParametersTable> _PT);
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT) override;
 
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;

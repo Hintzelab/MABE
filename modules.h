@@ -37,10 +37,10 @@
 
 
 //create a world
-shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters::root){
+shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT){
   shared_ptr<AbstractWorld> newWorld;
   bool found = false;
-  string worldType = (PT == nullptr) ? AbstractWorld::worldTypePL->lookup() : PT->lookupString("WORLD-worldType");
+  string worldType = AbstractWorld::worldTypePL->get(PT);
   if (worldType == "Berry") {
     newWorld = make_shared<BerryWorld>(PT);
     found = true;
@@ -78,10 +78,10 @@ shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT = Parameters:
 
 
 //create an optimizer
-shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Parameters::root){
+shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT){
   shared_ptr<AbstractOptimizer> newOptimizer;
   bool found = false;
-  string optimizerType = (PT == nullptr) ? AbstractOptimizer::Optimizer_MethodStrPL->lookup() : PT->lookupString("OPTIMIZER-optimizer");
+  string optimizerType = AbstractOptimizer::Optimizer_MethodStrPL->get(PT);
   if (optimizerType == "Simple") {
     newOptimizer = make_shared<SimpleOptimizer>(PT);
     found = true;
@@ -95,10 +95,10 @@ shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT = Par
 
 
 //create an archivist
-shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT = Parameters::root, string groupPrefix = ""){
+shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT, string groupPrefix = ""){
   shared_ptr<DefaultArchivist> newArchivist;
   bool found = false;
-  string archivistType = (PT == nullptr) ? DefaultArchivist::Arch_outputMethodStrPL->lookup() : PT->lookupString("ARCHIVIST-outputMethod");
+  string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);
   if (archivistType == "Default") {
     newArchivist = make_shared<DefaultArchivist>(popFileColumns, _maxFormula, PT, groupPrefix);
     found = true;
@@ -120,10 +120,10 @@ shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared
 
 
 //create a template genome
-shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT = nullptr){
+shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT){
   shared_ptr<AbstractGenome> newGenome;
   bool found = false;
-  string genomeType = (PT == nullptr) ? AbstractGenome::genomeTypeStrPL->lookup() : PT->lookupString("GENOME-genomeType");
+  string genomeType = AbstractGenome::genomeTypeStrPL->get(PT);
   if (genomeType == "Circular") {
     newGenome = CircularGenome_genomeFactory(PT);
     found = true;
@@ -141,10 +141,10 @@ shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT = n
 
 
 //create a template brain
-shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT = nullptr){
+shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT){
   shared_ptr<AbstractBrain> newBrain;
   bool found = false;
-  string brainType = (PT == nullptr) ? AbstractBrain::brainTypeStrPL->lookup() : PT->lookupString("BRAIN-brainType");
+  string brainType = AbstractBrain::brainTypeStrPL->get(PT);
   if (brainType == "Markov") {
     newBrain = MarkovBrain_brainFactory(inputs, outputs, PT);
     found = true;

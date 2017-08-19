@@ -25,18 +25,16 @@ shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::
 
 SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOptimizer(_PT) {
 	
-	selectionMethod = (PT == nullptr) ? selectionMethodPL->lookup() : PT->lookupString("OPTIMIZER_SIMPLE-selectionMethod");
-	numberParents = (PT == nullptr) ? numberParentsPL->lookup() : PT->lookupInt("OPTIMIZER_SIMPLE-numberParents");
+	selectionMethod = selectionMethodPL->get(PT);
+	numberParents = numberParentsPL->get(PT);
 	
-	optimizeValueMT= (PT == nullptr) ? stringToMTree(optimizeValuePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-optimizeValue"));
-	surviveRateMT = (PT == nullptr) ? stringToMTree(surviveRatePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-surviveRate"));
-	selfRateMT = (PT == nullptr) ? stringToMTree(selfRatePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-selfRate"));
-	elitismCountMT = (PT == nullptr) ? stringToMTree(elitismCountPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismCount"));
-	elitismRangeMT = (PT == nullptr) ? stringToMTree(elitismRangePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismRange"));
+	optimizeValueMT= stringToMTree(optimizeValuePL->get(PT));
+	surviveRateMT = stringToMTree(surviveRatePL->get(PT));
+	selfRateMT = stringToMTree(selfRatePL->get(PT));
+	elitismCountMT = stringToMTree(elitismCountPL->get(PT));
+	elitismRangeMT = stringToMTree(elitismRangePL->get(PT));
 
 	optimizeFormula = optimizeValueMT;
-
-	popSizeLPL = (PT == nullptr) ? Global::popSizePL : Parameters::getIntLink("GLOBAL-popSize", PT);
 
 	vector<string> selectorArgs;
 	stringstream ss(selectionMethod); // Turn the string into a stream.
@@ -67,7 +65,7 @@ SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOpti
 void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	oldPopulationSize = (int)population.size();
 	/////// MUST update to MTREE
-	nextPopulationTargetSize = popSizeLPL->lookup();
+	nextPopulationTargetSize = Global::popSizePL->get(PT);
 	/////// MUST update to MTREE
 
 	nextPopulationSize = 0;
