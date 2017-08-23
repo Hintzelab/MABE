@@ -16,8 +16,8 @@ shared_ptr<ParameterLink<int>> NumeralClassifierWorld::defaultWorldUpdatesPL = P
 shared_ptr<ParameterLink<int>> NumeralClassifierWorld::defaultRetinaTypePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER-retinaType", 3, "1 = center only, 2 = 3 across, 3 = 3x3, 4 = 5x5, 5 = 7x7");
 shared_ptr<ParameterLink<string>> NumeralClassifierWorld::numeralDataFileNamePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER-dataFileName", (string) "World/NumeralClassifierWorld/mnist.train.discrete.28x28-only100", "name of file with numeral data");
 
-shared_ptr<ParameterLink<string>> NumeralClassifierWorld::groupNamePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER_NAMES-groupName", (string)"root::", "namespace of group to be evaluated");
-shared_ptr<ParameterLink<string>> NumeralClassifierWorld::brainNamePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> NumeralClassifierWorld::groupNamePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> NumeralClassifierWorld::brainNamePL = Parameters::register_parameter("WORLD_NUMERALCLASSIFIER_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 NumeralClassifierWorld::NumeralClassifierWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
@@ -359,17 +359,17 @@ void NumeralClassifierWorld::evaluateSolo(shared_ptr<Organism> org, int analyse,
 
 		temp_name = to_string(i) + "-correct";  // make food names i.e. food1, food2, etc.
 		(counts[i] > 0) ? val = (double) correct[i] / (double) counts[i] : val = 0;
-		org->dataMap.Append(temp_name, val);
+		org->dataMap.append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
 
 		temp_name = to_string(i) + "-incorrect";  // make food names i.e. food1, food2, etc.
 		(counts[i] < testsPreWorldEval) ? val = (double) incorrect[i] / ((double) testsPreWorldEval - counts[i]) : val = 0;
-		org->dataMap.Append(temp_name, val);
+		org->dataMap.append(temp_name, val);
 		org->dataMap.setOutputBehavior(temp_name, DataMap::AVE);
 	}
 
-	org->dataMap.Append("totalCorrect", total_correct);  // total food eaten (regardless of type)
-	org->dataMap.Append("totalIncorrect", total_incorrect);  // total food eaten (regardless of type)
+	org->dataMap.append("totalCorrect", total_correct);  // total food eaten (regardless of type)
+	org->dataMap.append("totalIncorrect", total_incorrect);  // total food eaten (regardless of type)
 	org->dataMap.setOutputBehavior("totalCorrect", DataMap::AVE);
 	org->dataMap.setOutputBehavior("totalCorrect", DataMap::AVE);
 
@@ -377,6 +377,6 @@ void NumeralClassifierWorld::evaluateSolo(shared_ptr<Organism> org, int analyse,
 		score = 0.0;
 	}
 	//org->score = score;
-	org->dataMap.Append("score", score);
+	org->dataMap.append("score", score);
 	//org->dataMap.setOutputBehavior("score", DataMap::AVE | DataMap::LIST);
 }

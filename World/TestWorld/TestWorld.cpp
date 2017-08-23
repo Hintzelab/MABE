@@ -13,8 +13,8 @@
 shared_ptr<ParameterLink<int>> TestWorld::modePL = Parameters::register_parameter("WORLD_TEST-mode", 0, "0 = bit outputs before adding, 1 = add outputs");
 shared_ptr<ParameterLink<int>> TestWorld::numberOfOutputsPL = Parameters::register_parameter("WORLD_TEST-numberOfOutputs", 10, "number of outputs in this world");
 shared_ptr<ParameterLink<int>> TestWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEST-evaluationsPerGeneration", 1, "Number of times to test each Genome per generation (useful with non-deterministic brains)");
-shared_ptr<ParameterLink<string>> TestWorld::groupNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-groupName", (string)"root::", "namespace of group to be evaluated");
-shared_ptr<ParameterLink<string>> TestWorld::brainNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> TestWorld::groupNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> TestWorld::brainNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
@@ -22,8 +22,8 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 	//numberOfOutputs = (PT == nullptr) ? numberOfOutputsPL->lookup() : PT->lookupInt("WORLD_TEST-numberOfOutputs");
 	//evaluationsPerGeneration = (PT == nullptr) ? evaluationsPerGenerationPL->lookup() : PT->lookupInt("WORLD_TEST-evaluationsPerGeneration");
 
-	//groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-groupName");
-	//brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-brainName");
+	//groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-groupNameSpace");
+	//brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-brainNameSpace");
 
 	// columns to be added to ave file
 	popFileColumns.clear();
@@ -49,7 +49,7 @@ void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualiz
 		if (score < 0.0) {
 			score = 0.0;
 		}
-		org->dataMap.Append("score", score);
+		org->dataMap.append("score", score);
 		
 	}	
 }

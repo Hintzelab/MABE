@@ -22,8 +22,7 @@ class SSwDArchivist : public DefaultArchivist {  // SnapShot with Delay
 	static shared_ptr<ParameterLink<int>> SSwD_Arch_dataDelayPL;  // when using SSwD, how long is the delay
 	static shared_ptr<ParameterLink<int>> SSwD_Arch_organismDelayPL;  // when using SSwD, how long is the delay
 	static shared_ptr<ParameterLink<int>> SSwD_Arch_cleanupIntervalPL;  // how often to attempt to prune the LOD
-	static shared_ptr<ParameterLink<string>> SSwD_Arch_DataFilePrefixPL;  // name of the Data file
-	static shared_ptr<ParameterLink<string>> SSwD_Arch_OrganismFilePrefixPL;  // name of the Genome file (genomes on LOD)
+	static shared_ptr<ParameterLink<string>> SSwD_Arch_FilePrefixPL;  // name of the Data file
 	static shared_ptr<ParameterLink<bool>> SSwD_Arch_writeDataFilesPL;  // if true, write data file
 	static shared_ptr<ParameterLink<bool>> SSwD_Arch_writeOrganismFilesPL;  // if true, write genome file
 

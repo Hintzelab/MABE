@@ -11,7 +11,7 @@
 #include "../IPDBrain/IPDBrain.h"
 
 shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,2TFT,TF2T,SIMP,Rand]", "list of strategies which this brain can use");
-shared_ptr<ParameterLink<string>> IPDBrain::genomeNamePL = Parameters::register_parameter("BRAIN_IPD_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> IPDBrain::genomeNamePL = Parameters::register_parameter("BRAIN_IPD_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
@@ -142,9 +142,9 @@ DataMap IPDBrain::getStats(string& prefix) {
 
 	for (auto i : availableStrategies) {
 		if (strategy == i){
-			dataMap.Set(prefix + "ipdBrainStrategy" + i,1.0);
+			dataMap.set(prefix + "ipdBrainStrategy" + i,1.0);
 		} else {
-			dataMap.Set(prefix + "ipdBrainStrategy" + i,0.0);
+			dataMap.set(prefix + "ipdBrainStrategy" + i,0.0);
 		}
 	}
 	return (dataMap);

@@ -12,7 +12,7 @@
 #include "../../Brain/IPDBrain/IPDBrain.h"
 
 shared_ptr<ParameterLink<bool>> IPDWorld::roundsFixedPerGenerationPL = Parameters::register_parameter("WORLD_IPD-roundsFixedPerGeneration", true,
-		"if true, number of rounds played will be randomized once per generation, else, each game will be or random duration");
+		"if true, number of rounds played will be randomized once per generation, if false, each game will contain a random number of rounds");
 shared_ptr<ParameterLink<int>> IPDWorld::roundsMinPL = Parameters::register_parameter("WORLD_IPD-roundsMin", 100, "minimum number of rounds played");
 shared_ptr<ParameterLink<int>> IPDWorld::roundsMaxPL = Parameters::register_parameter("WORLD_IPD-roundsMax", 200, "maximum number of rounds played");
 shared_ptr<ParameterLink<double>> IPDWorld::R_payOffPL = Parameters::register_parameter("WORLD_IPD-R_payOff", 3.0, "Reward Payoff - received when both organisms cooperate");
@@ -30,11 +30,12 @@ shared_ptr<ParameterLink<bool>> IPDWorld::randomFirstMovePL = Parameters::regist
 
 shared_ptr<ParameterLink<bool>> IPDWorld::saveMovesListPL = Parameters::register_parameter("WORLD_IPD-saveMovesList", false, "if true, save list of moves made by each agent to dataMap");
 
-shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use");
+shared_ptr<ParameterLink<string>> IPDWorld::fixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-fixedStrategies", (string)"[AllD,AllC,TFT,2TFT,Rand,SIMP]", "list of strategies which this brain can use, see BRAIN_IPD-availableStrategies for all options");
 shared_ptr<ParameterLink<int>> IPDWorld::playsVsFixedStrategiesPL = Parameters::register_parameter("WORLD_IPD-playsVsFixedStrategies", 1, "number of matches each organism will play against each fixed strategy");
 
-shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupName", (string)"root::", "namespace for group to be evaluated");
-shared_ptr<ParameterLink<string>> IPDWorld::brainNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> IPDWorld::groupNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-groupNameSpace", (string)"root::", "namespace for group to be evaluated");
+shared_ptr<ParameterLink<string>> IPDWorld::brainANamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainANameSpace", (string)"root::", "namespace for parameters used to define brainA (brain used when focal player)");
+shared_ptr<ParameterLink<string>> IPDWorld::brainBNamePL = Parameters::register_parameter("WORLD_IPD_NAMES-brainBNameSpace", (string)"root::", "namespace for parameters used to define brainB (brain used when secondary player)");
 
 IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
@@ -75,8 +76,9 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 	convertCSVListToVector(fixedStrategiesPL->get(PT), fixedStrategies);
 
 	string groupName = groupNamePL->get(PT);
-	brainName = brainNamePL->get(PT);
-	
+	brainAName = brainANamePL->get(PT);
+	brainBName = brainBNamePL->get(PT);
+
 	for (auto s : fixedStrategies) {
 		bool foundStrat = false;
 		for (int i = 0; i < (int)castBrain->availableStrategies.size(); i++) {
@@ -84,7 +86,7 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 			if (s == castBrain->availableStrategies[i]) {
 				unordered_map<string, shared_ptr<AbstractGenome>> tempGenomes;
 				unordered_map<string, shared_ptr<AbstractBrain>> tempBrains;
-				tempBrains[brainName] = castBrain->makeBrainFromValues({ (double)i },PT);
+				tempBrains[brainBName] = castBrain->makeBrainFromValues({ (double)i },PT); // since this will alway be player 2, we can just make brainB
 			
 				fixedOrgs.push_back(make_shared<Organism>(tempGenomes, tempBrains, PT));
 				foundStrat = true;
@@ -116,8 +118,9 @@ IPDWorld::IPDWorld(shared_ptr<ParametersTable> _PT) :
 
 
 pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organism> p2, bool analyse, bool visualize, bool debug) {
-	auto brain1 = p1->brains[brainNamePL->get(PT)];
-	auto brain2 = p2->brains[brainNamePL->get(PT)];
+
+	auto brain1 = p1->brains[brainANamePL->get(PT)];
+	auto brain2 = p2->brains[brainBNamePL->get(PT)];
 
 	int p1Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
 	int p2Move = (randomFirstMove) ? Random::getInt(0, 1) : C;
@@ -134,8 +137,8 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 	int P1DD = 0;
 	int P2DD = 0;
 	if (saveMovesList) {
-		p1->dataMap.Append("moves", (string) "X"); // add X to indicate begining of new game
-		p2->dataMap.Append("moves", (string) "X");
+		p1->dataMap.append("moves", (string) "X"); // add X to indicate begining of new game
+		p2->dataMap.append("moves", (string) "X");
 	}
 	brain1->resetBrain();
 	brain2->resetBrain();
@@ -169,8 +172,8 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 		if (saveMovesList) {
 			string p1M = (p1Move == C) ? "C" : "D";
 			string p2M = (p2Move == C) ? "C" : "D";
-			p1->dataMap.Append("moves", p1M + p2M);
-			p2->dataMap.Append("moves", p2M + p1M);
+			p1->dataMap.append("moves", p1M + p2M);
+			p2->dataMap.append("moves", p2M + p1M);
 		}
 		if ((skipFirstMove && t > 0) || !skipFirstMove) { // don't count the first move
 			if (p1Move == C && p2Move == C) {
@@ -203,20 +206,20 @@ pair<double,double> IPDWorld::runDuel(shared_ptr<Organism> p1, shared_ptr<Organi
 	//p1->score = P1score / (double) numRounds;
 	//p2->score = P2score / (double) numRounds;
 
-	p1->dataMap.Append("score", P1score / (double) numRounds);
-	p2->dataMap.Append("score", P2score / (double) numRounds);
+	p1->dataMap.append("score", P1score / (double) numRounds);
+	p2->dataMap.append("score", P2score / (double) numRounds);
 
-	p1->dataMap.Append("CC", (double) P1CC / (double) numRounds);
-	p2->dataMap.Append("CC", (double) P2CC / (double) numRounds);
+	p1->dataMap.append("CC", (double) P1CC / (double) numRounds);
+	p2->dataMap.append("CC", (double) P2CC / (double) numRounds);
 
-	p1->dataMap.Append("CD", (double) P1CD / (double) numRounds);
-	p2->dataMap.Append("CD", (double) P2CD / (double) numRounds);
+	p1->dataMap.append("CD", (double) P1CD / (double) numRounds);
+	p2->dataMap.append("CD", (double) P2CD / (double) numRounds);
 
-	p1->dataMap.Append("DC", (double) P1DC / (double) numRounds);
-	p2->dataMap.Append("DC", (double) P2DC / (double) numRounds);
+	p1->dataMap.append("DC", (double) P1DC / (double) numRounds);
+	p2->dataMap.append("DC", (double) P2DC / (double) numRounds);
 
-	p1->dataMap.Append("DD", (double) P1DD / (double) numRounds);
-	p2->dataMap.Append("DD", (double) P2DD / (double) numRounds);
+	p1->dataMap.append("DD", (double) P1DD / (double) numRounds);
+	p2->dataMap.append("DD", (double) P2DD / (double) numRounds);
 
 	pair<double, double> scores = { P1score / (double)numRounds, P2score / (double)numRounds };
 	return (scores);
@@ -242,7 +245,7 @@ void IPDWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int
 				//cout << "j:" << j << "  playsVsFixedStrategies:" << playsVsFixedStrategies << endl;
 				pair<double,double> scores = runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
 				//cout << scores.first << "  " << scores.second << endl;
-				group->population[i]->dataMap.Append("score-vs-" + fixedStrategies[fixedOrgsCount], scores.first);
+				group->population[i]->dataMap.append("score-vs-" + fixedStrategies[fixedOrgsCount], scores.first);
 				
 				////runDuel(group->population[i], fixedOrgs[fixedOrgsCount], analyse, visualize, debug);
 			}

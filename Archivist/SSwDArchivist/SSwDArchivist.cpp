@@ -17,8 +17,7 @@ shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_organismSequenceStrPL
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_organismDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving organisms ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataFilePrefix", (string) "SSwD_data", "name of genome file (stores genomes)");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_OrganismFilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismFilePrefix", (string) "SSwD_organism", "name of data file (stores everything but organism file data)");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeDataFiles", true, "if true, data files will be written");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismFiles", true, "if true, genome files will be written");
 
@@ -30,10 +29,10 @@ SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_
 
 	cleanupInterval = SSwD_Arch_cleanupIntervalPL->get(PT);
 
-	DataFilePrefix = SSwD_Arch_DataFilePrefixPL->get(PT);
-	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
-	OrganismFilePrefix = SSwD_Arch_OrganismFilePrefixPL->get(PT);
-	OrganismFilePrefix = (groupPrefix == "") ? OrganismFilePrefix : groupPrefix + "__" + OrganismFilePrefix;
+	DataFilePrefix = (groupPrefix == "") ? "SSwD_data" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "SSwD_data";
+	DataFilePrefix = (SSwD_Arch_FilePrefixPL->get(PT) == "NONE") ? DataFilePrefix  : SSwD_Arch_FilePrefixPL->get(PT) + DataFilePrefix;
+	OrganismFilePrefix = (groupPrefix == "") ? "SSwD_organisms" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "SSwD_organisms";
+	OrganismFilePrefix = (SSwD_Arch_FilePrefixPL->get(PT) == "NONE") ? OrganismFilePrefix : SSwD_Arch_FilePrefixPL->get(PT) + OrganismFilePrefix;
 
 	writeDataFiles = SSwD_Arch_writeDataFilesPL->get(PT);
 	writeOrganismFiles = SSwD_Arch_writeOrganismFilesPL->get(PT);
@@ -251,7 +250,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 					if (saveNewOrgs || org->timeOfBirth < Global::update) { // if this org is set up to be saved in this snapshot
 						for (auto ancestor : org->ancestors) {
-							org->snapShotDataMaps[Global::update].Append("ancestors", ancestor);
+							org->snapShotDataMaps[Global::update].append("ancestors", ancestor);
 						}
 						org->ancestors.clear();  // clear ancestors (this data is safe in the checkPoint)
 						org->ancestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
@@ -302,16 +301,16 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				if (auto org = checkpoints[nextOrganismWrite][index].lock()) {  // this ptr is still good
 
 					DataMap OrgMap;
-					OrgMap.Set("ID", org->ID);
+					OrgMap.set("ID", org->ID);
 					string tempName;
 
 					for (auto genome : org->genomes) {
 						tempName = "GENOME_" + genome.first;
-						OrgMap.Merge(genome.second->serialize(tempName));
+						OrgMap.merge(genome.second->serialize(tempName));
 					}
 					for (auto brain : org->brains) {
 						tempName = "BRAIN_" + brain.first;
-						OrgMap.Merge(brain.second->serialize(tempName));
+						OrgMap.merge(brain.second->serialize(tempName));
 					}
 					OrgMap.writeToFile(organismFileName); // append new data to the file
 					index++;
@@ -368,7 +367,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			while (index < checkpoints[nextDataWrite].size()) {
 				if (auto org = checkpoints[nextDataWrite][index].lock()) {  // this ptr is still good
 					//processAllLists(org->snapShotDataMaps[nextDataWrite]);
-					org->snapShotDataMaps[nextDataWrite].Set("update", nextDataWrite);
+					org->snapShotDataMaps[nextDataWrite].set("update", nextDataWrite);
 					org->snapShotDataMaps[nextDataWrite].setOutputBehavior("update", DataMap::FIRST);
 					org->snapShotDataMaps[nextDataWrite].writeToFile(dataFileName, files["data"]);  // append new data to the file
 					index++;  // advance to nex element
@@ -400,7 +399,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
 		if (!writeSnapshotDataFiles && !writeDataFiles && !writeOrganismFiles) {
 			org->parents.clear();
-			cout << "HERE?" << endl;
+			//cout << "HERE?" << endl;
 		}
 		else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end() && org->ancestors.find(org->ID) != org->ancestors.end() && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) { // if ancestors and snapshotAncestors contains self, then this org has been saved and it's ancestor list has been collapsed
 			org->parents.clear();

@@ -21,10 +21,10 @@ public:
 	static shared_ptr<ParameterLink<string>> LODwAP_Arch_organismSequencePL;  // how often to write out genomes
 	static shared_ptr<ParameterLink<int>> LODwAP_Arch_pruneIntervalPL;  // how often to attempt to prune the LOD
 	static shared_ptr<ParameterLink<int>> LODwAP_Arch_terminateAfterPL;  // how long to run after updates (to get better coalescence)
-	static shared_ptr<ParameterLink<string>> LODwAP_Arch_DataFileNamePL;  // name of the Data file
-	static shared_ptr<ParameterLink<string>> LODwAP_Arch_OrganismFileNamePL;  // name of the Genome file (genomes on LOD)
 	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_writeDataFilePL;  // if true, write data file
 	static shared_ptr<ParameterLink<bool>> LODwAP_Arch_writeOrganismFilePL;  // if true, write genome file
+
+	static shared_ptr<ParameterLink<string>> LODwAP_Arch_FilePrefixPL;
 
 	vector<int> dataSequence;  // how often to write out data
 	vector<int> organismSequence;  // how often to write out genomes

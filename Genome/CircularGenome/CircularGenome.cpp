@@ -633,7 +633,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 template<class T>
 DataMap CircularGenome<T>::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set(prefix + "genomeLength", countSites());
+	dataMap.set(prefix + "genomeLength", countSites());
 	return (dataMap);
 }
 
@@ -641,8 +641,8 @@ DataMap CircularGenome<T>::getStats(string& prefix) {
 template<class T>
 DataMap CircularGenome<T>::serialize(string& name) {
 	DataMap serialDataMap;
-	serialDataMap.Set(name + "_genomeLength", countSites());
-	serialDataMap.Set(name + "_sites", genomeToStr());
+	serialDataMap.set(name + "_genomeLength", countSites());
+	serialDataMap.set(name + "_sites", genomeToStr());
 	return serialDataMap;
 }
 
@@ -715,8 +715,8 @@ void CircularGenome<unsigned char>::deserialize(shared_ptr<ParametersTable> PT, 
 
 template<class T>
 void CircularGenome<T>::recordDataMap() {
-	dataMap.Set("alphabetSize", alphabetSize);
-	dataMap.Set("genomeLength", countSites());
+	dataMap.set("alphabetSize", alphabetSize);
+	dataMap.set("genomeLength", countSites());
 
 }
 /*

@@ -240,20 +240,20 @@ DataMap GeneticProgramingBrain::getStats(string& prefix) {
 		t->explode(t, nodesList);
 		nodesCount = (int)nodesList.size();
 	}
-	dataMap.Append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
+	dataMap.append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
 	return (dataMap);
 }
 
 DataMap GeneticProgramingBrain::serialize(string& name) {
 	DataMap serialDataMap;
 	int numFormula = (int)trees.size();
-	serialDataMap.Set(name + "_numFormula", numFormula);
+	serialDataMap.set(name + "_numFormula", numFormula);
 	string formula = "\"[";
 	for (int i = 0; i < numFormula; i++) {
 		formula = formula + trees[i]->getFormula() + "::";
 	}
 	formula += "]\"";
-	serialDataMap.Set(name + "_formulas", formula);
+	serialDataMap.set(name + "_formulas", formula);
 	return serialDataMap;
 }
 

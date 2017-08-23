@@ -19,7 +19,7 @@ shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeUniformPL = Param
 shared_ptr<ParameterLink<bool>> ConstantValuesBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
 shared_ptr<ParameterLink<double>> ConstantValuesBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0.0, "If initialized constant, this value is used to initialize entire genome.");
 
-shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CONSTANT_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CONSTANT_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
@@ -84,7 +84,7 @@ string ConstantValuesBrain::description() {
 DataMap ConstantValuesBrain::getStats(string& prefix) {
 	DataMap dataMap;
 	for (int i = 0; i < nrOutputValues; i++) {
-		dataMap.Set(prefix + "brainValue" + to_string(i),outputValues[i]);
+		dataMap.set(prefix + "brainValue" + to_string(i),outputValues[i]);
 	}
 	return (dataMap);
 }

@@ -199,7 +199,7 @@ public:
 
 	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, const vector<vector<double>>& vectorData) override {
 		vector<double> output;
-		output.push_back(dataMap.GetAverage(key));
+		output.push_back(dataMap.getAverage(key));
 		return output;
 	}
 	virtual void show(int indent = 0) override {
@@ -235,7 +235,7 @@ public:
 
 	virtual vector<double> eval(DataMap& dataMap, shared_ptr<ParametersTable> PT, const vector<vector<double>>& vectorData) override {
 		vector<double> output;
-		output.push_back(dataMap.GetSum(key));
+		output.push_back(dataMap.getSum(key));
 		return output;
 	}
 	virtual void show(int indent = 0) override {

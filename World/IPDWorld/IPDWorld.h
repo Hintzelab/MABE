@@ -48,7 +48,8 @@ public:
 	static shared_ptr<ParameterLink<int>> playsVsFixedStrategiesPL;
 
 	static shared_ptr<ParameterLink<string>> groupNamePL;
-	static shared_ptr<ParameterLink<string>> brainNamePL;
+	static shared_ptr<ParameterLink<string>> brainANamePL;
+	static shared_ptr<ParameterLink<string>> brainBNamePL;
 
 	bool roundsFixedPerGeneration;
 	int roundsMin;
@@ -70,7 +71,8 @@ public:
 	int playsVsFixedStrategies;
 
 	//string groupName;
-	string brainName;
+	string brainAName;
+	string brainBName;
 
 	vector<shared_ptr<Organism>> fixedOrgs;
 
@@ -81,7 +83,9 @@ public:
 	virtual pair<double,double> runDuel(shared_ptr<Organism> player1, shared_ptr<Organism> player2, bool analyse, bool visualize, bool debug);
 
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + "," + to_string(inputNodesCount) + "," + to_string(outputNodesCount) } } }; // default requires a root group and a brain (in root namespace) and no genome 
+		return { { groupNamePL->get(PT),{
+			"B:" + brainANamePL->get(PT) + "," + to_string(inputNodesCount) + "," + to_string(outputNodesCount),
+			"B:" + brainBNamePL->get(PT) + "," + to_string(inputNodesCount) + "," + to_string(outputNodesCount) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 };

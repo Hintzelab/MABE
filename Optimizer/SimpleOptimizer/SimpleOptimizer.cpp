@@ -93,7 +93,7 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 		double opVal = optimizeValueMT->eval(population[i]->dataMap, PT)[0];
 		scores.push_back(opVal);
 		aveScore += opVal;
-		population[i]->dataMap.Set("optimizeValue", opVal);
+		population[i]->dataMap.set("optimizeValue", opVal);
 		if (opVal > maxScore) {
 			maxScore = opVal;
 		}

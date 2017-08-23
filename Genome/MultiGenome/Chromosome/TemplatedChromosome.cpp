@@ -350,16 +350,16 @@ template<class T> int TemplatedChromosome<T>::size() {
 
 template<class T> DataMap TemplatedChromosome<T>::getFixedStats() {
 	DataMap dataMap;
-	dataMap.Set("alphabetSize", alphabetSize);
+	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
 	return (dataMap);
 }
 
 template<class T> DataMap TemplatedChromosome<T>::getStats() {
 	DataMap dataMap;
-	dataMap.Set("alphabetSize", alphabetSize);
+	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
-	dataMap.Set("size", (int)sites.size());
+	dataMap.set("size", (int)sites.size());
 	dataMap.setOutputBehavior("alphabetSize", DataMap::AVE);
 	return (dataMap);
 }

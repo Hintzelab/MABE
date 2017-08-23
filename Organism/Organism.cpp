@@ -32,9 +32,9 @@ void Organism::initOrganism(shared_ptr<ParametersTable> _PT) {
 	offspringCount = 0;  // because it's alive;
 	timeOfBirth = Global::update;  // happy birthday!
 	timeOfDeath = -1;  // still alive
-	dataMap.Set("ID", ID);
-	dataMap.Set("alive", alive);
-	dataMap.Set("timeOfBirth", timeOfBirth);
+	dataMap.set("ID", ID);
+	dataMap.set("alive", alive);
+	dataMap.set("timeOfBirth", timeOfBirth);
 }
 
 
@@ -61,7 +61,7 @@ Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
 		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
-		dataMap.Merge(genome.second->getStats(prefix));
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
@@ -69,7 +69,7 @@ Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
 		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
-		dataMap.Merge(brain.second->getStats(prefix));
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
 	if (genomes.count("root::") == 0) {
@@ -102,7 +102,7 @@ Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<A
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
 		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
-		dataMap.Merge(genome.second->getStats(prefix));
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
@@ -110,7 +110,7 @@ Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<A
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
 		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
-		dataMap.Merge(brain.second->getStats(prefix));
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
 	if (genomes.count("root::") == 0) {
@@ -149,7 +149,7 @@ Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shar
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
 		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
-		dataMap.Merge(genome.second->getStats(prefix));
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
@@ -157,7 +157,7 @@ Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shar
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
 		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
-		dataMap.Merge(brain.second->getStats(prefix));
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
 	if (genomes.count("root::") == 0) {

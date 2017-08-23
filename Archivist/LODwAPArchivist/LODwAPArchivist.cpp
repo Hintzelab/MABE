@@ -16,20 +16,19 @@ shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_organismSequenceP
 		"How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_pruneIntervalPL = Parameters::register_parameter("ARCHIVIST_LODWAP-pruneInterval", 100, "How often to attempt to prune LOD and actually write out to files");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 10, "how long to run after updates (to get allow time for coalescence)");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_DataFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataFileName", (string) "LOD_data.csv", "name of genome file (stores genomes for line of decent)");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_OrganismFileNamePL = Parameters::register_parameter("ARCHIVIST_LODWAP-genomeFileName", (string) "LOD_organism.csv", "name of data file (stores everything but genomes)");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeDataFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeDataFile", true, "if true, a data file will be written");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeOrganismFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeOrganismFile", true, "if true, a organism file will be written");
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_LODWAP-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
+
+
 
 LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 		DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
 
 	pruneInterval = LODwAP_Arch_pruneIntervalPL->get(PT);
 	terminateAfter = LODwAP_Arch_terminateAfterPL->get(PT);
-	DataFileName = LODwAP_Arch_DataFileNamePL->get(PT);
-	DataFileName = (groupPrefix == "") ? DataFileName : groupPrefix + "__" + DataFileName;
-	OrganismFileName = LODwAP_Arch_OrganismFileNamePL->get(PT);
-	OrganismFileName = (groupPrefix == "") ? OrganismFileName : groupPrefix + "__" + OrganismFileName;
+	DataFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE")? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((groupPrefix == "") ? "LOD_data.csv" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "LOD_data.csv"));
+	OrganismFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE") ? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((groupPrefix == "") ? "LOD_organisms.csv"  : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "LOD_organisms.csv"));
 
 	writeDataFile = LODwAP_Arch_writeDataFilePL->get(PT);
 	writeOrganismFile = LODwAP_Arch_writeOrganismFilePL->get(PT);
@@ -137,14 +136,14 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 		if (writeDataFile) {
 			while ((effective_MRCA->timeOfBirth >= nextDataWrite) && (nextDataWrite <= Global::updatesPL->get())) {  // if there is convergence before the next data interval
 				shared_ptr<Organism> current = LOD[nextDataWrite - lastPrune];
-				current->dataMap.Set("update", nextDataWrite);
+				current->dataMap.set("update", nextDataWrite);
 				current->dataMap.setOutputBehavior("update", DataMap::FIRST);
 				TTC = max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
-				current->dataMap.Set("timeToCoalescence", TTC);
+				current->dataMap.set("timeToCoalescence", TTC);
 				current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
 				current->dataMap.writeToFile(DataFileName, files[DataFileName]);  // append new data to the file
-				current->dataMap.Clear("update");
-				current->dataMap.Clear("timeToCoalescence");
+				current->dataMap.clear("update");
+				current->dataMap.clear("timeToCoalescence");
 				if ((int) dataSequence.size() > dataSeqIndex + 1) {
 					dataSeqIndex++;
 					nextDataWrite = dataSequence[dataSeqIndex];
@@ -165,18 +164,18 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush
 				shared_ptr<Organism> current = LOD[nextOrganismWrite - lastPrune];
 
 				DataMap OrgMap;
-				OrgMap.Set("ID", current->ID);
-				OrgMap.Set("update", nextOrganismWrite);
+				OrgMap.set("ID", current->ID);
+				OrgMap.set("update", nextOrganismWrite);
 				OrgMap.setOutputBehavior("update", DataMap::FIRST);
 				string tempName;
 
 				for (auto genome : current->genomes) {
 					tempName = "GENOME_" + genome.first;
-					OrgMap.Merge(genome.second->serialize(tempName));
+					OrgMap.merge(genome.second->serialize(tempName));
 				}
 				for (auto brain : current->brains) {
 					tempName = "BRAIN_" + brain.first;
-					OrgMap.Merge(brain.second->serialize(tempName));
+					OrgMap.merge(brain.second->serialize(tempName));
 				}
 				OrgMap.writeToFile(OrganismFileName); // append new data to the file
 

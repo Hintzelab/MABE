@@ -159,7 +159,6 @@ int main(int argc, const char * argv[]) {
 			}
 
 			cout << "    ... building a " << This_PT->lookupString("BRAIN-brainType") << " brain using " << brainName << " name space." << endl;
-
 			templateBrains[brainName] = makeTemplateBrain(brainIns[brainName], brainOuts[brainName], This_PT);
 			strSet = templateBrains[brainName]->requiredGenomes();
 			if (strSet.size() > 0) {
@@ -357,7 +356,7 @@ int main(int argc, const char * argv[]) {
 		}
 
 		world->evaluate(groups, 0, 1, 0);
-		cout << "org with ID: " << orgData["ID"] << "  generated score: " << groups["root::"]->population[0]->dataMap.GetAverage("score") << endl;
+		cout << "org with ID: " << orgData["ID"] << "  generated score: " << groups["root::"]->population[0]->dataMap.getAverage("score") << endl;
 
 	}
 

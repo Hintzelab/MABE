@@ -11,7 +11,7 @@
 #include "../LSTMBrain/LSTMBrain.h"
 
 
-shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 
 

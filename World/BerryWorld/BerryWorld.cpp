@@ -93,8 +93,8 @@ shared_ptr<ParameterLink<int>> BerryWorld::repeatsPL = Parameters::register_para
 shared_ptr<ParameterLink<bool>> BerryWorld::groupEvaluationPL = Parameters::register_parameter("WORLD_BERRY-groupEvaluation", false, "if true, evaluate population concurrently");
 
 
-shared_ptr<ParameterLink<string>> BerryWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-groupName", (string)"root::", "namespace for group to be evaluated");
-shared_ptr<ParameterLink<string>> BerryWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> BerryWorld::groupNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-groupNameSpace", (string)"root::", "namespace for group to be evaluated");
+shared_ptr<ParameterLink<string>> BerryWorld::brainNamePL = Parameters::register_parameter("WORLD_BERRY_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
@@ -632,11 +632,11 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 		for (int i = 0; i < (int) group->population.size(); i++) {
 			foodHereOnArrival[i] = getGridValue(grid, currentLocation[i]);  //value of the food when we got here - needed for replacement method.
 			if (saveOrgActions) { // if saveOrgActions save the type of the food org starts on.
-				dataMap.Append(to_string(group->population[i]->ID) + "_moves", foodHereOnArrival[i]);
+				dataMap.append(to_string(group->population[i]->ID) + "_moves", foodHereOnArrival[i]);
 			}
 			eaten[i].resize(foodTypes + 1);
 			if (recordFoodList) {
-				group->population[i]->dataMap.Append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
+				group->population[i]->dataMap.append("foodList", -2);  // -2 = a world initialization, -1 = did not eat this step
 			}
 
 			group->population[i]->brains[brainName]->resetBrain();
@@ -792,7 +792,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 									  // - values are actions
 					if (alwaysEat) {
 						if (output1 != 0) {
-							dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * (output1));
+							dataMap.append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * (output1));
 							// bits   int
 							// -00 =  -0 =   no action // not recorded
 							// -01 =  -1 =   right
@@ -801,7 +801,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 						}
 					} else {
 						if ((output1 << 1) + output2 != 0) {
-							dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * ((output1 << 1) + output2));
+							dataMap.append(to_string(group->population[orgIndex]->ID) + "_moves", -1 * ((output1 << 1) + output2));
 							// bits    int
 							// -000 =  -0 =   no action // not recorded
 							// -001 =  -1 =   eat
@@ -818,7 +818,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				if ((output2 == 1 && !alwaysEat) || (alwaysEat && lastActionWasMove)) {  // if org tried to eat or always eat and last action was move
 					int foodHere = getGridValue(grid, currentLocation[orgIndex]);
 					if ((recordFoodList && foodHere != 0) || (recordFoodList && recordFoodListEatEmpty)) {
-						group->population[orgIndex]->dataMap.Append("foodList", foodHere);  // record that org ate food (or tried to at any rate)
+						group->population[orgIndex]->dataMap.append("foodList", foodHere);  // record that org ate food (or tried to at any rate)
 					}
 					eaten[orgIndex][foodHere]++;  // track the number of each berry eaten, including 0s
 					if (foodHere != EMPTY) {  // eat food here (if there is food here)
@@ -838,7 +838,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					}
 				} else {
 					if (recordFoodList && recordFoodListNoEat) {
-						group->population[orgIndex]->dataMap.Append("foodList", -1);  // record that org did not try to eat this time
+						group->population[orgIndex]->dataMap.append("foodList", -1);  // record that org did not try to eat this time
 					}
 				}
 				lastActionWasMove = false;
@@ -896,7 +896,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 							}
 							foodHereOnArrival[orgIndex] = getGridValue(grid, currentLocation[orgIndex]);  //value of the food when we got here - needed for replacement method.
 							if (saveOrgActions) { // if saveOrgActions save the type of the food org moves onto.
-								dataMap.Append(to_string(group->population[orgIndex]->ID) + "_moves", foodHereOnArrival[orgIndex]);
+								dataMap.append(to_string(group->population[orgIndex]->ID) + "_moves", foodHereOnArrival[orgIndex]);
 							}
 						}
 						break;
@@ -925,18 +925,18 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 					total_eaten += eaten[i][f];
 				}
 				string temp_name = "food" + to_string(f);  // make food names i.e. food1, food2, etc.
-				group->population[i]->dataMap.Append(temp_name, eaten[i][f]);
+				group->population[i]->dataMap.append(temp_name, eaten[i][f]);
 
 			}
 			if (recordConsumptionRatio) {  // consumption ratio displays high value of org favors one food over the other and low values if both are being consumed. works on food[0] and food[1] only
-				(eaten[i][1] > eaten[i][2]) ? group->population[i]->dataMap.Append("consumptionRatio", (double) eaten[i][1] / (double) (eaten[i][2] + 1)) : group->population[i]->dataMap.Append("consumptionRatio", (double) eaten[i][2] / (double) (eaten[i][1] + 1));
+				(eaten[i][1] > eaten[i][2]) ? group->population[i]->dataMap.append("consumptionRatio", (double) eaten[i][1] / (double) (eaten[i][2] + 1)) : group->population[i]->dataMap.append("consumptionRatio", (double) eaten[i][2] / (double) (eaten[i][1] + 1));
 			}
 
-			group->population[i]->dataMap.Append("total", total_eaten);  // total food eaten (regardless of type)
+			group->population[i]->dataMap.append("total", total_eaten);  // total food eaten (regardless of type)
 
-			group->population[i]->dataMap.Append("switches", switches[i]);
-			group->population[i]->dataMap.Append("novelty", novelty[i]);
-			group->population[i]->dataMap.Append("repeated", repeated[i]);
+			group->population[i]->dataMap.append("switches", switches[i]);
+			group->population[i]->dataMap.append("novelty", novelty[i]);
+			group->population[i]->dataMap.append("repeated", repeated[i]);
 
 //			if (scores[i] < 0.0) {
 //				scores[i] = 0.0;
@@ -953,13 +953,13 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 	for (int orgIndex = 0; orgIndex < (int) group->population.size(); orgIndex++) {
 
 		//group->population[orgIndex]->score = summedScores[orgIndex] / numWorlds;
-		group->population[orgIndex]->dataMap.Append("score", summedScores[orgIndex] / numWorlds);
+		group->population[orgIndex]->dataMap.append("score", summedScores[orgIndex] / numWorlds);
 
 		// set up output behaviors for entries in data map
 
 		if (saveOrgActions) { // if saveOrgActions save the output.
 			vector<int> simplifiedMoves;
-			auto moves = dataMap.GetIntVector(to_string(group->population[orgIndex]->ID) + "_moves");
+			auto moves = dataMap.getIntVector(to_string(group->population[orgIndex]->ID) + "_moves");
 			int movesCount = moves.size();
 			int turn;
 			int leftTurnCount = 0;
@@ -1056,7 +1056,7 @@ void BerryWorld::runWorld(shared_ptr<Group> group, int analyse, int visualize, i
 				}
 			}
 
-			dataMap.Set(to_string(group->population[orgIndex]->ID) + "_SimplifiedMoves", simplifiedMoves);
+			dataMap.set(to_string(group->population[orgIndex]->ID) + "_SimplifiedMoves", simplifiedMoves);
 
 		}
 

@@ -42,7 +42,7 @@ shared_ptr<ParameterLink<int>> WireBrain::hiddenValuesPL = Parameters::register_
 
 shared_ptr<ParameterLink<int>> WireBrain::bitsPerCodonPL = Parameters::register_parameter("BRAIN_WIRE-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
 
-shared_ptr<ParameterLink<string>> WireBrain::genomeNamePL = Parameters::register_parameter("BRAIN_WIRE_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> WireBrain::genomeNamePL = Parameters::register_parameter("BRAIN_WIRE_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes,  _PT) {
@@ -1126,13 +1126,13 @@ string WireBrain::description() {
 DataMap WireBrain::getStats(string& prefix) {
 	DataMap dataMap;
 
-	dataMap.Set(prefix + "wireBrainWidth",width);
-	dataMap.Set(prefix + "wireBrainHeight",height);
-	dataMap.Set(prefix + "wireBrainDepth",depth);
+	dataMap.set(prefix + "wireBrainWidth",width);
+	dataMap.set(prefix + "wireBrainHeight",height);
+	dataMap.set(prefix + "wireBrainDepth",depth);
 
-	dataMap.Set(prefix + "wireBrainWireCount",(int)wireAddresses.size());
+	dataMap.set(prefix + "wireBrainWireCount",(int)wireAddresses.size());
 
-	dataMap.Set(prefix + "wireBrainConnectionsCount",connectionsCount);
+	dataMap.set(prefix + "wireBrainConnectionsCount",connectionsCount);
 
 	return dataMap;
 }

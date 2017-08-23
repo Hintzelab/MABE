@@ -17,8 +17,8 @@ shared_ptr<ParameterLink<int>> MemoryWorld::worldUpdatesPL = Parameters::registe
 shared_ptr<ParameterLink<int>> MemoryWorld::refreshPasswordPL = Parameters::register_parameter("WORLD_MEMORY-refreshPassword", 1, "how often should the password be reset (0 = never, 1 = per generation, 2 = every eval)");
 shared_ptr<ParameterLink<int>> MemoryWorld::refreshMaskPL = Parameters::register_parameter("WORLD_MEMORY-refreshMask", 1, "how often should the mask be reset (0 = never, 1 = per generation, 2 = every eval)");
 
-shared_ptr<ParameterLink<string>> MemoryWorld::groupNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-groupName", (string)"root::", "namespace of group to be evaluated");
-shared_ptr<ParameterLink<string>> MemoryWorld::brainNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> MemoryWorld::groupNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> MemoryWorld::brainNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 
 MemoryWorld::MemoryWorld(shared_ptr<ParametersTable> _PT) :
@@ -151,10 +151,10 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
     for(int i=0; i<(int)mask.size(); i++){
 		if (mask[i] != 0) {
 			score += scores[i];
-			org->dataMap.Append("Out" + to_string(i), scores[i] / (double)worldUpdates);
+			org->dataMap.append("Out" + to_string(i), scores[i] / (double)worldUpdates);
 		}
     }
-    org->dataMap.Append("score", pow(2.0, 1 + (score / (double)(worldUpdates))));
+    org->dataMap.append("score", pow(2.0, 1 + (score / (double)(worldUpdates))));
 }
 
 int MemoryWorld::requiredInputs() {

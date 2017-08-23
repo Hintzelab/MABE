@@ -11,8 +11,8 @@
 #include "SOFWorld.h"
 
 shared_ptr<ParameterLink<string>> SOFWorld::scoreMapFilenamePL = Parameters::register_parameter("WORLD_SOF-scoreMapFilename", (string)"World/SOFWorld/scoreMap_20x20_2peaks.txt", "name of file containing score map.");
-shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupName", (string)"root::", "namespace of group to be evaluated");
-shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainName", (string)"root::", "namespace for parameters used to define brain");
+shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 
 SOFWorld::SOFWorld(shared_ptr<ParametersTable> _PT) :
@@ -97,9 +97,9 @@ void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 	}
 
 	//org->score = score;
-	org->dataMap.Append("score", score);
-	org->dataMap.Append("x", local_x);
-	org->dataMap.Append("y", local_y);
+	org->dataMap.append("score", score);
+	org->dataMap.append("x", local_x);
+	org->dataMap.append("y", local_y);
 }
 
 

@@ -19,7 +19,7 @@ shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMaxPL = Parameters::registe
 shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMinPL = Parameters::register_parameter("BRAIN_CGP-magnitudeMin", -1000000000.0, "values generated which are smaller then this will by clipped");
 shared_ptr<ParameterLink<int>> CGPBrain::numOpsPreVectorPL = Parameters::register_parameter("BRAIN_CGP-operatorsPreFormula", 8, "number of instructions per formula. Ignored if buildMode is \"genes\"");
 
-shared_ptr<ParameterLink<string>> CGPBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> CGPBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 shared_ptr<ParameterLink<string>> CGPBrain::buildModePL = Parameters::register_parameter("BRAIN_CGP-buildMode", (string)"linear", "How is the genome converted, \"linear\" : linear conversion starting at begining of genome, \"codon\" : start codons locate operator+in1+in2 along with the formula/output index and a location in formula");
 shared_ptr<ParameterLink<int>> CGPBrain::codonMaxPL = Parameters::register_parameter("BRAIN_CGP-codonMax", 100, "if using \"genes\" buildMode, values will be extracted from genome as integers [0..codonMax] and two sites that add to codonMax defines a start codon");
@@ -397,7 +397,7 @@ DataMap CGPBrain::getStats(string& prefix) {
 			aveFormulaLength += (double)(vec.size());
 		}
 		aveFormulaLength /= double(brainVectors.size());
-		dataMap.Set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
+		dataMap.set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
 	}
 	// get stats
 	//cout << "warning:: getStats for CGPBrain needs to be written." << endl;

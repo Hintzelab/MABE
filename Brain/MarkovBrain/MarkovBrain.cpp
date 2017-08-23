@@ -15,7 +15,7 @@ shared_ptr<ParameterLink<int>> MarkovBrain::randomizeUnconnectedOutputsTypePL = 
 shared_ptr<ParameterLink<double>> MarkovBrain::randomizeUnconnectedOutputsMinPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMin", 0.0, "random values resulting from randomizeUnconnectedOutput will be in the range of randomizeUnconnectedOutputsMin to randomizeUnconnectedOutputsMax");
 shared_ptr<ParameterLink<double>> MarkovBrain::randomizeUnconnectedOutputsMaxPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMax", 1.0, "random values resulting from randomizeUnconnectedOutput will be in the range of randomizeUnconnectedOutputsMin to randomizeUnconnectedOutputsMax");
 shared_ptr<ParameterLink<int>> MarkovBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN_MARKOV-hiddenNodes", 8, "number of hidden nodes");
-shared_ptr<ParameterLink<string>> MarkovBrain::genomeNamePL = Parameters::register_parameter("BRAIN_MARKOV-genomeName", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+shared_ptr<ParameterLink<string>> MarkovBrain::genomeNamePL = Parameters::register_parameter("BRAIN_MARKOV-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 void MarkovBrain::readParameters(){
 	randomizeUnconnectedOutputs = randomizeUnconnectedOutputsPL->get(PT);
@@ -164,7 +164,7 @@ void MarkovBrain::fillInConnectionsLists() {
 }
 DataMap MarkovBrain::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set(prefix+"markovBrainGates",(int)gates.size());
+	dataMap.set(prefix+"markovBrainGates",(int)gates.size());
 	map<string, int> gatecounts;
 	for (auto n : GLB->getInUseGateNames()) {
 		gatecounts[n + "Gates"] = 0;
@@ -174,7 +174,7 @@ DataMap MarkovBrain::getStats(string& prefix) {
 	}
 
 	for (auto n : GLB->getInUseGateNames()) {
-		dataMap.Set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
+		dataMap.set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
 	}
 
 	vector<int> nodesConnectionsList;
@@ -184,9 +184,9 @@ DataMap MarkovBrain::getStats(string& prefix) {
 		nodesConnectionsList.push_back(nodesConnections[i]);
 		nextNodesConnectionsList.push_back(nextNodesConnections[i]);
 	}
-	dataMap.Set(prefix+"markovBrain_nodesConnections", nodesConnectionsList);
+	dataMap.set(prefix+"markovBrain_nodesConnections", nodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nodesConnections", DataMap::LIST);
-	dataMap.Set(prefix+"markovBrain_nextNodesConnections", nextNodesConnectionsList);
+	dataMap.set(prefix+"markovBrain_nextNodesConnections", nextNodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nextNodesConnections", DataMap::LIST);
 
 	return (dataMap);

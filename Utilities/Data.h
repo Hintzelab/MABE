@@ -77,7 +77,10 @@ public:
 		doubleData = source->doubleData;
 		intData = source->intData;
 		stringData = source->stringData;
-		inUse = source->inUse;
+		for (auto entry : source->inUse) {
+			inUse[entry.first] = entry.second;
+		}
+		//inUse = source->inUse; // replaced with for loop.
 		outputBehavior = source->outputBehavior;
 	}
 
@@ -135,49 +138,49 @@ public:
 	}
 
 	// set functions (bool,double,int,string) that take a **single** value - either make new map entry or replace existing
-	inline void Set(const string& key, const bool& value) {
+	inline void set(const string& key, const bool& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == BOOL || typeOfKey == BOOLSOLO) { // if key is unused or associates with correct type
 			boolData[key] = vector<bool>( { value });
 			inUse[key] = BOOLSOLO; // since this is set with SET, it is a single value
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value = \"" << value << "\" where value is bool." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const double& value) {
+	inline void set(const string& key, const double& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) { // if key is unused or associates with correct type
 			doubleData[key] = vector<double>( { value });
 			inUse[key] = DOUBLESOLO; // since this is set with SET, it is a single value
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value = \"" << value << "\" where value is double." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const int& value) {
+	inline void set(const string& key, const int& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == INT || typeOfKey == INTSOLO) { // if key is unused or associates with correct type
 			intData[key] = vector<int>( { value });
 			inUse[key] = INTSOLO; // since this is set with SET, it is a single value
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value = \"" << value << "\" where value is int." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const string& value) {
+	inline void set(const string& key, const string& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == STRING || typeOfKey == STRINGSOLO) { // if key is unused or associates with correct type
 			stringData[key] = vector<string>( { value });
 			inUse[key] = STRINGSOLO;
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value = \"" << value << "\" where value is string." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
@@ -185,49 +188,49 @@ public:
 	}
 
 	// set functions (bool,double,int,string) that take a **vector** of value - either make new map entry or replace existing
-	inline void Set(const string& key, const vector<bool>& value) {
+	inline void set(const string& key, const vector<bool>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == BOOL || typeOfKey == BOOLSOLO) { // if key is unused or associates with correct type
 			boolData[key] = value;
 			inUse[key] = BOOL;
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value is a vector of bool." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const vector<double>& value) {
+	inline void set(const string& key, const vector<double>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) { // if key is unused or associates with correct type
 			doubleData[key] = value;
 			inUse[key] = DOUBLE;
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value is a vector of double." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const vector<int>& value) {
+	inline void set(const string& key, const vector<int>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == INT || typeOfKey == INTSOLO) { // if key is unused or associates with correct type
 			intData[key] = value;
 			inUse[key] = INT;
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value is a vector of int." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Set(const string& key, const vector<string>& value) {
+	inline void set(const string& key, const vector<string>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE || typeOfKey == STRING || typeOfKey == STRINGSOLO) { // if key is unused or associates with correct type
 			stringData[key] = value;
 			inUse[key] = STRING;
 		} else {
-			cout << "  ERROR :: a call to DataMap::Set was called where the key was already in use with another type." << endl;
+			cout << "  ERROR :: a call to DataMap::set was called where the key was already in use with another type." << endl;
 			cout << "  function was called with : key = \"" << key << "\" value is a vector of string." << endl;
 			cout << "  but ... key is already associated with type " << findKeyInData(key) << ". Exiting." << endl;
 			exit(1);
@@ -235,134 +238,134 @@ public:
 	}
 
 	// append a value to the end of vector associated with key. If key is not found, start a new vector for key
-	inline void Append(const string& key, const bool& value) {
+	inline void append(const string& key, const bool& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 			inUse[key] = BOOL; // set the in use to be a list rather then a solo
 		} else if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) { // if this key is in data map as a string, append to vector
 			boolData[key].push_back(value);
 			inUse[key] = BOOL;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append value \"" << value << "\" of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const double& value) {
+	inline void append(const string& key, const double& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 			inUse[key] = DOUBLE; // set the in use to be a list rather then a solo
 		} else if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) { // if this key is in data map as a string, append to vector
 			doubleData[key].push_back(value);
 			inUse[key] = DOUBLE;
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append value \"" << value << "\" of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const int& value) {
+	inline void append(const string& key, const int& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 			inUse[key] = INT; // set the in use to be a list rather then a solo
 		} else if (typeOfKey == INT || typeOfKey == INTSOLO) { // if this key is in data map as a string, append to vector
 			intData[key].push_back(value);
 			inUse[key] = INT; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append value \"" << value << "\" of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const string& value) {
+	inline void append(const string& key, const string& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 			inUse[key] = STRING; // set the in use to be a list rather then a solo
 		} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) { // if this key is in data map as a string, append to vector
 			stringData[key].push_back(value);
 			inUse[key] = STRING; // set the in use to be a list rather then a solo
 		} else {
-			cout << "  In DataMap::Append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append value \"" << value << "\" of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
 
 	// append a vector of values to the end of vector associated with key. If key is not found, start a new vector for key
-	inline void Append(const string& key, const vector<bool>& value) {
+	inline void append(const string& key, const vector<bool>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 		} else if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) { // if this key is in data map as a string, append to vector
 			boolData[key].insert(boolData[key].end(), value.begin(), value.end());
 			inUse[key] = BOOL; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append a vector of type bool to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const vector<double>& value) {
+	inline void append(const string& key, const vector<double>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 		} else if (typeOfKey == DOUBLE) { // if this key is in data map as a string, append to vector
 			doubleData[key].insert(doubleData[key].end(), value.begin(), value.end());
 			inUse[key] = DOUBLE; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append a vector of type double to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const vector<int>& value) {
+	inline void append(const string& key, const vector<int>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 		} else if (typeOfKey == INT) { // if this key is in data map as a string, append to vector
 			intData[key].insert(intData[key].end(), value.begin(), value.end());
 			inUse[key] = INT; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append a vector of type int to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
-	inline void Append(const string& key, const vector<string>& value) {
+	inline void append(const string& key, const vector<string>& value) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) { // this key is not in data map, use Set.
-			Set(key, value);
+			set(key, value);
 		} else if (typeOfKey == STRING) { // if this key is in data map as a string, append to vector
 			stringData[key].insert(stringData[key].end(), value.begin(), value.end());
 			inUse[key] = STRING; // may have been solo - make sure it's list
 		} else {
-			cout << "  In DataMap::Append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
+			cout << "  In DataMap::append :: attempt to append a vector of type string to \"" << key << "\" but this key is already associated with " << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << endl;
 			exit(1);
 		}
 	}
 
 	// merge contents of two data maps - if common keys are found, replace 1 = overwrite, replace 0 = append
-	inline void Merge(DataMap otherDataMap, bool replace = 0) {
+	inline void merge(DataMap otherDataMap, bool replace = 0) {
 		if (replace == true) {
 			for (string key : otherDataMap.getKeys()) {
 				dataMapType typeOfKey = findKeyInData(key);
 				dataMapType typeOfOtherKey = otherDataMap.findKeyInData(key);
 				if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
 					if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
-						Set(key, otherDataMap.GetBoolVector(key));
+						set(key, otherDataMap.getBoolVector(key));
 						outputBehavior[key] = otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
-						Set(key, otherDataMap.GetDoubleVector(key));
+						set(key, otherDataMap.getDoubleVector(key));
 						outputBehavior[key] = otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
-						Set(key, otherDataMap.GetIntVector(key));
+						set(key, otherDataMap.getIntVector(key));
 						outputBehavior[key] = otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
-						Set(key, otherDataMap.GetStringVector(key));
+						set(key, otherDataMap.getStringVector(key));
 						outputBehavior[key] = otherDataMap.outputBehavior[key];
 					}
 				} else {
-					cout << "  In DataMap::Merge() - attempt to merge key: \"" << key << "\" but types do not match!\n  Exiting." << endl;
+					cout << "  In DataMap::merge() - attempt to merge key: \"" << key << "\" but types do not match!\n  Exiting." << endl;
 				}
 			}
 		} else { // replace != true
@@ -371,7 +374,7 @@ public:
 				dataMapType typeOfOtherKey = otherDataMap.findKeyInData(key);
 				if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
 					if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
-						Append(key, otherDataMap.GetBoolVector(key));
+						append(key, otherDataMap.getBoolVector(key));
 						if (boolData[key].size() == 1 && typeOfOtherKey == BOOLSOLO) {
 							inUse[key] = BOOLSOLO;
 						} else {
@@ -380,7 +383,7 @@ public:
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
-						Append(key, otherDataMap.GetDoubleVector(key));
+						append(key, otherDataMap.getDoubleVector(key));
 						if (doubleData[key].size() == 1 && typeOfOtherKey == DOUBLESOLO) {
 							inUse[key] = DOUBLESOLO;
 						} else {
@@ -389,7 +392,7 @@ public:
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
-						Append(key, otherDataMap.GetIntVector(key));
+						append(key, otherDataMap.getIntVector(key));
 						if (intData[key].size() == 1 && typeOfOtherKey == INTSOLO) {
 							inUse[key] = INTSOLO;
 						} else {
@@ -398,7 +401,7 @@ public:
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 					if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
-						Append(key, otherDataMap.GetStringVector(key));
+						append(key, otherDataMap.getStringVector(key));
 						if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO) {
 							inUse[key] = STRINGSOLO;
 						} else {
@@ -407,54 +410,54 @@ public:
 						outputBehavior[key] = outputBehavior[key] | otherDataMap.outputBehavior[key];
 					}
 				} else {
-					cout << "  In DataMap::Merge() - attempt to merge key: \"" << key << "\" but types do not match!\n  Exiting." << endl;
+					cout << "  In DataMap::merge() - attempt to merge key: \"" << key << "\" but types do not match!\n  Exiting." << endl;
 				}
 			}
 		}
 	}
 
-	inline vector<bool> GetBoolVector(const string &key) { // retrieve a double from a dataMap with "key"
+	inline vector<bool> getBoolVector(const string &key) { // retrieve a double from a dataMap with "key"
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
 			return boolData[key];
 		} else {
-			cout << "  in DataMap::GetBoolVector :: attempt to use GetBoolVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
+			cout << "  in DataMap::getBoolVector :: attempt to use getBoolVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
 			cout << "  (if type is NONE, then the key was not found in dataMap)" << endl;
 			exit(1);
 		}
 	}
-	inline vector<double> GetDoubleVector(const string &key) { // retrieve a double from a dataMap with "key"
+	inline vector<double> getDoubleVector(const string &key) { // retrieve a double from a dataMap with "key"
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
 			return doubleData[key];
 		} else {
-			cout << "  in DataMap::GetDoubleVector :: attempt to use GetDoubleVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
+			cout << "  in DataMap::getDoubleVector :: attempt to use getDoubleVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
 			cout << "  (if type is NONE, then the key was not found in dataMap)" << endl;
 			exit(1);
 		}
 	}
-	inline vector<int> GetIntVector(const string &key) { // retrieve a double from a dataMap with "key"
+	inline vector<int> getIntVector(const string &key) { // retrieve a double from a dataMap with "key"
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == INT || typeOfKey == INTSOLO) {
 			return intData[key];
 		} else {
-			cout << "  in DataMap::GetIntVector :: attempt to use GetIntVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
+			cout << "  in DataMap::getIntVector :: attempt to use getIntVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
 			cout << "  (if type is NONE, then the key was not found in dataMap)" << endl;
 			exit(1);
 		}
 	}
-	inline vector<string> GetStringVector(const string &key) { // retrieve a double from a dataMap with "key"
+	inline vector<string> getStringVector(const string &key) { // retrieve a double from a dataMap with "key"
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
 			return stringData[key];
 		} else {
-			cout << "  in DataMap::GetStringVector :: attempt to use GetStringVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
+			cout << "  in DataMap::getStringVector :: attempt to use getStringVector with key \"" << key << "\" but this key is associated with type " << typeOfKey << "\n  exiting." << endl;
 			cout << "  (if type is NONE, then the key was not found in dataMap)" << endl;
 			exit(1);
 		}
 	}
 
-	inline string GetStringOfVector(const string &key) { // retrieve a string from a dataMap with "key" - if not already string, will be converted
+	inline string getStringOfVector(const string &key) { // retrieve a string from a dataMap with "key" - if not already string, will be converted
 		string returnString = "\"[";
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey == NONE) {
@@ -487,7 +490,7 @@ public:
 	}
 
 	// get ave of values in a vector - must be bool, double or, int
-	inline double GetAverage(string key) { // not ref, we may need to change to a "{LIST}" key
+	inline double getAverage(string key) { // not ref, we may need to change to a "{LIST}" key
 		dataMapType typeOfKey = findKeyInData(key);
 		double returnValue = 0;
 		if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
@@ -512,16 +515,16 @@ public:
 				returnValue /= intData[key].size();
 			} // else vector is  size 1, no div needed or vector is empty, returnValue will be 0
 		} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-			cout << "  in DataMap::GetAverage attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
+			cout << "  in DataMap::getAverage attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
 			exit(1);
 		} else if (typeOfKey == NONE) {
-			cout << "  in DataMap::GetAverage attempt to get average from nonexistent key \"" << key << "\".\n  Exiting." << endl;
+			cout << "  in DataMap::getAverage attempt to get average from nonexistent key \"" << key << "\".\n  Exiting." << endl;
 			exit(1);
 		}
 		return returnValue;
 	}
 
-	inline double GetVariance(string key) { // not ref, we may need to change to a "{LIST}" key
+	inline double getVariance(string key) { // not ref, we may need to change to a "{LIST}" key
 		dataMapType typeOfKey = findKeyInData(key);
 		double averageValue(0);
 		double varianceValue(0);
@@ -562,17 +565,17 @@ public:
 			else
 				varianceValue = 0;
 		} else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-			cout << "  in DataMap::GetVariance attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
+			cout << "  in DataMap::getVariance attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
 			exit(1);
 		} else if (typeOfKey == NONE) {
-			cout << "  in DataMap::GetVariance attempt to get value from nonexistent key \"" << key << "\".\n  Exiting." << endl;
+			cout << "  in DataMap::getVariance attempt to get value from nonexistent key \"" << key << "\".\n  Exiting." << endl;
 			exit(1);
 		}
 		return varianceValue;
 	}
 
 	// get ave of values in a vector - must be bool, double or, int
-	inline double GetSum(string key) { // not ref, we may need to change to a "{LIST}" key
+	inline double getSum(string key) { // not ref, we may need to change to a "{LIST}" key
 		dataMapType typeOfKey = findKeyInData(key);
 		double returnValue = 0;
 		if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
@@ -600,18 +603,18 @@ public:
 			//} // else vector is  size 1, no div needed or vector is empty, returnValue will be 0
 		}
 		else if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-			cout << "  in DataMap::GetAverage attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
+			cout << "  in DataMap::getAverage attempt to use with vector of type string associated key \"" << key << "\".\n  Cannot average strings!\n  Exiting." << endl;
 			exit(1);
 		}
 		else if (typeOfKey == NONE) {
-			cout << "  in DataMap::GetAverage attempt to get average from nonexistent key \"" << key << "\".\n  Exiting." << endl;
+			cout << "  in DataMap::getAverage attempt to get average from nonexistent key \"" << key << "\".\n  Exiting." << endl;
 			exit(1);
 		}
 		return returnValue;
 	}
 
 	// Clear a field in a DataMap
-	inline void Clear(const string &key) {
+	inline void clear(const string &key) {
 		dataMapType typeOfKey = findKeyInData(key);
 		if (typeOfKey != NONE) {
 			if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) { // data is bool
@@ -628,7 +631,7 @@ public:
 	}
 
 	// Clear all data in a DataMap
-	inline void ClearMap() {
+	inline void clearMap() {
 		boolData.clear();
 		doubleData.clear();
 		intData.clear();
@@ -708,16 +711,16 @@ public:
 			for (auto key : getKeys()) {
 				entryType = findKeyInData(key);
 				if (entryType == BOOL || entryType == BOOLSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetBoolVector(key));
+					copyDataMap.set(prefix + "_" + key, getBoolVector(key));
 				}
 				if (entryType == STRING || entryType == STRINGSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetStringVector(key));
+					copyDataMap.set(prefix + "_" + key, getStringVector(key));
 				}
 				if (entryType == INT || entryType == INTSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetIntVector(key));
+					copyDataMap.set(prefix + "_" + key, getIntVector(key));
 				}
 				if (entryType == DOUBLE || entryType == DOUBLESOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetDoubleVector(key));
+					copyDataMap.set(prefix + "_" + key, getDoubleVector(key));
 				}
 				copyDataMap.setOutputBehavior(prefix + "_" + key, outputBehavior[key]);
 			}
@@ -726,16 +729,16 @@ public:
 			for (auto key : getKeys()) {
 				entryType = findKeyInData(key);
 				if (entryType == BOOL || entryType == BOOLSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetBoolVector(key));
+					copyDataMap.set(prefix + "_" + key, getBoolVector(key));
 				}
 				if (entryType == STRING || entryType == STRINGSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetStringVector(key));
+					copyDataMap.set(prefix + "_" + key, getStringVector(key));
 				}
 				if (entryType == INT || entryType == INTSOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetIntVector(key));
+					copyDataMap.set(prefix + "_" + key, getIntVector(key));
 				}
 				if (entryType == DOUBLE || entryType == DOUBLESOLO) {
-					copyDataMap.Set(prefix + "_" + key, GetDoubleVector(key));
+					copyDataMap.set(prefix + "_" + key, getDoubleVector(key));
 				}
 			}
 		}

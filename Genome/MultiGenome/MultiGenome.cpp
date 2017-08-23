@@ -528,7 +528,7 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 // the undefined action is to return an empty vector
 DataMap MultiGenome::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set(prefix +"genomeLength",countSites());
+	dataMap.set(prefix +"genomeLength",countSites());
 	return (dataMap);
 }
 
@@ -541,8 +541,8 @@ DataMap MultiGenome::serialize(string& name) {
 	}
 	chromosomeLengths.pop_back();
 	chromosomeLengths += "]\"";
-	serialDataMap.Set(name + "_chromosomeLengths", chromosomeLengths);
-	serialDataMap.Set(name + "_sites", genomeToStr());
+	serialDataMap.set(name + "_chromosomeLengths", chromosomeLengths);
+	serialDataMap.set(name + "_sites", genomeToStr());
 	return serialDataMap;
 }
 
@@ -568,16 +568,16 @@ void MultiGenome::deserialize(shared_ptr<ParametersTable> PT, unordered_map<stri
 /////////////// FIX FIX FIX ////////////////////
 
 void MultiGenome::recordDataMap() {
-	dataMap.Merge(chromosomes[0]->getFixedStats());
-	dataMap.Set("ploidy", ploidy);
+	dataMap.merge(chromosomes[0]->getFixedStats());
+	dataMap.set("ploidy", ploidy);
 	dataMap.setOutputBehavior("ploidy", DataMap::FIRST);
-	dataMap.Set("chromosomeCount", (int)chromosomes.size());
+	dataMap.set("chromosomeCount", (int)chromosomes.size());
 	dataMap.setOutputBehavior("chromosomeCount", DataMap::FIRST);
-	dataMap.Set("sitesCount", countSites());
+	dataMap.set("sitesCount", countSites());
 	dataMap.setOutputBehavior("sitesCount", DataMap::FIRST);
-	dataMap.Clear("chromosomeLengths");
+	dataMap.clear("chromosomeLengths");
 	for (size_t c = 0; c < chromosomes.size(); c++) {
-		dataMap.Append("chromosomeLengths", chromosomes[c]->size());
+		dataMap.append("chromosomeLengths", chromosomes[c]->size());
 	}
 	dataMap.setOutputBehavior("chromosomeLengths", DataMap::LIST);
 }
@@ -615,8 +615,8 @@ void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGeno
 			for (int i = 0; i < _chromosomeCount; i++) {
 				newGenome->chromosomes[i]->readChromosomeFromSS(ss, _chromosomeLengths[i]);
 			}
-			newGenome->dataMap.Set("update", _update);
-			newGenome->dataMap.Set("ID", _ID);
+			newGenome->dataMap.set("update", _update);
+			newGenome->dataMap.set("ID", _ID);
 			newGenome->ploidy = _ploidy;
 			genomes.push_back(newGenome);
 		}

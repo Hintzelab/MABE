@@ -25,13 +25,10 @@ shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_organismSequencePL =
 
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writePopFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writePopFile", true, "Save data to average file?");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeMaxFile", true, "Save data to Max file?");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_PopFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileName", (string) "pop.csv", "name of population data file (saves population averages)");
-shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_MaxFileNamePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-maxFileName", (string) "max.csv", "name of max file (saves data on organism with max \"score\" as determined by Optimizer)");
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultPopFileColumnNamesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-popFileColumns", (string) "[]",
 	"data to be saved into average file (must be values that can generate an average). If empty, MABE will try to figure it out");
 
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataFilePrefix", (string) "snapshotData", "prefix for name of snapshot data file");
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_OrganismsFilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismFilePrefix", (string) "snapshotOrganisms", "prefix for name of snapshot organism file");
+shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotDataFiles", false,
 	"if true, snapshot data files will be written (with all non genome data for entire population)");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles", false, "if true, snapshot organism files will be written (with all organisms for entire population)");
@@ -42,20 +39,19 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	writePopFile = Arch_writePopFilePL->get(PT);
 	writeMaxFile = Arch_writeMaxFilePL->get(PT);
 
+	PopFileName = (groupPrefix == "") ? "pop.csv" : groupPrefix.substr(0, groupPrefix.size()-2) + "__pop.csv";
+	PopFileName = (Arch_FilePrefixPL->get(PT) == "NONE") ? PopFileName : Arch_FilePrefixPL->get(PT) + PopFileName;
 
-	PopFileName = Arch_PopFileNamePL->get(PT);
-	PopFileName = (groupPrefix == "") ? PopFileName : groupPrefix + "__" + PopFileName;
-
-	MaxFileName = Arch_MaxFileNamePL->get(PT);
-	MaxFileName = (groupPrefix == "") ? MaxFileName : groupPrefix + "__" + MaxFileName;
+	MaxFileName = (groupPrefix == "") ? "max.csv" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__max.csv";
+	MaxFileName = (Arch_FilePrefixPL->get(PT) == "NONE") ? MaxFileName : Arch_FilePrefixPL->get(PT) + MaxFileName;
 
 	PopFileColumnNames = Arch_DefaultPopFileColumnNamesPL->get(PT);
 
-	DataFilePrefix = SS_Arch_DataFilePrefixPL->get(PT);
-	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
+	DataFilePrefix = (groupPrefix == "") ? "snapshot_data" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "snapshot_data";
+	DataFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE") ? DataFilePrefix : Arch_FilePrefixPL->get(PT) + DataFilePrefix;
 
-	OrganismFilePrefix = SS_Arch_OrganismsFilePrefixPL->get(PT);
-	OrganismFilePrefix = (groupPrefix == "") ? OrganismFilePrefix : groupPrefix + "__" + OrganismFilePrefix;
+	OrganismFilePrefix = (groupPrefix == "") ? "snapshot_organisms" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "snapshot_organisms";
+	OrganismFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE") ? OrganismFilePrefix : Arch_FilePrefixPL->get(PT) + OrganismFilePrefix;
 
 	writeSnapshotDataFiles = SS_Arch_writeDataFilesPL->get(PT);
 	writeSnapshotGenomeFiles = SS_Arch_writeOrganismsFilesPL->get(PT);
@@ -154,13 +150,13 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 				aveValue = 0;
 				for (auto org : population) {
 					if (org->timeOfBirth < Global::update || saveNewOrgs) {
-						PopMap.Append(kv.first, org->dataMap.GetAverage(kv.first));
+						PopMap.append(kv.first, org->dataMap.getAverage(kv.first));
 					}
 				}
 			}
 			PopMap.setOutputBehavior(kv.first, uniqueColumnNameToOutputBehaviors[kv.first]);
 		}
-		PopMap.Set("update", Global::update);
+		PopMap.set("update", Global::update);
 		PopMap.writeToFile(PopFileName, { }, true); // write the PopMap to file with empty list (save all) and aveOnly = true (only save ave values)
 
 	}
@@ -186,9 +182,9 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 				}
 			}
 		}
-		bestOrg->dataMap.Set("update", Global::update);
+		bestOrg->dataMap.set("update", Global::update);
 		bestOrg->dataMap.writeToFile(MaxFileName);
-		bestOrg->dataMap.Clear("update");
+		bestOrg->dataMap.clear("update");
 	}
 }
 
@@ -300,17 +296,17 @@ void DefaultArchivist::saveSnapshotData(vector<shared_ptr<Organism>> population)
 			//cout << "  is being saved" << endl;
 			for (auto ancestorID : org->snapshotAncestors) {
 				//cout << org->ID << " adding ancestor " << ancestorID << " to dataMap" << endl;
-				org->dataMap.Append("snapshotAncestors", ancestorID);
+				org->dataMap.append("snapshotAncestors", ancestorID);
 			}
 			org->dataMap.setOutputBehavior("snapshotAncestors", DataMap::LIST);
 
 			org->snapshotAncestors.clear();  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
 			org->snapshotAncestors.insert(org->ID);
-			org->dataMap.Set("update", Global::update);
+			org->dataMap.set("update", Global::update);
 			org->dataMap.setOutputBehavior("update", DataMap::FIRST);
 			org->dataMap.writeToFile(dataFileName, files["snapshotData"]);  // append new data to the file
-			org->dataMap.Clear("snapshotAncestors");
-			org->dataMap.Clear("update");
+			org->dataMap.clear("snapshotAncestors");
+			org->dataMap.clear("update");
 		}
 	}
 	FileManager::closeFile(dataFileName); // since this is a snapshot, we will not be writting to this file again.
@@ -323,16 +319,16 @@ void DefaultArchivist::saveSnapshotOrganisms(vector<shared_ptr<Organism>> popula
 	for (auto org : population) {
 		if (org->timeOfBirth < Global::update || saveNewOrgs) {
 			DataMap OrgMap;
-			OrgMap.Set("ID", org->ID);
+			OrgMap.set("ID", org->ID);
 			string tempName;
 
 			for (auto genome : org->genomes) {
 				tempName = "GENOME_" + genome.first;
-				OrgMap.Merge(genome.second->serialize(tempName));
+				OrgMap.merge(genome.second->serialize(tempName));
 			}
 			for (auto brain : org->brains) {
 				tempName = "BRAIN_" + brain.first;
-				OrgMap.Merge(brain.second->serialize(tempName));
+				OrgMap.merge(brain.second->serialize(tempName));
 			}
 			OrgMap.writeToFile(organismFileName); // append new data to the file
 		}
