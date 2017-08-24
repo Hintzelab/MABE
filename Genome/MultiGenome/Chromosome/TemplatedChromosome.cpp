@@ -268,6 +268,7 @@ template<class T> void TemplatedChromosome<T>::readChromosomeFromSS(std::strings
 	//cout << endl;
 }
 
+template<>
 void TemplatedChromosome<unsigned char>::readChromosomeFromSS(std::stringstream &ss, int _chromosomeLength) {
 	char nextChar;
 	string nextString;
@@ -316,7 +317,7 @@ template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
 
 }
 
-
+template<>
 string TemplatedChromosome<unsigned char>::chromosomeToStr() {
 	//	string S = "";
 	//

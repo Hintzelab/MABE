@@ -1038,13 +1038,13 @@ public:
 	void clearCache(shared_ptr<ParametersTable> _table) {
 		auto mapRecord = entriesCache.find(_table->getID());
 		if (mapRecord != entriesCache.end()) { // if the cache contain this _table(parameterstable)
-			entriesCache.erase(mapRecord) // remove the entry from the entiresCache
+			entriesCache.erase(mapRecord); // remove the entry from the entiresCache
 		}
 		// else do nothing, there is not entry for _table in this PL
 	}
 
 	void clearCache(vector<shared_ptr<ParametersTable>> _tables) {
-		for (auto table : tables) { // clear each parametersTables entry in the entriesCache
+		for (auto table : _tables) { // clear each parametersTables entry in the entriesCache
 			clearCache(table);
 		}
 	}

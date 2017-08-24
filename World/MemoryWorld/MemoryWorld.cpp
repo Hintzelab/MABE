@@ -156,10 +156,3 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
     }
     org->dataMap.append("score", pow(2.0, 1 + (score / (double)(worldUpdates))));
 }
-
-int MemoryWorld::requiredInputs() {
-	return 1;
-}
-int MemoryWorld::requiredOutputs() {
-    return nOut;
-}

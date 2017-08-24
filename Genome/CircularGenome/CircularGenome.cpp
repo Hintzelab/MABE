@@ -805,6 +805,7 @@ string CircularGenome<T>::genomeToStr() {
 	return ss.str();
 }
 
+template<>
 string CircularGenome<unsigned char>::genomeToStr() {
 	stringstream ss;
 	ss << "\"[";

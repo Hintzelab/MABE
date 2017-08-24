@@ -61,10 +61,8 @@ public:
 		}
 	}
 
-	virtual int requiredInputs() override;
-	virtual int requiredOutputs() override;
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + "," + to_string(requiredInputs()) + "," + to_string(requiredOutputs()) } } }; // default requires a root group and a brain (in root namespace) and no genome 
+		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ",1," + to_string(nOut) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 };
