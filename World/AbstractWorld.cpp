@@ -13,6 +13,7 @@
 #include <math.h>
 
 #include "../Utilities/Data.h"
+#include "../Utilities/MTree.h"
 
 shared_ptr<ParameterLink<bool>> AbstractWorld::debugPL = Parameters::register_parameter("WORLD-debug", false, "run world in debug mode (if available)");
 
