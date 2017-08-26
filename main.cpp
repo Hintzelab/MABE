@@ -77,7 +77,7 @@ int main(int argc, const char * argv[]) {
 	}
 
 	// make world uses WORLD-worldType to determine type of world
-	auto world = makeWorld(Parameters::root);
+	auto world = makeWorld(Parameters::root, AbstractWorld::worldTypePL->get(Parameters::root));
 	map<string, shared_ptr<Group>> groups;
 	shared_ptr<ParametersTable> PT;
 
