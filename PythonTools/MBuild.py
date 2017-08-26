@@ -98,10 +98,9 @@ for option in options["Archivist"]:
 # makeWorld
 
 outFile.write('\n\n//create a world\n')
-outFile.write('shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT){\n')
+outFile.write('shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT, string worldType){\n')
 outFile.write('  shared_ptr<AbstractWorld> newWorld;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string worldType = AbstractWorld::worldTypePL->get(PT);\n')
 for option in options["World"]:
 	outFile.write('  if (worldType == "'+option+'") {\n')
 	outFile.write('    newWorld = make_shared<'+option+'World>(PT);\n')
