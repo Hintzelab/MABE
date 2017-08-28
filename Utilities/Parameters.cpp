@@ -181,7 +181,7 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 				string newNestingName = "";
 				index++;
 				if (line[index] != ' ') {
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
 					cout << "    While reading a nameSpace name, was expecting a blank space after \"+\".\n" << endl;
 					exit(1);
 				}
@@ -191,12 +191,12 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 					newNestingName += line[index];
 					index++;
 				} else if (index < line.length()) {  // if the not a name start character
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
 					cout << "    While reading a nameSpace name, found invalid first character after \"+\".\n" << endl;
 					exit(1);
 				}
 				// get rest of name, must be numbers or letters (no '_'s) -- why no '_'?? changed this (see next line).
-				while (index < line.length() && (isalnum(line[index]) || line[index]=='_')) {
+				while (index < line.length() && (isalnum(line[index]) || line[index]=='_' || line[index] == ':')) {
 					newNestingName += line[index];
 					index++;
 				}
@@ -204,19 +204,26 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 					index++;
 				}
 				if (index < line.length() && line[index] != '#') {
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\nExiting.\n";
 					cout << "    While reading nameSpace name \"" << newNestingName << "\", found unused/invalid characters after nameSpace define outside of comment." << endl;
 					exit(1);
 				}
 				if (newNestingName != "") {
-					nameSpace = nameSpace + newNestingName + "::";
+					nameSpace = nameSpace + newNestingName;
+					if (newNestingName[newNestingName.size() - 1] != ':' || newNestingName[newNestingName.size() - 2] != ':') {
+						cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\".\n";
+						cout << "    nameSpace part \"" << newNestingName << "\" (part of namespace \"" << nameSpace << "\") does not end in \"::\". NameSpace must end in \"::.\"\n    Exiting.\n" << endl;
+						exit(1);
+					}
+					
+						//nameSpace = nameSpace + newNestingName + "::"; // CODE CHANGE 8/28/2017 must end namespace with ::
 				}
 				index = line.length();  // move to end of line
 			}
 
 			if (index < line.length() && line[index] == '-') {  //if a line starts with - move up one name space
 				if (nameSpace == "") {
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
 					cout << "    attempt to leave nameSpace, when not in nameSpace" << endl;
 					exit(1);
 				} else {
@@ -248,7 +255,7 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 					categoryName += line[index];
 					index++;
 				} else if (index < line.length()) {  // if the first character is not a letter or "_"
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
 					cout << "    While category name found invalid character after \"%\"\n";
 					exit(1);
 				}
@@ -262,7 +269,7 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 					index++;
 				}
 				if (index < line.length() && line[index] != '#') {
-					cout << "  - Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
+					cout << "  - ##### Config File: SYNTAX ERROR on line " << line_number << " in file: \"" << fileName << "\". Exiting.\n";
 					cout << "    While reading category name \"" << categoryName << "\", found unused/invalid characters after category define outside of comment." << endl;
 					exit(1);
 				}
