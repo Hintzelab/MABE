@@ -18,12 +18,6 @@ shared_ptr<ParameterLink<string>> TestWorld::brainNamePL = Parameters::register_
 
 TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {
-	//mode = (PT == nullptr) ? modePL->lookup() : PT->lookupInt("WORLD_TEST-mode");
-	//numberOfOutputs = (PT == nullptr) ? numberOfOutputsPL->lookup() : PT->lookupInt("WORLD_TEST-numberOfOutputs");
-	//evaluationsPerGeneration = (PT == nullptr) ? evaluationsPerGenerationPL->lookup() : PT->lookupInt("WORLD_TEST-evaluationsPerGeneration");
-
-	//groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-groupNameSpace");
-	//brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_TEST_NAMES-brainNameSpace");
 
 	// columns to be added to ave file
 	popFileColumns.clear();
