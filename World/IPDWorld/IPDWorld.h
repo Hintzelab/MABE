@@ -90,3 +90,6 @@ public:
 
 };
 
+inline shared_ptr<AbstractWorld> IPDWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<IPDWorld>(PT);
+}

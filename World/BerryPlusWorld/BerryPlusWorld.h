@@ -401,3 +401,7 @@ public:
 
 	void SaveWorldState(string fileName, Vector2d<int> grid, Vector2d<int> vistedGrid, vector<pair<double, double>> currentLocation, vector<int> facing, bool reset = false);
 };
+
+inline shared_ptr<AbstractWorld> BerryPlusWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<BerryPlusWorld>(PT);
+}

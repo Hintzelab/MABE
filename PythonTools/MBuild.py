@@ -104,7 +104,7 @@ outFile.write('  bool found = false;\n')
 outFile.write('  string worldType = AbstractWorld::worldTypePL->get(PT);\n')
 for option in options["World"]:
 	outFile.write('  if (worldType == "'+option+'") {\n')
-	outFile.write('    newWorld = make_shared<'+option+'World>(PT);\n')
+	outFile.write('    newWorld = '+option+'World_worldFactory(PT);\n')
 	outFile.write('    found = true;\n')	
 	outFile.write('    }\n')
 outFile.write('  if (!found){\n')

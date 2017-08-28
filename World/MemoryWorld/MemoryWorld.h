@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__WorldTest__
-#define __BasicMarkovBrainTemplate__WorldTest__
+#pragma once
 
 #include "../AbstractWorld.h"
 
@@ -67,4 +66,6 @@ public:
 
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__WorldTest__) */
+inline shared_ptr<AbstractWorld> MemoryWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<MemoryWorld>(PT);
+}

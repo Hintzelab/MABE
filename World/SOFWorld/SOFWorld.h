@@ -51,3 +51,6 @@ public:
 
 };
 
+inline shared_ptr<AbstractWorld> SOFWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<SOFWorld>(PT);
+}
