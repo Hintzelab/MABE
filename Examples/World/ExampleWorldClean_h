@@ -14,7 +14,7 @@
 
 using namespace std;
 
-class TemplateWorld : public AbstractWorld {
+class ExampleWorld : public AbstractWorld {
 
 public:
 	// example ParameterLinks (PLs)
@@ -34,8 +34,8 @@ public:
 	static shared_ptr<ParameterLink<string>> groupNameSpacePL;
 	static shared_ptr<ParameterLink<string>> brainNameSpacePL;
 	
-	TemplateWorld(shared_ptr<ParametersTable> _PT);
-	virtual ~TemplateWorld() = default;
+	ExampleWorld(shared_ptr<ParametersTable> _PT);
+	virtual ~ExampleWorld() = default;
 
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) override;

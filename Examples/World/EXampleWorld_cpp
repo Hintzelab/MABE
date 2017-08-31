@@ -1,0 +1,432 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/Hintzelab/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/Hintzelab/MABE/wiki/License
+
+#include "ExampleWorld.h"
+
+// register_parameter is used to create parameters, set their names (as
+// they will appear in config files), and to set their default value,
+// type, and usage message.
+//
+// Parameter names are defined by a catagory name and a local name
+// seperated by '-' (i.e. CATAGORYNAME-LOCALNAME).
+// The catagory name is used to determine which config file a parameter
+// will be written into and where in that file the parameters will appear.
+// 
+// A parameter can have any catagory name and local name  aslong as there
+// is only one '-' to delineate catagory from local name in the parameter
+// name. This means that you can create more than one catagory for your world,
+// and even format parameters so that they will appear within diffrent catagories.
+//
+// Parameters::register_parameter("WORLD_TEMPLATE-exampleInt", 10, "an int parameter with default value 10");
+// Parameters::register_parameter("WORLD_TEMPLATE-exampleDouble", 10.5, "a double parameter with default value 10.5");
+//
+// The two lines above will register parameters which will appear (based on
+// the string name in the register_parmeter funciton) in .cfg files as
+//
+// % WORLD_TEMPLATE
+//   exampleInt = 10            # an int parameter with default value 10
+//   exampleDouble = 10.5       # an int parameter with default value 10.5
+//
+// The register_parameter function returns a ParametersLink (PL). The
+// PLs were defined as static in the .h file, so once they are created
+// they can be used as long as MABE is running. PLs provide a simple and
+// pretty speedy method to access parameters. (more on this below)
+//
+// see parameters: https://github.com/Hintzelab/MABE/wiki/Parameters
+//
+////////////////////////////////////////////////////////////////////////////
+// WARRNING :: THEORY!!
+// It should be noted that register_parameter is doing something rather seaky.
+// Paramerter Links (PLs) are defined as static variables in the .h file so
+// they must be instantiated in the .cpp file. Because of this, we are able
+// to register all parameters automaticly when their associated PLs are
+// instatiated. This happends before main is called, so when main reads
+// .cfg files and command line all of the parameters have already been
+// defined, and the file and command line parameters settings
+// are only changing the defualt values of these already defined parameters.
+// It may be that this trick is more clever then smart.
+// Moduals.h is a system that is key to MABES modularity, and it came into
+// use after the parameters system was designed. Moduals.h could be used to
+// preform registration with out resorting to trickery. Time will tell if
+// parameters registration will evolve to something less sneaky.
+// END THEORY WARRNING!!
+////////////////////////////////////////////////////////////////////////////
+
+shared_ptr<ParameterLink<int>> ExampleWorld::exampleIntPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleIntParameter", 10, "an int parameter with default value 10");
+shared_ptr<ParameterLink<double>> ExampleWorld::exampleDoublePL = Parameters::register_parameter("WORLD_TEMPLATE-exampleDoubleParameter", 10.5, "a double parameter with default value 10.5");
+shared_ptr<ParameterLink<bool>> ExampleWorld::exampleBoolPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleBoolParameter", true, "a bool parameter with default value true");
+shared_ptr<ParameterLink<string>> ExampleWorld::exampleStringPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleStringParameter", (string)"text", "a default string parameter with default value 'text'");
+
+shared_ptr<ParameterLink<int>> ExampleWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEMPLATE-evaluationsPerGeneration", 3, "how many times should this world be run to generate average scores/behavior");
+
+shared_ptr<ParameterLink<string>> ExampleWorld::exampleMTreePL = Parameters::register_parameter("WORLD_TEMPLATE-exampleMTreeParameter", (string)"DIVIDE(UPDATE[]+10),2)", "an MTree parameter with default value ((current update + 10)/2)");
+
+shared_ptr<ParameterLink<string>> ExampleWorld::groupNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> ExampleWorld::brainNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
+
+ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> _PT) :
+		AbstractWorld(_PT) {
+	
+	// What is a PT?
+	// PT stands for ParametersTable. Parameters are collected in tables. There
+	// can be diffrent tables which contain diffrent values for the same parameter.
+	// PT indicates the table from which parameters for this world will be read.
+	//
+	// Another way to think about this is that for each parameter there can exist
+	// different versions of that parameter, and the PT is the key which tells MABE
+	// which version of the parameter you are interested in.
+	//
+	// If your world involves only one group with organisms which only have one brain,
+	// you can skip to Localizing Variables.
+	//
+	// Tables are linked so that if a value is requested from one table and is not
+	// found, it will be searched for in parent tables.
+	// If the search moves to the the top level table (Parameters::root) and the
+	// parameter in question is not found, this means that this Parameter was never
+	// defined (i.e. registered) and MABE will throw and error informing the user
+	// that a parameter could not be found.
+	//
+	// PTs have names (interchangeable with Name Spaces) which always end in "::".
+	// For example a PT name could be "wolf::bitey::" or just "wolf::". In this
+	// case, "wolf::bitey::" is a child of "wolf::". All PTs are children of
+	// Parameters::root (a static object).
+	// Since is would be a waste of time to put "root::" infront of everything
+	// we don't. "root::" is just assumed to be there.
+	//
+	// Dealing with strings is slow! So, while You can look up any parameter values from
+	// Parameters::root if you know the name of the PT and the name of the parameter, you
+	// won't want to becasue this process requires a number of steps (involving strings!).
+	// PLs provide a faster access to parameters. PLs keep a record of all the versions of
+	// a single parameter in all PTs (i.e. Name Spaces). Better yet, when you access these
+	// values you use the PT (rather then the name of the PT) as a key!
+
+
+	// Localizing Variables
+	// You may wish to localize parameters values (e.g. 'evaluationsPreGeneration')
+	// when you will be accessing that parameter often and it is not be changing. 
+	// Localization is be achived by creating a member variable in your world and
+	// assigning it in a constructor (or perhaps later in an evaluate function).
+	// There is a trade-off between speed and accurately tracking the state of
+	// a parameter. i.e. If you localize, you may see a speed up, but changes to
+	// parameters will not be automaticly reflected in those localized values.
+	// ** It is generally advised to introduce localization if and when you find
+	// that your world is running slowly. **
+	//
+	// to localize at the construction stage, create a non-static member variable
+	// for your world (in the .h file) and assigne it here from the ParamerLink
+	//
+	// evaluationsPerGeneration = evaluationsPerGenerationPL->get(PT);
+	//
+	// You could use this same method to localize in an evaluate or evaluateSolo
+	// function. This would mean that you would be pulling the value from the
+	// parameters tables every generation (in the case of evaluate) or once for
+	// each organism (in the case of evaluateSolo), but more importantly, that
+	// if the value of the parameter changed in the parameters tables, you would
+	// be getting the updated value.
+	// Obviously, how you design your world will effect how and when you should
+	// localize.
+
+
+
+	// MTrees are formula that are evaluated in real time. They can be defined by
+	// strings. The conversion from string to MTree is costly, and is one particular
+	// case where it is advisable to conduct this conversion as rarely as possible.
+	//
+	// this code converts a string parametersLink into an MTree:
+
+	exampleMT = stringToMTree(exampleMTreePL->get(PT));
+	
+	// see MTree - https://github.com/Hintzelab/MABE/wiki/MTree
+
+
+
+	// Required inputs and outputs
+	// The brains in the organisms being evaluated by this world must have the correct
+	// number of inputs and outputs. They must match the worlds expectations (technically
+	// the brains can have more inputs and outputs then required, but let's not condider
+	// this now). It is possible that these values will depend on parameters
+	// (e.g. in BerryWorld, the number of inputs is variable based on the organisms
+	// sensing abilites which is determined by BerryWorlds user set parameters).
+
+	// Here the values are set for a world that provides two numbers to a brain and
+	// expects the brain to return the sum
+	requiredInputs = 2;
+	requiredOutputs = 1;
+
+
+
+	// "popFileColumns" provides the DefaultArchivist with values which the world
+	// "thinks are interesting" and therefore should be saved in pop.csv files
+	// (pop.csv tracks population averages).
+	// popFileColumn values will be extracted by DefaultArchivist from each
+	// organisms DataMaps and so, must be written into every organisms DataMap
+	// and must be numeric values which can be averaged.
+	// 
+	// See DataMap: https://github.com/Hintzelab/MABE/wiki/DataMap
+
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("score_VAR"); // specifies to also record the variance (performed automatically by DataMap because _VAR)
+
+}
+
+
+void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+	// before we get into what a world might look like, let's look at using the MTree that was
+	// seeup in the constructor.
+	// see MTree - https://github.com/Hintzelab/MABE/wiki/MTree
+	
+	// evaluating exampleMT using an organisms DataMap and the parameters values associated with PT
+	auto MT_VALUE = exampleMT->eval(org->dataMap, PT);
+	
+	// Remember that converting a string into an MTree is time consuming, and so, should be
+	// done as infrequently as possible and explains why, in this file, it was conducted in
+	// the constructor. Preforming this conversion once per generation is probably fine. 
+	// Even once per organism might be fine in cases where organisms 'live' for a long time.
+	//
+	// evaluating an MTree is signifigently faster, but still not free (particularly for
+	// formula with many parts). Localizing the results of MTree evaluations in evaluate
+	// or evaluateSolo is a good idea when possible.
+
+
+
+	// Now, let's look at running a world update.
+	// in this world we ask the brain to add two random numbers. 
+	
+	// create a shortcut to access the organisms brain
+	auto brain = org->brains[brainNameSpacePL->get(PT)]; 
+
+	// evaluate the organism passed to this function "evaluations per generation: times.
+	for (int r = 0; r < evaluationsPerGenerationPL->get(PT); r++) {
+		brain->resetBrain(); // clear any state data from this brain
+		int num1 = Random::getInt(0, 7); // get a random number [0,7]
+		int num2 = Random::getInt(0, 7);
+		brain->setInput(0, num1);  // set the brains input 0 to num1
+		brain->setInput(1, num2);  // set the brains input 1 to num2
+		brain->update(); // run a brain update (i.e. ask the brain to convert it's inputs into outputs)
+		org->dataMap.append("score", (brain->readOutput(0) == (num1 + num2))?1.0:0.0);
+			// if brain output 0 is (num1 + num2) then append 1.0 to the organisms dataMap with the name "score",
+			// if not, append 0.0;
+	}
+
+	// This evaluation assumes a brain that can work with integers. What if
+	// you wanted this evaluation to work with a binary brain? You would
+	// need to convert the inputs to bits and you would need convert any output
+	// from bits. Since the input values are [0-7] they would require 3 bits each
+	// and the output [0-14] would require 4 bits. This would mean that the
+	// requiredInputs would now be 6 (not 2) and requiredOutputs would need to
+	// be 4 (not 1).
+	//
+	// Note that while some brain types (binary brains in this case) will not
+	// be able to preform well in some worlds, they will still run without error.
+	// This is by designe as it allows the user to ask questions where an organism
+	// is only partially capable. The user should be aware of this fact, and when
+	// you document your world you should make sure to indicate these sorts of details.
+
+
+
+	// Saving Data (i.e. interacting with DataMaps)
+	// Any data added to an organisms dataMap will be saved in snapshot, max, and/or LOD files when Archivists
+	// are called on to save data. Data indicated in popFileColumns will be saved in pop files.
+	//
+	// As mentioned in evaluateSolo, writting into and reading from dataMap is not fast and should be
+	// preformed sparingly. It is best to accumulate data locally and push it into orgainisms dataMaps
+	// all at once.
+
+
+
+	// analyse, visualize and, debug flags
+	// these <int> flags are provided to allow you to have some control over your worlds behaior.
+	// Debug is set directly with a parameter (it is a feature of the AbstractWorld.) In visualize
+	// mode, worlds are called with the visualize flag set to 1. Analise is like visualize, but
+	// is reserved for computationaly heavy analysis. NOTE: Analise mode is currently not implimented
+	// so this variable only exists as a hook for future development.
+
+
+
+	// Your world may involve multiple world updates.
+	// (see: https://github.com/Hintzelab/MABE/wiki/Defining-Update)
+	// Perhaps your world involves an agent which has a set amount of time in which to collect resources.
+	// here you would need to include another loop of worldUpdates inside of the evaluationsPreGeneration loop.
+	// In each world update, the organism being evaluated might be able to move, turn or collect resources (I
+	// say might, because how you choose to impliment your world is up to you and will have consiquences on how
+	// the world behaves).
+
+
+
+	// Tracking additional organism related data
+	// You may find it nessasary to track information related to organisms while running a world. For
+	// example, an organisms current location or number of resources collected. You should not use the 
+	// organisms DataMap to store this type of information while evaluating an organism (since the keys
+	// for dataMaps are strings, they are not particularly fast). Local variables are better for this.
+	// Save dataMaps for communication with other modules (like Optimizers and Archivists)
+	//
+	// Sometimes you will want to collect a series of data (perhaps the list of turns, or the order in which
+	// diffrent types of resource are collected. Again, it is better to collect this data in a local variable
+	// and only move it into the dataMap once the evaluation is complete.
+}
+
+void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
+	
+	// if your world evaluates one organism at a time, you can simple leave the
+	// following code in place.
+	
+	// get the size of the population we are evaluating
+	int popSize = groups[groupNameSpacePL->get(PT)]->population.size(); 
+	for (int i = 0; i < popSize; i++) { // for each organism, run evaluateSolo.
+		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyse, visualize, debug);
+	}
+
+	// ** Before you read the remainder of the comments in this function you should farmiliarize yourself
+	// with the evaluateSolo() function above. **
+
+	// If your world requires evaluation of more then one organism at a time (perhaps because they are
+	// trying to eat each other). Then you can not use evaluateSolo(). These worlds may address how
+	// they evaluate populations in a vast number of ways. Here are some examples.
+	//
+	// Two Player Game Example
+	// Consider a world in which organisms are evaluated in a two player games agaist other organisms.
+	// The evaluate function could be written to select pairs of organisms and then call another function
+	// which takes these pairs and evaluates duels (not unlike evaluateSolo).
+	//
+	// Open Multi Organism Example
+	// On the other hand, BerryWorld has the ability to evaluate an entire population at the same time.
+	// In BerryWorld, organisms are tasked with collecting diffrent resources, for which they recive points.
+	// Every time an organism switchs the type of resource being collected, that organism pays a switch cost.
+	// Resources are replaced randomly after being consumed so they are condition dependent (if one
+	// resource is consumed more often it will tend to become rare). When organisms are evaluated in
+	// isolation (one at a time) we see the evolution of stratigies which weigh resource scarcity and
+	// limiting switching. But when organisms are evaluated as a population (and we force organisms to all
+	// all start on the same type of resource) then we almost always see the development of multiple
+	// species.
+	// In group evaluate mode, BerryWorld evaluates every organism once per world update. The order
+	// in which this evaluation occures is random (so that there is no advantage to being in a particular
+	// index in the population). In short, one organism is selected at random from the population, and
+	// evaluated for one world update. Then the process is repeated with the remaining population until
+	// every organism has had a turn. The population is "reset", the world update counter is advanced
+	// and the world update process is repeated.
+	
+
+	// Organism Data
+	// As mentioned in evaluateSolo it is often nessacery to associate data with a particular organism.
+	// In a spacial world for example, the locaion_X and location_Y of an organism. In BerryWorld,
+	// in addtion to location we must know last food consumed so we know when to apply the switch cost.
+	//
+	// If you have an ordered population (i.e. population size is not changing in world), you could simply
+	// have vectors for your data where the index of the organism in the population is the same as the index
+	// in each data vector. A vector<int> lastEaten, could hold the data related to last consumed foods and
+	// lastEaten[13] would indicate the last food consumed by the 14th organism in the population.
+	//
+	// If you have a large amont of data (perhaps location x,y,z, speed, mass, fuel, weapons charge,
+	// crew morale - yes, I'm talking about evolving startrek spaceships!) you could define a class
+	// for your organisms. In addtion to the data values, it can be helpful to include links to 
+	// the orgainisms or their parts (i.e. brains/genomes). This will in effect create a parallel
+	// population, Be aware that Archivists function on populations, so you must insure that the group
+	// population is also up to date or the Archivist will not be able to save data.
+}
+
+
+
+// requiredGroups() returns information on the groups required for this world, This includes
+// information related to the brains (those brains input and output requirements) and, genomes
+// required for each group. Main uses this information to construct orgaisms.
+unordered_map<string, unordered_set<string>> ExampleWorld::requiredGroups() {
+
+	// If your world uses a single population and that populations organisms have
+	// a single brain, then this code will generated a vaild return value.
+
+	return { 
+		{ groupNameSpacePL->get(PT), { "B:" + brainNameSpacePL->get(PT) + to_string(requiredInputs) + "," + to_string(requiredOutputs) } }
+	};
+
+
+
+	// if your would has diffrent requirement, keep reading...
+	
+
+
+	// the return type for requiredGroups has the format:
+	//        <<GROUP NAMESPACE, <GROUP DETAILS>>,<GROUP NAME, <GROUP DETAILS>>...>
+	// GROUP DETAILS is a set of strings where each element defines a brain (indicated with B:)
+	// or a genome (incated with G:)
+	// Brain definitions have the format B:NAMESPACE,#Inputs,#Outputs
+	// Genome definitions have the formate G:NAMESPACE
+	//
+	// GROUP NAMESPACE, B:NAMESPACE and G:NAMESPACE are name spaces which determine
+	// which parameter values will be used to construct each of these elements. In addtion,
+	// the name spaces will also be used in data and organism files to diferentiate these parts.
+	//
+	// Note that the brains may reqire genomes themselves and that this is addressed by
+	// individual brains (Brains have a requiredGenomes() function which main uses to resolve
+	// this).
+	//
+	// you could hard code the return, for example the following would specify a requirement
+	// for a Group "root::" with Organisms which each have a Brain "root::" with 3 inputs and
+	// 2 outputs and no Genomes.
+	//
+	// return { {"root::",{"B:root::,3,2}} }
+	//
+	// "root::" indicates a Parameters namespace, in this case, parameters used to define the group and
+	// brain are derived from the "root::" namespace. "root::" refers to the static object Parameters::root
+	// and is the top namespace. ("root::" is just the text we use to indicate no namespace in parameters files).
+
+	
+
+	// a better return value would look like this:
+	//return { 
+	//	{ groupNamePL->get(PT), { "B:" + brainNamePL->get(PT) + ",3,2" } }
+	//}; 
+	// here the group and brain namespaces is defined with Parameters, and so can be changed by other parts of
+	// MABE. Even if this world will only have a single group and single brain, it is still a good idea to use
+	// Parameters to allow for Metaworlds (worlds built from other worlds)
+
+	
+
+	// in this example, two groups are required (sheep and wolves) where each group requires a brain and the sheep
+	// require two genomes (to define a body and a gut):
+	//return {
+	//  { sheepGroupNamePL->get(PT),{ "B:" + sheepBrainNamePL->get(PT) + ",6,3" , "G:" + sheepBodyGenomeName->get(PT), "G:" + sheepGutGenomeName->get(PT)} }
+	//	{ wolfGroupNamePL->get(PT),{ "B:" + wolfBrainNamePL->get(PT) + ",4,4"} }
+	//};
+	//
+	// within a group, if more then one brain or genome use the same namesoace, then in that groups organisms, these
+	// will be the same instance. i.e. in this example if the "sheepBodyGenomeNamePL" and the "sheepGutGenomeNamePL"
+	// are assigned diffrent nameSpaces, then organisms will have two genomes (possibly three or more if the brain
+	// requires it's own genomes), but if they are the same name space, then only one genome will be created which
+	// body and gut will be constructed from.
+	//
+	// If a required brain requires a genome and provides the the same nameSpace for that genome as a world required
+	// genome, this will also indicate that there is only infact one genome instance for these genomes.
+	// 
+	// Brains or genomes with the same name in diffrent groups, simply indicate that the parameters for those parts
+	// should be extracted from the same parameters name space, but since they are in diffrent groups, they will be
+	// different instances.
+	//
+	// Output data is isolated by Achivists which generate unique data files for each group (prefixed with the group
+	// name) and the namespace for any parts (brains and genomes) will apear in output files prefixing related data,
+	// unless the namespace is "root::" at which point there will be no prefix.
+
+
+
+	// Lastly, it may be necessary to use variables for the number of inputs and/or outputs (in BerryWorld, the user can set
+	// a parameter to determine what the organisms can 'see'. A user could indicate that there are two types of food and that
+	// organisms can see only the food type at their current location. These organisms would need 2 inputs (here food0 and
+	// here food1). On the other hand, a user could set the parameters so that the organism can see their current location and
+	// the location in front of them, than the organisms would need 4 inputs (here food0, here food1, forward food0, forward
+	// food1). In BerryWorld, the input counts are read from parameters and localized in the BerryWorld constructor.
+	//
+	//return {
+	//  { groupNamePL->get(PT),{"B:"+ brainNamePL->get(PT) +","+to_string(requiredInputs)+","+to_string(requiredOutputs)}}
+	//};
+
+
+}
+
+

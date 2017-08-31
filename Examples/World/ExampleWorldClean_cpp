@@ -1,0 +1,74 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/Hintzelab/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/Hintzelab/MABE/wiki/License
+
+#include "ExampleWorld.h"
+
+//shared_ptr<ParameterLink<int>> ExampleWorld::exampleIntPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleIntParameter", 10, "an int parameter with default value 10");
+//shared_ptr<ParameterLink<double>> ExampleWorld::exampleDoublePL = Parameters::register_parameter("WORLD_TEMPLATE-exampleDoubleParameter", 10.5, "a double parameter with default value 10.5");
+//shared_ptr<ParameterLink<bool>> ExampleWorld::exampleBoolPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleBoolParameter", true, "a bool parameter with default value true");
+//shared_ptr<ParameterLink<string>> ExampleWorld::exampleStringPL = Parameters::register_parameter("WORLD_TEMPLATE-exampleStringParameter", (string)"text", "a default string parameter with default value 'text'");
+
+//shared_ptr<ParameterLink<int>> ExampleWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEMPLATE-evaluationsPerGeneration", 3, "how many times should this world be run to generate average scores/behavior");
+
+//shared_ptr<ParameterLink<string>> ExampleWorld::exampleMTreePL = Parameters::register_parameter("WORLD_TEMPLATE-exampleMTreeParameter", (string)"DIVIDE(UPDATE[]+10),2)", "an MTree parameter with default value ((current update + 10)/2)");
+
+shared_ptr<ParameterLink<string>> ExampleWorld::groupNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> ExampleWorld::brainNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
+
+ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> _PT) :
+		AbstractWorld(_PT) {
+	
+	// converting a string parametersLink into an MTree:
+	// exampleMT = stringToMTree(exampleMTreePL->get(PT));
+	
+	// Required inputs and outputs
+	requiredInputs = 2;
+	requiredOutputs = 1;
+
+	popFileColumns.clear();
+	popFileColumns.push_back("score");
+	popFileColumns.push_back("score_VAR"); // specifies to also record the variance (performed automatically by DataMap because _VAR)
+
+}
+
+
+void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+	
+	// code to evaluating exampleMT
+	// auto MT_VALUE = exampleMT->eval(org->dataMap, PT);
+	
+	// create a shortcut to access the organisms brain
+	auto brain = org->brains[brainNameSpacePL->get(PT)]; 
+
+	// evaluate this organism evaluations Per Generation times
+	for (int r = 0; r < evaluationsPerGenerationPL->get(PT); r++) {
+		brain->resetBrain(); // clear the brain (this function is defined by the brain, and will differ based on the brain being used)
+		brain->setInput(0, 1);  // set the brains input 0 to 1
+		brain->update(); // run a brain update (i.e. ask the brain to convert it's inputs into outputs)
+		org->dataMap.append("score", 100.0); // add data to organisms data
+	}
+}
+
+void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
+	
+	// solo evaluation
+	int popSize = groups[groupNameSpacePL->get(PT)]->population.size(); 
+	for (int i = 0; i < popSize; i++) { // for each organism, run evaluateSolo.
+		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyse, visualize, debug);
+	}
+}
+
+unordered_map<string, unordered_set<string>> ExampleWorld::requiredGroups() {
+	return { 
+		{ groupNameSpacePL->get(PT), { "B:" + brainNameSpacePL->get(PT) + to_string(requiredInputs) + "," + to_string(requiredOutputs) } }
+	};
+}
+
+
