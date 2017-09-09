@@ -18,6 +18,7 @@
 
 using namespace std;
 
+class TestWorld;
 class TestWorld : public AbstractWorld {
 
 public:
@@ -53,6 +54,8 @@ public:
 		// the brain must have 1 input numberOfOutputs outputs
 	}
 
-
 };
 
+inline shared_ptr<AbstractWorld> TestWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<TestWorld>(PT);
+}

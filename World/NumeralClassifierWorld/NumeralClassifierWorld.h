@@ -76,3 +76,7 @@ public:
 	}
 
 };
+
+inline shared_ptr<AbstractWorld> NumeralClassifierWorld_worldFactory(shared_ptr<ParametersTable> PT) {
+	return make_shared<NumeralClassifierWorld>(PT);
+}
