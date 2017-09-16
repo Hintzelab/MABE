@@ -242,7 +242,7 @@ outFile.close()
 if not os.path.exists('objectFiles'):
 	os.makedirs('objectFiles')
 
-alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
+alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Parser.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
 
 options['Archivist'].remove('Default')
 
@@ -275,7 +275,7 @@ outFile.write('\n')
 outFile.write('\t'+compiler+' '+compFlags)
 for o in objects:
 	outFile.write(' '+o)
-outFile.write(' -o '+product+'\n\n')
+outFile.write(' -lstdc++fs -o '+product+'\n\n')
 
 for i in range(len(sources)):
         if (sources[i][-8:] == 'main.cpp'):
