@@ -15,22 +15,22 @@ shared_ptr<ParametersTable> Parameters::root;
 
 long long ParametersTable::nextTableID = 0;
 
-template<>
+template<> inline
 const bool ParametersEntry<bool>::getBool() {
 	return get();
 }
 
-template<>
+template<> inline
 const string ParametersEntry<string>::getString() {
 	return get();
 }
 
-template<>
+template<> inline
 const int ParametersEntry<int>::getInt() {
 	return get();
 }
 
-template<>
+template<> inline
 const double ParametersEntry<double>::getDouble() {
 	return get();
 }
