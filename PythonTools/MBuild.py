@@ -1,12 +1,13 @@
 import argparse
 import os
+import posixpath
 import sys
+import platform ## for system identification
 from subprocess import call
 
 parser = argparse.ArgumentParser()
 
 parser.add_argument('-buildFile', type=str, metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt', required=False)
-parser.add_argument('-windows', action='store_true', default = False, help='add this flag if you are on a windows computer', required=False)
 parser.add_argument('-cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building', required=False)
 parser.add_argument('-noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile', required=False)
 parser.add_argument('-pg', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
@@ -14,7 +15,7 @@ parser.add_argument('-cores', default = 1, help='how many cores do you want to u
 
 args = parser.parse_args()
 
-if args.windows:
+if platform.system() == 'Windows':
 	product = 'MABE.exe'
 else:
 	product = 'MABE'
@@ -25,7 +26,7 @@ if (args.pg):
 	compFlags =  compFlags + ' -pg'
 
 
-if os.path.exists(args.buildFile) is False:
+if posixpath.exists(args.buildFile) is False:
 	print()
 	print('buildFile with name "'+args.buildFile+'" does not exist. Please provide a diffrent filename.')
 	print()
@@ -33,7 +34,7 @@ if os.path.exists(args.buildFile) is False:
 	
 # load all lines from buildFile into lines, ignore blank lines
 file = open(args.buildFile, 'r')
-pathToMABE=os.path.dirname(args.buildFile)
+pathToMABE=posixpath.dirname(args.buildFile)
 if pathToMABE == "":
 	pathToMABE = "./"
 lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [[],['EOF']] ]
@@ -65,7 +66,7 @@ for option in options:
 		print("  " + o)
 	print("")
 
-outFile = open(os.path.join(pathToMABE,"modules.h"), 'w')
+outFile = open(posixpath.join(pathToMABE,"modules.h"), 'w')
 
 outFile.write('//  MABE is a product of The Hintza Lab @ MSU\n')
 outFile.write('//     for general research information:\n')
@@ -239,7 +240,7 @@ outFile.close()
 
 # Create the make file
 
-if not os.path.exists('objectFiles'):
+if not posixpath.exists('objectFiles'):
 	os.makedirs('objectFiles')
 
 alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
@@ -249,20 +250,20 @@ options['Archivist'].remove('Default')
 moduleSources = []
 for o in options:
 	for t in options[o]:
-		moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+t+o+'.cpp')
-		dirs = [d for d in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/') if os.path.isdir(os.path.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
+		moduleSources.append(pathToMABE+o+'/'+t+o+'/'+t+o+'.cpp')
+		dirs = [d for d in os.listdir(pathToMABE+o+'/'+t+o+'/') if posixpath.isdir(posixpath.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
 		for d in dirs:
-                    contents = [c for c in os.listdir(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
+                    contents = [c for c in os.listdir(pathToMABE+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
                     for content in contents:
-                        moduleSources.append(pathToMABE+'/'+o+'/'+t+o+'/'+d+'/'+content)
+                        moduleSources.append(pathToMABE+o+'/'+t+o+'/'+d+'/'+content)
 
-alwaysSources = [pathToMABE+'/'+e for e in alwaysSources]
+alwaysSources = [pathToMABE+e for e in alwaysSources]
 sources = alwaysSources + moduleSources
 objects = []
 
 
 for s in sources:
-    objects.append('objectFiles/'+os.path.realpath(s)[1:].split('.')[0].replace('/','_') + '.o')
+    objects.append('objectFiles/'+posixpath.relpath(s).split('.')[0].replace('/','_') + '.o')
 
 outFile = open("makefile", 'w')
 
