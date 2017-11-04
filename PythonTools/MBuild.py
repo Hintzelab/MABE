@@ -55,22 +55,34 @@ file = open(args.buildOptions, 'r')
 pathToMABE=posixpath.dirname(args.buildOptions)
 if pathToMABE == "":
     pathToMABE = "./"
-lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [[],['EOF']] ]
+lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [['EOF']] ]
 file.close()
 
 options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
 currentOption = ""
 
-for line in lines:
+unrecognizedLinesFound=False
+for linenum,line in enumerate(lines):
+    if len(line)==0:
+        continue
+    linenum+=1 ## sane line numbering starting at 1
     if len(line) != 2:
         exit()
-    if line[0] == '%':
+    if line[0] == '%': ## set current category
         currentOption = line[1]
-    if line[0] == '*':
+    elif line[0] == '*': ## include and make default the module
         options[currentOption].append(line[1])
         options[currentOption][0], options[currentOption][len(options[currentOption])-1] = options[currentOption][len(options[currentOption])-1], options[currentOption][0]
-    if line[0] == '+':
+    elif line[0] == '+': ## include added modules
         options[currentOption].append(line[1])
+    elif line[0] == '-': ## ignore negated modules
+        continue
+    else: ## report errors on anything else
+        print("unrecognized line in buildoptions (line {0}): {1}".format(linenum,' '.join(line)))
+        unrecognizedLinesFound=True
+if unrecognizedLinesFound:
+    print("Errors found in biuldOptions.txt")
+    quit()
 
 
 if not('Default' in options['Archivist']):
