@@ -36,9 +36,26 @@ int main(int argc, const char * argv[]) {
 
 
 	
-	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
-		<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
-	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
+	const string logo =
+R"raw(
+
+
+	MM   MM      A       BBBBBB    EEEEEE
+	MMM MMM     AAA      BB   BB   EE
+	MMMMMMM    AA AA     BBBBBB    EEEEEE
+	MM M MM   AAAAAAA    BB   BB   EE
+	MM   MM  AA     AA   BBBBBB    EEEEEE
+
+	Modular    Agent      Based    Evolver
+
+
+	https://github.com/HintzeLab/MABE
+
+
+	for help run MABE with the "-h" flag (i.e. ./MABE -h).
+
+)raw";
+	cout << logo;
 
 	configureDefaultsAndDocumentation(); // sets up values from modules.h
 	bool saveFiles = Parameters::initializeParameters(argc, argv);  // loads command line and configFile values into registered parameters
