@@ -29,6 +29,9 @@
 #include "Utilities/MTree.h"
 
 #include "modules.h"
+#if defined(__MINGW32__)
+#include <windows.h> /// for getting PID, for proper RNG for MinGW
+#endif
 
 using namespace std;
 
@@ -67,7 +70,13 @@ int main(int argc, const char * argv[]) {
 	// set up random number generator
 	if (Global::randomSeedPL->get() == -1) {
 		random_device rd;
-		int temp = rd();
+        /// random_device is not implemented for MinGW on windows (it's like the old rand())
+        /// so we need to seed it with entropy
+        #if defined(__MINGW32__)
+        DWORD temp = GetCurrentProcessId();
+        #else
+        int temp = rd();
+        #endif
 		Random::getCommonGenerator().seed(temp);
 		cout << "Generating Random Seed\n  " << temp << endl;
 	}
