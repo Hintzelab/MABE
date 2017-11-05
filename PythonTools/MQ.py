@@ -75,8 +75,8 @@ parser.add_argument('-n', '--runNo', action='store_true', default=False,
                     help='if set, will do everything (i.e. create files and directories) but launch jobs, allows you to do a dry run - default : false(will run)', required=False)
 parser.add_argument('-l', '--runLocal', action='store_true', default=False,
                     help='if set, will run jobs localy - default : false(no action)', required=False)
-parser.add_argument('-h', '--runHPCC', action='store_true', default=False,
-                    help='if set, will run jobs with qsub on HPCC - default : false(no action)', required=False)
+parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
+                    help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_conditions.txt',
                     help='file which defines conditions - default: MQ_conditions.txt', required=False)
 args = parser.parse_args()
