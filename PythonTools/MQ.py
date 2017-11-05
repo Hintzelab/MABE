@@ -29,6 +29,7 @@ import sys
 import shutil
 import datetime
 import getpass  # for getuser() gets current username
+import itertools # for generating combinations of conditions
 
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
@@ -85,11 +86,13 @@ variables = {}
 varNames = {}
 varList = []
 exceptions = []
+condition_sets = []
 cfg_files = []
 other_files = []
 executable = "./MABE"
 HPCC_parameters = []
 HPCC_LONGJOB = True
+using_conditions = False ## either use VAR/EXCEPT or CONDITIONS, but not both. Use of condition values overrides VAR values.
 
 with open(args.file) as openfileobject:
     for line in openfileobject:
@@ -103,12 +106,15 @@ with open(args.file) as openfileobject:
                 displayName = line[2]
                 if displayName == "NONE":
                     displayName = ""
-            if line[0] == "VAR":
-                varList.append(line[2])
-                variables[line[2]] = line[4].split(",")
-                varNames[line[2]] = line[3]
-            if line[0] == "EXCEPT":
+            if line[0] == "VAR": # VAR = PUN GLOBAL-poisonValue 0.0,1.0,1.5
+                varList.append(line[2]) # MQ-variable
+                variables[line[2]] = line[4].split(",") # values
+                varNames[line[2]] = line[3] # MABE-variable
+            if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
                 exceptions.append(line[2].replace('=', ',').split(','))
+            if line[0] == "CONDITIONS": # CONDITIONS = PUN=0.0,1.0,1.5;UH=1;UI=1
+                using_conditions = True
+                condition_sets.append([cond_def.split(',') for cond_def in line[2].replace('=',',').split(';')]) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
                 executable = line[2]
             if line[0] == "SETTINGS":
@@ -141,6 +147,10 @@ for ex in exceptions:
             ex_names.append(ex[ex_index])
         ex_index += 2
 
+cond_var_names=set()
+for cond_set in condition_sets:
+    for cond_def in cond_set:
+        cond_var_names.add(cond_def[0]) # add the variable name part of the definition (always [0])
 
 for ex_name in ex_names:
     found_ex_name = False
@@ -149,7 +159,13 @@ for ex_name in ex_names:
             found_ex_name = True
     if not found_ex_name:
         print('exception rules contain variable with name: "' +
-              ex_name + '". But this variable is not defined! Exiting!')
+              ex_name + '". But this variable is not defined. Exiting.')
+        exit()
+
+for cond_var_name in cond_var_names:
+    if cond_var_name not in varList:
+        print('conditions contains variable with name: "' +
+              cond_var_name + '". But this variable is not defined. Exiting.')
         exit()
 
 print("\nSetting up your jobs...\n")
@@ -169,69 +185,82 @@ for key in varList:
 combinations = []
 conditions = []
 
-done = False
+if not using_conditions:
+    done = False
+    print("excluding:")
+    # iterate over all combinations using nested counter (indexList)
+    while not done:
+        varString = ""
+        condString = ""
+        keyCount = 0
 
-print("excluding:")
+        # for every key, look up varName and value for that key and add to:
+        # varstring - the parameters to be passed to MABE
+        # condString - the name of the output directory and job name
+        for key in varList:
+            varString += " " + varNames[key] + " " + \
+                str(variables[key][indexList[keyCount]])
+            condString += "_" + key + "_" + \
+                str(variables[key][indexList[keyCount]]) + "_"
+            keyCount += 1
 
-# iterate over all combinations using nested counter (indexList)
-while not done:
-    varString = ""
-    condString = ""
-    keyCount = 0
+        cond_is_ex = False
+        if len(exceptions) > 0:
+            for rule in exceptions:
+                ruleIndex = 0
+                rule_is_ex = True
+                while ruleIndex < len(rule):
+                    keyCount = 0
+                    for key in varList:
+                        if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variables[key][indexList[keyCount]])):
+                            rule_is_ex = False
+                        keyCount += 1
+                    ruleIndex += 2
+                if rule_is_ex is True:
+                    cond_is_ex = True
 
-    # for every key, look up varName and value for that key and add to:
-    # varstring - the parameters to be passed to MABE
-    # condString - the name of the output directory and job name
-    for key in varList:
-        varString += " " + varNames[key] + " " + \
-            str(variables[key][indexList[keyCount]])
-        condString += "_" + key + "_" + \
-            str(variables[key][indexList[keyCount]]) + "_"
-        keyCount += 1
-
-    cond_is_ex = False
-    if len(exceptions) > 0:
-        for rule in exceptions:
-            ruleIndex = 0
-            rule_is_ex = True
-            while ruleIndex < len(rule):
-                keyCount = 0
-                for key in varList:
-                    if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variables[key][indexList[keyCount]])):
-                        rule_is_ex = False
-                    keyCount += 1
-                ruleIndex += 2
-            if rule_is_ex is True:
-                cond_is_ex = True
-
-    # if this condition is not an exception append this conditions values to:
-    # combinations - a list with parameters combinations
-    # conditions - a list of directory name/job identifiers
-    if not cond_is_ex:
-        combinations.append(varString)
-        conditions.append(condString)
-    else:
-        print("  " + condString[1:-1])
-
-    checkIndex = len(indexList) - 1
-
-    # This block of code moves the index of the last element up by one. If it reaches max
-    # then it moves the next to last elements index up by one. If that also reaches max,
-    # then the effect cascades. If the first elements index is reaches max then done is
-    # set to true and processing of conditions is halted.
-    stillChecking = True
-    while stillChecking:
-        indexList[checkIndex] += 1
-        if indexList[checkIndex] == lengthsList[checkIndex]:
-            indexList[checkIndex] = 0
-            if checkIndex == 0:
-                done = True
-                stillChecking = False
-            else:
-                checkIndex -= 1
+        # if this condition is not an exception append this conditions values to:
+        # combinations - a list with parameters combinations
+        # conditions - a list of directory name/job identifiers
+        if not cond_is_ex:
+            combinations.append(varString)
+            conditions.append(condString)
         else:
-            stillChecking = False
+            print("  " + condString[1:-1])
 
+        checkIndex = len(indexList) - 1
+
+        # This block of code moves the index of the last element up by one. If it reaches max
+        # then it moves the next to last elements index up by one. If that also reaches max,
+        # then the effect cascades. If the first elements index is reaches max then done is
+        # set to true and processing of conditions is halted.
+        stillChecking = True
+        while stillChecking:
+            indexList[checkIndex] += 1
+            if indexList[checkIndex] == lengthsList[checkIndex]:
+                indexList[checkIndex] = 0
+                if checkIndex == 0:
+                    done = True
+                    stillChecking = False
+                else:
+                    checkIndex -= 1
+            else:
+                stillChecking = False
+elif using_conditions: # This section is for parsing the CONDITIONS lines
+    for condition_set in condition_sets:
+        assignmentsInCategories = []
+        for condition_var in condition_set:
+            varString = varNames[condition_var[0]]+' '
+            condString = '_'+condition_var[0]+'_'
+            category=[]
+            for var_value in condition_var[1:]: # loop over all values, skipping the variable name
+                category.append( (varString+var_value, condString+var_value+'_') ) # store MABE-like parameter assignment, and condition path strings
+            assignmentsInCategories.append(category)
+        allCombinations = itertools.product(*assignmentsInCategories)
+        for each_combination in allCombinations:
+            combinations.append(' '+' '.join([e[0] for e in each_combination])) # store MABE-like full parameter string
+            conditions.append(''.join([e[1] for e in each_combination])) # store full condition path string for folder name generation
+        
 print("")
 print("including:")
 for c in conditions:
