@@ -278,7 +278,7 @@ for i in range(len(combinations)):
             # make rep directory (this will also make the condition directory if it's not here already)
             call(["mkdir", "-p", displayName + "_" +
                   conditions[i][1:-1] + "/" + str(rep)])
-            if not args.noRun:
+            if not args.runNo:
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory", displayName +
@@ -342,9 +342,9 @@ for i in range(len(combinations)):
             print("  " + realDisplayName + " :")
             print("  workDir = " + workDir)
             print("  qsub " + qsubFileName)
-            if not args.noRun:
+            if not args.runNo:
                 callNoWait(["qsub", qsubFileName])  # run the job
 
-if args.noRun:
+if args.runNo:
     print("")
-    print("  You are using -noRun, so no jobs have been started!")
+    print("  You are using --runNo, so no jobs have been started!")
