@@ -2,7 +2,6 @@
   - Memory
   - Berry
   - BerryPlus
-  - IPD
   - NumeralClassifier
   - SOF
   * Test
