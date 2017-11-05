@@ -114,6 +114,12 @@ with open(args.file) as openfileobject:
                 exceptions.append(line[2].replace('=', ',').split(','))
             if line[0] == "CONDITIONS": # CONDITIONS = PUN=0.0,1.0,1.5;UH=1;UI=1
                 using_conditions = True
+                if line[1] is not '=':
+                    print("error: conditions require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
+                    exit()
+                if line[2].count('=') and not line[2].count(';'):
+                    print("error: conditions defined with multiple variables, but no separater ';' was found. Did you forget it?")
+                    exit()
                 condition_sets.append([cond_def.split(',') for cond_def in line[2].replace('=',',').split(';')]) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
                 executable = line[2]
