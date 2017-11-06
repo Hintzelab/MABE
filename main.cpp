@@ -14,6 +14,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <vector>
+#include <experimental/filesystem>
 
 #include "Global.h"
 
@@ -27,11 +28,11 @@
 #include "Utilities/Utilities.h"
 //#include "Utilities/WorldUtilities.h"
 #include "Utilities/MTree.h"
+#include "Utilities/Parser.h"
 
 #include "modules.h"
 
 using namespace std;
-
 int main(int argc, const char * argv[]) {
 
 
@@ -82,6 +83,10 @@ int main(int argc, const char * argv[]) {
 	shared_ptr<ParametersTable> PT;
 
 	string NS;
+
+		cout << endl << "Building world " << world->worldTypePL->get() << "::" << endl;
+		//world->testing();
+		//exit(1);
 
 	unordered_map<string, unordered_set<string>> worldRequirements = world->requiredGroups();
 	// for each name space in the GLOBAL-groups create a group. if GLOBAL-groups is empty, create "default" group.
@@ -197,33 +202,42 @@ int main(int argc, const char * argv[]) {
 
 		vector<shared_ptr<Organism>> population;
 
-		if (Global::modePL->get(Parameters::root) == "run") {
 
-			// add popSize organisms which look like progenitor to population
-			shared_ptr<Organism> newOrg;
-			for (int i = 0; i < popSize; i++) {
-				// make a new genome like the template genome
-				unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
-				unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
-				for (auto genome : templateGenomes) {
+		loader L;
+		auto loaded_orgs = L.load_population("population_loader.cfg");
+		if (loaded_orgs.size() != popSize) {
+			cout << " error : script loads " << loaded_orgs.size() << 
+				" organisms but Global Population size is " << 
+				popSize << endl << "Sizes must match" << endl;
+			exit(1);
+		}
+		for (auto & org_data : loaded_orgs) {
+			// make a new organism (either random or from file) 
+			unordered_map<string, shared_ptr<AbstractGenome>>  newGenomes;
+			unordered_map<string, shared_ptr<AbstractBrain>>  newBrains;
+			for (auto  genome : templateGenomes) {
+				if (org_data.first == -1) 
 					newGenomes[genome.first] = genome.second->makeLike();
+				else {		
+					string name = genome.first;
+					genome.second->deserialize(genome.second->PT, 
+									org_data.second, name);
+					newGenomes[genome.first] = genome.second;
 				}
-				for (auto brain : templateBrains) {
+			}
+			for (auto  brain : templateBrains) {
+				if (org_data.first == -1) 
 					brain.second->initalizeGenomes(newGenomes);
-					newBrains[brain.first] = brain.second->makeBrain(newGenomes);
-				}
-				// create new organism using progenitor as template (i.e. to define brains) and the new genomes
-
-				//// must address initalizGenome in case of multi brains!!
-				newOrg = make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
-
-				// add new organism to population
-				population.push_back(newOrg);
+				newBrains[brain.first] = brain.second->makeBrain(newGenomes);
 			}
 
-		} else { 
-			// we are in visualize or analyze mode so we don't need to make the population
+			//// must address initalizGenome in case of multi brains!!
+			shared_ptr<Organism> newOrg = make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+
+			// add new organism to population
+			population.push_back(newOrg);
 		}
+
 		// popFileColumns holds a list of data titles which various modules indicate are interesting/should be tracked and which are averageable
 		// ** popFileColumns define what will appear in the pop.csv file **
 		// the following code asks world, genomes and brains for ave file columns
@@ -254,17 +268,10 @@ int main(int argc, const char * argv[]) {
 		progenitor->kill();
 
 		//report on what was just built
-		if (Global::modePL->get() == "run") {
-
 			cout << "\nFinished Building Group: " << groupInfo.first << "   Group name space: " << NS << "\n  population size: " << popSize << "     Optimizer: "
 				<< PT->lookupString("OPTIMIZER-optimizer") << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
 			cout << endl;
-		}
-		else {
-			cout << "\nFinished Building Group: " << groupInfo.first << "   Group name space: " << NS << "\n  population size: 0 (not in run mode)     Optimizer: "
-				<< PT->lookupString("OPTIMIZER-optimizer") << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod") << endl;
-			cout << endl;
-		}
+		
 		// end of report
 	}
 
@@ -280,7 +287,7 @@ int main(int argc, const char * argv[]) {
 
 		while (!done){//!groups[defaultGroup]->archivist->finished) {
 			world->evaluate(groups, false, false, AbstractWorld::debugPL->get());  // evaluate each organism in the population using a World
-			cout << "update: " << Global::update << "   " << flush;
+		//	cout << "update: " << Global::update << "   " << flush;
 			done = true; // until we find out otherwise, assume we are done.
 			for (auto group : groups) {
 				if (!group.second->archivist->finished) {
@@ -310,53 +317,7 @@ int main(int argc, const char * argv[]) {
 		// visualize mode
 		////////////////////////////////////////////////////////////////////////////////////
 		cout << "\n  You are running MABE in visualize mode." << endl << endl;
-
-
-		//which orgs do I need to make?
-		// lets make all orgs required by world.
-		unordered_map<int, unordered_map<string, string>> data;
-		string fileName = Global::visualizePopulationFilePL->get();
-		cout << "loading file " << fileName << endl;
-		string indexName = "ID";
-		vector<int> IDs;
-		convertCSVListToVector(Global::visualizeOrgIDPL->get(), IDs);
-		int orgID = IDs[0];
-
-		loadIndexedCSVFile(fileName, data, indexName);
-		unordered_map<string, string> orgData = data[orgID];
-
-		for (auto group : groups) {
-			shared_ptr<Organism> newOrg = group.second->templateOrg->makeCopy();
-			for (auto genome : newOrg->genomes) {
-				string name = genome.first;
-				genome.second->deserialize(genome.second->PT, orgData, name);
-			}
-			for (auto brain : newOrg->brains) {
-				//cout << brain.first << "  before brain: " << brain.second->description() << endl;
-				newOrg->brains[brain.first] = brain.second->makeBrain(newOrg->genomes);
-				//cout << brain.first << "  after brain: " << brain.second->description() << endl;
-				string name = brain.first;
-				brain.second->deserialize(brain.second->PT, orgData, name);
-				//cout << brain.first << "  after brain: " << brain.second->description() << endl;
-			}
-			group.second->population.push_back(newOrg);
-		}
-
-		for (auto group : groups) {
-			//cout << "GROUP: " << group.first << endl;
-			for (auto genome : group.second->population[0]->genomes) {
-				cout << genome.first << " -- " << endl;
-				genome.second->printGenome();
-				cout << endl;
-			}
-			for (auto brain : group.second->population[0]->brains) {
-				//cout << group.second->population[0]->brains.size() << "  SIZE" << endl;
-				//cout << "brain: " << brain.first << " -- " << brain.second->description() << endl;
-			}
-		}
-
 		world->evaluate(groups, 0, 1, 0);
-		cout << "org with ID: " << orgData["ID"] << "  generated score: " << groups["root::"]->population[0]->dataMap.getAverage("score") << endl;
 
 	}
 
