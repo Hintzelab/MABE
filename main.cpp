@@ -29,6 +29,9 @@
 #include "Utilities/MTree.h"
 
 #include "modules.h"
+#if defined(__MINGW32__)
+#include <windows.h> /// for getting PID, for proper RNG for MinGW
+#endif
 
 using namespace std;
 
@@ -36,9 +39,26 @@ int main(int argc, const char * argv[]) {
 
 
 	
-	cout << "\n\n" << "\tMM   MM      A       BBBBBB    EEEEEE\n" << "\tMMM MMM     AAA      BB   BB   EE\n" << "\tMMMMMMM    AA AA     BBBBBB    EEEEEE\n" << "\tMM M MM   AAAAAAA    BB   BB   EE\n" << "\tMM   MM  AA     AA   BBBBBB    EEEEEE\n" << "\n"
-		<< "\tModular    Agent      Based    Evolver\n\n\n\thttps://github.com/ahnt/MABE\n\n" << endl;
-	cout << "\tfor help run MABE with the \"-h\" flag (i.e. ./MABE -h)." << endl << endl;
+	const string logo =
+R"raw(
+
+
+	MM   MM      A       BBBBBB    EEEEEE
+	MMM MMM     AAA      BB   BB   EE
+	MMMMMMM    AA AA     BBBBBB    EEEEEE
+	MM M MM   AAAAAAA    BB   BB   EE
+	MM   MM  AA     AA   BBBBBB    EEEEEE
+
+	Modular    Agent      Based    Evolver
+
+
+	https://github.com/HintzeLab/MABE
+
+
+	for help run MABE with the "-h" flag (i.e. ./MABE -h).
+
+)raw";
+	cout << logo;
 
 	configureDefaultsAndDocumentation(); // sets up values from modules.h
 	bool saveFiles = Parameters::initializeParameters(argc, argv);  // loads command line and configFile values into registered parameters
@@ -67,7 +87,13 @@ int main(int argc, const char * argv[]) {
 	// set up random number generator
 	if (Global::randomSeedPL->get() == -1) {
 		random_device rd;
-		int temp = rd();
+        /// random_device is not implemented for MinGW on windows (it's like the old rand())
+        /// so we need to seed it with entropy
+        #if defined(__MINGW32__)
+        DWORD temp = GetCurrentProcessId();
+        #else
+        int temp = rd();
+        #endif
 		Random::getCommonGenerator().seed(temp);
 		cout << "Generating Random Seed\n  " << temp << endl;
 	}
