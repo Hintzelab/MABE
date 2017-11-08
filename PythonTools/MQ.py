@@ -122,6 +122,8 @@ with open(args.file) as openfileobject:
                 varNames[var] = mabeVar
                 if len(everythingEqualsAndAfterAsList) > 3: # allow for users to not specify any values
                     variables[var] = everythingEqualsAndAfterAsList[3]
+                else:
+                    using_conditions = True # can't use standard VAR/EXCEPT when you don't specify values
                 #varList.append(line[2]) # MQ-variable
                 #variables[line[2]] = line[4].split(",") # values
                 #varNames[line[2]] = line[3] # MABE-variable
@@ -350,11 +352,6 @@ print(userName)
 absLocalDir = os.getcwd()  # this is needed so we can get back to the launch direcotry
 # turn path into list so we can trim of verything before ~
 localDirParts = absLocalDir.split('/')
-# while localDirParts[0] != userName:
-#	localDirParts = localDirParts[1:] # trim off parts from the front until we get the the user name
-#	if len(localDirParts) == 1 and localDirParts[0] != userName:
-#		print('You must be in your home area to run MQ.py.')
-#		exit(1);
 # this is the launch directory from ~/ : this command appends '~/' onto the remaining list with '/' between each element.
 localDir = '~/' + '/'.join(localDirParts[1:])
 
