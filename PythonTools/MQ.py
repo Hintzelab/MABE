@@ -30,7 +30,11 @@ import shutil
 import datetime
 import getpass  # for getuser() gets current username
 import itertools # for generating combinations of conditions
+import re
 
+ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
+ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
+ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
     outFile = open(qsubFileName, 'w')
@@ -87,6 +91,8 @@ varNames = {}
 varList = []
 exceptions = []
 condition_sets = []
+condition_sets_skipped = []
+constantDefs = ' '
 cfg_files = []
 other_files = []
 executable = "./MABE"
@@ -95,9 +101,9 @@ HPCC_LONGJOB = True
 using_conditions = False ## either use VAR/EXCEPT or CONDITIONS, but not both. Use of condition values overrides VAR values.
 
 with open(args.file) as openfileobject:
-    for line in openfileobject:
+    for rawline in openfileobject:
 
-        line = line.split()
+        line = rawline.split()
         if (len(line) > 0):
             if line[0] == "REPS":
                 firstRep = int(line[2])
@@ -107,22 +113,52 @@ with open(args.file) as openfileobject:
                 if displayName == "NONE":
                     displayName = ""
             if line[0] == "VAR": # VAR = PUN GLOBAL-poisonValue 0.0,1.0,1.5
-                varList.append(line[2]) # MQ-variable
-                variables[line[2]] = line[4].split(",") # values
-                varNames[line[2]] = line[3] # MABE-variable
+                everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
+                if everythingEqualsAndAfterAsList[0] is not '=':
+                    print("error: VARs require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
+                    exit()
+                var,mabeVar = everythingEqualsAndAfterAsList[1:3] # get variable and mabe-variable
+                varList.append(var)
+                varNames[var] = mabeVar
+                if len(everythingEqualsAndAfterAsList) > 3: # allow for users to not specify any values
+                    variables[var] = everythingEqualsAndAfterAsList[3]
+                #varList.append(line[2]) # MQ-variable
+                #variables[line[2]] = line[4].split(",") # values
+                #varNames[line[2]] = line[3] # MABE-variable
             if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
-                exceptions.append(line[2].replace('=', ',').split(','))
+                everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
+                #exceptions.append(line[2].replace('=', ',').split(','))
+                if everythingEqualsAndAfterAsList[0] is not '=':
+                    print("error: EXCEPT requires an assignment for readability. Ex: CONDITIONS = TSK=1.0")
+                    exit()
+                new_skip_condition_set = []
+                for eachVar in everythingEqualsAndAfterAsList[1:]:
+                    if eachVar.count('=') > 1:
+                        print("error: more than 1 '=' character found in EXCEPT values (probably in a string?) and we haven't considered this problem yet.")
+                        sys.exit()
+                    variable,rawValues=eachVar.split('=')
+                    values = [e[0] for e in ptrnCSVs.findall(rawValues)]
+                    new_skip_condition_set.append([variable]+values)
+                condition_sets_skipped.append(new_skip_condition_set) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "CONDITIONS": # CONDITIONS = PUN=0.0,1.0,1.5;UH=1;UI=1
                 using_conditions = True
-                if line[1] is not '=':
-                    print("error: conditions require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
+                everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
+                if everythingEqualsAndAfterAsList[0] is not '=':
+                    print("error: CONDITIONS require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit()
-                if line[2].count('=') and not line[2].count(';'):
-                    print("error: conditions defined with multiple variables, but no separater ';' was found. Did you forget it?")
-                    exit()
-                condition_sets.append([cond_def.split(',') for cond_def in line[2].replace('=',',').split(';')]) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
+                new_condition_set = []
+                for eachVar in everythingEqualsAndAfterAsList[1:]:
+                    if eachVar.count('=') > 1:
+                        print("error: more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
+                        sys.exit()
+                    variable,rawValues=eachVar.split('=')
+                    values = [e[0] for e in ptrnCSVs.findall(rawValues)]
+                    new_condition_set.append([variable]+values)
+                condition_sets.append(new_condition_set) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
                 executable = line[2]
+            if line[0] == "CONSTANT":
+                constantDefs += ' '.join(line[2:])
             if line[0] == "SETTINGS":
                 cfg_files = line[2].split(',')
                 for f in cfg_files:
@@ -176,7 +212,8 @@ for cond_var_name in cond_var_names:
 
 print("\nSetting up your jobs...\n")
 for v in varList:
-    print(v + " (" + varNames[v] + ") = " + str(variables[v]))
+    if v in variables:
+        print(v + " (" + varNames[v] + ") = " + str(variables[v]))
 
 print("")
 
@@ -185,8 +222,9 @@ reps = range(firstRep, lastRep + 1)
 lengthsList = []
 indexList = []
 for key in varList:
-    lengthsList.append(len(variables[key]))
-    indexList.append(0)
+    if key in variables:
+        lengthsList.append(len(variables[key]))
+        indexList.append(0)
 
 combinations = []
 conditions = []
@@ -253,6 +291,18 @@ if not using_conditions:
             else:
                 stillChecking = False
 elif using_conditions: # This section is for parsing the CONDITIONS lines
+    # calculate skip sets
+    skipCombinations = []
+    for skip_set in condition_sets_skipped:
+        assignmentsInCategories = []
+        for condition_var in skip_set:
+            varString = varNames[condition_var[0]]+' '
+            category=[]
+            for var_value in condition_var[1:]: # loop over all values, skipping the variable name
+                category.append( varString+var_value ) # store MABE-like parameter assignment
+            assignmentsInCategories.append(category)
+        skipCombinations += itertools.product(*assignmentsInCategories)
+    # calculate include sets
     for condition_set in condition_sets:
         assignmentsInCategories = []
         for condition_var in condition_set:
@@ -263,9 +313,20 @@ elif using_conditions: # This section is for parsing the CONDITIONS lines
                 category.append( (varString+var_value, condString+var_value+'_') ) # store MABE-like parameter assignment, and condition path strings
             assignmentsInCategories.append(category)
         allCombinations = itertools.product(*assignmentsInCategories)
-        for each_combination in allCombinations:
-            combinations.append(' '+' '.join([e[0] for e in each_combination])) # store MABE-like full parameter string
-            conditions.append(''.join([e[1] for e in each_combination])) # store full condition path string for folder name generation
+        for each_combination in allCombinations: # each_combination is tuple: (mabe-like param assignment, condition string)
+            matchesi = [0]*len(skipCombinations) # boolean mask for which skips sets match, assume all match
+            for test_value in [e[0] for e in each_combination]:
+                for sci,skip_combo in enumerate(skipCombinations):
+                    if test_value in skip_combo:
+                        matchesi[sci] += 1
+            should_not_skip = True
+            for sci,skip_combo in enumerate(skipCombinations):
+                if matchesi[sci] == len(skip_combo):
+                    should_not_skip = False
+                    break
+            if should_not_skip:
+                conditions.append(''.join([e[1] for e in each_combination])) # store full condition path string for folder name generation
+                combinations.append(' '+' '.join([e[0] for e in each_combination])) # store MABE-like full parameter string
         
 print("")
 print("including:")
@@ -309,7 +370,7 @@ for i in range(len(combinations)):
             cfg_files_str = ' '.join(cfg_files)
             print("running:")
             print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " +
-                  conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:])
+                  conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + constantDefs)
             # make rep directory (this will also make the condition directory if it's not here already)
             call(["mkdir", "-p", displayName + "_" +
                   conditions[i][1:-1] + "/" + str(rep)])
@@ -317,7 +378,7 @@ for i in range(len(combinations)):
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory", displayName +
-                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)] + params)
+                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)] + params + constantDefs.split())
         if (args.runHPCC):
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
@@ -371,7 +432,7 @@ for i in range(len(combinations)):
 
             # make the qsub file on scratch
             makeQsubFile(realDisplayName=realDisplayName, conditionDirectoryName=conditionDirectoryName, rep=rep,
-                         qsubFileName=qsubFileName, executable=executable, cfg_files=cfg_files, workDir=workDir, conditions=combinations[i][1:])
+                         qsubFileName=qsubFileName, executable=executable, cfg_files=cfg_files, workDir=workDir, conditions=combinations[i][1:]+constantDefs)
 
             print("submitting:")
             print("  " + realDisplayName + " :")
