@@ -9,12 +9,16 @@ REPS = 101 103
 # Short name is used in this file, and also determines output directory names
 VAR = TSK	WORLD_BERRY-taskSwitchingCost	1.0,3.0
 VAR = RF1	WORLD_BERRY-rewardForFood1	0.50,1.00
-#VAR = RF2	WORLD_BERRY-rewardForFood2	0.50,0.75
+VAR = RF2	WORLD_BERRY-rewardForFood2	0.50,0.75
 
 # EXCEPT = [SHORT NAME]=[condition],[SHORT NAME]=[condition],etc.
 # If all name/condition pairs are met for any EXCEPT, then that combination will not be run.
 EXCEPT = TSK=3.0,RF1=0.50
 #EXCEPT = TSK=3.0,RF2=0.75
+
+# Alternatively, you can specify sets of conditions
+#CONDITIONS = TSK=1.0,3.0;RF1=0.25,0.50;RF2=0.75
+#CONDITIONS = TSK=1.0;RF1=0.80
 
 # list of setting files (.cfg) which you want MABE to load with the -f option. files will be loaded in the order provided.
 SETTINGS = settings.cfg,settings_organism.cfg,settings_world.cfg
