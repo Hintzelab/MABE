@@ -87,6 +87,7 @@ parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_c
 args = parser.parse_args()
 
 variables = {}
+variablesNonConditionsVersion = {}
 varNames = {}
 varList = []
 exceptions = []
@@ -122,14 +123,11 @@ with open(args.file) as openfileobject:
                 varNames[var] = mabeVar
                 if len(everythingEqualsAndAfterAsList) > 3: # allow for users to not specify any values
                     variables[var] = everythingEqualsAndAfterAsList[3]
+                    variablesNonConditionsVersion[var] = [e[0] for e in ptrnCSVs.findall(variables[var])]
                 else:
                     using_conditions = True # can't use standard VAR/EXCEPT when you don't specify values
-                #varList.append(line[2]) # MQ-variable
-                #variables[line[2]] = line[4].split(",") # values
-                #varNames[line[2]] = line[3] # MABE-variable
             if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
                 everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
-                #exceptions.append(line[2].replace('=', ',').split(','))
                 if everythingEqualsAndAfterAsList[0] is not '=':
                     print("error: EXCEPT requires an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit()
@@ -214,8 +212,8 @@ for cond_var_name in cond_var_names:
 
 print("\nSetting up your jobs...\n")
 for v in varList:
-    if v in variables:
-        print(v + " (" + varNames[v] + ") = " + str(variables[v]))
+    if v in variablesNonConditionsVersion:
+        print(v + " (" + varNames[v] + ") = " + str(variablesNonConditionsVersion[v]))
 
 print("")
 
@@ -225,7 +223,7 @@ lengthsList = []
 indexList = []
 for key in varList:
     if key in variables:
-        lengthsList.append(len(variables[key]))
+        lengthsList.append(len(variablesNonConditionsVersion[key]))
         indexList.append(0)
 
 combinations = []
@@ -245,9 +243,9 @@ if not using_conditions:
         # condString - the name of the output directory and job name
         for key in varList:
             varString += " " + varNames[key] + " " + \
-                str(variables[key][indexList[keyCount]])
+                str(variablesNonConditionsVersion[key][indexList[keyCount]])
             condString += "_" + key + "_" + \
-                str(variables[key][indexList[keyCount]]) + "_"
+                str(variablesNonConditionsVersion[key][indexList[keyCount]]) + "_"
             keyCount += 1
 
         cond_is_ex = False
@@ -258,7 +256,7 @@ if not using_conditions:
                 while ruleIndex < len(rule):
                     keyCount = 0
                     for key in varList:
-                        if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variables[key][indexList[keyCount]])):
+                        if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variablesNonConditionsVersion[key][indexList[keyCount]])):
                             rule_is_ex = False
                         keyCount += 1
                     ruleIndex += 2
