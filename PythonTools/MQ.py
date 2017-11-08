@@ -35,6 +35,7 @@ import re
 ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
 ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
 ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
+ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
     outFile = open(qsubFileName, 'w')
@@ -80,6 +81,8 @@ parser.add_argument('-n', '--runNo', action='store_true', default=False,
                     help='if set, will do everything (i.e. create files and directories) but launch jobs, allows you to do a dry run - default : false(will run)', required=False)
 parser.add_argument('-l', '--runLocal', action='store_true', default=False,
                     help='if set, will run jobs localy - default : false(no action)', required=False)
+parser.add_argument('-t', '--runTest', action='store_true', default=False,
+                    help='if set, will run jobs localy with 1 rep and 5 updates set - default : false(no action)', required=False)
 parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_conditions.txt',
@@ -87,6 +90,7 @@ parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_c
 args = parser.parse_args()
 
 variables = {}
+variablesNonConditionsVersion = {}
 varNames = {}
 varList = []
 exceptions = []
@@ -122,14 +126,11 @@ with open(args.file) as openfileobject:
                 varNames[var] = mabeVar
                 if len(everythingEqualsAndAfterAsList) > 3: # allow for users to not specify any values
                     variables[var] = everythingEqualsAndAfterAsList[3]
+                    variablesNonConditionsVersion[var] = [e[0] for e in ptrnCSVs.findall(variables[var])]
                 else:
                     using_conditions = True # can't use standard VAR/EXCEPT when you don't specify values
-                #varList.append(line[2]) # MQ-variable
-                #variables[line[2]] = line[4].split(",") # values
-                #varNames[line[2]] = line[3] # MABE-variable
             if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
                 everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
-                #exceptions.append(line[2].replace('=', ',').split(','))
                 if everythingEqualsAndAfterAsList[0] is not '=':
                     print("error: EXCEPT requires an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit()
@@ -214,8 +215,8 @@ for cond_var_name in cond_var_names:
 
 print("\nSetting up your jobs...\n")
 for v in varList:
-    if v in variables:
-        print(v + " (" + varNames[v] + ") = " + str(variables[v]))
+    if v in variablesNonConditionsVersion:
+        print(v + " (" + varNames[v] + ") = " + str(variablesNonConditionsVersion[v]))
 
 print("")
 
@@ -225,7 +226,7 @@ lengthsList = []
 indexList = []
 for key in varList:
     if key in variables:
-        lengthsList.append(len(variables[key]))
+        lengthsList.append(len(variablesNonConditionsVersion[key]))
         indexList.append(0)
 
 combinations = []
@@ -245,9 +246,9 @@ if not using_conditions:
         # condString - the name of the output directory and job name
         for key in varList:
             varString += " " + varNames[key] + " " + \
-                str(variables[key][indexList[keyCount]])
+                str(variablesNonConditionsVersion[key][indexList[keyCount]])
             condString += "_" + key + "_" + \
-                str(variables[key][indexList[keyCount]]) + "_"
+                str(variablesNonConditionsVersion[key][indexList[keyCount]]) + "_"
             keyCount += 1
 
         cond_is_ex = False
@@ -258,7 +259,7 @@ if not using_conditions:
                 while ruleIndex < len(rule):
                     keyCount = 0
                     for key in varList:
-                        if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variables[key][indexList[keyCount]])):
+                        if (rule[ruleIndex] == key) and (str(rule[ruleIndex + 1]) != str(variablesNonConditionsVersion[key][indexList[keyCount]])):
                             rule_is_ex = False
                         keyCount += 1
                     ruleIndex += 2
@@ -360,9 +361,16 @@ pathToScratch = '/mnt/scratch/'  # used for HPCC runs
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
 
+if args.runTest:
+    reps = range(1,2)
+    match = ptrnGlobalUpdates.search(constantDefs)
+    if match is None:
+        constantDefs += " GLOBAL-updates 2"
+    else:
+        constantDefs = constantDefs.replace(match.group(), "GLOBAL-updates 2")
 for i in range(len(combinations)):
     for rep in reps:
-        if (args.runLocal):
+        if args.runLocal or args.runTest:
             # turn cgf_files list into a space separated string
             cfg_files_str = ' '.join(cfg_files)
             print("running:")
@@ -372,11 +380,13 @@ for i in range(len(combinations)):
             call(["mkdir", "-p", displayName + "_" +
                   conditions[i][1:-1] + "/" + str(rep)])
             if not args.runNo:
+                sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory", displayName +
-                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)] + params + constantDefs.split())
-        if (args.runHPCC):
+                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)]
+                                                       + params + constantDefs.split())
+        if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
             if (displayName == ""):
