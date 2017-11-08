@@ -37,7 +37,7 @@ ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','
 ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
-def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
+def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions, padSizeReps):
     outFile = open(qsubFileName, 'w')
     outFile.write('#!/bin/bash -login\n')
     for p in HPCC_parameters:
@@ -65,10 +65,9 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, exe
                       #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
                       'export PBS_JOBSCRIPT="$0"\n' +
                       '\n' +
-                      'longjob ' + executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+                      'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     else:
-        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' +
-                      conditionDirectoryName + '/' + str(rep) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     outFile.write('ret=$?\n\n' +
                   'qstat -f ${PBS_JOBID}\n' +
                   '\n' +
@@ -183,6 +182,7 @@ with open(args.file) as openfileobject:
                     newParameter += i + ' '
                 HPCC_parameters.append(newParameter[:-1])
 
+padSizeReps = len(str(lastRep))
 
 ex_names = []
 for ex in exceptions:
@@ -330,16 +330,27 @@ elif using_conditions: # This section is for parsing the CONDITIONS lines
             if should_not_skip:
                 conditions.append(''.join([e[1] for e in each_combination])) # store full condition path string for folder name generation
                 combinations.append(' '+' '.join([e[0] for e in each_combination])) # store MABE-like full parameter string
-        
+
+padSizeCombinations = len(str(len(combinations)))
+i = 0 
+
 print("")
 print("including:")
 for c in conditions:
-    print("  " + c[1:-1])
+    if (displayName == ""):
+        conditionDirectoryName = "C" + str(i).zfill(padSizeCombinations) + "__" + c[1:-1]
+    else:
+        conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + c[1:-1]
+    print("  " + conditionDirectoryName)
+    i = i+1
 print("")
 
 print("the following settings files will be included:")
 for f in cfg_files:
     print("  " + f)
+print("")
+
+print("running these " + str(len(conditions)) + " conditions will result in " + str(len(conditions)* len(reps)) + " jobs")     
 print("")
 
 if not (args.runLocal or args.runHPCC):
@@ -360,7 +371,6 @@ pathToScratch = '/mnt/scratch/'  # used for HPCC runs
 
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
-
 if args.runTest:
     reps = range(1,2)
     match = ptrnGlobalUpdates.search(constantDefs)
@@ -373,43 +383,39 @@ for i in range(len(combinations)):
         if args.runLocal or args.runTest:
             # turn cgf_files list into a space separated string
             cfg_files_str = ' '.join(cfg_files)
+            if (displayName == ""):
+                conditionDirectoryName = "C" + str(i).zfill(padSizeCombinations) + "__" + conditions[i][1:-1]
+            else:
+                conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + conditions[i][1:-1]
             print("running:")
-            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " +
-                  conditions[i][1:-1] + "/" + str(rep) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + constantDefs)
+            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + constantDefs)
             # make rep directory (this will also make the condition directory if it's not here already)
-            call(["mkdir", "-p", displayName + "_" +
-                  conditions[i][1:-1] + "/" + str(rep)])
+            call(["mkdir","-p", conditionDirectoryName + "/" + str(rep).zfill(padSizeReps)])
             if not args.runNo:
                 sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
-                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory", displayName +
-                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)]
-                                                       + params + constantDefs.split())
+                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + constantDefs.split())
         if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
             if (displayName == ""):
-                realDisplayName = "C" + \
-                    str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
-                conditionDirectoryName = "C" + \
-                    str(i) + "__" + conditions[i][1:-1]
+                realDisplayName = "C" + str(i).zfill(padSizeCombinations) + "_" + str(rep).zfill(padSizeReps) + "__" + conditions[i][1:-1]
+                conditionDirectoryName = "C" + str(i).zfill(padSizeCombinations) + "__" + conditions[i][1:-1]
             else:
-                realDisplayName = displayName + "_C" + \
-                    str(i) + "_" + str(rep) + "__" + conditions[i][1:-1]
-                conditionDirectoryName = displayName + \
-                    "_C" + str(i) + "__" + conditions[i][1:-1]
-
+                realDisplayName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "_" + str(rep).zfill(padSizeReps) + "__" + conditions[i][1:-1]
+                conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + conditions[i][1:-1]
+                
             timeNow = str(datetime.datetime.now().year) + '_' + str(datetime.datetime.now().month) + '_' + str(datetime.datetime.now().day) + \
                 '_' + str(datetime.datetime.now().hour) + '_' + str(
                     datetime.datetime.now().minute) + '_' + str(datetime.datetime.now().second)
 
             workDir = pathToScratch + userName + '/' + \
-                realDisplayName + '_' + str(rep) + '__' + timeNow
+                realDisplayName + '_' + str(rep).zfill(padSizeReps) + '__' + timeNow
 
             # this is where data files will actually be writen (on scratch)
             outputDir = workDir + '/' + \
-                conditionDirectoryName + '/' + str(rep) + '/'
+                conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/'
 
             # if there was already a workDir, get rid of it.
             if os.path.exists(workDir):
@@ -430,16 +436,14 @@ for i in range(len(combinations)):
                 os.unlink(conditionDirectoryName + '/' + str(rep))
 
             # create local link from the local conditions directory to the rep directory in work directory
-            os.symlink(workDir + '/' + conditionDirectoryName + '/' +
-                       str(rep), conditionDirectoryName + '/' + str(rep))
+            os.symlink(workDir+'/'+conditionDirectoryName+'/'+str(rep).zfill(padSizeReps),conditionDirectoryName+'/'+str(rep).zfill(padSizeReps))
 
             os.chdir(workDir)  # goto the work dir (on scratch)
 
             qsubFileName = "MQ.qsub"
 
             # make the qsub file on scratch
-            makeQsubFile(realDisplayName=realDisplayName, conditionDirectoryName=conditionDirectoryName, rep=rep,
-                         qsubFileName=qsubFileName, executable=executable, cfg_files=cfg_files, workDir=workDir, conditions=combinations[i][1:]+constantDefs)
+            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + constantDefs, padSizeReps = padSizeReps)
 
             print("submitting:")
             print("  " + realDisplayName + " :")
