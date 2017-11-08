@@ -35,6 +35,7 @@ import re
 ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
 ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
 ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
+ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions):
     outFile = open(qsubFileName, 'w')
@@ -80,6 +81,8 @@ parser.add_argument('-n', '--runNo', action='store_true', default=False,
                     help='if set, will do everything (i.e. create files and directories) but launch jobs, allows you to do a dry run - default : false(will run)', required=False)
 parser.add_argument('-l', '--runLocal', action='store_true', default=False,
                     help='if set, will run jobs localy - default : false(no action)', required=False)
+parser.add_argument('-t', '--runTest', action='store_true', default=False,
+                    help='if set, will run jobs localy with 1 rep and 5 updates set - default : false(no action)', required=False)
 parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_conditions.txt',
@@ -358,9 +361,16 @@ pathToScratch = '/mnt/scratch/'  # used for HPCC runs
 # This loop cycles though all of the combinations and constructs to required calls to
 # run MABE.
 
+if args.runTest:
+    reps = range(1,2)
+    match = ptrnGlobalUpdates.search(constantDefs)
+    if match is None:
+        constantDefs += " GLOBAL-updates 2"
+    else:
+        constantDefs = constantDefs.replace(match.group(), "GLOBAL-updates 2")
 for i in range(len(combinations)):
     for rep in reps:
-        if (args.runLocal):
+        if args.runLocal or args.runTest:
             # turn cgf_files list into a space separated string
             cfg_files_str = ' '.join(cfg_files)
             print("running:")
@@ -370,11 +380,13 @@ for i in range(len(combinations)):
             call(["mkdir", "-p", displayName + "_" +
                   conditions[i][1:-1] + "/" + str(rep)])
             if not args.runNo:
+                sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory", displayName +
-                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)] + params + constantDefs.split())
-        if (args.runHPCC):
+                                                       "_" + conditions[i][1:-1] + "/" + str(rep) + "/", "GLOBAL-randomSeed", str(rep)]
+                                                       + params + constantDefs.split())
+        if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
             if (displayName == ""):
