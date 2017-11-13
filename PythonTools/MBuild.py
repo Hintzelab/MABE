@@ -34,15 +34,15 @@ if (args.gprof):
     compFlags =  compFlags + ' -pg'
 
 args.generate=args.generate.lower()
-if args.generate not in SUPPORTED_PROJECT_FILES.split(','):
+if args.generate=='none': # make is default generate option
+    args.generate='make'
+elif args.generate not in SUPPORTED_PROJECT_FILES.split(','):
     print()
     print("option '--generate' or '-g' was given an unsupported project file type. Valid types are: "+SUPPORTED_PROJECT_FILES)
     print()
     sys.exit()
-if args.generate!='none': # don't compile if generate option present
+else: # don't compile if generate option present
     args.noCompile = True
-if args.generate=='none': # make is default generate option
-    args.generate='make'
 
 if posixpath.exists(args.buildOptions) is False:
     print()
