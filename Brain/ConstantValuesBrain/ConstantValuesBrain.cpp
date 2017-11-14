@@ -89,7 +89,7 @@ DataMap ConstantValuesBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void ConstantValuesBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void ConstantValuesBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 
 	auto samplesPerValue = samplesPerValuePL->get(PT);
 	auto valueType = valueTypePL->get(PT);

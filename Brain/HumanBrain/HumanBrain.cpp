@@ -114,7 +114,7 @@ DataMap HumanBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void HumanBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void HumanBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 // do nothing;
 }
 

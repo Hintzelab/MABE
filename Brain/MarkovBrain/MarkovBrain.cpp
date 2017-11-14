@@ -226,7 +226,7 @@ int MarkovBrain::numGates() {
 	return brainSize();
 }
 
-void MarkovBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void MarkovBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->get()) - 1;
 	_genomes[genomeName]->fillRandom();
 
