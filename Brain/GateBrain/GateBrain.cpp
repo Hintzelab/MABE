@@ -82,7 +82,7 @@ int GateBrain::brainSize(){
 	return (int)nodes.size();
 }
 
-void GateBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void GateBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
     for (auto& keyvalPair : _genomes) {
         keyvalPair.second->fillRandom();
     }

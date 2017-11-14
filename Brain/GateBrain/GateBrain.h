@@ -97,7 +97,7 @@ class GateBrain : public AbstractBrain {
 	virtual vector<vector<int>> getConnectivityMatrix();
 	virtual int brainSize();
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 	
 	virtual void setInput(const int& inputAddress, const double& value) override  {
 		nodes[inputAddress]=value;
