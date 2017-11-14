@@ -80,7 +80,7 @@ public:
 	}
 
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 		// do nothing by default... if this is a direct encoded brain, then no action is needed.
 		// should this be a madiatory function?
 	};

@@ -404,7 +404,7 @@ DataMap CGPBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void CGPBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void CGPBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeNamePL->get(PT)]->fillRandom();
 }
 

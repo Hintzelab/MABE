@@ -59,7 +59,7 @@ DataMap ExampleBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void ExampleBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void ExampleBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 
 }
 

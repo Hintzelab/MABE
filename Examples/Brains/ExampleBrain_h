@@ -70,7 +70,7 @@ public:
 	virtual void resetBrain() override;
 
 	// set up inital genomes before building brains
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 
 	// provide a list of genomes that this brain needs
 	virtual unordered_set<string> requiredGenomes() override;
