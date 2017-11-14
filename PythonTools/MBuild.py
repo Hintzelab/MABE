@@ -34,15 +34,15 @@ if (args.gprof):
     compFlags =  compFlags + ' -pg'
 
 args.generate=args.generate.lower()
-if args.generate not in SUPPORTED_PROJECT_FILES.split(','):
+if args.generate=='none': # make is default generate option
+    args.generate='make'
+elif args.generate not in SUPPORTED_PROJECT_FILES.split(','):
     print()
     print("option '--generate' or '-g' was given an unsupported project file type. Valid types are: "+SUPPORTED_PROJECT_FILES)
     print()
     sys.exit()
-if args.generate!='none': # don't compile if generate option present
+else: # don't compile if generate option present
     args.noCompile = True
-if args.generate=='none': # make is default generate option
-    args.generate='make'
 
 if posixpath.exists(args.buildOptions) is False:
     print()
@@ -270,7 +270,7 @@ outFile.close()
 
 # Create a project file of type in SUPPORTED_PROJECT_FILES
 options['Archivist'].remove('Default')
-alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
+alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
 moduleSources = []
 objects = []
 sources = None
@@ -367,7 +367,7 @@ if args.generate == 'make': ## GENERATE make
     outFile.write('\t'+compiler+' '+compFlags)
     for o in objects:
         outFile.write(' '+o)
-    outFile.write(' -o '+product+'\n\n')
+    outFile.write(' -lstdc++fs -o '+product+'\n\n')
 
     for i in range(len(sources)):
         if (sources[i][-8:] == 'main.cpp'):

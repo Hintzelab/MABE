@@ -109,7 +109,7 @@ class MarkovBrain : public AbstractBrain {
 	virtual int brainSize();
 	int numGates();
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
 		return {genomeNamePL->get(PT)};

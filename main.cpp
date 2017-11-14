@@ -235,7 +235,7 @@ R"raw(
 					newGenomes[genome.first] = genome.second->makeLike();
 				}
 				for (auto brain : templateBrains) {
-					brain.second->initalizeGenomes(newGenomes);
+					brain.second->initializeGenomes(newGenomes);
 					newBrains[brain.first] = brain.second->makeBrain(newGenomes);
 				}
 				// create new organism using progenitor as template (i.e. to define brains) and the new genomes

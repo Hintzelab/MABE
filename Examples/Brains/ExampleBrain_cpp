@@ -161,11 +161,11 @@ DataMap ExampleBrain::getStats(string& prefix) {
 	//}
 }
 
-// initalizeGenomes is used to seed genomes with some preset information.
-// in Markov Brains, initalizeGenomes is used to seed some inital random
+// initializeGenomes is used to seed genomes with some preset information.
+// in Markov Brains, initializeGenomes is used to seed some inital random
 // gates. In Wire brains, it can be used to determine an inital ratio of
 // wire to empty space in the brain.
-void ExampleBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void ExampleBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	// if this is a direct encoded brain, do nothing;
 
 	// this function is passed _genomes which provides access to the genomes

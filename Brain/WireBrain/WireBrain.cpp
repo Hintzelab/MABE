@@ -99,7 +99,7 @@ WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
 
 WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
-	initalize();
+	initialize();
 
 	if ((int) genome.size() < width * depth * height) {
 		cout << "\nERROR: in WireBrain(vector<bool> genome, int _nrInNodes, int _nrOutNodes, int _nrHiddenNodes) genome is smaller then width * depth * height.\n\nExiting!\n\n" << endl;
@@ -121,7 +121,7 @@ WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes
 WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
 	//cout << "in WireBrain(shared_ptr<AbstractGenome> genome, int _nrOfNodes)" << endl;
-	initalize();
+	initialize();
 
 	// used in wiregenes decoding
 	vector<vector<int>> simpleWireFeatures;
@@ -509,7 +509,7 @@ shared_ptr<AbstractBrain> WireBrain::makeBrain(unordered_map<string, shared_ptr<
 	return newBrain;
 }
 
-void WireBrain::initalize() {
+void WireBrain::initialize() {
 	allCells.resize(width * depth * height);
 	nextAllCells.resize(width * depth * height);
 	neighbors.resize(width * depth * height);
@@ -1137,7 +1137,7 @@ DataMap WireBrain::getStats(string& prefix) {
 	return dataMap;
 }
 
-void WireBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void WireBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	int codonMax = (1 << WireBrain::bitsPerCodonPL->get(PT)) - 1;
 
 	if (genomeDecodingMethod == "bitmap") {
