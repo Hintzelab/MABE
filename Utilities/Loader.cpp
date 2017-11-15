@@ -122,7 +122,7 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
 
   for (auto &p :
        std::experimental::filesystem::recursive_directory_iterator("./")) {
-    all_possible_file_names.push_back(std::experimental::filesystem::path(p));
+    all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
   std::map<std::string, std::vector<std::string>> collection_of_files; // all file names for a collection
   std::set<std::string> actual_files;               // every file the user might refer to
