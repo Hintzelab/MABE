@@ -12,13 +12,15 @@
   
 % Brain
   - Markov
-  + CGP
+  - CGP
   - LSTM
-  * ConstantValues
+  - ConstantValues
   - GeneticPrograming
   - Human
   - IPD
   - Wire
+  + Gate
+  * CUGate
 	
 % Optimizer
   * Simple

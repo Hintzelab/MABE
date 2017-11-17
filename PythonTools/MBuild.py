@@ -20,6 +20,7 @@ parser.add_argument('-nc','--noCompile', action='store_true', default = False, h
 parser.add_argument('-g','--generate', type=str, default = 'none', help='does not compile but generates a project files of type: '+SUPPORTED_PROJECT_FILES+' ('+SUPPORTED_PROJECT_NAMES+')', required=False)
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
+parser.add_argument('-cu','--cuda', action='store_true', default = False,  help='enables cuda compilation and linking (must have loaded CUDA/8.0 module)', required=False)
 
 args = parser.parse_args()
 
@@ -29,9 +30,12 @@ else:
     product = 'MABE'
 
 compiler='c++'
-compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3'
+compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -x cu -I ~/projects/hemi'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
+if args.cuda:
+	compiler='nvcc'
+	compFlags='-w -std=c++11 -lstdc++fs -O3 -x cu -I ~/projects/hemi'
 
 args.generate=args.generate.lower()
 if args.generate=='none': # make is default generate option
@@ -364,7 +368,8 @@ if args.generate == 'make': ## GENERATE make
     for o in objects:
         outFile.write(' '+o)
     outFile.write('\n')
-    outFile.write('\t'+compiler+' '+compFlags)
+    ## TODO outFile.write('\t'+compiler+' '+compFlags)
+    outFile.write('\t'+compiler)
     for o in objects:
         outFile.write(' '+o)
     outFile.write(' -lstdc++fs -o '+product+'\n\n')

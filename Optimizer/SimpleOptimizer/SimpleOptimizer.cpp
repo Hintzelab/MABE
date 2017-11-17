@@ -159,9 +159,5 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 		nextPopulationSize++;
 	}
 	cout << "max = " << to_string(maxScore) << "   ave = " << to_string(aveScore);
-	for (auto org : population) {
-		//org->dataMap.Set("Simple_numOffspring", org->offspringCount);
-	}
-
 }
 
