@@ -51,6 +51,8 @@ class CUGateBrain : public AbstractBrain {
 	int* hiddenStates_h;
 	int* hiddenStates_d;
 	int* nextHiddenStates_d;
+	bool treatStatesReversed;
+	bool firstRun;
 
 	struct CUGate {
 		int ins[4];

@@ -14,6 +14,8 @@ CUGateBrain::CUGateBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersT
 	nrH=hiddenNodes;
 	totalN=nrInputValues+nrOutputValues+nrH;
 	totalN=KERNEL_SIZE;
+	treatStatesReversed = false;
+	firstRun = true;
 	//nodes.resize(totalN);
 	//nextNodes.resize(totalN);
 	inputStatesDirty = false;
@@ -53,8 +55,8 @@ CUGateBrain::CUGateBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _gen
 	CUGates_d = CUGates_h;
 #endif
 	hemi::deviceSynchronize();
+	for (int i=0; i<totalN; i++) hiddenStates_h[i] = 0;
 }
-
 
 shared_ptr<AbstractBrain> CUGateBrain::makeCopy(shared_ptr<ParametersTable> _PT){
 	shared_ptr<CUGateBrain> G=make_shared<CUGateBrain>(nrInputValues,nrOutputValues,_PT);
@@ -70,7 +72,6 @@ HEMI_KERNEL_FUNCTION(KernelBrain, int* hiddenStates, int* nextHiddenStates, CUGa
 	for (int IDX=0; IDX<KERNEL_SIZE; IDX++) { /// simulate the device
 #endif
 	if (IDX >= KERNEL_SIZE) return;
-	nextHiddenStates[IDX] = 0;
 	unsigned int I = 0;
 	for (int j=0; j<4; j++) {
 		I=(I<<1)+(hiddenStates[CUGates[IDX].ins[j]]&(unsigned int)1);
@@ -82,44 +83,40 @@ HEMI_KERNEL_FUNCTION(KernelBrain, int* hiddenStates, int* nextHiddenStates, CUGa
 }
 KernelBrain update_kernel;
 
-HEMI_KERNEL_FUNCTION(KernelPropagateStates, int* hiddenStates, int* nextHiddenStates) {
-#ifndef HEMI_CUDA_COMPILER
-	for (int IDX=0; IDX<KERNEL_SIZE; IDX++) { /// simulate the device
-#endif
-	if (IDX >= KERNEL_SIZE) return;
-	hiddenStates[IDX] = nextHiddenStates[IDX];
-	nextHiddenStates[IDX] = 0;
-#ifndef HEMI_CUDA_COMPILER
-	}
-#endif
-}
-KernelPropagateStates propagate_states_kernel;
-
 void CUGateBrain::update(){
 
 	if (inputStatesDirty) {
 		inputStatesDirty = false;
-		for (int h=0; h<totalN;        h++) { hiddenStates_h[h] = 0; } /// reset hidden states
 		for (int h=0; h<nrInputValues; h++) { hiddenStates_h[h] = inputStates[h]; } /// set inputs
+#ifdef HEMI_CUDA_COMPILER
+		if (treatStatesReversed)
+			cudaMemcpy(nextHiddenStates_d, hiddenStates_h, totalN*sizeof(int), cudaMemcpyHostToDevice);
+		else
+			cudaMemcpy(hiddenStates_d, hiddenStates_h, totalN*sizeof(int), cudaMemcpyHostToDevice);
+#else
+		if (treatStatesReversed)
+			nextHiddenStates_d = hiddenStates_h; /// host version of cudaMemcpy
+		else
+			hiddenStates_d = hiddenStates_h; /// host version of cudaMemcpy
+#endif
+		treatStatesReversed = !treatStatesReversed;
 	}
 
 	/// brain update
 #ifdef HEMI_CUDA_COMPILER
-	cudaMemcpy(hiddenStates_d, hiddenStates_h, totalN*sizeof(int), cudaMemcpyHostToDevice);
-	hemi::launch(update_kernel,hiddenStates_d,nextHiddenStates_d,CUGates_d);
+	if (treatStatesReversed)
+		hemi::launch(update_kernel,nextHiddenStates_d,hiddenStates_d,CUGates_d);
+	else
+		hemi::launch(update_kernel,hiddenStates_d,nextHiddenStates_d,CUGates_d);
 #else
-	hiddenStates_d = hiddenStates_h; /// host version of cudaMemcpy
-	update_kernel(hiddenStates_d,nextHiddenStates_d,CUGates_d); /// host version of kernel
+	if (treatStatesReversed)
+		update_kernel(nextHiddenStates_d,hiddenStates_d,CUGates_d);
+	else
+		update_kernel(hiddenStates_d,nextHiddenStates_d,CUGates_d);
 #endif
 	outputStatesDirty = true;
 	hemi::deviceSynchronize();
-	/// propagate states
-#ifdef HEMI_CUDA_COMPILER
-	hemi::launch(propagate_states_kernel,hiddenStates_d,nextHiddenStates_d);
-#else
-	propagate_states_kernel(hiddenStates_d,nextHiddenStates_d);
-#endif
-	hemi::deviceSynchronize();
+	firstRun = false;
 }
 
 
