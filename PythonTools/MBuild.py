@@ -474,19 +474,26 @@ elif args.generate == 'vs': ## GENERATE vs
 
     outString = ''
     SDKversion = "10.0.16299.0" ## assume win 10...
+    platformToolset = "v"
     if platform.system() == 'Windows':
-        version=platform.platform()
-        firstdash=version.find('-',len('windows'))
-        seconddash=version.find('-',firstdash+1)
-        versionNumber = int(version[firstdash+1:seconddash])
-        if 6 < versionNumber < 10:
+        try:
             hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Microsoft SDKs\\Windows")
-            SDKversion = winreg.QueryValue(hkey, "CurrentVersion")
-        elif versionNumber == 10:
-            hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots")
-            SDKversion = winreg.EnumKey(hkey, 0)
-        else:
-            print("Warning: unknown windows version. You will need to retarget the project.")
+            #SDKversion = winreg.EnumValue(hkey, 0)[1]
+            SDKversion = str(winreg.QueryValueEx(hkey, "CurrentVersion")[0])
+            firstPeriod = SDKversion.find('.')
+            secondPeriod = SDKversion.find('.',firstPeriod+1)
+            SDKversion = SDKversion[0:secondPeriod]
+        except:
+            try:
+                hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\Windows Kits\\Installed Roots")
+                SDKversion = winreg.EnumKey(hkey, 0)
+            except:
+                print("Warning: Unknown windows version. You will need to retarget the generated project manually in Visual Studio.")
+                print("Warning: Could not find Windows SDK version information on this machine.")
+                print("Warning: Please contact the authors so they can identify your setup and add it to identification.")
+        hkey = winreg.OpenKey(winreg.HKEY_LOCAL_MACHINE,"SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\debug\\x64")
+        platformToolset += str(winreg.QueryValueEx(hkey,"Major")[0]) + str(winreg.QueryValueEx(hkey,"Minor")[0])[0]
+
     outString += """<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
@@ -517,22 +524,22 @@ elif args.generate == 'vs': ## GENERATE vs
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>{2}</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>{2}</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>{2}</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>{2}</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -587,7 +594,7 @@ elif args.generate == 'vs': ## GENERATE vs
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
-""".format(str(uuid.uuid4()),SDKversion)
+""".format(str(uuid.uuid4()),SDKversion,platformToolset)
     outString += "  <ItemGroup>\n" ## start cpp list
     for eachunit in units:
         if eachunit[f_filename].endswith('.cpp'):
