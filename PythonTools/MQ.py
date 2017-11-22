@@ -78,7 +78,8 @@ if modulesAreMissing:
                 break
         if preferredInstaller is None:
             print("Error: no suitable python installer found of either "+', '.join(suitableModuleInstallers))
-            print("       Did you fully activate your python environment?")
+            print("       Please run the following command using your python module installer:")
+            print("       "+preferredInstaller + ' install '+installCMDString)
             sys.exit(1)
         print("Found module installer "+preferredInstaller)
         try:
@@ -109,7 +110,7 @@ def printWarning(msg,end='\n'):
 ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
 ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
 #ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
-ptrnCSVs = re.compile(r'\s*,?\s*(\[(.*)\]|([^\s",]+|\"([^"\\]|\\.)*?\"))\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
+ptrnCSVs = re.compile(r'\s*,?\s*(\[(.*?)\]|([^\s",]+|\"([^"\\]|\\.)*?\"))\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
 def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions, padSizeReps):
@@ -197,6 +198,7 @@ def stripIllegalDirnameChars(rawString):
         rawString = rawString.replace(eachChar,'')
     return rawString
 
+varDeprecationWarningPrinted = False
 with open(args.file) as openfileobject:
     for rawline in openfileobject:
 
@@ -220,6 +222,9 @@ with open(args.file) as openfileobject:
                 if len(everythingEqualsAndAfterAsList) > 3: # allow for users to not specify any values
                     variables[var] = everythingEqualsAndAfterAsList[3]
                     variablesNonConditionsVersion[var] = [e[0] for e in ptrnCSVs.findall(variables[var])]
+                    if not varDeprecationWarningPrinted:
+                        varDeprecationWarningPrinted = True
+                        printWarning("VAR statement with values deprecated. Please use the new syntax.")
                 else:
                     using_conditions = True # can't use standard VAR/EXCEPT when you don't specify values
             if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
@@ -253,7 +258,7 @@ with open(args.file) as openfileobject:
                         printWarning("The following value(s) have unmatched {symbols} symbols.".format(symbols=','.join([e[0]+e[1] for e in problemPairs])))
                         printWarning(rawValues)
                         sys.exit(1)
-                    values = [e[0] for e in ptrnCSVs.findall(rawValues)]
+                    values = [e[0].strip('[]') for e in ptrnCSVs.findall(rawValues)]
                     new_condition_set.append([variable]+values)
                 condition_sets.append(new_condition_set) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
