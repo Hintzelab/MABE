@@ -12,7 +12,7 @@
 #include<regex>
 #include<numeric>
 #include<random>
-#include <experimental/filesystem>
+//#include <experimental/filesystem>
 #include "Loader.h"
 
 using std::cout;
@@ -120,10 +120,27 @@ std::string Loader::clean_lines(std::ifstream &flines) {
 
 std::string Loader::find_and_generate_all_files(std::string all_lines) {
 
+  /*
   for (auto &p :
        std::experimental::filesystem::recursive_directory_iterator("./")) {
     all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
+  */
+
+  std::ifstream all_files("mabe_all_files.txt");
+  if (!all_files.is_open()) {
+    cout << " ERROR: MABE requires all files from current directory downwards "
+            "to be visible.\n"
+            "run \"find. -type f > mabe_all_files.txt\" before running ./MABE"
+         << endl;
+    exit(1);
+  }
+  std::string fn;
+  while (all_files >> fn) {
+    cout << fn << endl;
+    all_possible_file_names.push_back(fn);
+  }
+
   std::map<std::string, std::vector<std::string>> collection_of_files; // all file names for a collection
   std::set<std::string> actual_files;               // every file the user might refer to
   // get all file names . These must all be in single-qoutes and can be

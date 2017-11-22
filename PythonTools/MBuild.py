@@ -367,7 +367,7 @@ if args.generate == 'make': ## GENERATE make
     outFile.write('\t'+compiler+' '+compFlags)
     for o in objects:
         outFile.write(' '+o)
-    outFile.write(' -lstdc++fs -o '+product+'\n\n')
+    outFile.write(' -o '+product+'\n\n')
 
     for i in range(len(sources)):
         if (sources[i][-8:] == 'main.cpp'):
