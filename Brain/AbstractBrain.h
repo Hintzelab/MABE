@@ -80,7 +80,7 @@ public:
 	}
 
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 		// do nothing by default... if this is a direct encoded brain, then no action is needed.
 		// should this be a madiatory function?
 	};
@@ -135,7 +135,7 @@ public:
 		}
 	}
 
-	inline void setInput(const int& inputAddress, const double& value) {
+	inline virtual void setInput(const int& inputAddress, const double& value) {
 		if (inputAddress < nrInputValues) {
 			inputValues[inputAddress] = value;
 		} else {
@@ -144,7 +144,7 @@ public:
 		}
 	}
 
-	inline double readInput(const int& inputAddress) {
+	inline virtual double readInput(const int& inputAddress) {
 		if (inputAddress < nrInputValues) {
 			return inputValues[inputAddress];
 		} else {
@@ -153,7 +153,7 @@ public:
 		}
 	}
 
-	inline void setOutput(const int& outputAddress, const double& value) {
+	inline virtual void setOutput(const int& outputAddress, const double& value) {
 		if (outputAddress < nrOutputValues) {
 			outputValues[outputAddress] = value;
 		} else {
@@ -162,7 +162,7 @@ public:
 		}
 	}
 
-	inline double readOutput(const int& outputAddress) {
+	inline virtual double readOutput(const int& outputAddress) {
 		if (outputAddress < nrOutputValues) {
 			return outputValues[outputAddress];
 		} else {

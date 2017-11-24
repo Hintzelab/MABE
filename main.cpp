@@ -285,7 +285,7 @@ int main(int argc, const char *argv[]) {
       }
       for (auto brain : templateBrains) {
         if (org.first < 0) {
-          brain.second->initalizeGenomes(newGenomes);
+          brain.second->initializeGenomes(newGenomes);
         }
         newBrains[brain.first] = brain.second->makeBrain(newGenomes);
       }
@@ -404,7 +404,7 @@ int main(int argc, const char *argv[]) {
     cout << "\n  You are running MABE in visualize mode." << endl << endl;
 
     world->evaluate(groups, 0, 1, 0);
-  }
+    }
   }
   return 0;
 }

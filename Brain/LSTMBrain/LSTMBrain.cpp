@@ -178,7 +178,7 @@ DataMap LSTMBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void LSTMBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void LSTMBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
     //int totalGenomeSizeNeeded=(_I*_O*4)+(_O*4);
     _genomes[genomeName]->fillRandom();
     //printf("%s\n",_genome->genomeToStr().c_str());

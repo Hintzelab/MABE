@@ -21,7 +21,7 @@ EXCEPT =  TSK=3.0  RF1=0.50
 #EXCEPT = TSK=3.0  RF2=0.75
 
 # Alternatively to VAR/EXCEPT, conditions can achieve a similar effect and still respect EXCEPT declarations
-CONDITIONS = TSK=1.0,3.0  RF1=0.25,0.50  RF2=0.75
+CONDITIONS = TSK=1.0,3.0  RF1="some message here"  RF2=2,[1,2,3,4]
 CONDITIONS = TSK=1.0      RF1=0.80
 
 # If you use conditions, then it's not necessary to specify values for vars, like below

@@ -692,7 +692,7 @@ public:
 		}
 	}
 	virtual string getFormula() override {
-		string args = "RANDOM[" + branches[0]->getFormula() + "," + branches[0]->getFormula() + "]";
+		string args = "RANDOM[" + branches[0]->getFormula() + "," + branches[1]->getFormula() + "]";
 		return args;
 	}
 	virtual string type() override {

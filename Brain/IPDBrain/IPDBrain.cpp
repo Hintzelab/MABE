@@ -150,7 +150,7 @@ DataMap IPDBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void IPDBrain::initalizeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void IPDBrain::initializeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeName]->fillRandom();
 }
 

@@ -65,7 +65,7 @@ public:
 
 	virtual void resetBrain() override;
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 	
 	virtual unordered_set<string> requiredGenomes() override {
 		return {};
