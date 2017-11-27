@@ -94,6 +94,7 @@
 #include <climits>
 #include <cassert>
 #include <cstring>
+#include <cmath>
 
 
 /*!
