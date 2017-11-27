@@ -137,7 +137,6 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
   */
   Directory mabeDir("./", true); // true=recursive
   for (auto p : mabeDir) {
-    cout << p.abs_path() << endl;
     all_possible_file_names.push_back(p.abs_path());
   }
 
