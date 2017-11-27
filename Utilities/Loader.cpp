@@ -13,10 +13,12 @@
 #include<numeric>
 #include<random>
 //#include <experimental/filesystem>
+#include "zupply.h" // for x-platform filesystem
 #include "Loader.h"
 
 using std::cout;
 using std::endl;
+using zz::fs::Directory; // filesystem crawling
 
 std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
 Loader::load_population(const std::string &Loader_file_name) {
@@ -133,18 +135,9 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
     all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
   */
-
-  std::ifstream all_files("mabe_all_files.txt");
-  if (!all_files.is_open()) {
-    cout << " ERROR: MABE requires all files from current directory downwards "
-            "to be visible.\n"
-            "run \"find . -type f > mabe_all_files.txt\" before running ./MABE"
-         << endl;
-    exit(1);
-  }
-  std::string fn;
-  while (all_files >> fn) {
-    all_possible_file_names.push_back(fn);
+  Directory mabeDir("./", true); // true=recursive
+  for (auto p : mabeDir) {
+    all_possible_file_names.push_back(p.abs_path());
   }
 
   std::map<std::string, std::vector<std::string>> collection_of_files; // all file names for a collection
