@@ -29,7 +29,7 @@ else:
     product = 'MABE'
 
 compiler='c++'
-compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3'
+compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
 
@@ -270,7 +270,7 @@ outFile.close()
 
 # Create a project file of type in SUPPORTED_PROJECT_FILES
 options['Archivist'].remove('Default')
-alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp']
+alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp','Utilities/zupply.cpp']
 moduleSources = []
 objects = []
 sources = None

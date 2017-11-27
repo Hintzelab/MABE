@@ -1,0 +1,31 @@
+# use '#' to comment, or ';' is okay. In appliance to Microsoft ini file.
+# key-value pair use '=' or ':', e.g. "a = 1 \n b : 2.5".
+
+[global]
+# global settings, for every logger and sink
+datetime_format = %y-%m-%d %H:%M:%S.%frac  
+format = [%datetime][T%thread][%logger][%level] %msg
+levels = info warn error fatal # global default levels
+# sink_list is the default sinks that should be added to
+# every logger created after config from this file
+sink_list = stdout stderr simplefile1 # stdout and stderr are standard, simplefile1 need to be specified later
+
+[loggers]
+; In this section, we config for every logger
+default.levels = error fatal # default logger only shows error and fatal msg
+default.sink_list = rotatefile1 # default logger only log to rotatefile1
+
+myownlogger.levels = debug trace info
+myownlogger.sink_list = simplefile1 stdout stderr
+
+[sinks]
+# here we specify the sinks
+simplefile1.filename = simple.txt # filename required
+simplefile1.type = simplefile # type required
+simplefile1.format = [%datetime] %msg # control its own format
+
+rotatefile1.filename = rotate.log
+rotatefile1.type = rotatefile
+
+simplefile2.filename = "simple_not_used.txt"
+simplefile2.type = simplefile
