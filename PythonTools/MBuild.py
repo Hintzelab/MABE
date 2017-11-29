@@ -29,7 +29,7 @@ else:
     product = 'MABE'
 
 compiler='c++'
-compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread'
+compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
 
