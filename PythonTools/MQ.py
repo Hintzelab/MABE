@@ -233,6 +233,7 @@ with open(args.file) as openfileobject:
                     printError("EXCEPT requires an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit(1)
                 new_skip_condition_set = []
+                exceptions.append(','.join(everythingEqualsAndAfterAsList[1:]).replace('=',',').split(','))
                 for eachVar in everythingEqualsAndAfterAsList[1:]:
                     if eachVar.count('=') > 1:
                         printError("more than 1 '=' character found in EXCEPT values (probably in a string?) and we haven't considered this problem yet.")
