@@ -11798,7 +11798,7 @@ namespace zz
 				return wstring_to_utf8(ret);
 			}
 #elif _GNU_SOURCE
-			char *buffer = get_current_dir_name();
+			char *buffer = realpath(".", nullptr);
 			if (buffer == nullptr)
 			{
 				// failed
