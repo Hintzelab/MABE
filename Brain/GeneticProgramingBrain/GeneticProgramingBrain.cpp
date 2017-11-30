@@ -14,7 +14,10 @@ shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeT
 	if (depth < maxDepth) {
 		shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 		vector<shared_ptr<Abstract_MTree>> branches;
-		int numBranches = (op->numBranches() > 0) ? op->numBranches() : Random::getInt(2, 4);
+		int numBranches = op->numBranches()[Random::getIndex(op->numBranches().size())];
+		if (numBranches < 0) {
+			numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+		}
 		for (int branchCount = 0; branchCount < numBranches; branchCount++) { // determine number of branches and make a tree for each branch
 			branches.push_back(makeTree(nodeTypes, depth + 1, maxDepth));
 		}
@@ -167,7 +170,10 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 			if (pickNode->parent == nullptr) { // the root was picked
 				trees[treeIndex] = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 				trees[treeIndex]->branches = pickNode->branches;
-				int numBranches = (trees[treeIndex]->numBranches() > 0) ? trees[treeIndex]->numBranches() : Random::getInt(2, 4);
+				int numBranches = trees[treeIndex]->numBranches()[Random::getIndex(trees[treeIndex]->numBranches().size())];
+				if (numBranches < 0) {
+					numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+				}
 				while ((int)trees[treeIndex]->branches.size() < numBranches) { // we need more branches
 					trees[treeIndex]->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 				}
@@ -183,7 +189,11 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 					shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 					op->branches = pickNode->branches;
 
-					int numBranches = (op->numBranches() > 0) ? op->numBranches() : Random::getInt(2, 4);
+					int numBranches = op->numBranches()[Random::getIndex(op->numBranches().size())];
+					if (numBranches < 0) {
+						numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+					}
+
 					while ((int)op->branches.size() < numBranches) { // we need more branches
 						op->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 					}

@@ -18,8 +18,10 @@ parser.add_argument('-save', type=str, choices=('pdf','png'), default = '',  hel
 
 parser.add_argument('-data', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be graphed. Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
 parser.add_argument('-dataFromFile', type=str, metavar='FILE_NAME', default = 'ave',  help='this file will be used to determine with column names of data will be graphed. If this file is not in files, then all data will be plotted - default : ave', required=False)
+parser.add_argument('-ignoreData', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be ignored (this will override data). Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
 parser.add_argument('-xAxis', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used on x axis - default : update', required=False)
 parser.add_argument('-dataIndex', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used as index when generating averages - default : update', required=False)
+parser.add_argument('-imageSize', type=float, default = [10,10], help='size of image to be created - default : 10 10', nargs=2, required=False)
 
 parser.add_argument('-yRange', type=int, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
 parser.add_argument('-xRange', type=int, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
@@ -52,6 +54,8 @@ parser.add_argument('-whereRangeLimitToData', action='store_true', default = Fal
 
 parser.add_argument('-showDataNames', action='store_true', default = False, help='print the names of the columns in the first file listed - default : OFF', required=False)
 
+parser.add_argument('-integrate', type=str, default = [], metavar='_DATA', help='attempt to itegrate associated data with _AVE data of same name (e.g. if "_VAR", plot "_VAR" with "_AVE" so "score_VAR" plots with "score_AVE"). Integrated data will not apear in its own plot. This will only work on single reps. -integrate will work with combine conditions (two or more reps can be loaded as conditions).', nargs='+', required=False)
+
 ## trick to allow "-" in an argument name! Parse it seperatly and then remove from sys.argv
 #tempPltStyle = '-'
 #if ('-pltStyle' in sys.argv):
@@ -82,14 +86,14 @@ import matplotlib.cm as cm
 import fnmatch
 import ast
 
-def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','error'], PltStyle = 'line', ErrorMethod = 'stderr', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = []):
+def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','error'], PltStyle = 'line', ErrorMethod = 'stderr', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
 	MajorFontSize = args.fontSizeMajor
 	MinorFontSize = args.fontSizeMinor
 	TickFontSize = args.fontSizeTicks
 	LegendFontSize = args.fontSizeLegend
 	
 	colorMap = cm.gist_rainbow
-	colorMap = cm.plasma
+	#colorMap = cm.plasma
 	#colorMap = cm.winter
 	#styleListColor = [(0,0,1),(.4,0,1),(.6,0,1),(1,0,.6),(1,.2,.4),(1,.4,0),(0,0,0),(1,0,0),(0,1,0),(0,0,1),(.25,.75,0),(0,.25,.75),(.75,0,.25),(0,0,0),(1,0,0),(0,1,0),(0,0,1),(.5,.5,0),(0,.5,.5),(.5,0,.5),(0,0,0)]
 	#styleListColor = [(0,0,1),(0,1,0),(1,0,0),(1,0,.6),(1,.2,.4),(1,.4,0),(0,0,0),(1,0,0),(0,1,0),(0,0,1),(.25,.75,0),(0,.25,.75),(.75,0,.25),(0,0,0),(1,0,0),(0,1,0),(0,0,1),(.5,.5,0),(0,.5,.5),(.5,0,.5),(0,0,0)]
@@ -113,7 +117,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		styleList = styleListRandomPoint
 		PltStyle = 'o'
 
-	fig = plt.figure(figsize=(15,6))                                                # create a new figure
+	fig = plt.figure(figsize=(imageSize[0],imageSize[1]))                                                # create a new figure
 	fig.subplots_adjust(hspace=.35)
 
 	if XCoordinateName in NamesList:
@@ -127,6 +131,10 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		title = args.title
 	plt.suptitle(title, fontsize=MajorFontSize, fontweight='bold')
 	
+	allNamesList = NamesList
+	for integrateName in integrateNames: # remove all integrateName columns
+		NamesList = [x for x in NamesList if not integrateName in x]
+
 	if len(NamesList) == 1:
 		Columns = 1;
 	if len(NamesList) == 2:
@@ -182,6 +190,16 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 				if ('ave' in PltWhat) or ('error' in PltWhat):
 					aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
 					aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
+
+					for integrateName in integrateNames: # remove all integrateName columns
+						VARNAME = NamesList[nameCount][0:-4]+integrateName
+						#print('  looking for: '+VARNAME)
+						if VARNAME in allNamesList:
+							if args.verbose:
+								print('     '+VARNAME+'  found, adding to plot for data: ' + NamesList[nameCount] + ' condition: ' + ConditionsList[conditionCount],flush=True)
+							errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = VARNAME).mean(axis=1)
+							errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).mean(axis=1)
+							plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
 					#plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel) ## plot below so it's on top
 				if 'error' in PltWhat:
 					if (ErrorMethod == "stderr"):
@@ -258,6 +276,9 @@ if (len(cons) != len(conFileNames)):
 	print ('Error in input. -conditions and -conditionNames must have the same number of arguments',flush=True)
 	exit()
 
+integrateNames = args.integrate
+imageSize = args.imageSize
+
 #if conFileNames != ['']:
 	#conFileNames = [i+'/' for i in conFileNames]
 	####cons = [i+'__' for i in cons]
@@ -326,8 +347,24 @@ for name in namesList:
 				newNamesList.append(dataName)
 	else:
 		newNamesList.append(name)
-		
-namesList = newNamesList
+
+# use -dataIgnore to remove unwanted columns
+for name in args.ignoreData:
+	if '*' in name or '[' in name or ']' in name:
+		if args.verbose:
+			print("found ignore data with wildcard: " + name,flush=True)
+		for dataName in newNamesList:
+			if fnmatch.fnmatch(dataName,name):
+				if args.verbose:
+					print("   ... found match, removing " + dataName + ".",flush=True)
+				newNamesList.remove(dataName)
+
+				
+namesList = []
+
+for thisName in newNamesList:
+       if thisName not in namesList:
+          namesList.append(thisName)
 
 				
 if args.dataIndex == 'undefined':
@@ -371,7 +408,7 @@ if args.combineConditions:
 		#####
 		#####
 
-		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
+		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
 
 else:
 	for con in cons:
@@ -401,7 +438,7 @@ else:
 			#####
 			#####
 		
-			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange)#plt.gcf()
+			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
 
 #plt.tight_layout()
 
