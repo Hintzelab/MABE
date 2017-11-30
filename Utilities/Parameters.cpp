@@ -115,7 +115,10 @@ void Parameters::readCommandLine(
         run for 100 updates with a population size of 200. Parameters set 
         on the command line overwrite parameters from files.
 
-  -s :  "save" - save settings files.
+  -s : "save" - save settings files.
+
+  -l : "select population loading script" - single file name.
+        This file contains the script for loading the initial population
 
 )";
   std::string arguments;
