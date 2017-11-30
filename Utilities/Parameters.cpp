@@ -177,54 +177,6 @@ void Parameters::readCommandLine(
   }
 } // end Parameters::readCommandLine()
 
-/*  
-void Parameters::readCommandLine(int argc, const char** argv, unordered_map<string, string>& comand_line_list, vector<string>& fileList, bool& saveFiles) {
-	int argCount = 1;
-	while (argCount < argc) {
-		if (argv[argCount][0] == '-' && argv[argCount][1] == 'f') {  // denotes that file names will follow
-			argCount++;
-			if (argCount >= argc) {
-				cout << "ERROR! -f found on command line with no file name.\nExiting\n";
-				exit(1);
-			} else {
-				while (argCount < argc && argv[argCount][0] != '-') {
-					fileList.push_back(argv[argCount++]);
-				}
-			}
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 'p') {  // denotes that parameter/value pairs will follow
-			argCount++;
-			if (argCount > argc) {
-				cout << "ERROR! -p found on command line with no parameters.\nExiting\n";
-				exit(1);
-			} else {
-				while (argCount < argc && argv[argCount][0] != '-') {
-					if (argCount + 1 < argc) {
-						if (comand_line_list.find(string(argv[argCount])) == comand_line_list.end()) {
-							comand_line_list[string(argv[argCount])] = string(argv[argCount + 1]);
-						} else {
-							cout << "  ERROR :: Parameter \"" << string(argv[argCount]) << "\" is defined more then once on the command line.\nExiting.\n";
-							exit(1);
-						}
-						argCount += 2;
-					} else {
-						cout << "  ERROR :: Parameter \"" << string(argv[argCount]) << "\" is defined on command line with out a value.\nExiting.\n";
-						exit(1);
-					}
-				}
-			}
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 's') {
-			saveFiles = true;
-			argCount++;
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 'h') {
-			cout << "Usage: " << argv[0] << " [-f <file1> <file2> ...] [-p <parameter name/value pairs>] [-s]\n\n" << "  -f, \"load files\" - list of settings files to be loaded.\n" << "         Parameters in later files overwrite parameters in earlier files.\n\n" << "  -p, \"set parameters\" - list of parameter/name pairs \n" << "         (i.e. \"-p GLOBAL-updates 100 GLOBAL-popSize 200\" would set MABE to run\n" << "         for 100 updates with a population size of 200. Parameters set on the\n" << "         command line overwrite parameters from files\n\n" << "  -s, \"save\" - save settings files.\n" << endl;
-			exit(1);
-		} else {
-			cout << "  Error on command line. Unrecognized option. Exiting." << endl;
-			exit(1);
-		}
-	}
-}
-*/
 
 unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	unordered_map<string, string> config_file_list;
