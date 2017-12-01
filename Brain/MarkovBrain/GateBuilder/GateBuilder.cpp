@@ -20,8 +20,6 @@ shared_ptr<ParameterLink<int>> Gate_Builder::epsiGateInitialCountPL = Parameters
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingVoidGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-allow", false, "set to true to enable void gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::voidGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_VOID-initialCount", 3, "seed genome with this many start codons");
 
-//shared_ptr<ParameterLink<bool>> Gate_Builder::usingFBGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES-feedBackGate", false, "set to true to enable feedback gates");
-//shared_ptr<ParameterLink<int>> Gate_Builder::fBGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES-feedBackGate_InitialCount", 3, "seed genome with this many start codons");
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingGPGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-allow", false, "set to true to enable GP (what?) gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::gPGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-initialCount", 3, "seed genome with this many start codons");
 //shared_ptr<ParameterLink<bool>> Gate_Builder::usingThGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES-thresholdGate", false, "set to true to enable threshold gates");
@@ -32,6 +30,9 @@ shared_ptr<ParameterLink<int>> Gate_Builder::tritDeterministicGateInitialCountPL
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingNeuronGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allow", false, "set to true to enable Neuron gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 3, "seed genome with this many start codons");
+
+shared_ptr<ParameterLink<bool>> Gate_Builder::usingFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-allow", false, "set to true to enable feedback gates");
+shared_ptr<ParameterLink<int>> Gate_Builder::feedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
 
 shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerBrainAddressPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerBrainAddress", 8, "how many bits are evaluated to determine the brain addresses");
 shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerCodonPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
@@ -132,7 +133,7 @@ void Gate_Builder::setupGates() {
 	int GPCode = 46;
 	int TritDeterministicCode = 47;
 	int NeuronCode = 48;
-	//	int FeedbackCode = 49;
+	int FeedbackCode = 49;
 	//	int ThresholdCode = 50;
 
 	int bitsPerCodon = bitsPerCodonPL->get(PT);
@@ -147,13 +148,11 @@ void Gate_Builder::setupGates() {
 		int codonOne = ProbabilisticCode;
 		inUseGateTypes.insert(codonOne);
 		{
-			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
 		intialGateCounts[codonOne] = probGateInitialCountPL->get(PT);
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = ProbabilisticGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_PROBABILISTIC");
@@ -175,7 +174,6 @@ void Gate_Builder::setupGates() {
 		}
 		intialGateCounts[codonOne] = detGateInitialCountPL->get(PT);
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = DeterministicGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_DETERMINISTIC");
@@ -192,14 +190,12 @@ void Gate_Builder::setupGates() {
 		int codonOne = EpsilonCode;
 		inUseGateTypes.insert(codonOne);
 		{
-			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
 		intialGateCounts[codonOne] = epsiGateInitialCountPL->get(PT);
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = EpsilonGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_EPSILON");
@@ -227,14 +223,12 @@ void Gate_Builder::setupGates() {
 		int codonOne = VoidCode;
 		inUseGateTypes.insert(codonOne);
 		{
-			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
 		intialGateCounts[codonOne] = voidGateInitialCountPL->get(PT);
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
 
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = VoidGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_VOID");
@@ -257,34 +251,16 @@ void Gate_Builder::setupGates() {
 			return make_shared<VoidGate>(addresses,table,gateID, epsilon, _PT);
 		});
 	}
-	//	if ((PT == nullptr) ? usingFBGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES-feedBackGate")) {
-	//		inUseGateNames.insert("FeedBack");
-	//		int codonOne = FeedbackCode;
-	//		inUseGateTypes.insert(codonOne);
-	//		{
-	//			gateStartCodes[codonOne].push_back(codonOne);
-	//			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-	//		}
-	//		intialGateCounts[codonOne] = (PT == nullptr) ? fBGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES-feedBackGate_InitialCount");
-	//
-	//		cout << "in Gate_Builder::setupGates() : GATES-feedBackGate = true, but there is no current implementation! Exiting." << endl;
-	//		exit(1);
-	//	}
-	//		AddGate(FeedbackCode, [](shared_ptr<AbstractGenome> genome,shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID) {return make_shared<FeedbackGate>(genome,genomeHandler,gateID);});
-	//		Global::inUseGateTypes.insert(44);
-	//	}
 	if (usingGPGatePL->get(PT)) {
 		inUseGateNames.insert("GeneticPrograming");
 		int codonOne = GPCode;
 		inUseGateTypes.insert(codonOne);
 		{
-			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
 		intialGateCounts[codonOne] = gPGateInitialCountPL->get(PT);
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = GPGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_GENETICPROGRAMING");
@@ -301,40 +277,18 @@ void Gate_Builder::setupGates() {
 			}
 			return make_shared<GPGate>(addresses,operation, constValues, gateID, _PT);
 		});
-
-		//GPGate(pair<vector<int>, vector<int>> _addresses, int _operation, vector<double> _constValues, int gateID);
-
 	}
-	//	if ((PT == nullptr) ? usingThGatePL->lookup() : PT->lookupBool("BRAIN_MARKOV_GATES-thresholdGate")) {
-	//		inUseGateNames.insert("Threshold");
-	//		int codonOne = ThresholdCode;
-	//		inUseGateTypes.insert(codonOne);
-	//		{
-	//			gateStartCodes[codonOne].push_back(codonOne);
-	//			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-	//		}
-	//		intialGateCounts[codonOne] = (PT == nullptr) ? thGateInitialCountPL->lookup() : PT->lookupInt("BRAIN_MARKOV_GATES-thresholdGate_InitialCount");
-	//
-	//		cout << "in Gate_Builder::setupGates() : GATES-thresholdGate = true, but there is no current implementation! Exiting." << endl;
-	//		exit(1);
-	//	}
-	//
-	//		AddGate(ThresholdCode, [](shared_ptr<AbstractGenome> genome,shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID) {return make_shared<Thresholdgate>(genome,genomeHandler,gateID);});
-	//		Global::inUseGateTypes.insert(46);
-	//	}
 	if (usingTritDeterministicGatePL->get(PT)) {
 		inUseGateNames.insert("TritDeterministic");
 		int codonOne = TritDeterministicCode;
 		inUseGateTypes.insert(codonOne);
 		{
-			//gateStartCodes.insert(pair<int, vector<int> >(codonOne, vector<int>()));
 			gateStartCodes[codonOne].push_back(codonOne);
 			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
 		}
 		intialGateCounts[codonOne] = tritDeterministicGateInitialCountPL->get(PT);
 
 		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
-			//pair<vector<int>,vector<int>> addresses = getInputsAndOutputs( {1, 4}, {1, 4}, genomeHandler, gateID);
 			string IO_Ranges = TritDeterministicGate::IO_RangesPL->get(_PT);
 			int maxIn, maxOut;
 			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_TRIT");
@@ -400,6 +354,44 @@ void Gate_Builder::setupGates() {
 				return nullObj;
 			}
 			return make_shared<NeuronGate>(inputs, output, dischargeBehavior, thresholdValue, thresholdActivates, decayRate, deliveryCharge, deliveryError, ThresholdFromNode, DeliveryChargeFromNode, gateID, _PT);
+		});
+	}
+	if (usingFeedbackGatePL->get(PT)) {
+		inUseGateNames.insert("Feedback");
+		int codonOne = FeedbackCode;
+		inUseGateTypes.insert(codonOne);
+		{
+			gateStartCodes[codonOne].push_back(codonOne);
+			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+		}
+		intialGateCounts[codonOne] = feedbackGateInitialCountPL->get(PT);
+		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
+            unsigned int posFBNode, negFBNode;
+            unsigned char nrPos, nrNeg;
+            vector<double> posLevelOfFB, negLevelOfFB;
+			string IO_Ranges = FeedbackGate::IO_RangesPL->get(_PT);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_FEEDBACK");
+			vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+            posFBNode = genomeHandler->readInt(0,255); // we will scale to, say, 256 and floor later.
+            negFBNode = genomeHandler->readInt(0,255);
+            nrPos = genomeHandler->readInt(0,3);
+            nrNeg = genomeHandler->readInt(0,3);
+            posLevelOfFB.resize(nrPos);
+            negLevelOfFB.resize(nrNeg);
+            for (int i=0; i<nrPos; i++) posLevelOfFB[i] = genomeHandler->readDouble(0,256);
+            for (int i=0; i<nrNeg; i++) negLevelOfFB[i] = genomeHandler->readDouble(0,256);
+			if (genomeHandler->atEOC()) {
+				shared_ptr<FeedbackGate> nullObj = nullptr;
+				return nullObj;
+			}
+			return make_shared<FeedbackGate>(addresses,rawTable,posFBNode,negFBNode,nrPos,nrNeg,posLevelOfFB,negLevelOfFB,gateID, _PT);
+            //std::pair<vector<int>,vector<int>> thepair = std::make_pair(std::vector<int>(),std::vector<int>());
+            //std::vector<std::vector<int>> dvec;
+            //unsigned int uint = 0;
+            //unsigned char uchar = '\0';
+            //std::vector<double> vdouble;
+			//return make_shared<FeedbackGate>(thepair,dvec,uint,uint,uchar,uchar,vdouble,vdouble,gateID, _PT);
 		});
 	}
 }
