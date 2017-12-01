@@ -21,15 +21,20 @@ using std::endl;
 using zz::fs::Directory; // filesystem crawling
 
 std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
-Loader::load_population(const std::string &Loader_file_name) {
+Loader::load_population(const std::string &loader_file_name) {
 
   tk_counter = 0;
 
-  std::ifstream flines(Loader_file_name);
+  std::ifstream flines(loader_file_name);
   if (!flines.is_open()) {
-    std::cout << " error: population_Loader file does not exist" << std::endl;
+    std::cout << " error: population loader file " << loader_file_name
+              << " does not exist " << std::endl
+              << " Run MABE with -l to generate population loader file"
+              << std::endl;
     exit(1);
   }
+
+  std::cout << "Creating population from " << loader_file_name << std::endl;
 
   auto all_lines = clean_lines(flines);
 

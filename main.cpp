@@ -246,18 +246,26 @@ int main(int argc, const char *argv[]) {
     auto progenitor =
         make_shared<Organism>(templateGenomes, templateBrains, PT);
 
-    int popSize = Global::popSizePL->get(PT);
 
     vector<shared_ptr<Organism>> population;
 
     auto file_to_load= Global::initPopPL->get(PT);
-    cout <<  "Loading from File " << file_to_load << endl;
 
     Loader loader;
-    auto orgs_to_load = loader.load_population(file_to_load);
+    int population_size;
+    auto orgs_to_load =
+        load_value(file_to_load, population_size)
+            ? std::vector<std::pair<
+                  long, std::unordered_map<std::string, std::string>>>(
+                  population_size,
+                  make_pair(-2, std::unordered_map<std::string, std::string>()))
 
-    // add popSize organisms which look like progenitor but could be loaded from
-    // file
+            : loader.load_population(file_to_load);
+
+    population_size = orgs_to_load.size();
+
+    // add population_size organisms which look like progenitor but could be
+    // loaded from file
     for (auto &org : orgs_to_load) {
       // make a new genome like the template genome
       unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
@@ -326,7 +334,8 @@ int main(int argc, const char *argv[]) {
 
     // report on what was just built
     cout << "\nFinished Building Group: " << groupInfo.first
-         << "   Group name space: " << NS << "\n  population size: " << popSize
+         << "   Group name space: " << NS
+         << "\n  population size: " << population_size
          << "     Optimizer: " << PT->lookupString("OPTIMIZER-optimizer")
          << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod")
          << endl

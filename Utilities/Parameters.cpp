@@ -120,7 +120,8 @@ void Parameters::readCommandLine(
   -l : "create population loading script"
         This creates a default file "population_loader.plf" that contains 
         the script for loading the initial population. See file or wiki
-        for usage examples.
+        for usage examples. Note: using -l will ignore all other command 
+        line arguments.
 
 )";
    std::string default_plf_contents = R"(
@@ -159,10 +160,16 @@ MASTER = default 100 # by default :)
       cout << "Usage: " << argv[0] << usage_message << endl;
       exit(1);
     case 'l': {
-		std::ofstream plf_file("population_loader.plf");
-		plf_file << default_plf_contents;
-		plf_file.close();
-		break;
+      std::ofstream plf_file("population_loader.plf");
+      plf_file << default_plf_contents;
+      plf_file.close();
+      std::cout << "created population loader file "
+                   "\"population_loader.plf\""
+                << std::endl
+                << "Change parameter GLOBAL-initPop to this file name (or "
+                   "any other .plf file name) to load a specific population"
+                << std::endl;
+      exit(0);
     }
     case 's':
       save_files = true;
