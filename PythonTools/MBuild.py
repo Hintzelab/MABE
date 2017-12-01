@@ -5,9 +5,22 @@ import sys
 import platform ## system identification
 import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
+import imp # module dependency checking
 from subprocess import call
+
+
 if platform.system() == 'Windows':
-    import winreg
+    requiredNonstandardModules = "winreg".split(',')
+    modulesAreMissing = False
+    for moduleName in requiredNonstandardModules:
+        try:
+            imp.find_module(moduleName)
+        except (ModuleNotFoundError,ImportError) as error:
+            modulesAreMissing = True
+    if modulesAreMissing:
+        print("Error: required 'winreg' module is missing. Try installing it, or install miniconda python3 for windows.")
+        sys.exit()
+    import winreg ## can now safely import
 
 parser = argparse.ArgumentParser()
 
