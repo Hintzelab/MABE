@@ -27,6 +27,8 @@ class SimpleOptimizer : public AbstractOptimizer {
 	static shared_ptr<ParameterLink<string>> elitismCountPL; // this number of organisms will reproduce asexualy (i.e. copy w/ mutation)
 	static shared_ptr<ParameterLink<string>> elitismRangePL; // best n organisms will each produce
 
+	static shared_ptr<ParameterLink<string>> nextPopSizePL;  // number of genomes in the population
+
 	string selectionMethod;
 	int numberParents;
 
@@ -142,7 +144,7 @@ class SimpleOptimizer : public AbstractOptimizer {
 
 	shared_ptr<AbstractSelector> selector;
 
-	shared_ptr<Abstract_MTree> optimizeValueMT, surviveRateMT, selfRateMT, elitismCountMT, elitismRangeMT;
+	shared_ptr<Abstract_MTree> optimizeValueMT, surviveRateMT, selfRateMT, elitismCountMT, elitismRangeMT, nextPopSizeMT;
 
 	SimpleOptimizer(shared_ptr<ParametersTable> _PT = nullptr);
 	
