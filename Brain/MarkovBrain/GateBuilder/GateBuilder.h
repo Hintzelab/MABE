@@ -13,7 +13,7 @@
 #include "../../../Utilities/Parameters.h"
 #include "../Gate/DeterministicGate.h"
 #include "../Gate/EpsilonGate.h"
-//#include "../Gate/FeedbackGate.h"
+#include "../Gate/FeedbackGate.h"
 #include "../Gate/GPGate.h"
 #include "../Gate/NeuronGate.h"
 #include "../Gate/ProbabilisticGate.h"
@@ -33,8 +33,8 @@ public:
 	static shared_ptr<ParameterLink<bool>> usingVoidGatePL;
 	static shared_ptr<ParameterLink<int>> voidGateInitialCountPL;
 
-	static shared_ptr<ParameterLink<bool>> usingFBGatePL;
-	static shared_ptr<ParameterLink<int>> fBGateInitialCountPL;
+	static shared_ptr<ParameterLink<bool>> usingFeedbackGatePL;
+	static shared_ptr<ParameterLink<int>> feedbackGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingGPGatePL;
 	static shared_ptr<ParameterLink<int>> gPGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingThGatePL;
