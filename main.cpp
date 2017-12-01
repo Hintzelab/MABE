@@ -255,11 +255,6 @@ int main(int argc, const char *argv[]) {
 
     Loader loader;
     auto orgs_to_load = loader.load_population(file_to_load);
-    if (orgs_to_load.size() != popSize) {
-      cout << "Error: loaded population must have same size as GLOBAL-popSize"
-           << endl;
-      exit(1);
-    }
 
     // add popSize organisms which look like progenitor but could be loaded from
     // file
