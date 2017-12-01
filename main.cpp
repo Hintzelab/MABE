@@ -9,6 +9,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
+
 #include <algorithm>
 #include <memory>
 #include <stdio.h>
@@ -80,14 +81,14 @@ int main(int argc, const char *argv[]) {
     exit(0);
   }
 
-  /////////////////////////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////
   /// IF YOU WANT TO HACK PARAMETERS, DO IT HERE!
   /// /////////////////////////////////////////////
-  /////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
   ///
   /// Parameters::root->setExistingParameter("BRAIN-brainType", "LSTM");
   ///
-  /////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////
 
   // outputDirectory must exist. If outputDirectory does not exist, no error
   // will occur, but no data will be written. THIS SHOULD BE ADDRESSED ONE DAY!
@@ -116,21 +117,16 @@ int main(int argc, const char *argv[]) {
   map<string, shared_ptr<Group>> groups;
   shared_ptr<ParametersTable> PT;
 
-  string NS;
-
-  unordered_map<string, unordered_set<string>> worldRequirements =
-      world->requiredGroups();
+  auto worldRequirements = world->requiredGroups();
   // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
   // is empty, create "default" group.
-  for (auto groupInfo : worldRequirements) {
+  for (auto const &groupInfo : worldRequirements) {
     cout << endl;
-    NS = groupInfo.first;
-    if (NS == "root::") {
-      PT = Parameters::root;
-    } else {
-      PT = Parameters::root->getTable(NS); // create (or get a pointer to) a new
-                                           // parameters table with this name
-    }
+    auto NS = groupInfo.first;
+    PT = NS == "root::" ? Parameters::root : Parameters::root->getTable(NS);
+    // create (or get a pointer to) a new
+    // parameters table with this name
+
     cout << "Building group with name space: " << groupInfo.first << endl;
 
     Global::update = -1; // before there was time, there was a progenitor - set
@@ -138,10 +134,9 @@ int main(int argc, const char *argv[]) {
                          // have birth time -1
 
     // create an optimizer of type defined by OPTIMIZER-optimizer
-    shared_ptr<AbstractOptimizer> optimizer = makeOptimizer(PT);
+    auto optimizer = makeOptimizer(PT);
 
     unordered_set<string> brainNames;
-    unordered_set<string> genomeNames;
 
     unordered_map<string, shared_ptr<AbstractBrain>>
         templateBrains; // templates for brains in organisms in this group
@@ -149,12 +144,12 @@ int main(int argc, const char *argv[]) {
         templateGenomes; // templates for genomes in organisms in this group
 
     unordered_set<string> strSet; // temporary holder
-    genomeNames =
+    auto genomeNames =
         optimizer->requiredGenomes(); // get genome names from optimizer
     map<string, int> brainIns;
     map<string, int> brainOuts;
 
-    for (auto s : groupInfo.second) {
+    for (auto const &s : groupInfo.second) {
       // for each group required by world, determine the brains and genomes
       // required by the world. Also determine if any
       // of the required brains require genomes. If two requirements have the
@@ -177,8 +172,8 @@ int main(int argc, const char *argv[]) {
       if (s[0] == 'G' && s[1] == ':') {
         genomeNames.insert(s.substr(2));
       } else if (s[0] == 'B' && s[1] == ':') {
-        string workingString = s.substr(2);
-        string brainName = workingString.substr(0, workingString.find(','));
+        auto workingString = s.substr(2);
+        auto brainName = workingString.substr(0, workingString.find(','));
         brainNames.insert(brainName);
         workingString = workingString.substr(workingString.find(',') + 1);
         int ins, outs;
@@ -198,7 +193,7 @@ int main(int argc, const char *argv[]) {
 
     cout << endl << " building brains..." << endl;
 
-    for (string brainName : brainNames) {
+    for (auto const& brainName : brainNames) {
       cout << "  found brain: " << brainName << endl;
       shared_ptr<ParametersTable> This_PT;
       if (brainName == "") {
@@ -206,11 +201,8 @@ int main(int argc, const char *argv[]) {
              << endl;
         exit(1);
       }
-      if (brainName == "root::") {
-        This_PT = Parameters::root;
-      } else {
-        This_PT = Parameters::root->getTable(brainName);
-      }
+      This_PT = brainName == "root::" ? Parameters::root
+                                      : Parameters::root->getTable(brainName);
 
       cout << "    ... building a " << This_PT->lookupString("BRAIN-brainType")
            << " brain using " << brainName << " name space." << endl;
@@ -219,7 +211,7 @@ int main(int argc, const char *argv[]) {
       strSet = templateBrains[brainName]->requiredGenomes();
       if (strSet.size() > 0) {
         cout << "    ..... this brain requires genomes: ";
-        for (string g : strSet) {
+        for (auto const &g : strSet) {
           cout << g << "  ";
         }
         cout << endl;
@@ -231,7 +223,7 @@ int main(int argc, const char *argv[]) {
 
     cout << endl << " building genomes..." << endl;
 
-    for (string genomeName : genomeNames) {
+    for (auto const &genomeName : genomeNames) {
       cout << "  found genome: " << genomeName << endl;
       shared_ptr<ParametersTable> This_PT;
       if (genomeName == "") {
@@ -239,12 +231,11 @@ int main(int argc, const char *argv[]) {
              << endl;
         exit(1);
       }
-      if (genomeName == "root::") {
-        This_PT = Parameters::root;
-      } else { // this genome is not at root
-        This_PT = Parameters::root->getTable(genomeName);
-      }
-      cout << "    ... building a "
+      This_PT = genomeName == "root::" ? Parameters::root
+                                       : Parameters::root->getTable(genomeName);
+                                       // this genome is not at root
+
+	  cout << "    ... building a "
            << This_PT->lookupString("GENOME-genomeType") << " genome using "
            << genomeName << " name space." << endl;
       templateGenomes[genomeName] = makeTemplateGenome(This_PT);
@@ -252,44 +243,47 @@ int main(int argc, const char *argv[]) {
 
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
-    shared_ptr<Organism> progenitor =
+    auto progenitor =
         make_shared<Organism>(templateGenomes, templateBrains, PT);
 
     int popSize = Global::popSizePL->get(PT);
 
     vector<shared_ptr<Organism>> population;
 
-    cout <<  "Loading from File " << Global::initPopPL->get(PT) << endl;
     auto file_to_load= Global::initPopPL->get(PT);
+    cout <<  "Loading from File " << file_to_load << endl;
 
     Loader loader;
     auto orgs_to_load = loader.load_population(file_to_load);
     if (orgs_to_load.size() != popSize) {
-      cout << "Error: loaded population must have same size as popSize" << endl;
+      cout << "Error: loaded population must have same size as GLOBAL-popSize"
+           << endl;
       exit(1);
     }
 
-    // add popSize organisms which look like progenitor but could be loaded from file
+    // add popSize organisms which look like progenitor but could be loaded from
+    // file
     for (auto &org : orgs_to_load) {
       // make a new genome like the template genome
       unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
       unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
-      for (auto genome : templateGenomes) {
+      for (auto const &genome : templateGenomes) {
         if (org.first < 0) {
           newGenomes[genome.first] = genome.second->makeLike();
         } else {
-          string name = genome.first;
+          auto name = genome.first;
           genome.second->deserialize(genome.second->PT, org.second, name);
           newGenomes[genome.first] = genome.second;
         }
       }
-      for (auto brain : templateBrains) {
+      for (auto const &brain : templateBrains) {
         if (org.first < 0) {
           brain.second->initializeGenomes(newGenomes);
         }
         newBrains[brain.first] = brain.second->makeBrain(newGenomes);
       }
-    	auto  newOrg = make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+      auto newOrg =
+          make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
 
       // add new organism to population
       population.push_back(newOrg);
@@ -307,21 +301,21 @@ int main(int argc, const char *argv[]) {
     popFileColumns.insert(popFileColumns.end(),
                           optimizer->popFileColumns.begin(),
                           optimizer->popFileColumns.end());
-    for (auto genome : progenitor->genomes) {
-      for (auto c : genome.second->popFileColumns) {
+    for (auto const &genome : progenitor->genomes) {
+      for (auto const &c : genome.second->popFileColumns) {
         (genome.first == "root::") ? popFileColumns.push_back(c)
                                    : popFileColumns.push_back(genome.first + c);
       }
     }
-    for (auto brain : progenitor->brains) {
-      for (auto c : brain.second->popFileColumns) {
+    for (auto const &brain : progenitor->brains) {
+      for (auto const &c : brain.second->popFileColumns) {
         (brain.first == "root::") ? popFileColumns.push_back(c)
                                   : popFileColumns.push_back(brain.first + c);
       }
     }
 
     // create an archivist of type determined by ARCHIVIST-outputMethod
-    shared_ptr<DefaultArchivist> archivist =
+    auto archivist =
         makeArchivist(popFileColumns, optimizer->optimizeFormula, PT,
                       (groupInfo.first == "root::") ? "" : groupInfo.first);
 
@@ -336,24 +330,12 @@ int main(int argc, const char *argv[]) {
     progenitor->kill();
 
     // report on what was just built
-    if (Global::modePL->get() == "run") {
-
-      cout << "\nFinished Building Group: " << groupInfo.first
-           << "   Group name space: " << NS
-           << "\n  population size: " << popSize
-           << "     Optimizer: " << PT->lookupString("OPTIMIZER-optimizer")
-           << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod")
-           << endl;
-      cout << endl;
-    } else {
-      cout << "\nFinished Building Group: " << groupInfo.first
-           << "   Group name space: " << NS
-           << "\n  population size: 0 (not in run mode)     Optimizer: "
-           << PT->lookupString("OPTIMIZER-optimizer")
-           << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod")
-           << endl;
-      cout << endl;
-    }
+    cout << "\nFinished Building Group: " << groupInfo.first
+         << "   Group name space: " << NS << "\n  population size: " << popSize
+         << "     Optimizer: " << PT->lookupString("OPTIMIZER-optimizer")
+         << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod")
+         << endl
+         << endl;
     // end of report
   }
 
@@ -361,7 +343,7 @@ int main(int argc, const char *argv[]) {
       0; // the beginning of time - now we construct the first population
 
   // in run mode we evolve organsims
-  bool done = false;
+  auto done = false;
 
   if (Global::modePL->get() == "run") {
     ////////////////////////////////////////////////////////////////////////////////////
@@ -376,7 +358,7 @@ int main(int argc, const char *argv[]) {
                                                       // a World
       cout << "update: " << Global::update << "   " << flush;
       done = true; // until we find out otherwise, assume we are done.
-      for (auto group : groups) {
+      for (auto const &group : groups) {
         if (!group.second->archivist->finished) {
           group.second->optimize(); // create the next updates population
           group.second
@@ -393,7 +375,7 @@ int main(int argc, const char *argv[]) {
     }
 
     // the run is finished... flush any data that has not been output yet
-    for (auto group : groups) {
+    for (auto const &group : groups) {
       group.second->archive(1);
     }
   } else {
