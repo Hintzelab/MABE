@@ -8,6 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
+#include<regex>
 #include "Parameters.h"
 using namespace std;
 
@@ -98,52 +99,87 @@ void Parameters::parseFullParameterName(const string& fullName, string& nameSpac
 	}
 }
 
-void Parameters::readCommandLine(int argc, const char** argv, unordered_map<string, string>& comand_line_list, vector<string>& fileList, bool& saveFiles) {
-	int argCount = 1;
-	while (argCount < argc) {
-		if (argv[argCount][0] == '-' && argv[argCount][1] == 'f') {  // denotes that file names will follow
-			argCount++;
-			if (argCount >= argc) {
-				cout << "ERROR! -f found on command line with no file name.\nExiting\n";
-				exit(1);
-			} else {
-				while (argCount < argc && argv[argCount][0] != '-') {
-					fileList.push_back(argv[argCount++]);
-				}
-			}
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 'p') {  // denotes that parameter/value pairs will follow
-			argCount++;
-			if (argCount > argc) {
-				cout << "ERROR! -p found on command line with no parameters.\nExiting\n";
-				exit(1);
-			} else {
-				while (argCount < argc && argv[argCount][0] != '-') {
-					if (argCount + 1 < argc) {
-						if (comand_line_list.find(string(argv[argCount])) == comand_line_list.end()) {
-							comand_line_list[string(argv[argCount])] = string(argv[argCount + 1]);
-						} else {
-							cout << "  ERROR :: Parameter \"" << string(argv[argCount]) << "\" is defined more then once on the command line.\nExiting.\n";
-							exit(1);
-						}
-						argCount += 2;
-					} else {
-						cout << "  ERROR :: Parameter \"" << string(argv[argCount]) << "\" is defined on command line with out a value.\nExiting.\n";
-						exit(1);
-					}
-				}
-			}
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 's') {
-			saveFiles = true;
-			argCount++;
-		} else if (argv[argCount][0] == '-' && argv[argCount][1] == 'h') {
-			cout << "Usage: " << argv[0] << " [-f <file1> <file2> ...] [-p <parameter name/value pairs>] [-s]\n\n" << "  -f, \"load files\" - list of settings files to be loaded.\n" << "         Parameters in later files overwrite parameters in earlier files.\n\n" << "  -p, \"set parameters\" - list of parameter/name pairs \n" << "         (i.e. \"-p GLOBAL-updates 100 GLOBAL-popSize 200\" would set MABE to run\n" << "         for 100 updates with a population size of 200. Parameters set on the\n" << "         command line overwrite parameters from files\n\n" << "  -s, \"save\" - save settings files.\n" << endl;
-			exit(1);
-		} else {
-			cout << "  Error on command line. Unrecognized option. Exiting." << endl;
-			exit(1);
-		}
-	}
-}
+void Parameters::readCommandLine(
+    int argc, const char **argv,
+    std::unordered_map<std::string, std::string> &param_name_values, std::vector<std::string> &file_list,
+    bool &save_files) {
+
+  std::string usage_message =
+      R"( [-f <file1> <file2> ...] [-p <parameter name/value pairs>] [-s]
+                                    
+  -f : "load files" - list of settings files to be loaded.
+       Parameters in later files overwrite parameters in earlier files.
+
+  -p : "set parameters" - list of parameter/name pairs. 
+        e.g. "-p GLOBAL-updates 100 GLOBAL-popSize 200" would set MABE to 
+        run for 100 updates with a population size of 200. Parameters set 
+        on the command line overwrite parameters from files.
+
+  -s : "save" - save settings files.
+
+  -l : "select population loading script" - single file name.
+        This file contains the script for loading the initial population
+
+)";
+  std::string arguments;
+  for (int i = 1; i < argc; i++)
+    arguments += argv[i], arguments += " ";
+  std::regex command_line_arguments(R"(-(\w) (.*?)(?=(?:(?:-\w )|$)))");
+//  for (auto &m : Utilities::ForEachRegexMatch(arguments, command_line_arguments)) {
+  for (std::sregex_iterator end,
+       i = std::sregex_iterator(arguments.begin(), arguments.end(),
+                               command_line_arguments);
+       i != end; i++) {
+    std::smatch m = *i;
+    switch (m[1].str()[0]) {
+    case 'h':
+      cout << "Usage: " << argv[0] << usage_message << endl;
+      exit(1);
+    case 'l': {
+      std::stringstream sf(m[2].str());
+      std::string pop_loader_filename;
+      sf >> pop_loader_filename;
+      param_name_values["GLOBAL-initPop"] = pop_loader_filename;
+      break;
+    }
+    case 's':
+      save_files = true;
+      break;
+    case 'f': {
+      std::stringstream sf(m[2].str());
+      std::string filename;
+      while (sf >> filename)
+        file_list.push_back(filename);
+      break;
+    }
+    case 'p': {
+      std::stringstream sp(m[2].str());
+      std::string param_name, param_value;
+      while (sp >> param_name) {
+        if (sp >> param_value) {
+          if (param_name_values.find(param_name) != param_name_values.end()) {
+            cout << "  ERROR :: Parameter \"" << param_name
+                 << "\" is defined more then once on the command "
+                    "line.\nExiting.\n";
+            exit(1);
+          }
+          param_name_values[param_name] = param_value;
+        } else {
+          cout << "  ERROR :: Parameter \"" << param_name
+               << "\" is defined on command line with out a "
+                  "value.\nExiting.\n";
+          exit(1);
+        }
+      }
+      break;
+    }
+    default:
+      cout << "  Error on command line. Unrecognized option. Exiting." << endl;
+      exit(1);
+    }
+  }
+} // end Parameters::readCommandLine()
+
 
 unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	unordered_map<string, string> config_file_list;

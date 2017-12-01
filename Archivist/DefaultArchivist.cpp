@@ -113,13 +113,15 @@ DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abs
 		// Now check to see if key ends in an '_' and a known output method (from DataMap i.e. AVE, PROD, etc.)
 		size_t seperatorCharPos = key.find_last_of('_');
 		if (seperatorCharPos != string::npos && DataMap::knownOutputBehaviors.find(key.substr(seperatorCharPos + 1)) != DataMap::knownOutputBehaviors.end()) { // if there is an '&'
-			// if it does end in a known output method then add this method to the cuiqueColumnNameToOutputBehaviors map for that key
+			// if it does end in a known output method then add this method to the uiqueColumnNameToOutputBehaviors map for that key
 																																							   //key[seperatorCharPos] = '_';
 			if (uniqueColumnNameToOutputBehaviors.find(key.substr(0, seperatorCharPos)) == uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
 				uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] = DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
+				//cout << "set behavior: " << key.substr(seperatorCharPos + 1) << " to " << key.substr(0, seperatorCharPos);
 			}
 			else { // key already in map
-				uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |= DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
+				uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] = uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] | DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
+				//cout << "added behavior: " << key.substr(seperatorCharPos + 1) << " to " << key.substr(0, seperatorCharPos);
 			}
 		}
 		else { // add key normally, because it has no special flags specified
@@ -154,10 +156,10 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 					}
 				}
 			}
-			PopMap.setOutputBehavior(kv.first, uniqueColumnNameToOutputBehaviors[kv.first]);
+			PopMap.setOutputBehavior(kv.first, kv.second);
 		}
 		PopMap.set("update", Global::update);
-		PopMap.writeToFile(PopFileName, { }, true); // write the PopMap to file with empty list (save all) and aveOnly = true (only save ave values)
+		PopMap.writeToFile(PopFileName, { }); // write the PopMap to file with empty list (save all)
 
 	}
 

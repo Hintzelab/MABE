@@ -98,7 +98,7 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			}
 
 			if (aveOnly) {
-				OB = OB & (AVE | FIRST | VAR); // if aveOnly, only output AVE on the entries that have been set for AVE
+				OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
 			}
 
 			if (OB & FIRST) { // save first (only?) element in vector with key as column name
