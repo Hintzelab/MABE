@@ -39,7 +39,7 @@
 	|| defined(__FreeBSD__) || defined (__DragonFly__) \
 	|| defined(sgi) || defined(__sgi) \
 	|| (defined(__MACOSX__) || defined(__APPLE__)) \
-	|| defined(__CYGWIN__) || defined(__MINGW32__)
+	|| defined(__CYGWIN__)
 #define ZUPPLY_OS_UNIX	1	//!< Unix like OS(POSIX compliant)
 #undef ZUPPLY_OS_WINDOWS
 #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
