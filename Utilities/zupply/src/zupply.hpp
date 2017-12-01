@@ -810,7 +810,7 @@ namespace zz
 		* \param height
 		* \param width
 		*/
-		void resize(int height, int width);
+		void resize(int width, int height);
 
 		/*!
 		* \brief resize Resize image given ratio to the old size

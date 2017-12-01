@@ -62,6 +62,14 @@ TEST_CASE("filesystem", "[filesystem]") {
 		CHECK(fr.next_line() == "\u30E6\u30CB\u30C3\u30C8\u30C6\u30B9\u30C8");
 	}
 
+	SECTION("Copy file")
+	{
+		REQUIRE(os::copyfile(testFile, renameFile, true));
+		REQUIRE(os::path_exists(renameFile, true));
+		REQUIRE(os::remove_file(renameFile));
+		REQUIRE_FALSE(os::path_exists(renameFile, true));
+	}
+
 	SECTION("Rename the file")
 	{
 		REQUIRE(os::remove_all(renameFile));
@@ -111,7 +119,7 @@ TEST_CASE("filesystem-path", "fs-path")
 	REQUIRE(path.is_dir());
 	CHECK(path.abs_path() == os::current_working_directory());
 	CHECK(path.filename() == "");
-	
+
 	std::string filename = "path_test.txt";
 	fs::FileEditor fe(filename);
 	fe.close();
@@ -137,7 +145,7 @@ TEST_CASE("filesystem-directory", "fs-directory")
 	fs::Directory dir("dir_test", "*.jpg", true);
 	REQUIRE(dir.size() == 1);
 	CHECK(dir.cbegin()->filename() == "3.jpg");
-	
+
 	os::remove_all("dir_test");
 }
 
@@ -297,7 +305,7 @@ TEST_CASE("fmt::wild_card_match", "[fmt-wild_card_match]") {
 		"*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*a*") == false);
 	CHECK(fmt::wild_card_match("abc*abcd*abcde*abcdef*abcdefg*abcdefgh*abcdefghi*abcdefghij*abcdefghijk*abcdefghijkl*abcdefghijklm*abcdefghijklmn",
 		"abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*a            bc*") == false);
-	CHECK(fmt::wild_card_match("abc*abcd*abcde*abcdef*abcdefg*abcdefgh*abcdefghi*abcdefghij*abcdefghijk*abcdefghijkl*abcdefghijklm*abcdefghijklmn", 
+	CHECK(fmt::wild_card_match("abc*abcd*abcde*abcdef*abcdefg*abcdefgh*abcdefghi*abcdefghij*abcdefghijk*abcdefghijkl*abcdefghijklm*abcdefghijklmn",
 		"abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*abc*") == true);
 	CHECK(fmt::wild_card_match("abc*abcd*abcd*abc*abcd", "abc*abc*abc*abc*abc") == false);
 	CHECK(fmt::wild_card_match(
@@ -574,11 +582,11 @@ TEST_CASE("arg-argParser", "arg-parser")
 
 	// write a test case for argc and argv
 	int argc = 14;
-	char* argv[] = { 
-		(char*)"unittest", (char*)"-b", (char*)"--brief", 
-		(char*)"-i", (char*)"999", (char*)"--values", 
-		(char*)"9", (char*)"8", (char*)"7", (char*)"6", 
-		(char*)"5", (char*)"--float=1.1", (char*)"'-1.2'", 
+	char* argv[] = {
+		(char*)"unittest", (char*)"-b", (char*)"--brief",
+		(char*)"-i", (char*)"999", (char*)"--values",
+		(char*)"9", (char*)"8", (char*)"7", (char*)"6",
+		(char*)"5", (char*)"--float=1.1", (char*)"'-1.2'",
 		(char*)"--unknown" };
 
 	p.parse(argc, argv, false);
@@ -588,13 +596,13 @@ TEST_CASE("arg-argParser", "arg-parser")
 		CHECK(p.count('b') == 2);
 		CHECK(bbb == true);
 	}
-	
+
 	SECTION("parse integer")
 	{
 		CHECK(p.count('i') == 1);
 		CHECK(input == 999);
 	}
-	
+
 	SECTION("parse integer vector")
 	{
 		CHECK(p.count("values") == 1);
@@ -731,9 +739,8 @@ int main(int argc, char** argv)
 #ifdef _MSC_VER
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-	
+
 	int result = Catch::Session().run(argc, argv);
 
 	return result;
 }
-
