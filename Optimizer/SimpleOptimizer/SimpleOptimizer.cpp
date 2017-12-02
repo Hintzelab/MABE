@@ -22,7 +22,7 @@ shared_ptr<ParameterLink<string>> SimpleOptimizer::selfRatePL = Parameters::regi
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismCountPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount", (string) "1", "number of mutated offspring added to next population for each elite organism (MTree)");
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismRange", (string) "0", "number of elite organisms (i.e. if 5, then best 5) (MTree)");
 
-shared_ptr<ParameterLink<string>> SimpleOptimizer::nextPopSizePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-nextPopSize", (string)"100", "size of population after optimization(MTree)");
+shared_ptr<ParameterLink<string>> SimpleOptimizer::nextPopSizePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-nextPopSize", (string)"0-1", "size of population after optimization(MTree). -1 indicates use current population size");
 
 SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOptimizer(_PT) {
 	
@@ -68,6 +68,10 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	oldPopulationSize = (int)population.size();
 	/////// MUST update to MTREE
 	nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
+
+	if (nextPopulationTargetSize == -1) {
+		nextPopulationTargetSize = population.size();
+	}
 	/////// MUST update to MTREE
 
 	nextPopulationSize = 0;
