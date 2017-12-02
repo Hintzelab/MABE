@@ -1,0 +1,74 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/Hintzelab/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/Hintzelab/MABE/wiki/License
+
+#include "ExampleBrain.h"
+
+shared_ptr<ParameterLink<string>> ExampleBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
+
+ExampleBrain::ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+	AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+	// columns to be added to pop.csv file
+	popFileColumns.clear();
+}
+
+shared_ptr<AbstractBrain> ExampleBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	shared_ptr<ExampleBrain> newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues,PT);
+	return newBrain;
+}
+
+
+void ExampleBrain::resetBrain() {
+	AbstractBrain::resetBrain();
+}
+
+
+void ExampleBrain::update() {
+
+}
+
+// Make a brain like the brain that called this function, using genomes and inheriting other elements from parent.
+// in the default case, we assume geneticly encoded brains, so this just calls the no parent version (i.e. build from genomes)
+shared_ptr<AbstractBrain> ExampleBrain::makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes){
+	return makeBrain(_genomes);
+}
+
+// Make a brain like the brain that called this function, using genomes and inheriting other elements from parents.
+// in the default case, we assume geneticly encoded brains, so this just calls the no parent version (i.e. build from genomes)
+shared_ptr<AbstractBrain> ExampleBrain::makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes){
+	return makeBrain(_genomes);
+}
+
+void ExampleBrain::mutate() {
+	// do nothing by default... if this is not a direct encoded brain, then no action is needed.
+}
+string ExampleBrain::description() {
+	string S = "Example Brain\n";
+	return S;
+}
+
+
+DataMap ExampleBrain::getStats(string& prefix) {
+	DataMap dataMap;
+	return (dataMap);
+}
+
+void ExampleBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+
+}
+
+
+shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+{
+	if (_PT == nullptr) {
+		_PT = PT;
+	}
+	auto newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues, _PT);
+	return newBrain;
+}																																																					  //shared_ptr<ParameterLink<int>> AbstractBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN-hiddenNodes", 8, "number of hidden nodes, if brain type supports hiden nodes");  // string parameter for outputMethod;

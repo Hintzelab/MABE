@@ -178,11 +178,11 @@ template<class T> bool TemplatedChromosome<T>::writeDouble(int &siteIndex, doubl
 		valueMin = temp;
 	}
 	if ((value - valueMin) > (valueMax - valueMin)) {
-		cout << "Error: attempting to write double. given range is to small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: << valueMin\n";
+		cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
 		exit(1);
 	}
 	value = ((value - valueMin) / (valueMax - valueMin)) * alphabetSize;
-	sites[siteIndex] = (bool)value;
+	sites[siteIndex] = (T)value;
 	EOC = EOC | advanceIndex(siteIndex, readDirection);
 	return EOC;
 }
@@ -210,7 +210,18 @@ template<class T> void TemplatedChromosome<T>::fillRandom(int length) {
 	}
 	sites.resize(length);
 	for (int i = 0; i < length; i++) {
-		sites[i] = (T)Random::getIndex(alphabetSize);
+		sites[i] = (T)Random::getDouble(alphabetSize);
+	}
+}
+
+template<> void TemplatedChromosome<bool>::fillRandom(int length) {
+	if (length == -1) {
+		length = sites.size();
+	}
+	sites.resize(length);
+	for (int i = 0; i < length; i++) {
+		cout << "alphabetSize: " << alphabetSize << "   " << Random::getDouble(alphabetSize) << endl;
+		sites[i] = (bool)((int)Random::getDouble(alphabetSize));
 	}
 }
 
@@ -239,24 +250,49 @@ template<class T> void TemplatedChromosome<T>::readChromosomeFromSS(std::strings
 	char nextChar;
 	string nextString;
 	T value;
-	char rubbish;
 	sites.clear();
 	ss >> nextChar;
 	for (int i = 0; i < _chromosomeLength; i++) {
 		nextString = "";
-		while  (nextChar != ',' && nextChar != ']') {
+		while (nextChar != ',' && nextChar != ']') {
 			nextString += nextChar;
 			ss >> nextChar;
 		}
-		load_value(nextString,value);
-		cout << nextString << " = " << value << ", ";
+		load_value(nextString, value);
+		//cout << nextString << " = " << value << ", ";
 		sites.push_back(value);
-		if (i < _chromosomeLength-1) {
+		if (i < _chromosomeLength - 1) {
 			ss >> nextChar;
 		}
 	}
-	cout << endl;
+	//cout << endl;
 }
+
+template<>
+void TemplatedChromosome<unsigned char>::readChromosomeFromSS(std::stringstream &ss, int _chromosomeLength) {
+	char nextChar;
+	string nextString;
+	int value;
+	sites.clear();
+	ss >> nextChar;
+	for (int i = 0; i < _chromosomeLength; i++) {
+		nextString = "";
+		while (nextChar != ',' && nextChar != ']') {
+			nextString += nextChar;
+			ss >> nextChar;
+		}
+		load_value(nextString, value);
+		//cout << nextString << " = " << value << ", ";
+		sites.push_back((char)value);
+		if (i < _chromosomeLength - 1) {
+			ss >> nextChar;
+		}
+	}
+	//cout << endl;
+}
+
+
+
 
 // convert a chromosome to a string
 template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
@@ -281,6 +317,31 @@ template<class T> string TemplatedChromosome<T>::chromosomeToStr() {
 
 }
 
+template<>
+string TemplatedChromosome<unsigned char>::chromosomeToStr() {
+	//	string S = "";
+	//
+	//	//S.reserve(((int)sites.size() * 2) + 10);
+	//
+	//	for (size_t i = 0; i < sites.size(); i++) {
+	//		S.append(to_string(sites[i]) + FileManager::separator);
+	//	}
+	//	S.pop_back();  // clip off the leading separator
+	//	return S;
+
+	stringstream ss;
+	ss << "";
+
+	for (size_t i = 0; i < sites.size() - 1; i++) {
+		ss << (int)sites[i] << FileManager::separator;
+	}
+	ss << (int)sites[sites.size() - 1];
+	return ss.str();
+
+}
+
+
+
 template<class T> void TemplatedChromosome<T>::resize(int size) {
 	sites.resize(size);
 }
@@ -290,16 +351,16 @@ template<class T> int TemplatedChromosome<T>::size() {
 
 template<class T> DataMap TemplatedChromosome<T>::getFixedStats() {
 	DataMap dataMap;
-	dataMap.Set("alphabetSize", alphabetSize);
+	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
 	return (dataMap);
 }
 
 template<class T> DataMap TemplatedChromosome<T>::getStats() {
 	DataMap dataMap;
-	dataMap.Set("alphabetSize", alphabetSize);
+	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.setOutputBehavior("alphabetSize", DataMap::FIRST);
-	dataMap.Set("size", (int)sites.size());
+	dataMap.set("size", (int)sites.size());
 	dataMap.setOutputBehavior("alphabetSize", DataMap::AVE);
 	return (dataMap);
 }
@@ -336,7 +397,7 @@ template<class T> void TemplatedChromosome<T>::insertSegment(shared_ptr<Abstract
 }
 
 template<class T> void TemplatedChromosome<T>::mutatePoint() {
-	sites[Random::getIndex(sites.size())] = Random::getIndex(alphabetSize);
+	sites[Random::getIndex(sites.size())] = (T)Random::getDouble(alphabetSize);
 }
 
 // mutate chromosome by getting a copy of a segment of this chromosome and

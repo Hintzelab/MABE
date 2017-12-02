@@ -65,8 +65,12 @@ public:
 
 	virtual void resetBrain() override;
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 	
+	virtual unordered_set<string> requiredGenomes() override {
+		return {};
+	}
+
 };
 
 inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {

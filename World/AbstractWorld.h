@@ -28,24 +28,26 @@ public:
 	
 	const shared_ptr<ParametersTable> PT;
 
-	string groupName = "root";
+	int requiredInputs = 0;
+	int requiredOutputs = 0;
+
 	vector<string> popFileColumns;
 
-	AbstractWorld(shared_ptr<ParametersTable> _PT = nullptr) :
+	AbstractWorld(shared_ptr<ParametersTable> _PT) :
 			PT(_PT) {
 	}
 	virtual ~AbstractWorld() = default;
 
-	virtual int requiredInputs() { return 0; }
-	virtual int requiredOutputs() { return 0; }
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() = 0;// {
+	//	string groupName = "root::";
+	//	string brainName = "root::";
+	//	return { { groupName,{"B:"+ brainName+","+to_string(requiredInputs)+","+to_string(requiredOutputs)}} }; // default requires a root group and a brain (in root namespace) and no genome 
+	//}
 
-	virtual unordered_map<string, unordered_set<string>> requiredGroups() {
-		//string groupName = "root";
-		string brainName = "root";
-		return { { groupName,{"B:"+ brainName+","+to_string(requiredInputs())+","+to_string(requiredOutputs())}} }; // default requires a root group and a brain (in root namespace) and no genome 
-	}
-
-	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0);
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) {
+		cout << "  chosen world does not define evaluate()! Exiting." << endl;
+		exit(1);
+	};
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
 		cout << "  chosen world does not define evaluateSolo()! Exiting." << endl;
 		exit(1);

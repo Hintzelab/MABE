@@ -17,36 +17,35 @@ shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_organismSequenceStrPL
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_organismDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving organisms ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_DataFilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataFilePrefix", (string) "SSwD_data", "name of genome file (stores genomes)");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_OrganismFilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismFilePrefix", (string) "SSwD_organism", "name of data file (stores everything but organism file data)");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeDataFiles", true, "if true, data files will be written");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismFiles", true, "if true, genome files will be written");
 
 SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
 
-	dataDelay = (PT == nullptr) ? SSwD_Arch_dataDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-dataDelay");
-	organismDelay = (PT == nullptr) ? SSwD_Arch_organismDelayPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-organismDelay");
+	dataDelay = SSwD_Arch_dataDelayPL->get(PT);
+	organismDelay = SSwD_Arch_organismDelayPL->get(PT);
 
-	cleanupInterval = (PT == nullptr) ? SSwD_Arch_cleanupIntervalPL->lookup() : PT->lookupInt("ARCHIVIST_SSWD-cleanupInterval");
+	cleanupInterval = SSwD_Arch_cleanupIntervalPL->get(PT);
 
-	DataFilePrefix = (PT == nullptr) ? SSwD_Arch_DataFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-dataFilePrefix");
-	DataFilePrefix = (groupPrefix == "") ? DataFilePrefix : groupPrefix + "__" + DataFilePrefix;
-	OrganismFilePrefix = (PT == nullptr) ? SSwD_Arch_OrganismFilePrefixPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-organismFilePrefix");
-	OrganismFilePrefix = (groupPrefix == "") ? OrganismFilePrefix : groupPrefix + "__" + OrganismFilePrefix;
+	DataFilePrefix = (groupPrefix == "") ? "SSwD_data" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "SSwD_data";
+	DataFilePrefix = (SSwD_Arch_FilePrefixPL->get(PT) == "NONE") ? DataFilePrefix  : SSwD_Arch_FilePrefixPL->get(PT) + DataFilePrefix;
+	OrganismFilePrefix = (groupPrefix == "") ? "SSwD_organisms" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "SSwD_organisms";
+	OrganismFilePrefix = (SSwD_Arch_FilePrefixPL->get(PT) == "NONE") ? OrganismFilePrefix : SSwD_Arch_FilePrefixPL->get(PT) + OrganismFilePrefix;
 
-	writeDataFiles = (PT == nullptr) ? SSwD_Arch_writeDataFilesPL->lookup() : PT->lookupBool("ARCHIVIST_SSWD-writeDataFiles");
-	writeOrganismFiles = (PT == nullptr) ? SSwD_Arch_writeOrganismFilesPL->lookup() : PT->lookupBool("ARCHIVIST_SSWD-writeOrganismFiles");
+	writeDataFiles = SSwD_Arch_writeDataFilesPL->get(PT);
+	writeOrganismFiles = SSwD_Arch_writeOrganismFilesPL->get(PT);
 
-	string dataSequenceStr = (PT == nullptr) ? SSwD_Arch_dataSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-dataSequence");
-	string organismSequenceStr = (PT == nullptr) ? SSwD_Arch_organismSequenceStrPL->lookup() : PT->lookupString("ARCHIVIST_SSWD-organismSequence");
+	string dataSequenceStr = SSwD_Arch_dataSequenceStrPL->get(PT);
+	string organismSequenceStr = SSwD_Arch_organismSequenceStrPL->get(PT);
 
 	dataSequence.push_back(0);
 	organismSequence.push_back(0);
 
 	if (writeDataFiles != false) {
 		dataSequence.clear();
-		dataSequence = seq(dataSequenceStr, Global::updatesPL->lookup(), true);
+		dataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
 		if (dataSequence.size() == 0) {
 			cout << "unable to translate ARCHIVIST_SSWD-dataSequence \"" << dataSequenceStr << "\".\nExiting." << endl;
 			exit(1);
@@ -54,7 +53,7 @@ SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_
 	}
 
 	if (writeOrganismFiles != false) {
-		organismSequence = seq(organismSequenceStr, Global::updatesPL->lookup(), true);
+		organismSequence = seq(organismSequenceStr, Global::updatesPL->get(), true);
 		if (organismSequence.size() == 0) {
 			cout << "unable to translate ARCHIVIST_SSWD-organismSequence \"" << organismSequenceStr << "\".\nExiting." << endl;
 			exit(1);
@@ -150,7 +149,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			// if this is a data snapshot update we need to collect some info (who will be saved and oldest org to be saved)
 			vector<shared_ptr<Organism>> saveList;
 			int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org being saved in this update (init with random value)
-			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {
+			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->get()) {
 
 				if (saveNewOrgs) {
 					saveList = population;
@@ -174,7 +173,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					checkpoints[Global::update].push_back(org);
 					org->snapShotDataMaps[Global::update] = make_shared<DataMap>(org->dataMap);  // back up state of dataMap
 				}
-				if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {
+				if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->get()) {
 					// if this is a data interval, add ancestors to snapshot dataMap
 					// first we need to make sure that ancestor lists are up to date
 
@@ -251,7 +250,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 					if (saveNewOrgs || org->timeOfBirth < Global::update) { // if this org is set up to be saved in this snapshot
 						for (auto ancestor : org->ancestors) {
-							org->snapShotDataMaps[Global::update].Append("ancestors", ancestor);
+							org->snapShotDataMaps[Global::update].append("ancestors", ancestor);
 						}
 						org->ancestors.clear();  // clear ancestors (this data is safe in the checkPoint)
 						org->ancestors.insert(org->ID);  // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
@@ -269,22 +268,22 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 					org->trackOrganism = true; // since this update is in the genome sequence, set the flag to track genome
 				}
 			}
-			if (Global::update == nextOrganismCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a genome checkpoint, advance nextGenomeCheckPoint to get ready for the next interval
+			if (Global::update == nextOrganismCheckPoint && Global::update <= Global::updatesPL->get()) {  // we have now made a genome checkpoint, advance nextGenomeCheckPoint to get ready for the next interval
 				if ((int)organismSequence.size() > checkPointOrganismSeqIndex + 1) {
 					checkPointOrganismSeqIndex++;
 					nextOrganismCheckPoint = organismSequence[checkPointOrganismSeqIndex];
 				}
 				else {
-					nextOrganismCheckPoint = Global::updatesPL->lookup() + 1;
+					nextOrganismCheckPoint = Global::updatesPL->get() + 1;
 				}
 			}
-			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->lookup()) {  // we have now made a data checkpoint, advance nextDataCheckPoint to get ready for the next interval
+			if (Global::update == nextDataCheckPoint && Global::update <= Global::updatesPL->get()) {  // we have now made a data checkpoint, advance nextDataCheckPoint to get ready for the next interval
 				if ((int)dataSequence.size() > checkPointDataSeqIndex + 1) {
 					checkPointDataSeqIndex++;
 					nextDataCheckPoint = dataSequence[checkPointDataSeqIndex];
 				}
 				else {
-					nextDataCheckPoint = Global::updatesPL->lookup() + 1;
+					nextDataCheckPoint = Global::updatesPL->get() + 1;
 				}
 			}
 		}
@@ -293,7 +292,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 
 		////// WRITING ORGANISMS
 
-		if ((Global::update == nextOrganismWrite + organismDelay) && (nextOrganismWrite <= Global::updatesPL->lookup()) && writeOrganismFiles) {  // now it's time to write genomes in the checkpoint at time nextGenomeWrite
+		if ((Global::update == nextOrganismWrite + organismDelay) && (nextOrganismWrite <= Global::updatesPL->get()) && writeOrganismFiles) {  // now it's time to write genomes in the checkpoint at time nextGenomeWrite
 			string organismFileName = OrganismFilePrefix + "_" + to_string(nextOrganismWrite) + ".csv";
 
 			//string dataString;
@@ -302,16 +301,16 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				if (auto org = checkpoints[nextOrganismWrite][index].lock()) {  // this ptr is still good
 
 					DataMap OrgMap;
-					OrgMap.Set("ID", org->ID);
+					OrgMap.set("ID", org->ID);
 					string tempName;
 
 					for (auto genome : org->genomes) {
 						tempName = "GENOME_" + genome.first;
-						OrgMap.Merge(genome.second->serialize(tempName));
+						OrgMap.merge(genome.second->serialize(tempName));
 					}
 					for (auto brain : org->brains) {
 						tempName = "BRAIN_" + brain.first;
-						OrgMap.Merge(brain.second->serialize(tempName));
+						OrgMap.merge(brain.second->serialize(tempName));
 					}
 					OrgMap.writeToFile(organismFileName); // append new data to the file
 					index++;
@@ -330,13 +329,13 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				nextOrganismWrite = organismSequence[writeOrganismSeqIndex];  //genomeInterval;
 			}
 			else {
-				nextOrganismWrite = Global::updatesPL->lookup() + 1;
+				nextOrganismWrite = Global::updatesPL->get() + 1;
 			}
 		}
 
 		////// WRITING DATA
 
-		if ((Global::update == nextDataWrite + dataDelay) && (nextDataWrite <= Global::updatesPL->lookup()) && writeDataFiles) {  // now it's time to write data in the checkpoint at time nextDataWrite
+		if ((Global::update == nextDataWrite + dataDelay) && (nextDataWrite <= Global::updatesPL->get()) && writeDataFiles) {  // now it's time to write data in the checkpoint at time nextDataWrite
 			string dataFileName = DataFilePrefix + "_" + to_string(nextDataWrite) + ".csv";
 
 			// if file info has not been initialized yet, find a valid org and extract it's keys
@@ -368,7 +367,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 			while (index < checkpoints[nextDataWrite].size()) {
 				if (auto org = checkpoints[nextDataWrite][index].lock()) {  // this ptr is still good
 					//processAllLists(org->snapShotDataMaps[nextDataWrite]);
-					org->snapShotDataMaps[nextDataWrite].Set("update", nextDataWrite);
+					org->snapShotDataMaps[nextDataWrite].set("update", nextDataWrite);
 					org->snapShotDataMaps[nextDataWrite].setOutputBehavior("update", DataMap::FIRST);
 					org->snapShotDataMaps[nextDataWrite].writeToFile(dataFileName, files["data"]);  // append new data to the file
 					index++;  // advance to nex element
@@ -383,12 +382,12 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 				nextDataWrite = dataSequence[writeDataSeqIndex];  //genomeInterval;
 			}
 			else {
-				nextDataWrite = Global::updatesPL->lookup() + 1;
+				nextDataWrite = Global::updatesPL->get() + 1;
 			}
 		}
 	}
 	// if enough time has passed to save all data and genomes, then we are done!
-	finished = finished || ((nextDataWrite > Global::updatesPL->lookup() || !(writeDataFiles)) && (nextOrganismWrite > Global::updatesPL->lookup() || !(writeOrganismFiles)) && Global::update >= Global::updatesPL->lookup());
+	finished = finished || ((nextDataWrite > Global::updatesPL->get() || !(writeDataFiles)) && (nextOrganismWrite > Global::updatesPL->get() || !(writeOrganismFiles)) && Global::update >= Global::updatesPL->get());
 
 	////////////////////////////////////////////////
 	//
@@ -400,7 +399,7 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) 
 	for (auto org : population) {  // we don't need to worry about tracking parents or lineage, so we clear out this data every generation.
 		if (!writeSnapshotDataFiles && !writeDataFiles && !writeOrganismFiles) {
 			org->parents.clear();
-			cout << "HERE?" << endl;
+			//cout << "HERE?" << endl;
 		}
 		else if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end() && org->ancestors.find(org->ID) != org->ancestors.end() && (org->timeOfDeath < (Global::update - max(dataDelay, organismDelay)))) { // if ancestors and snapshotAncestors contains self, then this org has been saved and it's ancestor list has been collapsed
 			org->parents.clear();

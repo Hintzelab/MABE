@@ -11,13 +11,13 @@
 #include "../IPDBrain/IPDBrain.h"
 
 shared_ptr<ParameterLink<string>> IPDBrain::availableStrategiesPL = Parameters::register_parameter("BRAIN_IPD-availableStrategies", (string)"[AllD,AllC,TFT,2TFT,TF2T,SIMP,Rand]", "list of strategies which this brain can use");
-shared_ptr<ParameterLink<string>> IPDBrain::genomeNamePL = Parameters::register_parameter("BRAIN_IPD_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> IPDBrain::genomeNamePL = Parameters::register_parameter("BRAIN_IPD_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
-	convertCSVListToVector((PT == nullptr) ? availableStrategiesPL->lookup() : PT->lookupString("BRAIN_IPD-availableStrategies"), availableStrategies);
-	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_IPD_NAMES-genomeName");
+	convertCSVListToVector(availableStrategiesPL->get(PT), availableStrategies);
+	genomeName = genomeNamePL->get(PT);
 
 // columns to be added to ave file
 	popFileColumns.clear();
@@ -28,7 +28,7 @@ IPDBrain::IPDBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 
 shared_ptr<AbstractBrain> IPDBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 
-	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues);
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues, PT);
 	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
 
 	newBrain->strategy = availableStrategies[genomeHandler->readInt(0, ((int)availableStrategies.size())-1, 77, 0)];
@@ -36,8 +36,8 @@ shared_ptr<AbstractBrain> IPDBrain::makeBrain(unordered_map<string, shared_ptr<A
 	return newBrain;
 }
 
-shared_ptr<AbstractBrain> IPDBrain::makeBrainFromValues(vector<double> values) {
-	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues);
+shared_ptr<AbstractBrain> IPDBrain::makeBrainFromValues(vector<double> values, shared_ptr<ParametersTable> _PT) {
+	shared_ptr<IPDBrain> newBrain = make_shared<IPDBrain>(nrInputValues, nrOutputValues, _PT);
 
 	newBrain->strategy = availableStrategies[int(values[0]) % (int)availableStrategies.size()];
 
@@ -142,15 +142,15 @@ DataMap IPDBrain::getStats(string& prefix) {
 
 	for (auto i : availableStrategies) {
 		if (strategy == i){
-			dataMap.Set(prefix + "ipdBrainStrategy" + i,1.0);
+			dataMap.set(prefix + "ipdBrainStrategy" + i,1.0);
 		} else {
-			dataMap.Set(prefix + "ipdBrainStrategy" + i,0.0);
+			dataMap.set(prefix + "ipdBrainStrategy" + i,0.0);
 		}
 	}
 	return (dataMap);
 }
 
-void IPDBrain::initalizeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void IPDBrain::initializeGenome(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	_genomes[genomeName]->fillRandom();
 }
 

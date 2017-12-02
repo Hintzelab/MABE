@@ -98,14 +98,14 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			}
 
 			if (aveOnly) {
-				OB = OB & (AVE | FIRST | VAR); // if aveOnly, only output AVE on the entries that have been set for AVE
+				OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries that have been set for AVE
 			}
 
 			if (OB & FIRST) { // save first (only?) element in vector with key as column name
 				headerStr = headerStr + FileManager::separator + i;
 				if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
-					if (GetBoolVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + to_string(GetBoolVector(i)[0]);
+					if (getBoolVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(getBoolVector(i)[0]);
 					}
 					else {
 						dataStr = dataStr + '0';
@@ -113,8 +113,8 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 					}
 				}
 				if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
-					if (GetDoubleVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + to_string(GetDoubleVector(i)[0]);
+					if (getDoubleVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(getDoubleVector(i)[0]);
 					}
 					else {
 						dataStr = dataStr + '0';
@@ -122,8 +122,8 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 					}
 				}
 				if (typeOfKey == INT || typeOfKey == INTSOLO) {
-					if (GetIntVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + to_string(GetIntVector(i)[0]);
+					if (getIntVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + to_string(getIntVector(i)[0]);
 					}
 					else {
 						dataStr = dataStr + '0';
@@ -131,8 +131,8 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 					}
 				}
 				if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-					if (GetStringVector(i).size() > 0) {
-						dataStr = dataStr + FileManager::separator + GetStringVector(i)[0];
+					if (getStringVector(i).size() > 0) {
+						dataStr = dataStr + FileManager::separator + getStringVector(i)[0];
 					}
 					else {
 						dataStr = dataStr + '0';
@@ -143,15 +143,15 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			}
 			if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
 				headerStr = headerStr + FileManager::separator + i + "_AVE";
-				dataStr = dataStr + FileManager::separator + to_string(GetAverage(i));
+				dataStr = dataStr + FileManager::separator + to_string(getAverage(i));
 			}
 			if (OB & VAR) { // key_VAR = variance of vector (will error if of type string!)
 				headerStr = headerStr + FileManager::separator + i + "_VAR";
-				dataStr = dataStr + FileManager::separator + to_string(GetVariance(i));
+				dataStr = dataStr + FileManager::separator + to_string(getVariance(i));
 			}
 			if (OB & SUM) { // key_SUM = sum of vector
 				headerStr = headerStr + FileManager::separator + i + "_SUM";
-				dataStr = dataStr + FileManager::separator + to_string(GetSum(i));
+				dataStr = dataStr + FileManager::separator + to_string(getSum(i));
 			}
 			if (OB & PROD) { // key_PROD = product of vector
 				cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!" << endl;
@@ -161,7 +161,7 @@ void DataMap::constructHeaderAndDataStrings(string& headerStr, string& dataStr, 
 			}
 			if (OB & LIST) { //key_LIST = save all elements in vector in csv list format
 				headerStr = headerStr + FileManager::separator + i + "_LIST";
-				dataStr = dataStr + FileManager::separator + GetStringOfVector(i);
+				dataStr = dataStr + FileManager::separator + getStringOfVector(i);
 			}
 		}
 		headerStr.erase(headerStr.begin());  // clip off the leading separator

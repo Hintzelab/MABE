@@ -15,8 +15,8 @@ shared_ptr<ParameterLink<string>> HumanBrain::actionMapFileNamePL = Parameters::
 
 HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
-	useActionMap = (PT == nullptr) ? useActionMapPL->lookup() : PT->lookupBool("BRAIN_HUMAN-useActionMap");
-	actionMapFileName = (PT == nullptr) ? actionMapFileNamePL->lookup() : PT->lookupString("BRAIN_HUMAN-actionMapFileName");
+	useActionMap = useActionMapPL->get(PT);
+	actionMapFileName = actionMapFileNamePL->get(PT);
 
 
 	if (useActionMap) {  // if using an action map, load map with lines of format char output1 output2 output3... file must match brain # of outputs
@@ -114,7 +114,7 @@ DataMap HumanBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void HumanBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void HumanBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 // do nothing;
 }
 

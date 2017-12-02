@@ -11,16 +11,16 @@
 #include "SOFWorld.h"
 
 shared_ptr<ParameterLink<string>> SOFWorld::scoreMapFilenamePL = Parameters::register_parameter("WORLD_SOF-scoreMapFilename", (string)"World/SOFWorld/scoreMap_20x20_2peaks.txt", "name of file containing score map.");
-shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupName", (string)"root", "name of group to be evaluated");
-shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> SOFWorld::groupNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> SOFWorld::brainNamePL = Parameters::register_parameter("WORLD_SOF_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
 
 SOFWorld::SOFWorld(shared_ptr<ParametersTable> _PT) :
 AbstractWorld(_PT) {
 	x = y = 0;
 
-	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_SOF_NAMES-groupName");
-	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_SOF_NAMES-brainName");
+	string groupName = groupNamePL->get(PT);
+	brainName = brainNamePL->get(PT);
 
 	// columns to be added to ave file
 	popFileColumns.clear();
@@ -32,7 +32,7 @@ AbstractWorld(_PT) {
 	string rawLine;
 	int temp;
 	
-	string filename = (PT == nullptr) ? scoreMapFilenamePL->lookup() : PT->lookupString("WORLD_SOF-scoreMapFilename");
+	string filename = scoreMapFilenamePL->get(PT);
 
 	scoreMap.open(filename);
 	
@@ -97,9 +97,9 @@ void SOFWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 	}
 
 	//org->score = score;
-	org->dataMap.Append("score", score);
-	org->dataMap.Append("x", local_x);
-	org->dataMap.Append("y", local_y);
+	org->dataMap.append("score", score);
+	org->dataMap.append("x", local_x);
+	org->dataMap.append("y", local_y);
 }
 
 

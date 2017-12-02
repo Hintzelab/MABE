@@ -28,30 +28,30 @@ class CGPBrain: public AbstractBrain {
 public:
 
 	static shared_ptr<ParameterLink<int>> hiddenNodesPL;
-	int nrHiddenValues;
+	//int nrHiddenValues;
 
 	static shared_ptr<ParameterLink<string>> genomeNamePL;
-	string genomeName;
+	//string genomeName;
 
 	static shared_ptr<ParameterLink<string>> availableOperatorsPL;
 	vector<string> availableOperators;
 
 	static shared_ptr<ParameterLink<double>> magnitudeMaxPL;
 	static shared_ptr<ParameterLink<double>> magnitudeMinPL;
-	double magnitudeMax;
-	double magnitudeMin;
+	//double magnitudeMax;
+	//double magnitudeMin;
 
 	static shared_ptr<ParameterLink<int>> numOpsPreVectorPL;
-	int numOpsPreVector;
+	//int numOpsPreVector;
 
 	static shared_ptr<ParameterLink<string>> buildModePL;
-	string buildMode;
+	//string buildMode;
 
 	static shared_ptr<ParameterLink<int>> codonMaxPL;
-	int codonMax;
+	//int codonMax;
 
 	static shared_ptr<ParameterLink<bool>> readFromOutputsPL;
-	bool readFromOutputs;
+	//bool readFromOutputs;
 	
 	vector<double> readFromValues; // list of values that can be read from (inputs, outputs, hidden)
 	vector<double> writeToValues; // list of values that can be written to (there will be this number of trees) (outputs, hidden)
@@ -81,7 +81,7 @@ public:
 	}
 
 	virtual unordered_set<string> requiredGenomes() override {
-		return {genomeName};
+		return {genomeNamePL->get(PT) };
 	}
 
 
@@ -94,7 +94,7 @@ public:
 	virtual void resetBrain() override;
 
 	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 
 };
 

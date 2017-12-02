@@ -17,19 +17,17 @@ shared_ptr<ParameterLink<int>> MemoryWorld::worldUpdatesPL = Parameters::registe
 shared_ptr<ParameterLink<int>> MemoryWorld::refreshPasswordPL = Parameters::register_parameter("WORLD_MEMORY-refreshPassword", 1, "how often should the password be reset (0 = never, 1 = per generation, 2 = every eval)");
 shared_ptr<ParameterLink<int>> MemoryWorld::refreshMaskPL = Parameters::register_parameter("WORLD_MEMORY-refreshMask", 1, "how often should the mask be reset (0 = never, 1 = per generation, 2 = every eval)");
 
-shared_ptr<ParameterLink<string>> MemoryWorld::groupNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-groupName", (string)"root", "name of group to be evaluated");
-shared_ptr<ParameterLink<string>> MemoryWorld::brainNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-brainName", (string)"root", "name of brains used to control organisms\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> MemoryWorld::groupNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
+shared_ptr<ParameterLink<string>> MemoryWorld::brainNamePL = Parameters::register_parameter("WORLD_MEMORY_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
+
 
 MemoryWorld::MemoryWorld(shared_ptr<ParametersTable> _PT) :
 		AbstractWorld(_PT) {    
-	convertCSVListToVector((PT == nullptr) ? maskPL->lookup() : PT->lookupString("WORLD_MEMORY-mask"),rawMask);
-	evaluationsPerGeneration = (PT == nullptr) ? evaluationsPerGenerationPL->lookup() : PT->lookupInt("WORLD_MEMORY-evaluationsPerGeneration");
-	worldUpdates = (PT == nullptr) ? worldUpdatesPL->lookup() : PT->lookupInt("WORLD_MEMORY-worldUpdates");
-	refreshPassword = (PT == nullptr) ? refreshPasswordPL->lookup() : PT->lookupInt("WORLD_MEMORY-refreshPassword");
-	refreshMask = (PT == nullptr) ? refreshMaskPL->lookup() : PT->lookupInt("WORLD_MEMORY-refreshMask");
-
-	groupName = (PT == nullptr) ? groupNamePL->lookup() : PT->lookupString("WORLD_MEMORY_NAMES-groupName");
-	brainName = (PT == nullptr) ? brainNamePL->lookup() : PT->lookupString("WORLD_MEMORY_NAMES-brainName");
+	convertCSVListToVector(maskPL->get(PT),rawMask);
+	evaluationsPerGeneration = evaluationsPerGenerationPL->get(PT);
+	worldUpdates = worldUpdatesPL->get(PT);
+	refreshPassword = refreshPasswordPL->get(PT);
+	refreshMask = refreshMaskPL->get(PT);
 
 	cout << "mask: ";
 	for (auto mv : rawMask) {
@@ -108,12 +106,12 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
 	if (makeNewPassword) {
 		password.clear();
 		//fills password with worldUpdates+(outMask.size()-1) binary values (i.e. enough to run world updates + enough to program initial values in brain)
-		for (int i = 0; i < worldUpdates + mask.size(); i++) {
+		for (int i = 0; i < worldUpdates + (int)mask.size(); i++) {
 			password.push_back(Random::getInt(0, 1));
 		}
 	}
-	
-	auto brain = org->brains[brainName];
+
+	auto brain = org->brains[brainNamePL->get(PT)];
     brain->resetBrain();
 
 	// load initial values
@@ -153,15 +151,8 @@ void MemoryWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visual
     for(int i=0; i<(int)mask.size(); i++){
 		if (mask[i] != 0) {
 			score += scores[i];
-			org->dataMap.Append("Out" + to_string(i), scores[i] / (double)worldUpdates);
+			org->dataMap.append("Out" + to_string(i), scores[i] / (double)worldUpdates);
 		}
     }
-    org->dataMap.Append("score", 1 + (score / (worldUpdates*nOut)));
-}
-
-int MemoryWorld::requiredInputs() {
-	return 1;
-}
-int MemoryWorld::requiredOutputs() {
-    return nOut;
+    org->dataMap.append("score", pow(2.0, 1 + (score / (double)(worldUpdates))));
 }

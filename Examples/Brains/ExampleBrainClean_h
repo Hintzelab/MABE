@@ -1,0 +1,62 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/Hintzelab/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/Hintzelab/MABE/wiki/License
+
+#pragma once					// directive to insure that this .h file is only included one time
+
+#include "../../World/AbstractWorld.h" 
+
+
+// If your brain is (or maybe) constructed using a genome, you must include AbstractGenome.h
+#include "../../Genome/AbstractGenome.h"
+
+// AbstractBrain defines all the basic function templates for brains
+#include "../../Brain/AbstractBrain.h"
+
+using namespace std;
+
+class ExampleBrain : public AbstractBrain {
+public:
+	static shared_ptr<ParameterLink<string>> genomeNamePL;
+
+	ExampleBrain() = delete;
+	ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
+
+	virtual ~ExampleBrain() = default;
+
+	virtual void update() override;
+
+	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+
+	virtual shared_ptr<AbstractBrain> makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+
+	virtual shared_ptr<AbstractBrain> makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override ;
+
+	virtual void mutate();
+
+	virtual string description() override;
+	virtual DataMap getStats(string& prefix) override;
+	virtual string getType() override {
+		return "Example";
+	}
+
+	virtual void resetBrain() override;
+
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+
+	virtual unordered_set<string> requiredGenomes() override {
+		return {};
+	}
+
+};
+
+inline shared_ptr<AbstractBrain> ExampleBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
+	return make_shared<ExampleBrain>(ins, outs, PT);
+}

@@ -46,7 +46,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 		//cout << "threshold set from (" << thresholdFromNode << ") = ";
 		thresholdValue = nodes[thresholdFromNode];
 		// clip to [min,max]
-		thresholdValue = max(defaultThresholdMinPL->lookup(),min(defaultThresholdMaxPL->lookup(),thresholdValue));
+		thresholdValue = max(defaultThresholdMin,min(defaultThresholdMax,thresholdValue));
 
 		//cout << thresholdValue << endl;
 	}
@@ -104,7 +104,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 
 		// clip to [min,max]
 		localDeliveryCharge *= (1.0 - Random::getDouble(0, deliveryError));
-		localDeliveryCharge = max(defaultDeliveryChargeMinPL->lookup(),min(defaultDeliveryChargeMaxPL->lookup(),localDeliveryCharge));
+		localDeliveryCharge = max(defaultDeliveryChargeMin,min(defaultDeliveryChargeMax,localDeliveryCharge));
 
 		nextnodes[outputs[0]] += localDeliveryCharge;
 
@@ -243,6 +243,8 @@ shared_ptr<AbstractGate> NeuronGate::makeCopy(shared_ptr<ParametersTable> _PT)
 	newGate->currentCharge = currentCharge;
 	newGate->thresholdFromNode = thresholdFromNode;
 	newGate->deliveryChargeFromNode = deliveryChargeFromNode;
+	newGate->defaultThresholdMin = defaultThresholdMin;
+	newGate->defaultThresholdMax = defaultThresholdMax;
 
 	return newGate;
 }

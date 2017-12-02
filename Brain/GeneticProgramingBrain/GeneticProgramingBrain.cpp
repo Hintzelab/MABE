@@ -10,20 +10,14 @@
 
 #include "../GeneticProgramingBrain/GeneticProgramingBrain.h"
 
-//shared_ptr<ParameterLink<double>> GeneticProgramingBrain::valueMinPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMin", 0.0, "Minmum value that brain will deliver");
-//shared_ptr<ParameterLink<double>> GeneticProgramingBrain::valueMaxPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMax", 100.0, "Maximum value that brain will deliver");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::valueTypePL = Parameters::register_parameter("BRAIN_CONSTANT-valueType", 0, "0 = int, 1 = double");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::samplesPerValuePL = Parameters::register_parameter("BRAIN_CONSTANT-samplesPerValue", 1, "for each brain value, this many samples will be taken from genome and averaged");
-
-//shared_ptr<ParameterLink<bool>> GeneticProgramingBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
-//shared_ptr<ParameterLink<bool>> GeneticProgramingBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
-//shared_ptr<ParameterLink<int>> GeneticProgramingBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
-
 shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeTypes, int depth, int maxDepth) {
 	if (depth < maxDepth) {
 		shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 		vector<shared_ptr<Abstract_MTree>> branches;
-		int numBranches = (op->numBranches() > 0) ? op->numBranches() : Random::getInt(2, 4);
+		int numBranches = op->numBranches()[Random::getIndex(op->numBranches().size())];
+		if (numBranches < 0) {
+			numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+		}
 		for (int branchCount = 0; branchCount < numBranches; branchCount++) { // determine number of branches and make a tree for each branch
 			branches.push_back(makeTree(nodeTypes, depth + 1, maxDepth));
 		}
@@ -39,17 +33,7 @@ shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeT
 }
 GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
-	//valueMin = (PT == nullptr) ? valueMinPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMin");
-	//valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
-	//valueType = (PT == nullptr) ? valueTypePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-valueType");
-	//samplesPerValue = (PT == nullptr) ? samplesPerValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-samplesPerValue");
-
-	//initializeUniform = (PT == nullptr) ? initializeUniformPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeUniform");
-	//initializeConstant = (PT == nullptr) ? initializeConstantPL->lookup() : PT->lookupBool("BRAIN_CONSTANT-initializeConstant");
-	//initializeConstantValue = (PT == nullptr) ? initializeConstantValuePL->lookup() : PT->lookupInt("BRAIN_CONSTANT-initializeConstantValue");
-	
-	//cout << "init" << endl;
-	
+		
 	initialTreeDepth = 3;
 	nodeTypes = { "SUM","MULT","SUBTRACT","DIVIDE","SIN","COS","VECT" };
 
@@ -186,7 +170,10 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 			if (pickNode->parent == nullptr) { // the root was picked
 				trees[treeIndex] = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 				trees[treeIndex]->branches = pickNode->branches;
-				int numBranches = (trees[treeIndex]->numBranches() > 0) ? trees[treeIndex]->numBranches() : Random::getInt(2, 4);
+				int numBranches = trees[treeIndex]->numBranches()[Random::getIndex(trees[treeIndex]->numBranches().size())];
+				if (numBranches < 0) {
+					numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+				}
 				while ((int)trees[treeIndex]->branches.size() < numBranches) { // we need more branches
 					trees[treeIndex]->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 				}
@@ -202,7 +189,11 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 					shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 					op->branches = pickNode->branches;
 
-					int numBranches = (op->numBranches() > 0) ? op->numBranches() : Random::getInt(2, 4);
+					int numBranches = op->numBranches()[Random::getIndex(op->numBranches().size())];
+					if (numBranches < 0) {
+						numBranches = Random::getInt(abs(numBranches), abs(numBranches) + 4);
+					}
+
 					while ((int)op->branches.size() < numBranches) { // we need more branches
 						op->branches.push_back(makeTree(nodeTypes, 0, initialTreeDepth - 1));
 					}
@@ -259,20 +250,20 @@ DataMap GeneticProgramingBrain::getStats(string& prefix) {
 		t->explode(t, nodesList);
 		nodesCount = (int)nodesList.size();
 	}
-	dataMap.Append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
+	dataMap.append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
 	return (dataMap);
 }
 
 DataMap GeneticProgramingBrain::serialize(string& name) {
 	DataMap serialDataMap;
 	int numFormula = (int)trees.size();
-	serialDataMap.Set(name + "_numFormula", numFormula);
+	serialDataMap.set(name + "_numFormula", numFormula);
 	string formula = "\"[";
 	for (int i = 0; i < numFormula; i++) {
 		formula = formula + trees[i]->getFormula() + "::";
 	}
 	formula += "]\"";
-	serialDataMap.Set(name + "_formulas", formula);
+	serialDataMap.set(name + "_formulas", formula);
 	return serialDataMap;
 }
 

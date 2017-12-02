@@ -198,24 +198,24 @@ public:
 
 	map<string,map<string,WorldMap>> worldMaps; // [fileName][mapName]
 
-	BerryWorld(shared_ptr<ParametersTable> _PT = nullptr);
+	BerryWorld(shared_ptr<ParametersTable> _PT);
 
 
 	// old evaluate with group eval (keep for now so we can move it into berry world
 
 	void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override {
 
-		int groupSize = groups[groupName]->population.size();
+		int groupSize = groups[groupNamePL->get(PT)]->population.size();
 		if (groupEvaluation) {
 			for (int r = 0; r < repeats; r++) {
-				runWorld(groups[groupName], analyse, visualize, debug);
+				runWorld(groups[groupNamePL->get(PT)], analyse, visualize, debug);
 			}
 		} else {
 			vector<shared_ptr<Organism>> soloPopulation;
-			shared_ptr<Group> soloGroup = make_shared<Group>(soloPopulation, groups[groupName]->optimizer, groups[groupName]->archivist);
+			shared_ptr<Group> soloGroup = make_shared<Group>(soloPopulation, groups[groupNamePL->get(PT)]->optimizer, groups[groupNamePL->get(PT)]->archivist);
 			for (int i = 0; i < groupSize; i++) {
 				soloGroup->population.clear();
-				soloGroup->population.push_back(groups[groupName]->population[i]);
+				soloGroup->population.push_back(groups[groupNamePL->get(PT)]->population[i]);
 				for (int r = 0; r < repeats; r++) {
 					runWorld(soloGroup, analyse, visualize, debug);
 				}
@@ -351,7 +351,7 @@ public:
 	void printGrid(vector<int> grid, pair<int, int> loc, int facing);
 	
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		return { { groupName,{"B:"+ brainName+","+to_string(inputNodesCount)+","+to_string(outputNodesCount)}} }; // default requires a root group and a brain (in root namespace) and no genome 
+		return { { groupNamePL->get(PT),{"B:"+ brainNamePL->get(PT) +","+to_string(inputNodesCount)+","+to_string(outputNodesCount)}} }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 	void SaveWorldState(string fileName, vector<int> grid, vector<int> vistedGrid, vector<pair<int, int>> currentLocation, vector<int> facing, bool reset = false);

@@ -41,7 +41,7 @@ public:
     
 	LSTMBrain() = delete;
 
-	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
 
 	virtual ~LSTMBrain() = default;
 
@@ -58,7 +58,7 @@ public:
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
     
     double fastSigmoid(double value){
         return  value / (1.0 + fabs(value));
@@ -73,7 +73,7 @@ public:
     virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
-		return { genomeName };
+		return { genomeNamePL->get(PT) };
 	}
 
 };

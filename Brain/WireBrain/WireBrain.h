@@ -130,7 +130,7 @@ public:
 	WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~WireBrain() = default;
 
-	virtual void initalize();
+	virtual void initialize();
 	virtual void connectPruneAndSetPopColumns(vector<pair<int, int>> wormholeList);
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
@@ -146,7 +146,7 @@ public:
 		return "Wire";
 	}
 
-	virtual void initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 	virtual unordered_set<string> requiredGenomes() override {
 		return { genomeName };
 	}

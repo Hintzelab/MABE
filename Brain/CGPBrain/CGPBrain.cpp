@@ -19,7 +19,7 @@ shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMaxPL = Parameters::registe
 shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMinPL = Parameters::register_parameter("BRAIN_CGP-magnitudeMin", -1000000000.0, "values generated which are smaller then this will by clipped");
 shared_ptr<ParameterLink<int>> CGPBrain::numOpsPreVectorPL = Parameters::register_parameter("BRAIN_CGP-operatorsPreFormula", 8, "number of instructions per formula. Ignored if buildMode is \"genes\"");
 
-shared_ptr<ParameterLink<string>> CGPBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> CGPBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 shared_ptr<ParameterLink<string>> CGPBrain::buildModePL = Parameters::register_parameter("BRAIN_CGP-buildMode", (string)"linear", "How is the genome converted, \"linear\" : linear conversion starting at begining of genome, \"codon\" : start codons locate operator+in1+in2 along with the formula/output index and a location in formula");
 shared_ptr<ParameterLink<int>> CGPBrain::codonMaxPL = Parameters::register_parameter("BRAIN_CGP-codonMax", 100, "if using \"genes\" buildMode, values will be extracted from genome as integers [0..codonMax] and two sites that add to codonMax defines a start codon");
@@ -29,17 +29,17 @@ shared_ptr<ParameterLink<bool>> CGPBrain::readFromOutputsPL = Parameters::regist
 CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 	AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
-	convertCSVListToVector((PT == nullptr) ? availableOperatorsPL->lookup() : PT->lookupString("BRAIN_CGP-availableOperators"), availableOperators);
-	nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() : PT->lookupInt("BRAIN_CGP-hiddenNodes");
-	magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() : PT->lookupDouble("BRAIN_CGP-magnitudeMax");
-	magnitudeMin = (PT == nullptr) ? magnitudeMinPL->lookup() : PT->lookupDouble("BRAIN_CGP-magnitudeMin");
-	numOpsPreVector = (PT == nullptr) ? numOpsPreVectorPL->lookup() : PT->lookupInt("BRAIN_CGP-operatorsPreFormula");
+	convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
+	//nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() : PT->lookupInt("BRAIN_CGP-hiddenNodes");
+	//magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() : PT->lookupDouble("BRAIN_CGP-magnitudeMax");
+	//magnitudeMin = (PT == nullptr) ? magnitudeMinPL->lookup() : PT->lookupDouble("BRAIN_CGP-magnitudeMin");
+	//numOpsPreVector = (PT == nullptr) ? numOpsPreVectorPL->lookup() : PT->lookupInt("BRAIN_CGP-operatorsPreFormula");
 
-	buildMode = (PT == nullptr) ? buildModePL->lookup() : PT->lookupString("BRAIN_CGP-buildMode");
-	codonMax = (PT == nullptr) ? codonMaxPL->lookup() : PT->lookupInt("BRAIN_CGP-codonMax");
+	//buildMode = (PT == nullptr) ? buildModePL->lookup() : PT->lookupString("BRAIN_CGP-buildMode");
+	//codonMax = (PT == nullptr) ? codonMaxPL->lookup() : PT->lookupInt("BRAIN_CGP-codonMax");
 
-	readFromOutputs = (PT == nullptr) ? readFromOutputsPL->lookup() : PT->lookupBool("BRAIN_CGP-readFromOutputs");
-	//cout << "init" << endl;
+	//readFromOutputs = (PT == nullptr) ? readFromOutputsPL->lookup() : PT->lookupBool("BRAIN_CGP-readFromOutputs");
+
 
 	allOps = { { "SUM",0 },{ "MULT",1 },{ "SUBTRACT",2 },{ "DIVIDE",3 },{ "SIN",4 },{ "COS",5 },{"THRESH",6},{"RAND",7},{"IF",8},{ "INV",9} };
 
@@ -60,19 +60,17 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 
 	availableOpsCount = availableOps.size();
 
-	nrInputTotal = nrInputValues + ((readFromOutputs) ? nrOutputValues : 0) + nrHiddenValues;
-	nrOutputTotal = nrOutputValues + nrHiddenValues;
+	nrInputTotal = nrInputValues + ((readFromOutputsPL->get(PT)) ? nrOutputValues : 0) + hiddenNodesPL->get(PT);
+	nrOutputTotal = nrOutputValues + hiddenNodesPL->get(PT);
 
 	readFromValues.resize(nrInputTotal, 0);
 	writeToValues.resize(nrOutputTotal, 0);
-
-	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_CGP_NAMES-genomeName");
 
 	brainVectors.clear();
 
 	// columns to be added to ave file
 	popFileColumns.clear();
-	if (buildMode == "codon") {
+	if (buildModePL->get(PT) == "codon") {
 		popFileColumns.push_back("cgpBrainAveFormulaLength");
 	}
 
@@ -82,18 +80,18 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 	CGPBrain(_nrInNodes, _nrOutNodes, _PT) {
 
 	brainVectors.resize(nrOutputTotal);
-	auto handler = _genomes[genomeName]->newHandler(_genomes[genomeName]);
+	auto handler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)]);
 	
-	if (buildMode == "linear") {
+	if (buildModePL->get(PT) == "linear") {
 		for (int f = 0; f < (nrOutputTotal); f++) {
-			for (int i = 0; i < numOpsPreVector; i++) {
+			for (int i = 0; i < numOpsPreVectorPL->get(PT); i++) {
 				brainVectors[f].push_back(availableOps[handler->readInt(0, availableOpsCount - 1)]);
 				brainVectors[f].push_back(handler->readInt(0, nrInputTotal + (i)-1)); // num inputs + num new values - 1 since first is 0 -1 more to correct for 0 indexing
 				brainVectors[f].push_back(handler->readInt(0, nrInputTotal + (i)-1));
 			}
 		}
 	}
-	else if (buildMode == "codon") {
+	else if (buildModePL->get(PT) == "codon") {
 #if CGPBRAIN_DEBUG == 1
 		cout << "building with genes" << endl;
 #endif
@@ -104,22 +102,22 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 
 		bool translation_Complete = false;
 
-		if (_genomes[genomeName]->isEmpty()) {
+		if (_genomes[genomeNamePL->get(PT)]->isEmpty()) {
 			translation_Complete = true;
 		}
 		else {
 
 			bool readForward = true;
-			auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], readForward);
-			auto placeHolderGenomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], readForward);
-			auto gateGenomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], readForward);
+			auto genomeHandler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)], readForward);
+			auto placeHolderGenomeHandler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)], readForward);
+			auto gateGenomeHandler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)], readForward);
 
 			// save start of genome info
 			int i = 0;
 
 			int testSite1Value, testSite2Value;
-			testSite1Value = genomeHandler->readInt(0, codonMax);
-			testSite2Value = genomeHandler->readInt(0, codonMax);
+			testSite1Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
+			testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
 			while (!translation_Complete) {
 				if (genomeHandler->atEOC()) {  // if genomeIndex > testIndex, testIndex has wrapped and we are done translating
 					if (genomeHandler->atEOG()) {
@@ -127,27 +125,27 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 					}
 					genomeHandler->resetHandlerOnChromosome();  // reset to start of this chromosome
 					genomeHandler->copyTo(placeHolderGenomeHandler);  // move placeholder to the next chromosome aswell so mustReadAll method works
-					testSite2Value = genomeHandler->readInt(0, codonMax);  // place first value in new chromosome in testSite2 so !mustReadAll method works
+					testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));  // place first value in new chromosome in testSite2 so !mustReadAll method works
 				}
-				else if (testSite1Value + testSite2Value == codonMax) {  // if we found a start codon
+				else if (testSite1Value + testSite2Value == codonMaxPL->get(PT)) {  // if we found a start codon
 #if CGPBRAIN_DEBUG == 1
 					cout << "\nstart codon found: " << testSite1Value << "   " << testSite2Value << endl;
 #endif
 					genomeHandler->copyTo(gateGenomeHandler);
 					gateGenomeHandler->toggleReadDirection();
-					gateGenomeHandler->readInt(0, codonMax);  // move back 2 start codon values
-					gateGenomeHandler->readInt(0, codonMax);
+					gateGenomeHandler->readInt(0, codonMaxPL->get(PT));  // move back 2 start codon values
+					gateGenomeHandler->readInt(0, codonMaxPL->get(PT));
 					gateGenomeHandler->toggleReadDirection();  // reverse the read direction again
-					gateGenomeHandler->readInt(0, codonMax, 1, 0);  // mark start codon in genomes coding region
-					gateGenomeHandler->readInt(0, codonMax, 1, 0);
+					gateGenomeHandler->readInt(0, codonMaxPL->get(PT), 1, 0);  // mark start codon in genomes coding region
+					gateGenomeHandler->readInt(0, codonMaxPL->get(PT), 1, 0);
 
 					// Which formula is this op in?
 
 					int f = gateGenomeHandler->readInt(0, nrOutputTotal - 1);
 					// Now read the opperator and inputs
 					int op = availableOps[gateGenomeHandler->readInt(0, availableOpsCount - 1,2)];
-					int in1 = gateGenomeHandler->readInt(0, _genomes[genomeName]->getAlphabetSize() - 1,2);
-					int in2 = gateGenomeHandler->readInt(0, _genomes[genomeName]->getAlphabetSize() - 1,2);
+					int in1 = gateGenomeHandler->readInt(0, (int)(_genomes[genomeNamePL->get(PT)]->getAlphabetSize() - 1),2);
+					int in2 = gateGenomeHandler->readInt(0, (int)(_genomes[genomeNamePL->get(PT)]->getAlphabetSize() - 1),2);
 #if CGPBRAIN_DEBUG == 1
 					cout << "got values:   f: " << f << "  op : " << op << "  in1: " << in1 << "  in2: " << in2 << endl;
 #endif					
@@ -213,12 +211,12 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 				if (0) {//mustReadAll) {  // if start codon values are bigger then the alphabetSize of the genome, we must step forward one genome site at a time (slow)
 					placeHolderGenomeHandler->advanceIndex();
 					placeHolderGenomeHandler->copyTo(genomeHandler);
-					testSite1Value = genomeHandler->readInt(0, codonMax);
-					testSite2Value = genomeHandler->readInt(0, codonMax);
+					testSite1Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
+					testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
 				}
 				else {  // we know that start codon values fit in a single site, so we can be clever
 					testSite1Value = testSite2Value;
-					testSite2Value = genomeHandler->readInt(0, codonMax);
+					testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
 				}
 				//cout << testSite1Value << " + " << testSite2Value << " = " << testSite1Value + testSite2Value << endl;
 			}
@@ -227,7 +225,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 #if CGPBRAIN_DEBUG == 1
 				cout << "f: " << f << "  :: ";
 #endif
-				for (int i = 0; i < brainVectors[f].size(); i+=3) {
+				for (int i = 0; i < (int)brainVectors[f].size(); i+=3) {
 #if CGPBRAIN_DEBUG == 1
 					cout << brainVectors[f][i] << "  ";
 					cout << " (" << brainVectors[f][i + 1] << "%" << nrInputTotal + (i / 3) << ") ";
@@ -250,7 +248,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared
 		}
 	}
 	else {
-		cout << "\n\nIn CGP constructor, found unknown buildMode \"" << buildMode << "\".\n exiting." << endl;
+		cout << "\n\nIn CGP constructor, found unknown buildMode \"" << buildModePL->get(PT) << "\".\n exiting." << endl;
 		exit(1);
 	}
 }
@@ -268,13 +266,13 @@ void CGPBrain::update() {
 	for (int index = 0; index < nrInputValues; index++) { // copy input values into readFromValues
 		readFromValues[index] = inputValues[index];
 	}
-	if (readFromOutputs) { // if readFromOutputs, then add last outputs
+	if (readFromOutputsPL->get(PT)) { // if readFromOutputs, then add last outputs
 		for (int index = 0; index < nrOutputValues; index++) {
 			readFromValues[index + nrInputValues] = writeToValues[index];
 		}
 	}
-	for (int index = nrOutputValues; index < nrOutputValues + nrHiddenValues; index++) { // add hidden values from writeToValues
-		readFromValues[index + nrInputValues - ((!readFromOutputs)? nrOutputValues:0)] = writeToValues[(index)];
+	for (int index = nrOutputValues; index < nrOutputValues + hiddenNodesPL->get(PT); index++) { // add hidden values from writeToValues
+		readFromValues[index + nrInputValues - ((!readFromOutputsPL->get(PT))? nrOutputValues:0)] = writeToValues[(index)];
 	}
 
 	DataMap dataMap;
@@ -283,14 +281,15 @@ void CGPBrain::update() {
 #if CGPBRAIN_DEBUG == 1
 	cout << "***********************************\nSTART" << endl;
 #endif
-
-	for (int vec = 0; vec < brainVectors.size(); vec++) {
+	auto magnitudeMax = magnitudeMaxPL->get(PT);
+	auto magnitudeMin = magnitudeMinPL->get(PT);
+	for (int vec = 0; vec < (int)brainVectors.size(); vec++) {
 #if CGPBRAIN_DEBUG == 1
 		cout << "vec: " << vec << endl;
 #endif
 		values.clear();
 		values = readFromValues;
-		for (int site = 0; site < brainVectors[vec].size(); site += 3) {
+		for (int site = 0; site < (int)brainVectors[vec].size(); site += 3) {
 			double op1 = values[brainVectors[vec][site + 1]];
 			double op2 = values[brainVectors[vec][site + 2]];
 			switch (brainVectors[vec][site]) {
@@ -393,20 +392,20 @@ DataMap CGPBrain::getStats(string& prefix) {
 	DataMap dataMap;
 
 	double aveFormulaLength = 0.0;
-	if (buildMode == "codon") {
+	if (buildModePL->get(PT) == "codon") {
 		for (auto vec : brainVectors) {
 			aveFormulaLength += (double)(vec.size());
 		}
 		aveFormulaLength /= double(brainVectors.size());
-		dataMap.Set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
+		dataMap.set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
 	}
 	// get stats
 	//cout << "warning:: getStats for CGPBrain needs to be written." << endl;
 	return (dataMap);
 }
 
-void CGPBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-	_genomes[genomeName]->fillRandom();
+void CGPBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	_genomes[genomeNamePL->get(PT)]->fillRandom();
 }
 
 shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT)

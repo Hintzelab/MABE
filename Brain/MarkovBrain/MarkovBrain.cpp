@@ -12,18 +12,19 @@
 
 shared_ptr<ParameterLink<bool>> MarkovBrain::randomizeUnconnectedOutputsPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputs", false, "output nodes with no connections will be set randomly (default : false, behavior set to 0)");
 shared_ptr<ParameterLink<int>> MarkovBrain::randomizeUnconnectedOutputsTypePL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsType", 0, "determines type of values resulting from randomizeUnconnectedOutput [0 = int, 1 = double]");
-shared_ptr<ParameterLink<double>> MarkovBrain::randomizeUnconnectedOutputsMaxPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMax", 1.0, "random values resulting from randomizeUnconnectedOutput will be in the range of 0 to randomizeUnconnectedOutputsMax");
+shared_ptr<ParameterLink<double>> MarkovBrain::randomizeUnconnectedOutputsMinPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMin", 0.0, "random values resulting from randomizeUnconnectedOutput will be in the range of randomizeUnconnectedOutputsMin to randomizeUnconnectedOutputsMax");
+shared_ptr<ParameterLink<double>> MarkovBrain::randomizeUnconnectedOutputsMaxPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMax", 1.0, "random values resulting from randomizeUnconnectedOutput will be in the range of randomizeUnconnectedOutputsMin to randomizeUnconnectedOutputsMax");
 shared_ptr<ParameterLink<int>> MarkovBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN_MARKOV-hiddenNodes", 8, "number of hidden nodes");
-shared_ptr<ParameterLink<string>> MarkovBrain::genomeNamePL = Parameters::register_parameter("BRAIN_MARKOV-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> MarkovBrain::genomeNamePL = Parameters::register_parameter("BRAIN_MARKOV-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 void MarkovBrain::readParameters(){
-	randomizeUnconnectedOutputs = (PT == nullptr) ? randomizeUnconnectedOutputsPL->lookup() : PT->lookupBool("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputs");
-	randomizeUnconnectedOutputsType = (PT == nullptr) ? randomizeUnconnectedOutputsTypePL->lookup() : PT->lookupInt("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsType");
-	randomizeUnconnectedOutputsMax = (PT == nullptr) ? randomizeUnconnectedOutputsMaxPL->lookup() : PT->lookupDouble("BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsMax");
-
-	hiddenNodes = (PT == nullptr) ? hiddenNodesPL->lookup() : PT->lookupInt("BRAIN_MARKOV-hiddenNodes");
+	randomizeUnconnectedOutputs = randomizeUnconnectedOutputsPL->get(PT);
+	randomizeUnconnectedOutputsType = randomizeUnconnectedOutputsTypePL->get(PT);
+	randomizeUnconnectedOutputsMin = randomizeUnconnectedOutputsMinPL->get(PT);
+	randomizeUnconnectedOutputsMax = randomizeUnconnectedOutputsMaxPL->get(PT);
+	hiddenNodes = hiddenNodesPL->get(PT);
 	
-	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_MARKOV-genomeName");
+	genomeName = genomeNamePL->get(PT);
 	
 	nrNodes = nrInputValues + nrOutputValues + hiddenNodes;
 	nodes.resize(nrNodes, 0);
@@ -55,7 +56,7 @@ MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNode
 
 	readParameters();
 
-	makeNodeMap(nodeMap, Gate_Builder::bitsPerBrainAddressPL->lookup(), nrNodes);
+	makeNodeMap(nodeMap, Gate_Builder::bitsPerBrainAddressPL->get(), nrNodes);
 
 	// columns to be added to ave file
 	popFileColumns.clear();
@@ -115,13 +116,13 @@ void MarkovBrain::update() {
 				//cout << i << " : " << nextNodesConnections[i] << endl;
 				if (nextNodesConnections[nrInputValues+i] == 0) { // note nrInputValues+i gets us the index for the node related to each output
 		//cout << ".";
-					nextNodes[nrInputValues+i] = Random::getInt(0, (int) randomizeUnconnectedOutputsMax);
+					nextNodes[nrInputValues+i] = Random::getInt((int)randomizeUnconnectedOutputsMin, (int) randomizeUnconnectedOutputsMax);
 				}
 			}
 		} else if (randomizeUnconnectedOutputsType == 1) {
 			for (int i = 0; i < nrOutputValues; i++) {
 				if (nextNodesConnections[nrInputValues+i] == 0) {
-					nextNodes[nrInputValues+i] = Random::getDouble(0, randomizeUnconnectedOutputsMax);
+					nextNodes[nrInputValues+i] = Random::getDouble(randomizeUnconnectedOutputsMin, randomizeUnconnectedOutputsMax);
 				}
 			}
 		} else {
@@ -163,7 +164,7 @@ void MarkovBrain::fillInConnectionsLists() {
 }
 DataMap MarkovBrain::getStats(string& prefix) {
 	DataMap dataMap;
-	dataMap.Set(prefix+"markovBrainGates",(int)gates.size());
+	dataMap.set(prefix+"markovBrainGates",(int)gates.size());
 	map<string, int> gatecounts;
 	for (auto n : GLB->getInUseGateNames()) {
 		gatecounts[n + "Gates"] = 0;
@@ -173,7 +174,7 @@ DataMap MarkovBrain::getStats(string& prefix) {
 	}
 
 	for (auto n : GLB->getInUseGateNames()) {
-		dataMap.Set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
+		dataMap.set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
 	}
 
 	vector<int> nodesConnectionsList;
@@ -183,9 +184,9 @@ DataMap MarkovBrain::getStats(string& prefix) {
 		nodesConnectionsList.push_back(nodesConnections[i]);
 		nextNodesConnectionsList.push_back(nextNodesConnections[i]);
 	}
-	dataMap.Set(prefix+"markovBrain_nodesConnections", nodesConnectionsList);
+	dataMap.set(prefix+"markovBrain_nodesConnections", nodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nodesConnections", DataMap::LIST);
-	dataMap.Set(prefix+"markovBrain_nextNodesConnections", nextNodesConnectionsList);
+	dataMap.set(prefix+"markovBrain_nextNodesConnections", nextNodesConnectionsList);
 	dataMap.setOutputBehavior(prefix+"nextNodesConnections", DataMap::LIST);
 
 	return (dataMap);
@@ -225,8 +226,8 @@ int MarkovBrain::numGates() {
 	return brainSize();
 }
 
-void MarkovBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->lookup()) - 1;
+void MarkovBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->get()) - 1;
 	_genomes[genomeName]->fillRandom();
 
 	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName]);

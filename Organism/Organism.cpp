@@ -32,9 +32,9 @@ void Organism::initOrganism(shared_ptr<ParametersTable> _PT) {
 	offspringCount = 0;  // because it's alive;
 	timeOfBirth = Global::update;  // happy birthday!
 	timeOfDeath = -1;  // still alive
-	dataMap.Set("ID", ID);
-	dataMap.Set("alive", alive);
-	dataMap.Set("timeOfBirth", timeOfBirth);
+	dataMap.set("ID", ID);
+	dataMap.set("alive", alive);
+	dataMap.set("timeOfBirth", timeOfBirth);
 }
 
 
@@ -60,30 +60,30 @@ Organism::Organism(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, 
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
-		dataMap.Merge(genome.second->getStats(prefix));
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
-		dataMap.Merge(brain.second->getStats(prefix));
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	ancestors.insert(ID);  // it is it's own Ancestor for data tracking purposes
@@ -101,30 +101,30 @@ Organism::Organism(shared_ptr<Organism> from, unordered_map<string, shared_ptr<A
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
-		dataMap.Merge(genome.second->getStats(prefix));
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
-		dataMap.Merge(brain.second->getStats(prefix));
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	parents.push_back(from);
@@ -148,30 +148,30 @@ Organism::Organism(vector<shared_ptr<Organism>> from, unordered_map<string, shar
 
 	for (auto genome : genomes) { // collect stats from genomes
 		string prefix;
-		(genome.first == "root") ? prefix = "" : prefix = genome.first + "_";
-		dataMap.Merge(genome.second->getStats(prefix));
+		(genome.first == "root::") ? prefix = "" : prefix = genome.first;
+		dataMap.merge(genome.second->getStats(prefix));
 	}
 
 	brains = _brains;
 
 	for (auto brain : _brains) { // collect stats from brains
 		string prefix;
-		(brain.first == "root") ? prefix = "" : prefix = brain.first + "_";
-		dataMap.Merge(brain.second->getStats(prefix));
+		(brain.first == "root::") ? prefix = "" : prefix = brain.first;
+		dataMap.merge(brain.second->getStats(prefix));
 	}
 
-	if (genomes.count("root") == 0) {
+	if (genomes.count("root::") == 0) {
 		genome = nullptr;
 	}
 	else {
-		genome = genomes["root"];
+		genome = genomes["root::"];
 	}
 
-	if (brains.count("root") == 0) {
+	if (brains.count("root::") == 0) {
 		brain = nullptr;
 	}
 	else {
-		brain = brains["root"];
+		brain = brains["root::"];
 	}
 
 	for (auto parent : from) {
@@ -307,29 +307,26 @@ shared_ptr<Organism> Organism::getMostRecentCommonAncestor(vector<shared_ptr<Org
 
 
 shared_ptr<Organism> Organism::makeCopy(shared_ptr<ParametersTable> _PT) {
-	if (_PT == nullptr) {
-		_PT = PT;
-	}
 	auto newOrg = make_shared<Organism>(_PT);
 	for (auto genome : genomes) {
-		newOrg->genomes[genome.first] = genome.second->makeCopy();
+		newOrg->genomes[genome.first] = genome.second->makeCopy(genome.second->PT);
 	}
 	for (auto brain : brains) {
-		newOrg->brains[brain.first] = brain.second->makeCopy();
+		newOrg->brains[brain.first] = brain.second->makeCopy(brain.second->PT);
 	}
 
-	if (newOrg->genomes.count("root") == 0) {
+	if (newOrg->genomes.count("root::") == 0) {
 		newOrg->genome = nullptr;
 	}
 	else {
-		newOrg->genome = newOrg->genomes["root"];
+		newOrg->genome = newOrg->genomes["root::"];
 	}
 
-	if (newOrg->brains.count("root") == 0) {
+	if (newOrg->brains.count("root::") == 0) {
 		newOrg->brain = nullptr;
 	}
 	else {
-		newOrg->brain = newOrg->brains["root"];
+		newOrg->brain = newOrg->brains["root::"];
 	}
 
 	newOrg->dataMap = dataMap;

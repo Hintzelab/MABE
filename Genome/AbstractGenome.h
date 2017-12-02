@@ -127,17 +127,12 @@ public:
 	vector<string> popFileColumns;  // = {"genomeLength"};
 
 	AbstractGenome() = delete;
-	AbstractGenome(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {}
-
-//	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) {
-//		cout << "  ERROR IN AbstractGenome::makeCopy() - You are using the abstract version of this this function. This method has not been defined for the class you are using.\n  Exiting." << endl;
-//		exit(1);
-//	}
+	AbstractGenome(shared_ptr<ParametersTable> _PT) : PT(_PT) {}
 
 	virtual ~AbstractGenome() = default;
 	//virtual shared_ptr<AbstractGenome::Handler> newHandler(shared_ptr<AbstractGenome> _genome, bool _readDirection = true) override {
 
-	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) {
+	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT) {
 		cout << "ERROR IN AbstractGenome::makeCopy() - You are using the abstract copy constructor for genomes. You must define your own" << endl;
 		exit(1);
 	}
@@ -195,7 +190,7 @@ public:
 		vector<shared_ptr<AbstractGenome>> genomes;
 		loadGenomeFile(fileName, genomes);
 		for (auto g : genomes) {
-			if (to_string(g->dataMap.GetIntVector(key)[0]) == value) {
+			if (to_string(g->dataMap.getIntVector(key)[0]) == value) {
 				return g;
 			}
 		}

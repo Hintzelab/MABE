@@ -270,7 +270,8 @@ void convertCSVListToVector(string stringData, vector<T> &returnData, const char
 			bool success = load_value(s, tempValue);
 			if (!success) {
 				cout << " --- while parsing: " << stringData << " .... " << endl;
-				throw std::invalid_argument("In convertCSVListToVector() attempt to convert string to value failed\n");
+				cout << " In convertCSVListToVector() attempt to convert string to value failed\n" << endl;
+				exit(1);
 			} else {
 				returnData.push_back(tempValue);
 			}
@@ -510,7 +511,7 @@ inline void loadIndexedCSVFile(const string& fileName, unordered_map<int,unorder
 	std::ifstream FILE(fileName);
 	string rawLine;
 	vector<string> keys,tempValues;
-	int numKeys,index;
+	int numKeys;
 	if (FILE.is_open()) {  // if the file named by configFileName can be opened
 		getline(FILE, rawLine);
 		// extract header

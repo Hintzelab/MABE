@@ -1,0 +1,45 @@
+//  MABE is a product of The Hintze Lab @ MSU
+//     for general research information:
+//         hintzelab.msu.edu
+//     for MABE documentation:
+//         github.com/Hintzelab/MABE/wiki
+//
+//  Copyright (c) 2015 Michigan State University. All rights reserved.
+//     to view the full license, visit:
+//         github.com/Hintzelab/MABE/wiki/License
+
+#pragma once					// directive to insure that this .h file is only included one time
+
+#include "../../World/AbstractWorld.h" // AbstractWorld defines all the basic function templates for worlds
+
+using namespace std;
+
+class ExampleWorld : public AbstractWorld {
+
+public:
+	// example ParameterLinks (PLs)
+	//static shared_ptr<ParameterLink<int>> exampleIntPL;
+	//static shared_ptr<ParameterLink<double>> exampleDoublePL;
+	//static shared_ptr<ParameterLink<bool>> exampleBoolPL;
+	//static shared_ptr<ParameterLink<string>> exampleStringPL;
+
+	// Example code for MTree
+	//   static shared_ptr<ParameterLink<string>> exampleMTreePL;
+	// MTree to hold the MTree
+	//   shared_ptr<Abstract_MTree> exampleMT;
+
+	//static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
+
+	// parameters for group and brain namespaces
+	static shared_ptr<ParameterLink<string>> groupNameSpacePL;
+	static shared_ptr<ParameterLink<string>> brainNameSpacePL;
+	
+	ExampleWorld(shared_ptr<ParametersTable> _PT);
+	virtual ~ExampleWorld() = default;
+
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) override;
+
+	virtual unordered_map<string, unordered_set<string>> requiredGroups() override;
+};
+

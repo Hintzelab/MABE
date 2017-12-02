@@ -22,21 +22,21 @@ shared_ptr<ParameterLink<string>> SimpleOptimizer::selfRatePL = Parameters::regi
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismCountPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount", (string) "1", "number of mutated offspring added to next population for each elite organism (MTree)");
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismRange", (string) "0", "number of elite organisms (i.e. if 5, then best 5) (MTree)");
 
+shared_ptr<ParameterLink<string>> SimpleOptimizer::nextPopSizePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-nextPopSize", (string)"0-1", "size of population after optimization(MTree). -1 indicates use current population size");
 
 SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOptimizer(_PT) {
 	
-	selectionMethod = (PT == nullptr) ? selectionMethodPL->lookup() : PT->lookupString("OPTIMIZER_SIMPLE-selectionMethod");
-	numberParents = (PT == nullptr) ? numberParentsPL->lookup() : PT->lookupInt("OPTIMIZER_SIMPLE-numberParents");
+	selectionMethod = selectionMethodPL->get(PT);
+	numberParents = numberParentsPL->get(PT);
 	
-	optimizeValueMT= (PT == nullptr) ? stringToMTree(optimizeValuePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-optimizeValue"));
-	surviveRateMT = (PT == nullptr) ? stringToMTree(surviveRatePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-surviveRate"));
-	selfRateMT = (PT == nullptr) ? stringToMTree(selfRatePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-selfRate"));
-	elitismCountMT = (PT == nullptr) ? stringToMTree(elitismCountPL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismCount"));
-	elitismRangeMT = (PT == nullptr) ? stringToMTree(elitismRangePL->lookup()) : stringToMTree(PT->lookupString("OPTIMIZER_SIMPLE-elitismRange"));
+	optimizeValueMT= stringToMTree(optimizeValuePL->get(PT));
+	surviveRateMT = stringToMTree(surviveRatePL->get(PT));
+	selfRateMT = stringToMTree(selfRatePL->get(PT));
+	elitismCountMT = stringToMTree(elitismCountPL->get(PT));
+	elitismRangeMT = stringToMTree(elitismRangePL->get(PT));
+	nextPopSizeMT = stringToMTree(nextPopSizePL->get(PT));
 
 	optimizeFormula = optimizeValueMT;
-
-	popSizeLPL = (PT == nullptr) ? Global::popSizePL : Parameters::getIntLink("GLOBAL-popSize", PT);
 
 	vector<string> selectorArgs;
 	stringstream ss(selectionMethod); // Turn the string into a stream.
@@ -67,7 +67,11 @@ SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOpti
 void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	oldPopulationSize = (int)population.size();
 	/////// MUST update to MTREE
-	nextPopulationTargetSize = popSizeLPL->lookup();
+	nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
+
+	if (nextPopulationTargetSize == -1) {
+		nextPopulationTargetSize = population.size();
+	}
 	/////// MUST update to MTREE
 
 	nextPopulationSize = 0;
@@ -95,7 +99,7 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 		double opVal = optimizeValueMT->eval(population[i]->dataMap, PT)[0];
 		scores.push_back(opVal);
 		aveScore += opVal;
-		population[i]->dataMap.Set("optimizeValue", opVal);
+		population[i]->dataMap.set("optimizeValue", opVal);
 		if (opVal > maxScore) {
 			maxScore = opVal;
 		}
@@ -152,7 +156,7 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 				population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0]));
 			}
 			else {
-				while (parents.size() < numberParents) {
+				while ((int)parents.size() < numberParents) {
 					parents.push_back(population[selector->select()]);
 				}
 				population.push_back(parents[0]->makeMutatedOffspringFromMany(parents));

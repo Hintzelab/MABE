@@ -10,25 +10,15 @@
 
 #include "../LSTMBrain/LSTMBrain.h"
 
-/*
-shared_ptr<ParameterLink<double>> LSTMBrain::valueMinPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMin", 0.0, "Minmum value that brain will deliver");
-shared_ptr<ParameterLink<double>> LSTMBrain::valueMaxPL = Parameters::register_parameter("BRAIN_CONSTANT-valueMax", 100.0, "Maximum value that brain will deliver");
-shared_ptr<ParameterLink<int>> LSTMBrain::valueTypePL = Parameters::register_parameter("BRAIN_CONSTANT-valueType", 0, "0 = int, 1 = double");
-shared_ptr<ParameterLink<int>> LSTMBrain::samplesPerValuePL = Parameters::register_parameter("BRAIN_CONSTANT-samplesPerValue", 1, "for each brain value, this many samples will be taken from genome and averaged");
 
-shared_ptr<ParameterLink<bool>> LSTMBrain::initializeUniformPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeUniform", false, "Initialize genome randomly, with all samples having same value");
-shared_ptr<ParameterLink<bool>> LSTMBrain::initializeConstantPL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstant", false, "If true, all values in genome will be initialized to initial constant value.");
-shared_ptr<ParameterLink<int>> LSTMBrain::initializeConstantValuePL = Parameters::register_parameter("BRAIN_CONSTANT-initializeConstantValue", 0, "If initialized constant, this value is used to initialize entire genome.");
-*/
-
-shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeName", (string)"root", "name of genome used to encode this brain\nroot = use empty name space\nGROUP:: = use group name space\n\"name\" = use \"name\" namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name space");
+shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
 
 
 LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 
-	genomeName = (PT == nullptr) ? genomeNamePL->lookup() : PT->lookupString("BRAIN_LSTM_NAMES-genomeName");
+	genomeName = genomeNamePL->get(PT);
 
             _I=_nrInNodes;
             _O=_nrOutNodes;
@@ -51,7 +41,7 @@ LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
 }
 
 shared_ptr<AbstractBrain> LSTMBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-	shared_ptr<LSTMBrain> newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues);
+	shared_ptr<LSTMBrain> newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues,PT);
 	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
     
     newBrain->_I=_I;
@@ -188,7 +178,7 @@ DataMap LSTMBrain::getStats(string& prefix) {
 	return (dataMap);
 }
 
-void LSTMBrain::initalizeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+void LSTMBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
     //int totalGenomeSizeNeeded=(_I*_O*4)+(_O*4);
     _genomes[genomeName]->fillRandom();
     //printf("%s\n",_genome->genomeToStr().c_str());

@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <thread>
 #include <vector>
+#include "math.h"
 #include <string>
 
 using namespace std;
@@ -36,7 +37,6 @@ public:
 
 	static shared_ptr<ParameterLink<string>> groupNamePL;
 	static shared_ptr<ParameterLink<string>> brainNamePL;
-	string brainName;
 
 
     vector<int> rawMask;
@@ -54,11 +54,15 @@ public:
 	virtual ~MemoryWorld() = default;
 
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
+		int popSize = groups[groupNamePL->get(PT)]->population.size();
+		for (int i = 0; i < popSize; i++) {
+			evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyse, visualize, debug);
+		}
+	}
 
-	virtual int requiredInputs() override;
-	virtual int requiredOutputs() override;
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		return { { groupName,{ "B:" + brainName + "," + to_string(requiredInputs()) + "," + to_string(requiredOutputs()) } } }; // default requires a root group and a brain (in root namespace) and no genome 
+		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ",1," + to_string(nOut) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 
 };

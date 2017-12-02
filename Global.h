@@ -26,7 +26,8 @@ public:
 	// parameters
 	static shared_ptr<ParameterLink<int>> randomSeedPL;  // seed for random number generator, if -1 random number generator will be seeded randomly
 	static shared_ptr<ParameterLink<int>> updatesPL;  // run until there is a MCRA at this time
-	static shared_ptr<ParameterLink<int>> popSizePL;  // number of genomes in the population
+	//static shared_ptr<ParameterLink<int>> popSizePL;  // number of genomes in the population
+	static shared_ptr<ParameterLink<string>> initPopPL;  // number of genomes in the population
 	static shared_ptr<ParameterLink<string>> modePL;  // number of genomes in the population
 
 	static shared_ptr<ParameterLink<int>> maxLineLengthPL;  // max length of lines in the parameters files 
