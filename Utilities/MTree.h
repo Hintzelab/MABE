@@ -1573,8 +1573,14 @@ inline shared_ptr<Abstract_MTree> stringToMTree(string formula, shared_ptr<Abstr
 				exit(1);
 			}
 			if (branches.size() == 0) {
-				cout << "  In stringToMTree() :: while converting " << formula << ", found op \"" << op << "\" with no precceding element.\n  Exiting" << endl;
-				exit(1);
+				if (formula[index] == '-') {
+					branches.push_back(make_shared<CONST_MTree>(0));
+					index--;
+				}
+				else {
+					cout << "  In stringToMTree() :: while converting " << formula << ", found op \"" << op << "\" with no precceding element.\n  Exiting" << endl;
+					exit(1);
+				}
 			}
 			index++;
 		}
