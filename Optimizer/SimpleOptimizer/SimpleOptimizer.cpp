@@ -68,7 +68,7 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	oldPopulationSize = (int)population.size();
 	/////// MUST update to MTREE
 	nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
-	cout << nextPopSizeMT->getFormula() << endl;
+
 	if (nextPopulationTargetSize == -1) {
 		nextPopulationTargetSize = population.size();
 	}
