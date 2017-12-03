@@ -9,6 +9,6 @@ Initial Design and Managment: Arend Hintze<br>
 Development and Maintenance: Cliff Bohm<br>
 Other: Brian Goldman (parameter configuration, advice)<br>
 
-[mabe-travisci]: https://travis-ci.org/JorySchossau/MABE
-[badge-mabe-travisci]: https://img.shields.io/travis/JorySchossau/MABE.svg?branch=master&style=flat-square
+[mabe-travisci]: https://travis-ci.org/Hintzelab/MABE
+[badge-mabe-travisci]: https://img.shields.io/travis/Hintzelab/MABE.svg?branch=master&style=flat-square
 
