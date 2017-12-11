@@ -4,6 +4,7 @@
   - BerryPlus
   - NumeralClassifier
   - SOF
+  - SymboNav
   * Test
 
 % Genome
