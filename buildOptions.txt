@@ -4,6 +4,12 @@
   - BerryPlus
   - NumeralClassifier
   - SOF
+  + ComplexiPhi
+  + EdlundMaze
+  + PathAssociation
+  + Pendulum
+  + ValueJudgment
+  + Xor
   * Test
 
 % Genome
