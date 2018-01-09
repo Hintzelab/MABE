@@ -33,6 +33,10 @@ public:
     vector<vector<int> > area;
     vector<vector<int> > distMap;
     vector<vector<int> > dirMap;
+    struct Point {
+        int x,y;
+    };
+    vector<Point> startPositions;
     int targetX,targetY,startX,startY, currentMapID;
     int makeNumberNotBorder(int range);
     static int stepsToGoal;

@@ -10,6 +10,9 @@
 
 #include "SymbolNavWorld.h"
 #include "../../Brain/MarkovBrain/MarkovBrain.h"
+#include "../../Brain/MarkovBrain/Gate/DecomposableFeedbackGate.h"
+#include "../../Brain/MarkovBrain/Gate/FeedbackGate.h"
+#include "../../Brain/MarkovBrain/GateBuilder/GateBuilder.h"
 
 shared_ptr<ParameterLink<int>> SymbolNavWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEMPLATE-evaluationsPerGeneration", 1, "how many times should this world be run to generate average scores/behavior");
 
@@ -70,6 +73,7 @@ void SymbolNavWorld::makeMap(){
     vector<Pos> current,next;
     int cDist=1;
     int i,j,k;
+    startPositions.clear();
     do{
         cDist=1;
         for(i=0;i<xDim;i++)
@@ -92,6 +96,7 @@ void SymbolNavWorld::makeMap(){
                     if ((area[current[i].x+xm4[j]][current[i].y+ym4[j]]!=0)
                        &&(distMap[current[i].x+xm4[j]][current[i].y+ym4[j]]==-1)) {
                         distMap[current[i].x+xm4[j]][current[i].y+ym4[j]]=cDist;
+                        if (cDist == SymbolNavWorld::stepsToGoal) startPositions.push_back(SymbolNavWorld::Point{current[i].x+xm4[j],current[i].y+ym4[j]});
                         next.push_back(Pos::newPos(current[i].x+xm4[j],current[i].y+ym4[j]));
                     }
                 }
@@ -102,6 +107,8 @@ void SymbolNavWorld::makeMap(){
             cDist++;
         }
     } while(cDist<xDim/2);
+    for (auto& e : startPositions) cout << "("<<e.x<<","<<e.y<<")" << ", ";
+    cout << endl;
     do{
         startX=Random::getInt(xDim-1);
         startY=Random::getInt(yDim-1);
@@ -167,10 +174,12 @@ void SymbolNavWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vis
                 {
                     fitness+=1000.0;
                     goalsReached++;
+                    /// optimize vvv
                     do{
                         xPos=Random::getInt(xDim);
                         yPos=Random::getInt(yDim);
                     }while (distMap[xPos][yPos] != stepsToGoal);
+                    /// optimize ^^^
                     dir=Random::getInt(3);
                     org->dataMap.append("goalTimes"+to_string(currentMapID), t);
                 }
@@ -179,7 +188,7 @@ void SymbolNavWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vis
         org->dataMap.set("goalReached"+to_string(currentMapID), goalsReached);
         shared_ptr<MarkovBrain> markovBrain = dynamic_pointer_cast<MarkovBrain>(brain);
         if (markovBrain) {
-            if (Gate_Builder::usingFeedbackGatePL->get(PT)) {
+            if (Gate_Builder::usingFeedbackGatePL->get(PT) or Gate_Builder::usingDecomposableFeedbackGatePL->get(PT)) {
                 org->dataMap.append("PositiveFB"+to_string(currentMapID), getAppliedPosFeedback(markovBrain));
                 org->dataMap.append("NegativeFB"+to_string(currentMapID), getAppliedNegFeedback(markovBrain));
             }
@@ -226,6 +235,12 @@ string SymbolNavWorld::getAppliedNegFeedback(shared_ptr<MarkovBrain> brain){
         if (feedbackGate) {
             counter+=1;
             feedback+=" FeedbackGate"+ to_string(counter) + feedbackGate->getAppliedNegFeedback();
+        } else {
+            shared_ptr<DecomposableFeedbackGate> decoFeedbackGate = dynamic_pointer_cast<DecomposableFeedbackGate>(brain->gates[i]);
+            if (decoFeedbackGate) {
+                counter+=1;
+                feedback+=" DecoFeedbackGate"+ to_string(counter) + decoFeedbackGate->getAppliedNegFeedback();
+            }
         }
     }
     return feedback;
