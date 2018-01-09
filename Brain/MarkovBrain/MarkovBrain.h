@@ -26,10 +26,9 @@
 using namespace std;
 
 class MarkovBrain : public AbstractBrain {
- protected:
-	vector<shared_ptr<AbstractGate>> gates;
 
  public:
+	vector<shared_ptr<AbstractGate>> gates;
 
 //	static shared_ptr<ParameterLink<int>> bitsPerBrainAddressPL;  // how many bits are evaluated to determine the brain addresses.
 //	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
