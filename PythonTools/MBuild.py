@@ -1032,6 +1032,7 @@ if args.generate == 'cb':
 '''
     with open('MABE.cbp','w') as outfile:
         outfile.write(outString)
+    print("In order for MABE to build properly in Code::Blocks the following flags need to be added to the 'Other Linker Options' section under Settings > Compiler ... > Linker Settings \n '-lpthread' \n '-pthread' ")
 
 if not (args.noCompile):
     call(["make","-j"+str(args.parallel)])
