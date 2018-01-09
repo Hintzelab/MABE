@@ -34,6 +34,9 @@ shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Paramete
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-allow", false, "set to true to enable feedback gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::feedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
 
+shared_ptr<ParameterLink<bool>> Gate_Builder::usingDecomposableFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-FEEDBACK-allow", false, "set to true to enable decomposable feedback gates");
+shared_ptr<ParameterLink<int>> Gate_Builder::decomposableFeedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-FEEDBACK-initialCount", 3, "seed genome with this many start codons");
+
 shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerBrainAddressPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerBrainAddress", 8, "how many bits are evaluated to determine the brain addresses");
 shared_ptr<ParameterLink<int>> Gate_Builder::bitsPerCodonPL = Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-bitsPerCodon", 8, "how many bits are evaluated to determine the codon addresses");
 
@@ -126,15 +129,16 @@ void Gate_Builder::setupGates() {
 	// the following "Codes" are identifiers for different gate types. These number are used to look up constructors and also as the first 1/2 of the start codeon
 	// if codons are being used to generate gates.
 	// more may be added, but the numbers should not change (if they do, then genomes will generate different brains!)
-	int ProbabilisticCode = 42;
-	int DeterministicCode = 43;
-	int EpsilonCode = 44;
-	int VoidCode = 45;
-	int GPCode = 46;
-	int TritDeterministicCode = 47;
-	int NeuronCode = 48;
-	int FeedbackCode = 49;
-	//	int ThresholdCode = 50;
+	int ProbabilisticCode         = 42; // TODO these should be enums
+	int DeterministicCode         = 43;
+	int EpsilonCode               = 44;
+	int VoidCode                  = 45;
+	int GPCode                    = 46;
+	int TritDeterministicCode     = 47;
+	int NeuronCode                = 48;
+	int FeedbackCode              = 49;
+	//	int ThresholdCode         = 50;
+    int DecomposableFeedbackCode  = 51;
 
 	int bitsPerCodon = bitsPerCodonPL->get(PT);
 	makeGate.resize(1 << bitsPerCodon);
@@ -385,6 +389,7 @@ void Gate_Builder::setupGates() {
 				shared_ptr<FeedbackGate> nullObj = nullptr;
 				return nullObj;
 			}
+            
 			return make_shared<FeedbackGate>(addresses,rawTable,posFBNode,negFBNode,nrPos,nrNeg,posLevelOfFB,negLevelOfFB,gateID, _PT);
             //std::pair<vector<int>,vector<int>> thepair = std::make_pair(std::vector<int>(),std::vector<int>());
             //std::vector<std::vector<int>> dvec;
@@ -392,6 +397,60 @@ void Gate_Builder::setupGates() {
             //unsigned char uchar = '\0';
             //std::vector<double> vdouble;
 			//return make_shared<FeedbackGate>(thepair,dvec,uint,uint,uchar,uchar,vdouble,vdouble,gateID, _PT);
+		});
+	}
+	if (usingDecomposableFeedbackGatePL->get(PT)) {
+		inUseGateNames.insert("DecomposableFeedback");
+		int codonOne = DecomposableFeedbackCode;
+		inUseGateTypes.insert(codonOne);
+		{
+			gateStartCodes[codonOne].push_back(codonOne);
+			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+		}
+		intialGateCounts[codonOne] = decomposableFeedbackGateInitialCountPL->get(PT);
+		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
+            unsigned int posFBNode, negFBNode;
+            unsigned char nrPos, nrNeg;
+            vector<double> posLevelOfFB, negLevelOfFB;
+			string IO_Ranges = DecomposableFeedbackGate::IO_RangesPL->get(_PT);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_FEEDBACK");
+			//vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+            vector<vector<int>> rawTable(1<<addresses.first.size(),vector<int>(1<<addresses.second.size(),0)); /// correct size, and init to 0
+            /// read factors and generate table data from factors
+            vector<vector<double>> factorsList(1 << addresses.first.size());
+            for (vector<double>& factors : factorsList) {
+                factors.resize(addresses.second.size());
+                for (double& eachFactor : factors) {
+                    eachFactor = genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+                }
+            }
+            bitset<32> bs(0); /// bitset
+            for (int rowi=0; rowi<rawTable.size(); rowi++) {
+                for (int outputi=0; outputi<rawTable[rowi].size(); outputi++) {
+                    double p(1.0);
+                    bs=outputi;
+                    /// loop through bits in each output and multiply
+                    /// the appropriate factors together in the right way (1-p) for bit=0 vs p for bit=1
+                    for (int biti=0; biti<addresses.second.size(); biti++) {
+                        p *= (bs[biti] ? factorsList[rowi][biti] : 1-factorsList[rowi][biti]);
+                    }
+                    rawTable[rowi][outputi] = int(255*p);
+                }
+            }
+            posFBNode = genomeHandler->readInt(0,255); // we will scale to, say, 256 and floor later.
+            negFBNode = genomeHandler->readInt(0,255);
+            nrPos = genomeHandler->readInt(0,3);
+            nrNeg = genomeHandler->readInt(0,3);
+            posLevelOfFB.resize(nrPos);
+            negLevelOfFB.resize(nrNeg);
+            for (int i=0; i<nrPos; i++) posLevelOfFB[i] = genomeHandler->readDouble(0,256);
+            for (int i=0; i<nrNeg; i++) negLevelOfFB[i] = genomeHandler->readDouble(0,256);
+			if (genomeHandler->atEOC()) {
+				shared_ptr<DecomposableFeedbackGate> nullObj = nullptr;
+				return nullObj;
+			}
+            return make_shared<DecomposableFeedbackGate>(addresses,rawTable,factorsList,posFBNode,negFBNode,nrPos,nrNeg,posLevelOfFB,negLevelOfFB,gateID, _PT);
 		});
 	}
 }

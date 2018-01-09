@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <bitset>
 #include "../../../Utilities/Parameters.h"
 #include "../Gate/DeterministicGate.h"
 #include "../Gate/EpsilonGate.h"
@@ -20,6 +21,7 @@
 //#include "../Gate/ThresholdGate.h"
 #include "../Gate/TritDeterministicGate.h"
 #include "../Gate/VoidGate.h"
+#include "../Gate/DecomposableFeedbackGate.h"
 
 class Gate_Builder {  // manages what kinds of gates can be built
 public:
@@ -35,6 +37,8 @@ public:
 
 	static shared_ptr<ParameterLink<bool>> usingFeedbackGatePL;
 	static shared_ptr<ParameterLink<int>> feedbackGateInitialCountPL;
+	static shared_ptr<ParameterLink<bool>> usingDecomposableFeedbackGatePL;
+	static shared_ptr<ParameterLink<int>> decomposableFeedbackGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingGPGatePL;
 	static shared_ptr<ParameterLink<int>> gPGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingThGatePL;
