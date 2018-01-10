@@ -21,6 +21,7 @@
 //#include "../Gate/ThresholdGate.h"
 #include "../Gate/TritDeterministicGate.h"
 #include "../Gate/VoidGate.h"
+#include "../Gate/DecomposableGate.h"
 #include "../Gate/DecomposableFeedbackGate.h"
 
 class Gate_Builder {  // manages what kinds of gates can be built
@@ -39,9 +40,12 @@ public:
 	static shared_ptr<ParameterLink<int>> feedbackGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingDecomposableFeedbackGatePL;
 	static shared_ptr<ParameterLink<int>> decomposableFeedbackGateInitialCountPL;
+	static shared_ptr<ParameterLink<bool>> usingDecoGatePL;
+	static shared_ptr<ParameterLink<bool>> decoUse2LevelPL;
+	static shared_ptr<ParameterLink<bool>> deco2LevelRowFirstPL;
+	static shared_ptr<ParameterLink<int>> decoGateInitialCountPL;
 	static shared_ptr<ParameterLink<bool>> usingGPGatePL;
 	static shared_ptr<ParameterLink<int>> gPGateInitialCountPL;
-	static shared_ptr<ParameterLink<bool>> usingThGatePL;
 	static shared_ptr<ParameterLink<int>> thGateInitialCountPL;
 
 	static shared_ptr<ParameterLink<bool>> usingTritDeterministicGatePL;
