@@ -8,8 +8,7 @@
 //     to view the full license, visit:
 //         github.com/ahnt/MABE/wiki/License
 
-#ifndef __BasicMarkovBrainTemplate__DecomposableGate__
-#define __BasicMarkovBrainTemplate__DecomposableGate__
+#pragma once
 
 #include "AbstractGate.h"
 
@@ -36,4 +35,3 @@ public:
 	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 };
 
-#endif /* defined(__BasicMarkovBrainTemplate__DecomposableGate__) */
