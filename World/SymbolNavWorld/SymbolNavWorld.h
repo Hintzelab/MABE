@@ -33,12 +33,16 @@ public:
     vector<vector<int> > area;
     vector<vector<int> > distMap;
     vector<vector<int> > dirMap;
+    struct Point {
+        int x,y;
+    };
+    vector<Point> startPositions;
     int targetX,targetY,startX,startY, currentMapID;
     int makeNumberNotBorder(int range);
     static int stepsToGoal;
     void makeMap();
-    string getAppliedPosFeedback(shared_ptr<MarkovBrain> brain);
-    string getAppliedNegFeedback(shared_ptr<MarkovBrain> brain);
+    virtual string getAppliedPosFeedback(shared_ptr<MarkovBrain> brain);
+    virtual string getAppliedNegFeedback(shared_ptr<MarkovBrain> brain);
 
 	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
 
