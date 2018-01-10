@@ -34,5 +34,5 @@ script:
   - ls
   - python3 --version
   - g++ --version
-  - python3 PythonTools/MBuild.py -g make
+  - python3 pythonTools/mbuild.py -g make
   - make -j4
