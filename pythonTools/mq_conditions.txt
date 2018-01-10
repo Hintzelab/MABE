@@ -38,8 +38,8 @@ SETTINGS = settings.cfg,settings_organism.cfg,settings_world.cfg
 JOBNAME = NONE
 
 # EXECUTABLE is the name of program to run, may include a path
-EXECUTABLE = ./MABE
-#EXECUTABLE = MABE.exe
+EXECUTABLE = ./mabe
+#EXECUTABLE = mabe.exe
 
 -----
 
