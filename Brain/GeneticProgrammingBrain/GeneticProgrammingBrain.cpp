@@ -8,9 +8,9 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../GeneticProgramingBrain/GeneticProgramingBrain.h"
+#include "../GeneticProgrammingBrain/GeneticProgrammingBrain.h"
 
-shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeTypes, int depth, int maxDepth) {
+shared_ptr<Abstract_MTree> GeneticProgrammingBrain::makeTree(vector<string> nodeTypes, int depth, int maxDepth) {
 	if (depth < maxDepth) {
 		shared_ptr<Abstract_MTree> op = stringToMTree(nodeTypes[Random::getIndex(nodeTypes.size())]); // get a random node from nodeTypes
 		vector<shared_ptr<Abstract_MTree>> branches;
@@ -31,7 +31,7 @@ shared_ptr<Abstract_MTree> GeneticProgramingBrain::makeTree(vector<string> nodeT
 		return make_shared<CONST_MTree>(Random::getDouble(1000));
 	}
 }
-GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
+GeneticProgrammingBrain::GeneticProgrammingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
 		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
 		
 	initialTreeDepth = 3;
@@ -63,7 +63,7 @@ GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, 
 	}
 // columns to be added to ave file
 	popFileColumns.clear();
-	popFileColumns.push_back("geneticProgramingBrainNodesCount");
+	popFileColumns.push_back("geneticProgrammingBrainNodesCount");
 	//for (int i = 0; i < nrOutputValues; i++) {
 	//	popFileColumns.push_back("brainValue" + to_string(i));
 	//}
@@ -79,7 +79,7 @@ GeneticProgramingBrain::GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, 
 }
 
 
-void GeneticProgramingBrain::resetBrain() {
+void GeneticProgrammingBrain::resetBrain() {
 	//cout << "in reset Brain" << endl;
 	fill(inputValues.begin(), inputValues.end(), 0);
 	fill(outputValues.begin(), outputValues.end(), 0);
@@ -87,7 +87,7 @@ void GeneticProgramingBrain::resetBrain() {
 	fill(writeToValues.begin(), writeToValues.end(), 0);
 }
 
-void GeneticProgramingBrain::update() {
+void GeneticProgrammingBrain::update() {
 	//cout << "in update GP" << endl;
 	int index = 0;
 	//cout << "nrInputValues = " << nrInputValues << "    nrOutputValues = " << nrOutputValues << "   nrHiddenValues = " << nrHiddenValues << endl;
@@ -114,7 +114,7 @@ void GeneticProgramingBrain::update() {
 	vector<vector<double>> values;
 	values.push_back(readFromValues);
 	//if (Global::update > 1125) {
-	//		cout << "  In GeneticProgramingBrain::eval  ::  looking at values for VECT" << endl;
+	//		cout << "  In GeneticProgrammingBrain::eval  ::  looking at values for VECT" << endl;
 	//		cout << "   ";
 	//		for (auto a : values) {
 	//			for (auto b : a) {
@@ -148,14 +148,14 @@ void GeneticProgramingBrain::update() {
 
 }
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-	shared_ptr<GeneticProgramingBrain> newBrain = make_shared<GeneticProgramingBrain>(nrInputValues, nrOutputValues);
+shared_ptr<AbstractBrain> GeneticProgrammingBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+	shared_ptr<GeneticProgrammingBrain> newBrain = make_shared<GeneticProgrammingBrain>(nrInputValues, nrOutputValues);
 	return newBrain;
 }
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+shared_ptr<AbstractBrain> GeneticProgrammingBrain::makeBrainFrom(shared_ptr<AbstractBrain> parent, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	//cout << "  in makeMutatedBrainFrom" << endl;
-	shared_ptr<GeneticProgramingBrain> newBrain = dynamic_pointer_cast<GeneticProgramingBrain>(parent->makeCopy());
+	shared_ptr<GeneticProgrammingBrain> newBrain = dynamic_pointer_cast<GeneticProgrammingBrain>(parent->makeCopy());
 	// select a node in the newBrain
 	//count all nodes
 	for (int treeIndex = 0; treeIndex < (int)trees.size(); treeIndex++){
@@ -228,21 +228,21 @@ shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFrom(shared_ptr<Abstr
 	return newBrain;
 }
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
+shared_ptr<AbstractBrain> GeneticProgrammingBrain::makeBrainFromMany(vector<shared_ptr<AbstractBrain>> parents, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	//cout << "  in makeMutatedBrainFromMany" << endl;
 	return parents[0]->makeCopy();
 }
 
 
-string GeneticProgramingBrain::description() {
-	string S = "Genetic Programing Brain";
+string GeneticProgrammingBrain::description() {
+	string S = "Genetic Programming Brain";
 	for (int i = 0; i < (int)trees.size(); i++) {
 		S = S + "\n  formula " + to_string(i) + ": " + trees[i]->getFormula();
 	}
 	return S;
 }
 
-DataMap GeneticProgramingBrain::getStats(string& prefix) {
+DataMap GeneticProgrammingBrain::getStats(string& prefix) {
 	DataMap dataMap;
 	int nodesCount = 0;
 	for (auto t : trees) {
@@ -250,11 +250,11 @@ DataMap GeneticProgramingBrain::getStats(string& prefix) {
 		t->explode(t, nodesList);
 		nodesCount = (int)nodesList.size();
 	}
-	dataMap.append(prefix+"geneticProgramingBrainNodesCount", nodesCount);
+	dataMap.append(prefix+"geneticProgrammingBrainNodesCount", nodesCount);
 	return (dataMap);
 }
 
-DataMap GeneticProgramingBrain::serialize(string& name) {
+DataMap GeneticProgrammingBrain::serialize(string& name) {
 	DataMap serialDataMap;
 	int numFormula = (int)trees.size();
 	serialDataMap.set(name + "_numFormula", numFormula);
@@ -267,10 +267,10 @@ DataMap GeneticProgramingBrain::serialize(string& name) {
 	return serialDataMap;
 }
 
-void GeneticProgramingBrain::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+void GeneticProgrammingBrain::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
 	trees.clear();
 	if (orgData.find("BRAIN_" + name + "_numFormula") == orgData.end() || orgData.find("BRAIN_" + name + "_formulas") == orgData.end()) {
-		cout << "  In GeneticProgramingBrain::deserialize :: can not find either BRAIN_" + name + "_numFormula or BRAIN_" + name + "_formulas.\n  exiting" << endl;
+		cout << "  In GeneticProgrammingBrain::deserialize :: can not find either BRAIN_" + name + "_numFormula or BRAIN_" + name + "_formulas.\n  exiting" << endl;
 		exit(1);
 	}
 
@@ -299,9 +299,9 @@ void GeneticProgramingBrain::deserialize(shared_ptr<ParametersTable> PT, unorder
 }
 
 
-shared_ptr<AbstractBrain> GeneticProgramingBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
+shared_ptr<AbstractBrain> GeneticProgrammingBrain::makeCopy(shared_ptr<ParametersTable> _PT) {
 	//cout << "   start Make Copy" << endl;
-	shared_ptr<GeneticProgramingBrain> newBrain = make_shared<GeneticProgramingBrain>(nrInputValues, nrOutputValues, _PT);
+	shared_ptr<GeneticProgrammingBrain> newBrain = make_shared<GeneticProgrammingBrain>(nrInputValues, nrOutputValues, _PT);
 
 	newBrain->trees.clear();
 	for (auto t : trees) {

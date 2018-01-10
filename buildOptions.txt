@@ -22,7 +22,7 @@
   - CGP
   - LSTM
   * ConstantValues
-  - GeneticPrograming
+  - GeneticProgramming
   - Human
   - IPD
   - Wire

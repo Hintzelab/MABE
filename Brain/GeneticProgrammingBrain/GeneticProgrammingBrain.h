@@ -24,7 +24,7 @@
 
 using namespace std;
 
-class GeneticProgramingBrain: public AbstractBrain {
+class GeneticProgrammingBrain: public AbstractBrain {
 public:
 
 	//static shared_ptr<ParameterLink<double>> valueMinPL;
@@ -59,11 +59,11 @@ public:
 	double magnitudeMax;
 	double magnitudeMin;
 
-	GeneticProgramingBrain() = delete;
+	GeneticProgrammingBrain() = delete;
 
-	GeneticProgramingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	GeneticProgrammingBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
 
-	virtual ~GeneticProgramingBrain() = default;
+	virtual ~GeneticProgrammingBrain() = default;
 
 	shared_ptr<Abstract_MTree> makeTree(vector<string> nodeTypes, int depth, int maxDepth);
 
@@ -77,7 +77,7 @@ public:
 	virtual string description() override;
 	virtual DataMap getStats(string& prefix) override;
 	virtual string getType() override {
-		return "GeneticPrograming";
+		return "GeneticProgramming";
 	}
 
 	virtual DataMap serialize(string& name) override;
@@ -93,6 +93,6 @@ public:
 
 };
 
-inline shared_ptr<AbstractBrain> GeneticProgramingBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
-	return make_shared<GeneticProgramingBrain>(ins, outs, PT);
+inline shared_ptr<AbstractBrain> GeneticProgrammingBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+	return make_shared<GeneticProgrammingBrain>(ins, outs, PT);
 }
