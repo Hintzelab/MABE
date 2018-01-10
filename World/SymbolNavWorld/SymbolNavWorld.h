@@ -41,8 +41,8 @@ public:
     int makeNumberNotBorder(int range);
     static int stepsToGoal;
     void makeMap();
-    string getAppliedPosFeedback(shared_ptr<MarkovBrain> brain);
-    string getAppliedNegFeedback(shared_ptr<MarkovBrain> brain);
+    virtual string getAppliedPosFeedback(shared_ptr<MarkovBrain> brain);
+    virtual string getAppliedNegFeedback(shared_ptr<MarkovBrain> brain);
 
 	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
 

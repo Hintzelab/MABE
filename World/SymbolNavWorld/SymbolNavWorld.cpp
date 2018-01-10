@@ -7,14 +7,10 @@
 //  Copyright (c) 2015 Michigan State University. All rights reserved.
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
-
-#include "SymbolNavWorld.h"
 #include "../../Brain/MarkovBrain/MarkovBrain.h"
-#include "../../Brain/MarkovBrain/Gate/DecomposableFeedbackGate.h"
-#include "../../Brain/MarkovBrain/Gate/FeedbackGate.h"
-#include "../../Brain/MarkovBrain/GateBuilder/GateBuilder.h"
+#include "SymbolNavWorld.h"
 
-shared_ptr<ParameterLink<int>> SymbolNavWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_TEMPLATE-evaluationsPerGeneration", 1, "how many times should this world be run to generate average scores/behavior");
+shared_ptr<ParameterLink<int>> SymbolNavWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_SYMBOLNAV-evaluationsPerGeneration", 1, "how many times should this world be run to generate average scores/behavior");
 
 const int SymbolNavWorld::xDim=64;
 const int SymbolNavWorld::yDim=64;
@@ -61,12 +57,8 @@ SymbolNavWorld::SymbolNavWorld(shared_ptr<ParametersTable> _PT) :
     dirMap.resize(xDim, vector<int>(yDim));
 }
 
-int SymbolNavWorld::makeNumberNotBorder(int range){
-    int n;
-    do{
-        n=Random::getInt(range);
-    }while((n==0)||(n==range-1));
-    return n;
+inline int SymbolNavWorld::makeNumberNotBorder(int range){
+    return Random::getInt(1,range-1);
 }
 
 void SymbolNavWorld::makeMap(){
@@ -107,12 +99,9 @@ void SymbolNavWorld::makeMap(){
             cDist++;
         }
     } while(cDist<xDim/2);
-    for (auto& e : startPositions) cout << "("<<e.x<<","<<e.y<<")" << ", ";
-    cout << endl;
-    do{
-        startX=Random::getInt(xDim-1);
-        startY=Random::getInt(yDim-1);
-    } while(distMap[startX][startY]!=SymbolNavWorld::stepsToGoal);
+    int whichStartPosition=Random::getIndex(startPositions.size());
+    startX=startPositions[whichStartPosition].x;
+    startY=startPositions[whichStartPosition].y;
     for (i=1; i<xDim-1; i++) {
         for (j=1; j<yDim-1; j++) {
             if (distMap[i][j]>0){
@@ -152,39 +141,34 @@ void SymbolNavWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vis
         yPos=startY;
         dir=Random::getInt(3);
         double fitness=0.0;
-        if(true) {
-            for(t=0;t<steps;t++) {
-                for (i=0; i<4; i++) brain->setInput(i, 1);  // set the brains input 0 to 1
-                int before, after;
-                brain->setInput((dirMap[xPos][yPos]-dir)&3,1); // read the symbol from the floor
-                brain->update();
-                int action = Bit(brain->readOutput(0)) | Bit(brain->readOutput(1))<<1;
-                switch (mapping[currentMapID][action]){
-                    case 0:break;
-                    case 1:dir=(dir-1)&3;break;
-                    case 2:dir=(dir+1)&3;break;
-                    case 3:if(distMap[xPos+xm4[dir]][yPos+ym4[dir]]!=-1) {
-                               xPos=xPos+xm4[dir];
-                               yPos=yPos+ym4[dir];
-                           }
-                           break;
-                }
-                fitness+=1.0/pow((double)(distMap[xPos][yPos]+1),2.0);
-                if (distMap[xPos][yPos] == 0)
-                {
-                    fitness+=1000.0;
-                    goalsReached++;
-                    /// optimize vvv
-                    do{
-                        xPos=Random::getInt(xDim);
-                        yPos=Random::getInt(yDim);
-                    }while (distMap[xPos][yPos] != stepsToGoal);
-                    /// optimize ^^^
-                    dir=Random::getInt(3);
-                    org->dataMap.append("goalTimes"+to_string(currentMapID), t);
-                }
-            }	
-        }
+        for(t=0; t<steps; t++) {
+            for (i=0; i<4; i++) brain->setInput(i, 1);  // set the brains input 0 to 1
+            int before, after;
+            brain->setInput((dirMap[xPos][yPos]-dir)&3,1); // read the symbol from the floor
+            brain->update();
+            int action = Bit(brain->readOutput(0)) | Bit(brain->readOutput(1))<<1;
+            switch (mapping[currentMapID][action]){
+                case 0:break;
+                case 1:dir=(dir-1)&3; break;
+                case 2:dir=(dir+1)&3; break;
+                case 3:if(distMap[xPos+xm4[dir]][yPos+ym4[dir]]!=-1) {
+                           xPos=xPos+xm4[dir];
+                           yPos=yPos+ym4[dir];
+                       }
+                       break;
+            }
+            fitness+=1.0/pow((double)(distMap[xPos][yPos]+1),2.0);
+            if (distMap[xPos][yPos] == 0)
+            {
+                fitness+=1000.0;
+                goalsReached++;
+                int whichStartPosition=Random::getIndex(startPositions.size());
+                xPos=startPositions[whichStartPosition].x;
+                yPos=startPositions[whichStartPosition].y;
+                dir=Random::getInt(3);
+                org->dataMap.append("goalTimes"+to_string(currentMapID), t);
+            }
+        }	
         org->dataMap.set("goalReached"+to_string(currentMapID), goalsReached);
         shared_ptr<MarkovBrain> markovBrain = dynamic_pointer_cast<MarkovBrain>(brain);
         if (markovBrain) {
@@ -197,7 +181,6 @@ void SymbolNavWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int vis
 	}
 }
 void SymbolNavWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
-	
     makeMap();
 	int popSize = groups[groupNameSpacePL->get(PT)]->population.size(); 
 	for (int i = 0; i < popSize; i++) { // for each organism, run evaluateSolo.
@@ -222,6 +205,12 @@ string SymbolNavWorld::getAppliedPosFeedback(shared_ptr<MarkovBrain> brain){
         if (feedbackGate) {
             counter+=1;
             feedback+=" FeedbackGate"+ to_string(counter) + feedbackGate->getAppliedPosFeedback();
+        } else {
+            shared_ptr<DecomposableFeedbackGate> decoFeedbackGate = dynamic_pointer_cast<DecomposableFeedbackGate>(brain->gates[i]);
+            if (decoFeedbackGate) {
+                counter+=1;
+                feedback+=" DecoFeedbackGate"+ to_string(counter) + decoFeedbackGate->getAppliedPosFeedback();
+            }
         }
     }
     return feedback;

@@ -10,6 +10,7 @@
   - Pendulum
   - ValueJudgment
   - Xor
+  - SymbolNav
   * Test
 
 % Genome
