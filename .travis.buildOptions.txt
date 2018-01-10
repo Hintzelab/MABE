@@ -4,6 +4,13 @@
   + BerryPlus
   + NumeralClassifier
   + SOF
+  + ComplexiPhi
+  + EdlundMaze
+  + PathAssociation
+  + Pendulum
+  + ValueJudgment
+  + Xor
+  + SymbolNav
   * Test
 
 % Genome
@@ -15,7 +22,7 @@
   + CGP
   + LSTM
   * ConstantValues
-  + GeneticPrograming
+  + GeneticProgramming
   + Human
   + IPD
   + Wire
