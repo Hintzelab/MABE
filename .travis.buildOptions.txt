@@ -1,16 +1,6 @@
 % World
-  + Memory
-  + Berry
   + BerryPlus
-  + NumeralClassifier
-  + SOF
-  + ComplexiPhi
-  + EdlundMaze
-  + PathAssociation
-  + Pendulum
-  + ValueJudgment
   + Xor
-  + SymbolNav
   * Test
 
 % Genome
@@ -19,18 +9,16 @@
   
 % Brain
   + Markov
-  + CGP
+  * CGP
   + LSTM
-  * ConstantValues
-  + GeneticProgramming
+  + ConstantValues
   + Human
-  + IPD
   + Wire
 	
 % Optimizer
   * Simple
 
 % Archivist
-  * Default
+  + Default
   + SSwD
-  + LODwAP
+  * LODwAP
