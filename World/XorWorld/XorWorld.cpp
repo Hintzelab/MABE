@@ -8,6 +8,10 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
+// A single agent is evaluated to perform the xor logic operation,
+// and is tested on each standard 2-bit pattern: 0^0, 0^1, 1^0, 1^1
+// it receives 1.0 point for each correct computation.
+
 #include "XorWorld.h"
 #include <cmath>
 
@@ -20,7 +24,7 @@ XorWorld::XorWorld(shared_ptr<ParametersTable> _PT) :AbstractWorld(_PT) {
 	
 	groupName = groupNamePL->get(_PT);
 	brainName = brainNamePL->get(_PT);
-    brainUpdates = brainUpdatesPL->get(PT);
+     brainUpdates = brainUpdatesPL->get(PT);
 	
 	// columns to be added to ave file
 	popFileColumns.clear();
@@ -28,20 +32,19 @@ XorWorld::XorWorld(shared_ptr<ParametersTable> _PT) :AbstractWorld(_PT) {
 	popFileColumns.push_back("score_VAR"); // specifies to also record the variance (performed automatically because _VAR)
 }
 
-// score is number of outputs set to 1 (i.e. output > 0) squared
+// score 1.0 points accumulated per correct xor answer
 void XorWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
 	auto brain = org->brains[brainName];
 	double score=0.0000001;
 	int questions[4][2]={{0,0},{0,1},{1,0},{1,1}};
 	double answers[4]={0.0,1.0,1.0,0.0};
 	double answer=0.0;
-	for(int tests=evaluationsPerGenerationPL->get(PT); tests>=0; --tests){
-		for(int j=0;j<4;j++){
-			int i=j;
+	for(int tests=evaluationsPerGenerationPL->get(PT); tests>=0; --tests) {
+		for(int bitBattern=0; bitBattern<4; bitBattern++) {
 			brain->resetBrain();
-			for(int thinkLoopi=brainUpdates-1; thinkLoopi>=0; --thinkLoopi){
-				for(int ins=0;ins<2;ins++)
-					brain->setInput(ins, questions[i][ins]);
+			for(int thinkLoopi=brainUpdates-1; thinkLoopi>=0; --thinkLoopi) { // allow multiple brain updates
+				// and provide the bitPattern input on each update
+				for(int ins=0; ins<2; ins++) brain->setInput(ins, questions[bitBattern][ins]);
 				brain->update();
 			}
 			answer=brain->readOutput(0);
@@ -52,7 +55,7 @@ void XorWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize
 				answer=1.0;
 			if(answer<0.0)
 				answer=0.0;
-			score+=1.0-((answers[i]-answer)*(answers[i]-answer));
+			score+=1.0-((answers[bitBattern]-answer)*(answers[bitBattern]-answer)); // add 1.0 for a correct answer
 		}
 	}
 	org->dataMap.set("score",score/evaluationsPerGenerationPL->get(PT));
