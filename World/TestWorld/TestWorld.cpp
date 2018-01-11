@@ -8,6 +8,10 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
+// Evaluates agents on how many '1's they can output. This is a purely fixed task
+// that requires to reactivity to stimuli.
+// Each correct '1' confers 1.0 point to score, or the decimal output determined by 'mode'.
+
 #include "TestWorld.h"
 
 shared_ptr<ParameterLink<int>> TestWorld::modePL = Parameters::register_parameter("WORLD_TEST-mode", 0, "0 = bit outputs before adding, 1 = add outputs");
@@ -33,21 +37,12 @@ void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualiz
 		brain->update();
 		double score = 0.0;
 		for (int i = 0; i < brain->nrOutputValues; i++) {
-			if (modePL->get(PT) == 0) {
-				score += Bit(brain->readOutput(i));
-			}
-			else {
-				score += brain->readOutput(i);
-			}
+			if (modePL->get(PT) == 0) score += Bit(brain->readOutput(i));
+			else                      score += brain->readOutput(i);
 		}
-		if (score < 0.0) {
-			score = 0.0;
-		}
+		if (score < 0.0) score = 0.0;
 		org->dataMap.append("score", score);
-
-		if (visualize) {
-			cout << "organism with ID " << org->ID << " scored " << score << endl;
-		}
+		if (visualize) cout << "organism with ID " << org->ID << " scored " << score << endl;
 		
 	}	
 }
