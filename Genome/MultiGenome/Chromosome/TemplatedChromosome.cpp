@@ -251,7 +251,8 @@ template<class T> void TemplatedChromosome<T>::readChromosomeFromSS(std::strings
 	string nextString;
 	T value;
 	sites.clear();
-	ss >> nextChar;
+	ss >> nextChar; // load first char of first site
+
 	for (int i = 0; i < _chromosomeLength; i++) {
 		nextString = "";
 		while (nextChar != ',' && nextChar != ']') {
@@ -274,7 +275,8 @@ void TemplatedChromosome<unsigned char>::readChromosomeFromSS(std::stringstream 
 	string nextString;
 	int value;
 	sites.clear();
-	ss >> nextChar;
+	ss >> nextChar; // load first char of first site
+
 	for (int i = 0; i < _chromosomeLength; i++) {
 		nextString = "";
 		while (nextChar != ',' && nextChar != ']') {
