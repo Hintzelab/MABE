@@ -40,6 +40,7 @@ public:
 	}
 
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
+		// agents in this world will need 2 inputs, and 1 output:
 		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ",2," + to_string(1) } } }; // default requires a root group and a brain (in root namespace) and no genome 
 	}
 };
