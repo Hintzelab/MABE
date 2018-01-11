@@ -37,9 +37,9 @@ parser.add_argument('-p','--parallel', default = 1, help='how many threads do yo
 args = parser.parse_args()
 
 if platform.system() == 'Windows':
-    product = 'MABE.exe'
+    product = 'mabe.exe'
 else:
-    product = 'MABE'
+    product = 'mabe'
 
 compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
@@ -407,7 +407,7 @@ elif args.generate == 'devcpp': ## GENERATE devcpp
     outString = ''
     outString += """[Project]
 FileName=MABE.dev
-Name=MABE
+Name=mabe
 Type=1
 Ver=2
 ObjFiles=
@@ -776,7 +776,7 @@ elif args.generate == 'xcode':
 			dependencies = (
 			);
 			name = MABE;
-			productName = MABE;
+			productName = mabe;
 			productReference = {5} /* MABE */;
 			productType = "com.apple.product-type.tool";
                 }};
@@ -1007,12 +1007,12 @@ if args.generate == 'cb':
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Release x64">
-				<Option output="MABE" prefix_auto="1" extension_auto="1" />
+				<Option output="mabe" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 			</Target>
 			<Target title="Debug x64">
-				<Option output="MABE" prefix_auto="1" extension_auto="1" />
+				<Option output="mabe" prefix_auto="1" extension_auto="1" />
 				<Option type="0" />
 				<Option compiler="gcc" />
 			</Target>

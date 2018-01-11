@@ -1,5 +1,5 @@
 % World
-  - BerryPlus
+  + BerryPlus
   + Xor
   * Test
 
@@ -8,12 +8,12 @@
   * Circular
   
 % Brain
-  - Markov
+  + Markov
   * CGP
-  - LSTM
+  + LSTM
   + ConstantValues
   + Human
-  - Wire
+  + Wire
 	
 % Optimizer
   * Simple

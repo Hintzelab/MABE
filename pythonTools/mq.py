@@ -160,8 +160,8 @@ parser.add_argument('-t', '--runTest', action='store_true', default=False,
                     help='if set, will run jobs localy with 1 rep and 5 updates set - default : false(no action)', required=False)
 parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
-parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='MQ_conditions.txt',
-                    help='file which defines conditions - default: MQ_conditions.txt', required=False)
+parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='mq_conditions.txt',
+                    help='file which defines conditions - default: mq_conditions.txt', required=False)
 args = parser.parse_args()
 
 variables = {}
@@ -174,7 +174,7 @@ condition_sets_skipped = []
 constantDefs = ' '
 cfg_files = []
 other_files = []
-executable = "./MABE"
+executable = "./mabe"
 HPCC_parameters = []
 HPCC_LONGJOB = True
 using_conditions = False ## either use VAR/EXCEPT or CONDITIONS, but not both. Use of condition values overrides VAR values.
