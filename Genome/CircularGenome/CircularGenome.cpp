@@ -664,7 +664,8 @@ void CircularGenome<T>::deserialize(shared_ptr<ParametersTable> PT, unordered_ma
 	std::stringstream ss(allSites);
 
 	sites.clear();
-	ss >> nextChar;
+	ss >> nextChar; // read past leading '['
+	ss >> nextChar; // load first char of first site
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
 		while (nextChar != ',' && nextChar != ']') {
@@ -696,7 +697,8 @@ void CircularGenome<unsigned char>::deserialize(shared_ptr<ParametersTable> PT, 
 	std::stringstream ss(allSites);
 
 	sites.clear();
-	ss >> nextChar;
+	ss >> nextChar; // read past leading '['
+	ss >> nextChar; // load first char of first site
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
 		while (nextChar != ',' && nextChar != ']') {

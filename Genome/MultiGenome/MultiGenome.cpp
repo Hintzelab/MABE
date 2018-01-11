@@ -559,6 +559,10 @@ void MultiGenome::deserialize(shared_ptr<ParametersTable> PT, unordered_map<stri
 	string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
 	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size()-1);
 	std::stringstream ss(allSites);
+
+	char nextChar;
+	ss >> nextChar; // move past the leading '['
+
 	for (size_t i = 0; i < _chromosomeLengths.size(); i++) {
 		//cout << i << "  :  " << ss.str() << endl;
 		chromosomes[i]->readChromosomeFromSS(ss, _chromosomeLengths[i]);
