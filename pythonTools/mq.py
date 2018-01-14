@@ -157,7 +157,7 @@ parser.add_argument('-n', '--runNo', action='store_true', default=False,
 parser.add_argument('-l', '--runLocal', action='store_true', default=False,
                     help='if set, will run jobs localy - default : false(no action)', required=False)
 parser.add_argument('-t', '--runTest', action='store_true', default=False,
-                    help='if set, will run jobs localy with 1 rep and 5 updates set - default : false(no action)', required=False)
+                    help='if set, will run jobs localy with 1 rep and 2 updates set - default : false(no action)', required=False)
 parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='mq_conditions.txt',
@@ -336,6 +336,11 @@ for key in varList:
 
 combinations = []
 conditions = []
+
+if len(varList) + len(condition_sets) == 0:
+    using_conditions = True
+    conditions.append('')
+    combinations.append('C')
 
 if not using_conditions:
     done = False
