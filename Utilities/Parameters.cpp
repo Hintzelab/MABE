@@ -148,7 +148,7 @@ MASTER = default 100 # by default :)
   std::string arguments;
   for (int i = 1; i < argc; i++)
     arguments += argv[i], arguments += " ";
-  std::regex command_line_arguments(R"(-(\w) (.*?)(?=(?:(?:-\w )|$)))");
+  std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
 //  for (auto &m : Utilities::ForEachRegexMatch(arguments, command_line_arguments)) {
   for (std::sregex_iterator end,
        i = std::sregex_iterator(arguments.begin(), arguments.end(),
