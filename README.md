@@ -13,5 +13,5 @@ Development and Maintenance: Cliff Bohm<br>
 Other: Brian Goldman (parameter configuration, advice)<br>
 
 [mabe-travisci]: https://travis-ci.org/Hintzelab/MABE
-[badge-mabe-travisci]: https://img.shields.io/travis/Hintzelab/MABE.svg?branch=master&style=flat-square
+[badge-mabe-travisci]: https://img.shields.io/travis/Hintzelab/MABE.svg?branch=development&style=flat-square
 
