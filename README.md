@@ -5,6 +5,8 @@
 please do not commit your 'work' and 'build' directory, and also do not commit your xcode project file, only the folders that contain .cpp and .h files.<br>
 <br>
 
+Extra code can be found at the MABE_extras repository.
+
 Contributors to this project include<br>
 Initial Design and Managment: Arend Hintze<br>
 Development and Maintenance: Cliff Bohm<br>

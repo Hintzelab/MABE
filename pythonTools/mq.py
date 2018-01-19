@@ -171,7 +171,7 @@ varList = []
 exceptions = []
 condition_sets = []
 condition_sets_skipped = []
-constantDefs = ' '
+constantDefs = ''
 cfg_files = []
 other_files = []
 executable = "./mabe"
@@ -265,7 +265,7 @@ with open(args.file) as openfileobject:
             if line[0] == "EXECUTABLE":
                 executable = line[2]
             if line[0] == "CONSTANT":
-                constantDefs += ' '.join(line[2:])
+                constantDefs += ' '+' '.join(line[2:])
             if line[0] == "SETTINGS":
                 cfg_files = line[2].split(',')
                 for f in cfg_files:
