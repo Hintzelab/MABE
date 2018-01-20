@@ -172,6 +172,7 @@ exceptions = []
 condition_sets = []
 condition_sets_skipped = []
 constantDefs = ''
+populationLoaderDefs = ''
 cfg_files = []
 other_files = []
 executable = "./mabe"
@@ -286,6 +287,8 @@ with open(args.file) as openfileobject:
                 for i in line[2:]:
                     newParameter += i + ' '
                 HPCC_parameters.append(newParameter[:-1])
+            if line[0] == "PLF":
+                populationLoaderDefs += '\n '+' '.join(line[2:])
 
 padSizeReps = len(str(lastRep))
 
@@ -490,6 +493,11 @@ if args.runTest:
         constantDefs = constantDefs.replace(match.group(), "GLOBAL-updates 2")
 for i in range(len(combinations)):
     for rep in reps:
+        if not args.runNo:
+            if (len(populationLoaderDefs)): ## if any have been specified, then create the file and dump specified to file
+                os.chdir(absLocalDir)
+                with open('population_loader.plf','w') as file:
+                    file.write(populationLoaderDefs+'\n')
         if args.runLocal or args.runTest:
             # turn cgf_files list into a space separated string
             cfg_files_str = ' '.join(cfg_files)
@@ -536,6 +544,8 @@ for i in range(len(combinations)):
                 shutil.copy(f, workDir)  # copy the settings files to scratch
             for f in other_files:
                 shutil.copy(f, workDir)  # copy other files to scratch
+            if (len(populationLoaderDefs)):
+                shutil.copy('population_loader.plf', workDir)
 
             # if the local conditions directory is not already here, make it
             if not(os.path.exists(conditionDirectoryName)):
