@@ -142,7 +142,7 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
   */
   Directory mabeDir("./", true); // true=recursive
   for (auto p : mabeDir) {
-    all_possible_file_names.push_back(p.relative_path());
+  	  all_possible_file_names.push_back(p.relative_path());
   }
 
   std::map<std::string, std::vector<std::string>> collection_of_files; // all file names for a collection
@@ -343,7 +343,6 @@ std::vector<std::vector<long>> Loader::keyword_best(size_t number,
           return std::stod(all_organisms.at(lhs).attributes.at(attribute)) <
                  std::stod(all_organisms.at(rhs).attributes.at(attribute));
         });
-    std::reverse(pop.begin(), pop.end());
     coll.push_back(pop);
   }
   return coll;
@@ -370,7 +369,7 @@ std::vector<std::vector<long>> Loader::keyword_worst(size_t number,
     std::partial_sort_copy(
         from_pop.begin(), from_pop.end(), pop.begin(), pop.end(),
         [&](long lhs, long rhs) {
-          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) <
+          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) >
                  std::stod(all_organisms.at(rhs).attributes.at(attribute));
         });
     coll.push_back(pop);
@@ -434,7 +433,7 @@ std::vector<std::string> Loader::expand_files(const std::string f) {
   std::vector<std::string> result;
   std::regex wildcard(R"(\*)");
   std::string file_name = std::regex_replace(f, wildcard, R"(\w*)");
-  std::regex valid_path_names("^.*" + file_name + "$");
+  std::regex valid_path_names("^" + file_name + "$");
   std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
 
   std::copy_if(all_possible_file_names.begin(), all_possible_file_names.end(),
