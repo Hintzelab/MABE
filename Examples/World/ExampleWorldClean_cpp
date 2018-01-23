@@ -39,7 +39,7 @@ ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 
-void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 	
 	// code to evaluating exampleMT
 	// auto MT_VALUE = exampleMT->eval(org->dataMap, PT);
@@ -56,12 +56,12 @@ void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visua
 	}
 }
 
-void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
+void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
 	
 	// solo evaluation
 	int popSize = groups[groupNameSpacePL->get(PT)]->population.size(); 
 	for (int i = 0; i < popSize; i++) { // for each organism, run evaluateSolo.
-		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyse, visualize, debug);
+		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyze, visualize, debug);
 	}
 }
 

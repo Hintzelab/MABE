@@ -228,12 +228,12 @@ public:
 
 	BerryPlusWorld(shared_ptr<ParametersTable> _PT);
 
-	void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) override {
+	void evaluate(map<string, shared_ptr<Group>>& groups, int analyze = 0, int visualize = 0, int debug = 0) override {
 		//vector<double> scores(groups[groupName]->population.size(), 0);
 		int groupSize = groups[groupNamePL->get(PT)]->population.size();
 		if (groupEvaluation) {
 			for (int r = 0; r < repeats; r++) {
-				runWorld(groups[groupNamePL->get(PT)], analyse, visualize, debug);
+				runWorld(groups[groupNamePL->get(PT)], analyze, visualize, debug);
 //				for (int i = 0; i < groupSize; i++) {
 //					scores[i] += groups["root"]->population[i]->score;
 //				}
@@ -245,7 +245,7 @@ public:
 				soloGroup->population.clear();
 				soloGroup->population.push_back(groups[groupNamePL->get(PT)]->population[i]);
 				for (int r = 0; r < repeats; r++) {
-					runWorld(soloGroup, analyse, visualize, debug);
+					runWorld(soloGroup, analyze, visualize, debug);
 					//scores[i] += groups["root"]->population[i]->score;
 				}
 			}
@@ -262,7 +262,7 @@ public:
 
 
 
-	virtual void runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug);
+	virtual void runWorld(shared_ptr<Group> group, bool analyze, bool visualize, bool debug);
 
 	// if lastfood < 0, do not consider last food, pick randomly
 	// if
