@@ -444,7 +444,7 @@ std::vector<std::string> Loader::expand_files(const std::string f) {
                });
 
   if (result.empty()) {
-    cout << " warning: " << f<< " doesn't not match any files" << endl;
+    cout << " warning: " << f<< " does not match any files" << endl;
     exit(1);
   }
   return result;

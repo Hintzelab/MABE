@@ -29,7 +29,7 @@ TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
 	popFileColumns.push_back("score_VAR"); // specifies to also record the variance (performed automatically because _VAR)
 }
 
-void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+void TestWorld::evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 	auto brain = org->brains[brainNamePL->get(PT)];
 	for (int r = 0; r < evaluationsPerGenerationPL->get(PT); r++) {
 		brain->resetBrain();

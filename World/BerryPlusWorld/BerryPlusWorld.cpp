@@ -445,7 +445,7 @@ void BerryPlusWorld::printGrid(Vector2d<int> grid, pair<double, double> loc, int
 	cout << "\n";
 }
 
-void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyse, bool visualize, bool debug) {
+void BerryPlusWorld::runWorld(shared_ptr<Group> group, bool analyze, bool visualize, bool debug) {
 
 	int numWorlds = 1;
 	int howManyFiles;
