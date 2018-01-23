@@ -12,7 +12,7 @@
 
 #include "../../../Utilities/Random.h"
 #include "../../../Utilities/Utilities.h"
-#include <algorithm> // for accumulate
+#include <numeric> // for accumulate
 #include <bitset>
 
 bool DecomposableFeedbackGate::feedbackON = true;
