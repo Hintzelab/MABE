@@ -12,14 +12,14 @@
 
 shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_dataSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataSequence", (string) ":100",
 	"when to save a data file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_organismSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismSequence", (string) ":1000",
-	"when to save a organism file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
+shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_organismSequenceStrPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismsSequence", (string) ":1000",
+	"when to save an organisms file (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_dataDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-dataDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving data");
-shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_organismDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving organisms ");
+shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_organismDelayPL = Parameters::register_parameter("ARCHIVIST_SSWD-organismsDelay", 10, "when using Snap Shot with Delay output Method, how long is the delay before saving organisms ");
 shared_ptr<ParameterLink<int>> SSwDArchivist::SSwD_Arch_cleanupIntervalPL = Parameters::register_parameter("ARCHIVIST_SSWD-cleanupInterval", 100, "How often to cleanup old checkpoints");
 shared_ptr<ParameterLink<string>> SSwDArchivist::SSwD_Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_SSWD-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeDataFiles", true, "if true, data files will be written");
-shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismFiles", true, "if true, genome files will be written");
+shared_ptr<ParameterLink<bool>> SSwDArchivist::SSwD_Arch_writeOrganismFilesPL = Parameters::register_parameter("ARCHIVIST_SSWD-writeOrganismsFiles", true, "if true, genome files will be written");
 
 SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
@@ -55,7 +55,7 @@ SSwDArchivist::SSwDArchivist(vector<string> popFileColumns, shared_ptr<Abstract_
 	if (writeOrganismFiles != false) {
 		organismSequence = seq(organismSequenceStr, Global::updatesPL->get(), true);
 		if (organismSequence.size() == 0) {
-			cout << "unable to translate ARCHIVIST_SSWD-organismSequence \"" << organismSequenceStr << "\".\nExiting." << endl;
+			cout << "unable to translate ARCHIVIST_SSWD-organismsSequence \"" << organismSequenceStr << "\".\nExiting." << endl;
 			exit(1);
 		}
 	}
