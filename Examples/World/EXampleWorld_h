@@ -97,8 +97,8 @@ public:
 	// compete for a limited resource) the work of the world can be coded directly into
 	// evaluate.
 
-	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug);
-	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) override;
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug);
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) override;
 
 	// required groups is used by main (or meta-worlds) to determine how MABE must configure
 	// Groups (i.e. populations) in order to be compatable with this world.

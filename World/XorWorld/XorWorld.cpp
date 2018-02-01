@@ -33,7 +33,7 @@ XorWorld::XorWorld(shared_ptr<ParametersTable> _PT) :AbstractWorld(_PT) {
 }
 
 // score 1.0 points accumulated per correct xor answer
-void XorWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+void XorWorld::evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 	auto brain = org->brains[brainName];
 	double score=0.0000001;
 	int questions[4][2]={{0,0},{0,1},{1,0},{1,1}};
