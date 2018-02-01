@@ -340,7 +340,7 @@ std::vector<std::vector<long>> Loader::keyword_best(size_t number,
     std::partial_sort_copy(
         from_pop.begin(), from_pop.end(), pop.begin(), pop.end(),
         [&](long lhs, long rhs) {
-          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) <
+          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) >
                  std::stod(all_organisms.at(rhs).attributes.at(attribute));
         });
     coll.push_back(pop);
