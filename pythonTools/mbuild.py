@@ -81,7 +81,7 @@ for linenum,line in enumerate(lines):
     linenum+=1 ## sane line numbering starting at 1
     if len(line) != 2:
         print("Line "  + linenum + " is incorrectly formatted. The line's contents are: ")
-		print(line)
+        print(line)
         exit()
     if line[0] == '%': ## set current category
         currentOption = line[1]
