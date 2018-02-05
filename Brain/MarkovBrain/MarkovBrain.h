@@ -107,6 +107,8 @@ class MarkovBrain : public AbstractBrain {
 	virtual vector<vector<int>> getConnectivityMatrix();
 	virtual int brainSize();
 	int numGates();
+	
+	vector<int> getHiddenNodes();
 
 	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
