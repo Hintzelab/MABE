@@ -391,6 +391,14 @@ int main(int argc, const char *argv[]) {
 
     world->evaluate(groups, 0, 1, 0);
     }
+	else if (Global::modePL->get() == "analyze") {
+		////////////////////////////////////////////////////////////////////////////////////
+		// analyze mode
+		////////////////////////////////////////////////////////////////////////////////////
+		cout << "\n  You are running MABE in analyze mode." << endl << endl;
+
+		world->evaluate(groups, 1, 0, 0);
+	}
   }
   return 0;
 }
