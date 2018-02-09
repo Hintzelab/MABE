@@ -157,7 +157,7 @@ parser.add_argument('-n', '--runNo', action='store_true', default=False,
 parser.add_argument('-l', '--runLocal', action='store_true', default=False,
                     help='if set, will run jobs localy - default : false(no action)', required=False)
 parser.add_argument('-t', '--runTest', action='store_true', default=False,
-                    help='if set, will run jobs localy with 1 rep and 5 updates set - default : false(no action)', required=False)
+                    help='if set, will run jobs localy with 1 rep and 2 updates set - default : false(no action)', required=False)
 parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='mq_conditions.txt',
@@ -172,6 +172,7 @@ exceptions = []
 condition_sets = []
 condition_sets_skipped = []
 constantDefs = ''
+populationLoaderDefs = ''
 cfg_files = []
 other_files = []
 executable = "./mabe"
@@ -269,14 +270,14 @@ with open(args.file) as openfileobject:
             if line[0] == "SETTINGS":
                 cfg_files = line[2].split(',')
                 for f in cfg_files:
-                    if not(os.path.isfile(f)):
+                    if not(os.path.isfile(f)) and f.find('{{rep}}')==-1:
                         print('settings file: "' + f +
                               '" seems to be missing!')
                         exit()
             if line[0] == "OTHERFILES":
                 other_files = line[2].split(',')
                 for f in other_files:
-                    if not(os.path.isfile(f)):
+                    if not(os.path.isfile(f)) and f.find('{{rep}}')==-1:
                         print('other file: "' + f + '" seems to be missing!')
                         exit()
             if line[0] == "HPCC_LONGJOB":
@@ -286,6 +287,8 @@ with open(args.file) as openfileobject:
                 for i in line[2:]:
                     newParameter += i + ' '
                 HPCC_parameters.append(newParameter[:-1])
+            if line[0] == "PLF":
+                populationLoaderDefs += '\n '+' '.join(line[2:])
 
 padSizeReps = len(str(lastRep))
 
@@ -336,6 +339,11 @@ for key in varList:
 
 combinations = []
 conditions = []
+
+if len(varList) + len(condition_sets) == 0:
+    using_conditions = True
+    conditions.append('')
+    combinations.append('C')
 
 if not using_conditions:
     done = False
@@ -485,7 +493,19 @@ if args.runTest:
         constantDefs = constantDefs.replace(match.group(), "GLOBAL-updates 2")
 for i in range(len(combinations)):
     for rep in reps:
+        if not args.runNo:
+            ## perform keyword replacement such as {{rep}}
+            replacedPopulationLoaderDefs = populationLoaderDefs.replace('{{rep}}',str(rep))
+            replacedOther_files = [s.replace('{{rep}}',str(rep)) for s in other_files]
+            replacedConstantDefs = constantDefs.replace('{{rep}}',str(rep))
+            if (len(populationLoaderDefs)): ## if any have been specified, then create the file and dump specified to file
+                os.chdir(absLocalDir)
+                with open('population_loader.plf','w') as file:
+                    file.write(replacedPopulationLoaderDefs+'\n')
         if args.runLocal or args.runTest:
+            for eachFile in replacedOther_files:
+                if os.path.relpath(eachFile) != os.path.basename(eachFile):
+                    shutil.copy(eachFile, os.path.basename(eachFile))
             # turn cgf_files list into a space separated string
             cfg_files_str = ' '.join(cfg_files)
             if (displayName == ""):
@@ -493,14 +513,14 @@ for i in range(len(combinations)):
             else:
                 conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + stripIllegalDirnameChars(conditions[i][1:-1])
             print("running:")
-            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + constantDefs)
+            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + replacedConstantDefs)
             # make rep directory (this will also make the condition directory if it's not here already)
             call(["mkdir","-p", conditionDirectoryName + "/" + str(rep).zfill(padSizeReps)])
             if not args.runNo:
                 sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
-                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + constantDefs.split())
+                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
         if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
@@ -529,8 +549,10 @@ for i in range(len(combinations)):
             shutil.copy(executable, workDir)  # copy the executable to scratch
             for f in cfg_files:
                 shutil.copy(f, workDir)  # copy the settings files to scratch
-            for f in other_files:
+            for f in replacedOther_files:
                 shutil.copy(f, workDir)  # copy other files to scratch
+            if (len(replacedPopulationLoaderDefs)):
+                shutil.copy('population_loader.plf', workDir)
 
             # if the local conditions directory is not already here, make it
             if not(os.path.exists(conditionDirectoryName)):
@@ -548,7 +570,7 @@ for i in range(len(combinations)):
             qsubFileName = "MQ.qsub"
 
             # make the qsub file on scratch
-            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + constantDefs, padSizeReps = padSizeReps)
+            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + replacedConstantDefs, padSizeReps = padSizeReps)
 
             print("submitting:")
             print("  " + realDisplayName + " :")

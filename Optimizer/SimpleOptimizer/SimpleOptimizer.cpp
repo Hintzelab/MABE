@@ -18,7 +18,7 @@ shared_ptr<ParameterLink<int>> SimpleOptimizer::numberParentsPL = Parameters::re
 
 shared_ptr<ParameterLink<string>> SimpleOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-optimizeValue", (string) "DM_AVE[score]", "value to optimize (MTree)");
 shared_ptr<ParameterLink<string>> SimpleOptimizer::surviveRatePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-surviveRate", (string) "0", "value between 0 and 1, likelyhood that an organism will self (ignored if numberParents = 1) (MTree)");
-shared_ptr<ParameterLink<string>> SimpleOptimizer::selfRatePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate", (string) "0", "value between 0 and 1, liklyhood that an organism will survive (MTree)");
+shared_ptr<ParameterLink<string>> SimpleOptimizer::selfRatePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate", (string) "0", "value between 0 and 1, likelyhood that an organism will survive (MTree)");
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismCountPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount", (string) "1", "number of mutated offspring added to next population for each elite organism (MTree)");
 shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismRange", (string) "0", "number of elite organisms (i.e. if 5, then best 5) (MTree)");
 

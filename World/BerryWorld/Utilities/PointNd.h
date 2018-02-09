@@ -72,6 +72,13 @@ public:
 		return newVect;
 	}
 
+	bool operator==(Point2d other) { // scalar/dot product of this and other
+		if (x == other.x && y == other.y) {
+			return true;
+		}
+		return false;
+	}
+
 	double dist() { // length between this point and 0,0
 		return sqrt(x*x + y*y);
 	}

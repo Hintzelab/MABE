@@ -226,6 +226,14 @@ int MarkovBrain::numGates() {
 	return brainSize();
 }
 
+vector<int> MarkovBrain::getHiddenNodes(){
+	vector<int> temp = {};
+	for (size_t i = nrInputValues + nrOutputValues; i < nodes.size(); i++) {
+		temp.push_back(Bit(nodes[i]));
+	}
+	return temp;
+}
+
 void MarkovBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
 	int codonMax = (1 << Gate_Builder::bitsPerCodonPL->get()) - 1;
 	_genomes[genomeName]->fillRandom();

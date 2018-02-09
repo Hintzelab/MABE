@@ -12,12 +12,12 @@
 
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-dataSequence", (string) ":100",
 		"How often to write to data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-organismSequence", (string) ":1000",
+shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_LODWAP-organismsSequence", (string) ":1000",
 		"How often to write genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_pruneIntervalPL = Parameters::register_parameter("ARCHIVIST_LODWAP-pruneInterval", 100, "How often to attempt to prune LOD and actually write out to files");
 shared_ptr<ParameterLink<int>> LODwAPArchivist::LODwAP_Arch_terminateAfterPL = Parameters::register_parameter("ARCHIVIST_LODWAP-terminateAfter", 10, "how long to run after updates (to get allow time for coalescence)");
 shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeDataFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeDataFile", true, "if true, a data file will be written");
-shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeOrganismFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeOrganismFile", true, "if true, a organism file will be written");
+shared_ptr<ParameterLink<bool>> LODwAPArchivist::LODwAP_Arch_writeOrganismFilePL = Parameters::register_parameter("ARCHIVIST_LODWAP-writeOrganismsFile", true, "if true, an organisms file will be written");
 shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_LODWAP-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 
 
@@ -46,7 +46,7 @@ LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstr
 	}
 	organismSequence = seq(genomeSequenceStr, Global::updatesPL->get(), true);
 	if (organismSequence.size() == 0) {
-		cout << "unable to translate ARCHIVIST_LODWAP-organismSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+		cout << "unable to translate ARCHIVIST_LODWAP-organismsSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
 		exit(1);
 	}
 
@@ -62,7 +62,7 @@ LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstr
 	if (writeOrganismFile != false) {
 		organismSequence = seq(genomeSequenceStr, Global::updatesPL->get(), true);
 		if (organismSequence.size() == 0) {
-			cout << "unable to translate ARCHIVIST_SSWD-organismSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
+			cout << "unable to translate ARCHIVIST_SSWD-organismsSequence \"" << genomeSequenceStr << "\".\nExiting." << endl;
 			exit(1);
 		}
 	}
