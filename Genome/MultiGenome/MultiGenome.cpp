@@ -450,11 +450,19 @@ void MultiGenome::mutate() {
 // make a mutated genome. from this genome
 // inherit the ParamatersTable from the calling instance
 shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<MultiGenome>(PT);
-	newGenome->copyFrom(parent);
-	newGenome->mutate();
-	newGenome->recordDataMap();
-	return newGenome;
+	if (ploidy == 1) { // if single parent and single ploidy, then just copy and mutate
+		auto newGenome = make_shared<MultiGenome>(PT);
+		newGenome->copyFrom(parent);
+		newGenome->mutate();
+		newGenome->recordDataMap();
+		return newGenome;
+	}
+	// otherwise, make ploidy parents and process selfing
+	vector<shared_ptr<AbstractGenome>> parents;
+	while (parents.size() < ploidy) {
+		parents.push_back(parent);
+	}
+	return makeMutatedGenomeFromMany(parents);
 }
 
 // make a mutated genome from a vector or genomes
