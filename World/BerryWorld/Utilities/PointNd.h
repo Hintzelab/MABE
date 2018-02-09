@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -23,7 +24,7 @@ public:
 	double x;
 	double y;
 
-	const double pi = std::atan(1.0) * 4;
+	const double pi = atan(1.0) * 4;
 
 	Point2d() {
 		x = 0.0;

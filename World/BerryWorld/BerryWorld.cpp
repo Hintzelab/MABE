@@ -125,11 +125,11 @@ bool readFileLine(ifstream& FILE, string& rawLine, stringstream& ss) {
 	bool atEOF = false;
 	atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
 	string cleanLine = rawLine;
-	cleanLine.erase(remove_if(cleanLine.begin(), cleanLine.end(), isspace), cleanLine.end());
+	cleanLine.erase(remove_if(cleanLine.begin(), cleanLine.end(), ::isspace), cleanLine.end());
 	while (!atEOF && cleanLine[0]!='#' && cleanLine.size() == 0) { // keep reading lines until we find a line that is not end of file, or starting with # or empty
 		atEOF = loadLineToSS(FILE, rawLine, ss); // read next line of file
 		cleanLine = rawLine;
-		cleanLine.erase(remove_if(cleanLine.begin(), cleanLine.end(), isspace), cleanLine.end());
+		cleanLine.erase(remove_if(cleanLine.begin(), cleanLine.end(), ::isspace), cleanLine.end());
 	}
 	return atEOF;
 }

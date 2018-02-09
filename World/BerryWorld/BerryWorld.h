@@ -10,6 +10,8 @@
 
 #pragma once					// directive to insure that this .h file is only included one time
 
+#include <ctype.h>
+
 #include "../../Utilities/Utilities.h"
 #include "Utilities/VectorNd.h"
 #include "Utilities/TurnTable.h"
