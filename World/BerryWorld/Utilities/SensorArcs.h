@@ -22,7 +22,7 @@
 #include <set>
 #include <vector>
 #include "VectorNd.h"
-#include "Utilities.h"
+#include "../../../Utilities/Utilities.h"
 
 using namespace std;
 
@@ -785,7 +785,7 @@ public:
 		// make a new list of indexes for the edge locations
 
 		// test to show allLocations and edgeLocations
-
+		/*
 		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
 			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
 				int type = 0;
@@ -811,7 +811,7 @@ public:
 			}
 			cout << endl;
 		}
-
+		*/
 		// now build the locationsTree!
 
 		int allLocations_index = 0;
@@ -864,10 +864,9 @@ public:
 	Sensor(double angle1, double angle2, double distanceMax, double distanceMin, int _resolution, bool calculateBlocking) {
 		resolution = _resolution;
 		double resolutionOffset = 360.0 / resolution;
-		//cout << resolutionOffset << " --------------------------- " << endl;
-		cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "     resolution: " << resolution << "  blocking: " << calculateBlocking << ")" << endl;
+		//cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "     resolution: " << resolution << "  blocking: " << calculateBlocking << ")" << endl;
 		for (int i = 0; i < resolution; i++) {
-			cout << "   building arc # " << i << endl;
+			//cout << "   building arc # " << i << endl;
 			angles[i] = make_shared<SensorArc>((i * resolutionOffset) + angle1, (i * resolutionOffset) + angle2, distanceMax, distanceMin, calculateBlocking);
 		}
 	}

@@ -14,6 +14,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include "PointNd.h"
+
 using namespace std;
 
 // Vector2d is wraps a vector<T> and provides x,y style access
@@ -26,11 +28,8 @@ template <typename T> class Vector2d {
 	int R, C;
 
 	// get index into data vector for a given x,y
-	inline int getIndex(int r, int c, int _C = -1) {
-		if (_C == -1) {
-			_C = C;
-		}
-		return (r * _C) + c;
+	inline int getIndex(int r, int c) {
+		return (r * C) + c;
 	}
 
 public:
@@ -44,11 +43,22 @@ public:
 		data.resize(R*C);
 	}
 
-	void reset(int x, int y){
+	Vector2d(int x, int y, T value) : R(y), C(x) {
+		data.resize(R*C,value);
+	}
+
+	void reset(int x, int y) {
 		R = y;
 		C = x;
 		data.clear();
 		data.resize(R*C);
+	}
+
+	void reset(int x, int y, T value) {
+		R = y;
+		C = x;
+		data.clear();
+		data.resize(R*C, value);
 	}
 
 	// overwrite this classes data (vector<T>) with data coppied from newData
@@ -75,6 +85,10 @@ public:
 
 	T& operator()(pair<double,double> loc) {
 		return data[getIndex((int)(loc.second),(int)(loc.first))];
+	}
+
+	T& operator()(Point2d loc) {
+		return data[getIndex((int)loc.y, (int)loc.x)];
 	}
 
 	// show the contents of this Vector2d with index values, and x,y values
