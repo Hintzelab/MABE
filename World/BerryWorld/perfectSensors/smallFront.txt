@@ -1,0 +1,46 @@
+..4..
+.123.
+.....
+.....
+.....
+
+.aaa4bbb.
+ccaa3bbdd
+ccmm2ssdd
+nnnm1sttt
+nnnl^rttt
+xxxx.yyyy
+xxxx.yyyy
+xxxx.yyyy
+xxxx.yyyy
+# comments start with #, but # must be first non whitespace in line
+#################################################
+perfectSensor definition must be square and can
+only be used with directions = 4 or 8
+
+key
+^ = harvester location facing north
+. = no detection
+[0-9][a-z][A-Z] =
+brain input per detectable. If the same
+char is used more then once, these
+sensors will report the sum of the
+indicated locations
+
+this code:
+.......
+.mm2ss.
+mml1rss
+.ll^rr.
+...3...
+...4...
+.......
+
+defines:
+
+2 forward sensors (1 and 2)
+2 backward sensors (3 and 4)
+a near left sensor (l)
+a far left sensor (m)
+a near right sensor (r)
+a far right sensor (s)
