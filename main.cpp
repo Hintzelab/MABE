@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
 	https://github.com/HintzeLab/MABE
 
 
-	for help run MABE with the "-h" flag (i.e. ./MABE -h).
+	for help run MABE with the "-h" flag (i.e. ./mabe -h).
 
 )raw";
   cout << logo;

@@ -135,12 +135,12 @@ MASTER = default 100 # by default :)
 #MASTER = 'snapshot_organisms_10.csv' 
 
 # another example
-#some_var = best 5 by ID from { '*.csv' }
+#some_var = greatest 5 by ID from { '*.csv' }
 #MASTER = collapse some_var
  
 # a convoluted example :P
-#another_var = best 5 by ID from { '*.csv' } 
-#still_another_var = best 2 by ID from { '*.csv' : worst 10 by score_AVE from { */LOD_*.csv : */SSWD_*.csv } : '*/*.csv' } 
+#another_var = greatest 5 by ID from { '*.csv' } 
+#still_another_var = greatest 2 by ID from { '*.csv' : least 10 by score_AVE from { */LOD_*.csv : */SSWD_*.csv } : '*/*.csv' } 
 #MASTER = collapse { any 3 from { another_var : still_another_var } }
 
 )";
