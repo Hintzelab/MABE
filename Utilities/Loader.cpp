@@ -281,20 +281,20 @@ Loader::parse_collection(std::string expr) {
         }
  
  		{
-          std::regex command_best(
-              R"(^\s*best\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
+          std::regex command_greatest(
+              R"(^\s*greatest\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
           std::smatch match;
-          if (std::regex_match(expr, match, command_best))
-            return keyword_best(stoul(match[1].str()), match[2].str(),
+          if (std::regex_match(expr, match, command_greatest))
+            return keyword_greatest(stoul(match[1].str()), match[2].str(),
                                 match[3].str());
         }
  
  		{
-          std::regex command_worst(
-              R"(^\s*worst\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
+          std::regex command_least(
+              R"(^\s*least\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
           std::smatch match;
-          if (std::regex_match(expr, match, command_worst))
-            return keyword_worst(stol(match[1].str()),
+          if (std::regex_match(expr, match, command_least))
+            return keyword_least(stol(match[1].str()),
                                  match[2].str(), match[3].str());
         }
       
@@ -312,9 +312,9 @@ Loader::parse_collection(std::string expr) {
 
 } // end Loader::parse_token
 
-std::vector<std::vector<long>> Loader::keyword_best(size_t number,
-                                                    std::string attribute,
-                                                    std::string resource) {
+std::vector<std::vector<long>> Loader::keyword_greatest(size_t number,
+                                                        std::string attribute,
+                                                        std::string resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
     cout << "Unrecognised token " << resource << endl;
@@ -348,9 +348,9 @@ std::vector<std::vector<long>> Loader::keyword_best(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_worst(size_t number,
-                                                    std::string attribute,
-                                                    std::string resource) {
+std::vector<std::vector<long>> Loader::keyword_least(size_t number,
+                                                     std::string attribute,
+                                                     std::string resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
     cout << "Unrecognised token " << resource << endl;
