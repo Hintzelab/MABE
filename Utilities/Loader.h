@@ -72,8 +72,9 @@ private:
   std::vector<std::vector<long>> keyword_collapse(std::string);
   std::vector<std::vector<long>> keyword_random(long number);
   std::vector<std::vector<long>> keyword_default(long number);
-  std::vector<std::vector<long>> keyword_best(size_t, std::string, std::string);
-  std::vector<std::vector<long>> keyword_worst(size_t, std::string,
+  std::vector<std::vector<long>> keyword_greatest(size_t, std::string,
+                                                  std::string);
+  std::vector<std::vector<long>> keyword_least(size_t, std::string,
                                                std::string);
   std::vector<std::vector<long>> keyword_any(size_t, std::string);
 
