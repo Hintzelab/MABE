@@ -29,33 +29,13 @@ class SimpleOptimizer : public AbstractOptimizer {
 
 	static shared_ptr<ParameterLink<string>> nextPopSizePL;  // number of genomes in the population
 
-	string selectionMethod;
-	int numberParents;
-
-	///
-
-	int oldPopulationSize;
-	int nextPopulationTargetSize;
-	int nextPopulationSize;
-
-	int selfCount;
-	int eliteCount;
-	int surviveCount;
-
-	double aveScore;
-	double maxScore;
-	double minScore;
-
-	vector<int> elites;
-	vector<double> scores;
-
 	///
 	class AbstractSelector {
 	public:
 		SimpleOptimizer *SO;
 		AbstractSelector() = default;
 		AbstractSelector(SimpleOptimizer *_SO) : SO(_SO){};
-		virtual int select() = 0;
+		virtual int select(int whichParent) = 0;
 		virtual string getType() = 0;
 	};
 
@@ -76,11 +56,22 @@ class SimpleOptimizer : public AbstractOptimizer {
 			}
 		}
 
-		virtual int select() override {
+		virtual int select(int whichParent) override {
+			if (whichParent > SO->scores[0].size()-1) { // if the scores for each org contains only one element then either asexual, or all parents use same rule
+				whichParent = 0; // so set which parent to 0 (so if sex, we will use first score reguardless of which parent)
+			}
 			int pick;
+			//cout << "Roulette: \n";
+			if (SO->maxScore[whichParent] <= 0) {
+				pick = Random::getIndex(SO->oldPopulationSize);  //pick one (since max == 0, all are 0 or less, pick random)
+
+				//cout << "  (score <= 0) pick: " << pick << "  has score[" << pick << "]: " << SO->scores[pick][whichParent] << "   max score[" << whichParent << "]: " << SO->maxScore[whichParent] << endl;
+				return(pick);
+			}
 			do {
 				pick = Random::getIndex(SO->oldPopulationSize);  //keep choosing a random genome from population until we get one that's good enough
-			} while (Random::getDouble(1) > (SO->scores[pick] / SO->maxScore));
+				//cout << "  pick: " << pick << "  has score[" << pick << "]: " << SO->scores[pick][whichParent] << "   max score[" << whichParent << "]: " << SO->maxScore[whichParent] << endl;
+			} while (Random::getDouble(1) > (SO->scores[pick][whichParent] / SO->maxScore[whichParent]));
 			return pick;
 		}
 
@@ -122,14 +113,21 @@ class SimpleOptimizer : public AbstractOptimizer {
 			}
 		}
 
-		virtual int select() override {
+		virtual int select(int whichParent) override {
+			if (whichParent > SO->scores[0].size()-1) { // if the scores for each org contains only one element then either asexual, or all parents use same rule
+				whichParent = 0; // so set which parent to 0 (so if sex, we will use first score reguardless of which parent)
+			}
+			//cout << "Tournament (size): " << tournamentSize << "\n";
+
 			int winner, challanger;
 			winner = Random::getIndex(SO->oldPopulationSize);
-			for (int i = 0; i < tournamentSize - 1; i++) {
+			//cout << "  first  " << winner << "(" << SO->scores[winner][whichParent] << ")\n";
+
+			for (int i = 1; i < tournamentSize; i++) {
 				challanger = Random::getIndex(SO->oldPopulationSize);
-				//cout << tournamentSize << " " <<i << "  " << challanger<<"("<<SO.scores[challanger] << "),winner(" << SO.scores[winner] << ")";
-				if (SO->scores[challanger] > SO->scores[winner]) {
-					//cout << " *";
+				//cout << "  pick#: " << i << "  " << challanger<<"[" << whichParent << "]:"<<SO->scores[challanger][whichParent] << " vs " << winner << "[" << whichParent << "]:" << SO->scores[winner][whichParent];
+				if (SO->scores[challanger][whichParent] > SO->scores[winner][whichParent]) {
+					//cout << "    NEW BEST";
 					winner = challanger;
 				}
 				//cout << endl;
@@ -142,10 +140,29 @@ class SimpleOptimizer : public AbstractOptimizer {
 		}
 	};
 
-	shared_ptr<AbstractSelector> selector;
+	int numberParents;
+	vector<string> selectionMethods;
+	vector<shared_ptr<Abstract_MTree>> optimizeValueMTs;
+	vector<shared_ptr<AbstractSelector>> selectors;
 
-	shared_ptr<Abstract_MTree> optimizeValueMT, surviveRateMT, selfRateMT, elitismCountMT, elitismRangeMT, nextPopSizeMT;
+	shared_ptr<Abstract_MTree> surviveRateMT, selfRateMT, elitismCountMT, elitismRangeMT, nextPopSizeMT;
 
+	///
+
+	int oldPopulationSize;
+	int nextPopulationTargetSize;
+	int nextPopulationSize;
+
+	int selfCount;
+	int eliteCount;
+	int surviveCount;
+
+	vector<double> aveScore;
+	vector<double> maxScore;
+	vector<double> minScore;
+
+	vector<int> elites;
+	vector<vector<double>> scores;
 	SimpleOptimizer(shared_ptr<ParametersTable> _PT = nullptr);
 	
 	virtual void optimize(vector<shared_ptr<Organism>> &population) override;

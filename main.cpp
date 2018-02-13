@@ -56,7 +56,7 @@ int main(int argc, const char *argv[]) {
 	https://github.com/HintzeLab/MABE
 
 
-	for help run MABE with the "-h" flag (i.e. ./mabe -h).
+	for help run MABE with the "-h" flag (i.e. ./MABE -h).
 
 )raw";
   cout << logo;
@@ -319,7 +319,7 @@ int main(int argc, const char *argv[]) {
 
     // create an archivist of type determined by ARCHIVIST-outputMethod
     auto archivist =
-        makeArchivist(popFileColumns, optimizer->optimizeFormula, PT,
+        makeArchivist(popFileColumns, optimizer->optimizeDMValue, PT,
                       (groupInfo.first == "root::") ? "" : groupInfo.first);
 
     // create a new group with the new population, optimizer and archivist and

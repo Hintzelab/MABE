@@ -97,10 +97,10 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	DefaultArchivist(_PT, _groupPrefix) {
 	convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
-	maxFormula = _maxFormula;
+	maxDMValue = _maxDMValue;
 	if (DefaultPopFileColumns.size() <= 0) {
 		DefaultPopFileColumns = popFileColumns;
 	}
@@ -164,23 +164,24 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 	}
 
 	// write out Max data
-	if (writeMaxFile && maxFormula != nullptr) {
+	if (writeMaxFile && maxDMValue != "") {
 		double bestScore;
 		shared_ptr<Organism> bestOrg;
+		bool foundValid = false;
 		for (size_t i = 0; i < population.size(); i++) {
-			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
-				// find a valid score!
-				bestScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
-				bestOrg = population[i];
-				i = population.size();
-			}
-		}
-		for (size_t i = 0; i < population.size(); i++) {
-			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
-				double newScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
-				if (newScore > bestScore) {
+			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) { // if older then now or save new organisms (which were just born)
+				double newScore = population[i]->dataMap.getAverage(maxDMValue);
+				if (!foundValid) {
+					// this is the first vaid score we have found
+					foundValid = true;
 					bestScore = newScore;
 					bestOrg = population[i];
+				}
+				else { // this is not the first valid, see if it's best
+					if (newScore > bestScore) {
+						bestScore = newScore;
+						bestOrg = population[i];
+					}
 				}
 			}
 		}

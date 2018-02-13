@@ -22,8 +22,8 @@ shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_FilePrefixPL = Pa
 
 
 
-LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
-		DefaultArchivist(popFileColumns, _maxFormula, _PT, _groupPrefix) {
+LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+		DefaultArchivist(popFileColumns, _maxDMValue, _PT, _groupPrefix) {
 
 	pruneInterval = LODwAP_Arch_pruneIntervalPL->get(PT);
 	terminateAfter = LODwAP_Arch_terminateAfterPL->get(PT);

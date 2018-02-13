@@ -26,8 +26,7 @@ using namespace std;
 
 class AbstractOptimizer {
  public:
-	shared_ptr<Abstract_MTree> optimizeFormula;
-
+	string optimizeDMValue;
 
 	static shared_ptr<ParameterLink<string>> Optimizer_MethodStrPL;
 	static shared_ptr<ParameterLink<string>> reportNamesPL;
