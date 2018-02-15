@@ -969,7 +969,7 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 
 
 				// set inital facing direction
-				newHarvester->face = tempStartFacing[pick] == 1 ? Random::getIndex(rotationResolution) : (tempStartFacing[pick] - 2) * (rotationResolution/8); // if startFacing is 1 then pick random, 2 is up, 3 is up right, etc...
+				newHarvester->face = tempStartFacing[pick] == 1 ? Random::getIndex(rotationResolution) : (tempStartFacing[pick] - 2) * (double(rotationResolution) / 8.0); // if startFacing is 1 then pick random, 2 is up, 3 is up right, etc...
 				tempStartFacing[pick] = tempStartFacing.back();
 				tempStartFacing.pop_back();
 
@@ -1003,7 +1003,7 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					tempValidSpaces.pop_back(); // remove last location in tempValidSpaces
 
 					// set inital facing direction
-					newHarvester->face = tempStartFacing[pick] == 1 ? Random::getIndex(rotationResolution) : (tempStartFacing[pick] - 2) * (rotationResolution / 8); // if startFacing is 1 then pick random, 2 is up, 3 is up right, etc...
+					newHarvester->face = tempStartFacing[pick] == 1 ? Random::getIndex(rotationResolution) : (tempStartFacing[pick] - 2) * (double(rotationResolution) / 8.0); // if startFacing is 1 then pick random, 2 is up, 3 is up right, etc...
 					tempStartFacing[pick] = tempStartFacing.back();
 					tempStartFacing.pop_back();
 
