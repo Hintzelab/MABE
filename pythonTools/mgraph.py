@@ -26,7 +26,7 @@ parser.add_argument('-imageSize', type=float, default = [10,10], help='size of i
 parser.add_argument('-yRange', type=int, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
 parser.add_argument('-xRange', type=int, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
 
-parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','99conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95 percent confidence intervals), 99conf (99 percent confidence intervals), reps (show data for all reps) - default : ave 99conf', nargs='+', required=False)
+parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','95conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95 percent confidence intervals), 99conf (99 percent confidence intervals), reps (show data for all reps) - default : ave 95conf', nargs='+', required=False)
 parser.add_argument('-pltStyle', type=str, choices=('line','point','randomLine','randomPoint'), default = 'line', help='plot style. Random is useful if plotting multiple data on the same plot - default : line', required=False)
 parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','barXY'), default = 'region', help='how error is ploted - default : region', required=False)
 
@@ -85,7 +85,7 @@ import matplotlib.cm as cm
 import fnmatch
 import ast
 
-def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','99conf'], PltStyle = 'line', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
+def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','95conf'], PltStyle = 'line', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
 	MajorFontSize = args.fontSizeMajor
 	MinorFontSize = args.fontSizeMinor
 	TickFontSize = args.fontSizeTicks
