@@ -26,7 +26,7 @@ parser.add_argument('-imageSize', type=float, default = [10,10], help='size of i
 parser.add_argument('-yRange', type=int, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
 parser.add_argument('-xRange', type=int, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
 
-parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','99conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95% confidence intervals), 99conf (99% confidence intervals), reps (show data for all reps) - default : ave 99conf', nargs='+', required=False)
+parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','99conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95 percent confidence intervals), 99conf (99 percent confidence intervals), reps (show data for all reps) - default : ave 99conf', nargs='+', required=False)
 parser.add_argument('-pltStyle', type=str, choices=('line','point','randomLine','randomPoint'), default = 'line', help='plot style. Random is useful if plotting multiple data on the same plot - default : line', required=False)
 parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','barXY'), default = 'region', help='how error is ploted - default : region', required=False)
 
@@ -116,6 +116,8 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		styleList = styleListRandomPoint
 		PltStyle = 'o'
 
+	assert len(ConditionsList) <= len(styleList) # until the above lists are dynamically built, this assert must be here to prevent index out of bounds errors
+
 	fig = plt.figure(figsize=(imageSize[0],imageSize[1]))                                                # create a new figure
 	fig.subplots_adjust(hspace=.35)
 
@@ -135,9 +137,9 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		NamesList = [x for x in NamesList if not integrateName in x]
 
 	if len(NamesList) == 1:
-		Columns = 1;
+		Columns = 1
 	if len(NamesList) == 2:
-		Columns = 2;
+		Columns = 2
 							
 	Rows = math.ceil(float(len(NamesList))/float(Columns))      # calcualate how many rows we need
 	for conditionCount in range(len(ConditionsList)):
@@ -325,7 +327,7 @@ godFrames = {}
 for file in files:
 	godFrames[file]=pandas.DataFrame()
 conCount = 0
-updateMin = 1000000000;
+updateMin = 1000000000
 
 for con in cons:
 	for file in files:
