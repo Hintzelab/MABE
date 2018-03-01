@@ -725,25 +725,24 @@ inline vector<int> seq(const string seqStr, int defaultMax = -1, bool addZero = 
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
 // if the line is not empty/comment, clean ss and load line.
 // rawLine is the string version of the same data as ss
-inline bool loadLineToSS(ifstream& FILE, string& rawLine, stringstream& ss) {
-	rawLine.resize(0);
-	if (FILE.is_open() && !FILE.eof()) {
-		while ((rawLine.size() == 0 || rawLine[0] == '#') && !FILE.eof()) {
-			getline(FILE, rawLine);
-		}
-		ss.clear();
-		ss.str(string());
-		ss << rawLine;
-	} else if (!FILE.eof()) {
-		cout << "in loadSS, FILE is not open!\n  Exiting." << endl;
-		exit(1);
-	}
-	//cout << "from file:  " << rawLine << endl;
-	return FILE.eof();
+inline bool loadLineToSS(ifstream &FILE, string &rawLine, stringstream &ss) {
+  rawLine.resize(0);
+  if (FILE.is_open() && !FILE.eof()) {
+    while ((rawLine.size() == 0 || rawLine[0] == '#') && !FILE.eof()) {
+      getline(FILE, rawLine);
+    }
+    ss.clear();
+    ss.str(string());
+    ss << rawLine;
+  } else if (!FILE.eof()) {
+    cout << "in loadSS, FILE is not open!\n  Exiting." << endl;
+    exit(1);
+  }
+  // cout << "from file:  " << rawLine << endl;
+  return FILE.eof();
 }
 
-
-
+/*
 // load all genomes from a file
 inline void loadIndexedCSVFile(const string& fileName, unordered_map<int,unordered_map<string,string>>& data, string& indexName) {
 	data.clear();
@@ -776,6 +775,7 @@ inline void loadIndexedCSVFile(const string& fileName, unordered_map<int,unorder
 		exit(1);
 	}
 }
+*/
 
 /*
 // must add vector<T> to CSVString function
