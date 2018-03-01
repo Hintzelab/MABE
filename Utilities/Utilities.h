@@ -285,6 +285,7 @@ readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
 }
 
 
+/*
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same index
 inline string CSVLookUp(map<string, vector<string>> CSV_Table, const string& lookupKey, const string& lookupValue, const string& returnKey) {
@@ -320,6 +321,44 @@ inline string CSVLookUp(map<string, vector<string>> CSV_Table, const string& loo
 
 	return CSV_Table[returnKey][lookupIndex];
 }
+*/
+
+// extract a value from a map<string,vector<string>>
+// given a value from one vector, return the value in another vector at the same index
+inline std::string
+CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
+          const std::string &lookup_key, const std::string &lookup_value,
+          const std::string &return_key) {
+
+  if (csv_table.find(lookup_key) == csv_table.end()) {
+    cout << " Error : CSVLookup could not find requested lookup key" << endl;
+    exit(1);
+  }
+
+  if (csv_table.find(return_key) == csv_table.end()) {
+    cout << "Error : CSVLookup could not find requested return key " << endl;
+    exit(1);
+  }
+
+  auto iter = std::find(csv_table[lookup_key].begin(),
+                        csv_table[lookup_key].end(), lookup_value);
+  if (iter == csv_table[lookup_key].end()) {
+    cout << "Error : CSVLookup could not find requested lookup value" << endl;
+    exit(1);
+  }
+
+  size_t pos = std::distance(csv_table[lookup_key].begin(), iter);
+  if (csv_table[return_key].size() <= pos) {
+    cout << "Error : CSVLookup could not find extract lookup value index from "
+            "return_key"
+         << endl;
+    exit(1);
+  }
+
+  return csv_table[return_key][pos];
+}
+
+
 
 // Put an arbitrary value to the target variable, return false on conversion failure
 template<class T>
