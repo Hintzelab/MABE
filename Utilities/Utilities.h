@@ -19,14 +19,10 @@
 #include <sstream>
 #include <set>
 #include <vector>
+#include <regex>
 
 using namespace std;
 
-
-template<typename T1, typename T2>
-bool HaveSameType(T1, T2) {
-	return is_same<T1, T2>();
-}
 
 inline string get_var_typename(const bool&) {
 	return "bool";
@@ -39,6 +35,17 @@ inline string get_var_typename(const int&) {
 }
 inline string get_var_typename(const double&) {
 	return "double";
+}
+
+template <typename Match = std::smatch>
+inline std::vector<Match> forEachRegexMatch(const std::string &s,
+                                            std::regex &r) {
+  std::vector<Match> v;
+  for (std::sregex_iterator end,
+       i = std::sregex_iterator(s.begin(), s.end(), r);
+       i != end; i++)
+    v.push_back(Match(*i));
+  return v;
 }
 
 inline vector<string> nameSpaceToNameParts(const string& nameSpace) {
