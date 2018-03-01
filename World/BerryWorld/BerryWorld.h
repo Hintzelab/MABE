@@ -41,6 +41,18 @@ public:
 	static shared_ptr<ParameterLink<int>> rotationResolutionPL;
 	static shared_ptr<ParameterLink<double>> maxTurnPL;
 
+	static shared_ptr<ParameterLink<bool>> allowTurnPL;
+	static shared_ptr<ParameterLink<bool>> allowSidestepPL;
+	static shared_ptr<ParameterLink<bool>> allowBackstepPL;
+	bool allowTurn;
+	bool allowSidestep;
+	bool allowBackstep;
+
+	static shared_ptr<ParameterLink<bool>> allowMoveAndEatPL;
+	static shared_ptr<ParameterLink<bool>> alwaysEatPL;
+	bool alwaysEat;
+	bool allowMoveAndEat;
+
 	static shared_ptr<ParameterLink<int>> evalTimePL;
 	static shared_ptr<ParameterLink<int>> foodTypesPL;
 
@@ -108,14 +120,11 @@ public:
 	static shared_ptr<ParameterLink<bool>> wallsBlockVisonSensorsPL;
 	static shared_ptr<ParameterLink<bool>> wallsBlockSmellSensorsPL;
 
-	static shared_ptr<ParameterLink<bool>> allowMoveAndEatPL;
-	static shared_ptr<ParameterLink<bool>> alwaysEatPL;
-
 	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
 	static shared_ptr<ParameterLink<int>> evaluateGroupSizePL;
 	static shared_ptr<ParameterLink<string>> cloneScoreRulePL;
 	static shared_ptr<ParameterLink<int>> clonesPL;
-
+	static shared_ptr<ParameterLink<string>> groupScoreRulePL;
 
 	// parameters for group and brain namespaces
 	static shared_ptr<ParameterLink<string>> groupNameSpacePL;
@@ -123,11 +132,15 @@ public:
 	
 	static shared_ptr<ParameterLink<double>> moveDefaultPL;
 	static shared_ptr<ParameterLink<double>> moveMinPL;
+	static shared_ptr<ParameterLink<double>> moveMinPerTurnPL;
 	static shared_ptr<ParameterLink<bool>> snapToGridPL;
 
 	static shared_ptr<ParameterLink<string>> mapFilesPL;
 	static shared_ptr<ParameterLink<string>> whichMapsPL;
 
+	static shared_ptr<ParameterLink<string>> triggerFoodsPL;
+	static shared_ptr<ParameterLink<string>> triggerFoodLevelsPL;
+	static shared_ptr<ParameterLink<string>> triggerFoodEventsPL;
 
 	class WorldMap {
 	public:
@@ -213,6 +226,9 @@ public:
 		bool useStartMap = false;
 
 		vector<ResourceGenerator> generators; // index will act as lookup key in generator events
+		vector<vector<int>> triggerFoods;// = { 1,1,3 };
+		vector<int> triggerFoodLevels;// = { 10,0,0 };
+		vector<string> triggerFoodEvents;// = { "R[2,3]","T*10+Q","G[1,1,2,0,0,2]" };
 
 		bool loadMap(ifstream& ss, const string fileName);
 	};
@@ -242,10 +258,10 @@ public:
 		int otherHits = 0; // how many times did this harverster try to move into another harvester?
 
 		// these vars are only used at the end to collect stats
-		double score;
+		double score = 0;
 		int maxFood;
 		int totalFood;
-		double foodScore;
+		double foodScore = 0;
 		double poisonCost = 0;
 
 	};
@@ -265,10 +281,12 @@ public:
 	int smellSensorArcSize;
 	vector<int> smellSensorDirections;
 
-	vector<Point2d> moveDeltas;
+	bool seeFood, smellFood, perfectDetectsFood;
+	bool seeOther, smellOther, perfectDetectsOther;
+	bool seeWalls, smellWalls, perfectDetectsWalls;
+	bool usePerfectSensor, useDownSensor;
 
-	bool alwaysEat;
-	bool allowMoveAndEat;
+	vector<Point2d> moveDeltas;
 
 	vector<double> foodRewards;
 	vector<vector<int>> replaceRules;
@@ -276,9 +294,11 @@ public:
 
 	int worldX;
 	int worldY;
+	bool worldHasWall;
 
 	double moveDefault;
 	double moveMin;
+	double moveMinPerTurn;
 
 	bool snapToGrid;
 
@@ -288,6 +308,11 @@ public:
 	int wallsBlockSmellSensors;
 
 	int cloneScoreRule;
+	int groupScoreRule;
+
+	int moveOutputs;
+
+	map<int, int> actionLookup;
 
 	map<string, map<string, WorldMap>> worldMaps; // [type][name]
 	vector<string> mapFiles;
@@ -295,6 +320,16 @@ public:
 	vector<string> whichMaps;
 
 	vector<vector<vector<Point2d>>> perfectSensorSites;
+
+	vector<int> foodCounts;
+
+	vector<vector<int>> triggerFoods;// = { 1,1,3 };
+	vector<int> triggerFoodLevels;// = { 10,0,0 };
+	vector<string> triggerFoodEvents;// = { "R[2,3]","T*10+Q","G[1,1,2,0,0,2]" };
+	// backup triggers from config files
+	vector<vector<int>> configTriggerFoods;
+	vector<int> configTriggerFoodLevels;
+	vector<string> configTriggerFoodEvents;
 
 	BerryWorld(shared_ptr<ParametersTable> _PT);
 	virtual ~BerryWorld() = default;
@@ -305,11 +340,11 @@ public:
 	virtual unordered_map<string, unordered_set<string>> requiredGroups() override;
 
 	// takes x,y and updates them by moving one step in facing
-	Point2d moveOnGrid(shared_ptr<Harvester> harvester,double distance) {
+	Point2d moveOnGrid(shared_ptr<Harvester> harvester,double distance,int offset = 0) {
 		Point2d newLoc;
 		//cout << "deltas: " << moveDeltas[harvester->face].x << "," << moveDeltas[harvester->face].y << endl;
-		newLoc.x = loopModDouble((harvester->loc.x + (moveDeltas[harvester->face].x * distance)), worldX);
-		newLoc.y = loopModDouble((harvester->loc.y + (moveDeltas[harvester->face].y * distance)), worldY);
+		newLoc.x = loopModDouble((harvester->loc.x + (moveDeltas[loopMod(harvester->face + offset, moveDeltas.size())].x * distance)), worldX);
+		newLoc.y = loopModDouble((harvester->loc.y + (moveDeltas[loopMod(harvester->face + offset, moveDeltas.size())].y * distance)), worldY);
 		return(newLoc);
 	}
 
