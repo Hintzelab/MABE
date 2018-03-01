@@ -168,12 +168,7 @@ MASTER = default 100 # by default :)
   for (int i = 1; i < argc; i++)
     arguments += argv[i], arguments += " ";
   std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
-//  for (auto &m : Utilities::ForEachRegexMatch(arguments, command_line_arguments)) {
-  for (std::sregex_iterator end,
-       i = std::sregex_iterator(arguments.begin(), arguments.end(),
-                               command_line_arguments);
-       i != end; i++) {
-    std::smatch m = *i;
+  for (auto &m : forEachRegexMatch(arguments, command_line_arguments)) {
     switch (m[1].str()[0]) {
     case 'h':
       cout << "Usage: " << argv[0] << usage_message << endl;
