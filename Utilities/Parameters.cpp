@@ -223,7 +223,7 @@ MASTER = default 100 # by default :)
   }
 } // end Parameters::readCommandLine()
 
-
+/*
 unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	unordered_map<string, string> config_file_list;
 	set<char> nameFirstLegalChars = {  // characters that can be used as the first "letter" of a name
@@ -439,6 +439,91 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	}
 	return config_file_list;
 }
+*/
+
+std::unordered_map<std::string, std::string>
+Parameters::readParametersFile(std::string file_name) {
+
+  std::unordered_map<std::string, std::string> config_file_list;
+
+  std::ifstream file(file_name); // open file named by file_name
+  if (!file.is_open()) {
+    cout << "  ERROR! unable to open file \"" << file_name << "\".\nExiting.\n";
+    exit(1);
+  }
+  std::string dirty_line;
+  std::string category_name;
+  std::string name_space_name;
+
+  while (std::getline(file, dirty_line)) {
+
+    std::regex comments("#.*");
+    std::string line = std::regex_replace(dirty_line, comments, "");
+
+    std::regex empty_lines(R"(^\s*$)");
+    if (std::regex_match(line, empty_lines))
+      continue;
+
+    {
+      std::regex category(R"(^\s*%\s*(\w*)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, category)) {
+        category_name = m[1].str();
+		continue;
+      }
+    }
+
+    {
+      std::regex name_space_open(R"(^\s*\+\s*(\w+::)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_space_open)) {
+        name_space_name += m[1].str();
+        continue;
+      }
+    }
+
+    {
+      std::regex name_space_close(R"(^\s*-\s*$)");
+      std::regex name_space_remove_last(R"(::\w+::)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_space_close)) {
+        if (name_space_name.empty()) {
+          cout << " Error: no namespace to descend, already at root:: "
+                  "namespace. "
+               << endl;
+          exit(1);
+        }
+        name_space_name =
+            std::regex_replace(name_space_name, name_space_remove_last, "::");
+        continue;
+      }
+	}
+
+    {
+      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(.+)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_value_pair)) {
+        auto name = name_space_name + category_name + "-" + m[1].str();
+        if (config_file_list.find(name) != config_file_list.end()) {
+          cout << "  Error: \"" << name << "\" is defined more then once in file: \""
+               << file_name << "\".\n exiting.\n";
+          exit(1);
+        }
+        config_file_list[name] = m[2].str();
+        continue;
+      }
+    }
+
+    cout
+        << " Error: unrecognised line " << endl
+        << dirty_line << " in file " << file_name << endl
+        << R"(See https://github.com/Hintzelab/MABE/wiki/Parameters-Name-Space  for correct usage.)"
+        << endl;
+  }
+
+  return config_file_list;
+}
+
 
 bool Parameters::initializeParameters(int argc, const char * argv[]) {
 
