@@ -686,6 +686,37 @@ public:
 		return value;
 	}
 
+  // just a wrapper for getting type of parameter and setting values
+  // return success status
+  bool getParameterTypeAndSetParameter(const std::string &name,
+                                       const std::string &value_as_string,
+                                       const std::string &_tableNameSpace = "'",
+                                       bool _saveOnFileWrite = false) {
+
+    std::string parameterType = this->getParameterType(name);
+    if (parameterType == "bool") {
+      bool value;
+      stringToValue(value_as_string, value);
+      this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
+    } else if (parameterType == "string") {
+      std::string value;
+      stringToValue(value_as_string, value);
+      this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
+    } else if (parameterType == "int") {
+      int value;
+      stringToValue(value_as_string, value);
+      this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
+    } else if (parameterType == "double") {
+      double value;
+      stringToValue(value_as_string, value);
+      this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
+    } else {
+      return false;
+    }
+    return true;
+  }
+
+
 	// set value in this table, or named table if provided (creates if needed) - will also set this value in rootTable if the value does not exist
 	// add or overwrite to this table and add to root if not there.
 	template<typename T>
