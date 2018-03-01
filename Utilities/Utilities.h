@@ -20,6 +20,7 @@
 #include <set>
 #include <vector>
 #include <regex>
+#include <cmath>
 
 using namespace std;
 
@@ -100,15 +101,21 @@ nameSpaceToNameParts(const std::string &name_space) {
   return name_parts;
 }
 
-/*
+/*  correctly get modulo when numerator negative
  * return x % y were (-1 % y) = (y - 1)
  * (-2 % y) = (y - 2), etc.
  */
 inline int loopMod(const int numerator, const int denominator) {
-	return ((numerator % denominator) + denominator) % denominator;
+  return ((numerator % denominator) + denominator) % denominator;
 }
 
+//  correctly get floating point  modulo when numerator negative
+inline double loopModDouble(const double numerator, const double denominator) {
+  return std::fmod(std::fmod(numerator, denominator) + denominator,
+                   denominator);
+}
 
+/*
 inline double loopModDouble(const double numerator, const double denominator) {
 	double n = numerator;
 	while (n < 0){
@@ -119,6 +126,7 @@ inline double loopModDouble(const double numerator, const double denominator) {
 	}
 	return n;
 }
+*/
 
 // returns 1 if "d" is greater than 0, else return 0
 template<typename Type>
@@ -129,6 +137,8 @@ inline int Bit(Type d) {
 // returns 1 if "d" is greater than 0
 //         0 if "d" is equal to 0
 //        -1 if "d" is less than 0
+template <typename Type> inline int Trit(Type d) { return d < 0 ? -1 : d > 0; }
+/*
 template<typename Type>
 inline int Trit(Type d) {
 	if (d < 0) {
@@ -137,6 +147,7 @@ inline int Trit(Type d) {
 		return d > 0;
 	}
 }
+*/
 
 inline vector<string> parseCSVLine(string rawLine, const char separator = ',') {
 	vector<string> dataLine;
