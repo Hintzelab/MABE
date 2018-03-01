@@ -21,6 +21,7 @@
 #include <vector>
 #include <regex>
 #include <cmath>
+#include <numeric>
 
 using namespace std;
 
@@ -463,9 +464,7 @@ inline void convertCSVListToVector(std::string string_data,
 
 
 // this is here so we can use to string and it will work even if we give it a string as input
-inline string to_string(string str) {
-	return (str);
-}
+inline string to_string(string str) { return (str); }
 
 /*
  * getBestInVector(vector<T> vec)
@@ -487,7 +486,7 @@ inline int findGreatestInVector(vector<Type> vec) {
 // and 01, 010, 0100 (etc.) all return 2 (10)
 // and 11, 110, 1100 (etc.) all return 3 (11)
 // etc... hopefully you see the pattern
-
+/*
 template<typename Type>
 inline int vectorToBitToInt(const vector<Type> &nodes, const vector<int> &nodeAddresses, bool reverseOrder = false) {
 	int result = 0;
@@ -503,7 +502,20 @@ inline int vectorToBitToInt(const vector<Type> &nodes, const vector<int> &nodeAd
 	}
 	return result;
 }
+*/
+template <typename Type>
+inline int vectorToBitToInt(const std::vector<Type> &nodes,
+                            const std::vector<int> &nodeAddresses,
+                            bool reverseOrder = false) {
+  auto node_addresses = nodeAddresses;
+  if (reverseOrder)
+    std::reverse(node_addresses.begin(), node_addresses.end());
+  return std::accumulate(
+      node_addresses.begin(), node_addresses.end(), 0,
+      [&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
+}
 
+/*
 // see vectorToBitToInt, same process, but for Trits
 template<typename Type>
 inline int vectorToTritToInt(const vector<Type> &nodes, const vector<int> &nodeAddresses, bool reverseOrder = false) {
@@ -519,7 +531,19 @@ inline int vectorToTritToInt(const vector<Type> &nodes, const vector<int> &nodeA
 	}
 	return result;
 }
-
+*/
+template <typename Type>
+inline int vectorToTritToInt(const std::vector<Type> &nodes,
+                             const std::vector<int> &nodeAddresses,
+                             bool reverseOrder = false) {
+  auto node_addresses = nodeAddresses;
+  if (reverseOrder)
+    std::reverse(node_addresses.begin(), node_addresses.end());
+  return std::accumulate(node_addresses.begin(), node_addresses.end(), 0,
+                         [&nodes](int result, int na) {
+                           return result * 3 + Trit(nodes.at(na)) + 1;
+                         });
+}
 
 // converts a ',' separated formatted string to sequence with duplicates removed
 // single number -> just add that number
