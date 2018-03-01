@@ -956,6 +956,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
 */    // cout << "  - \"" << fileName << "\" has been created.\n";
 }
 
+/*
 void Parameters::printParameterWithWraparound(stringstream& FILE, string _currentIndent, string _parameter, int _maxLineLength, int _commentIndent) {
 	int currentLineLength = _currentIndent.size();
 	FILE << _currentIndent;
@@ -1025,7 +1026,55 @@ void Parameters::printParameterWithWraparound(stringstream& FILE, string _curren
 		}
 	}
 }
+*/
 
+void Parameters::printParameterWithWraparound(std::stringstream &file,
+                                              std::string current_indent,
+                                              std::string entire_parameter,
+                                              int max_line_length,
+                                              int comment_indent) {
+
+  auto pos_of_comment =
+      entire_parameter.find_first_of("@@@#"); // must be cleaned
+  if (pos_of_comment == std::string::npos) {
+    cout << " Error : parameter has no comment";
+    exit(1); // which makes type conversion to int safe after this??
+  }
+  if (int(pos_of_comment) > max_line_length - 9) {
+    cout << " Error : parameter name and value too large to fit on single "
+            "line. Ignoring column width for this line\n";
+  }
+
+  std::string line;
+  line += current_indent;
+  line += entire_parameter.substr(0, pos_of_comment);  // write name-value
+
+  std::string sub_line(comment_indent, ' ');
+  if (int(line.length()) < comment_indent)
+    line +=
+        sub_line.substr(0, comment_indent - line.length()); // pad with spaces
+
+  auto comment = entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
+
+  // add as much of the comment as possible to the line
+  auto next_newline = comment.find_first_of('\n');
+  auto comment_cut = std::min(  // yuck, must express more clearly
+      next_newline == std::string::npos ? max_line_length : int(next_newline),
+      max_line_length - std::max(comment_indent, int(line.length())));
+  line += comment.substr(0, comment_cut);
+  file << line << '\n';
+ 
+  // write rest of the comments right-aligned
+  comment = comment.substr(std::min(comment_cut + 1, int(comment.length())));
+  std::regex aligned_comments(R"((.*\n|.{)" + std::to_string(comment_indent) +
+                              R"(}))");
+  for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
+    file << sub_line << "# " << m[1].str();
+  }
+  file << '\n';
+}
+
+/*  **** old version will be deprecated upon resolution of MABE namespace semantics
 void Parameters::saveSettingsFiles(int _maxLineLength, int _commentIndent, vector<string> nameSpaceList, vector<pair<string, vector<string>>> categoryLists) {
 	bool alsoChildren;
 	string fileName;
@@ -1087,3 +1136,67 @@ void Parameters::saveSettingsFiles(int _maxLineLength, int _commentIndent, vecto
 		}
 	}
 }
+*/
+
+void Parameters::saveSettingsFiles(
+    int max_line_length, int comment_indent,
+    std::vector<std::string> name_space_list,
+    std::vector<std::pair<std::string, std::vector<std::string>>>
+        category_lists) {
+  bool also_children;
+  std::string file_name;
+  std::vector<std::string> other_category_list;
+  for (auto name_space : name_space_list) {
+    for (auto clist : category_lists) {
+      other_category_list.insert(other_category_list.end(), clist.second.begin(),
+                               clist.second.end());
+      if (!name_space.empty() && name_space.back() == '*') {
+        name_space.pop_back();
+        also_children = true;
+      } else {
+        also_children = false;
+      }
+      // why bother at all?
+      std::regex colon(R"(::)");
+      file_name = std::regex_replace(name_space, colon, "_");
+      if (!file_name.empty()) {
+        file_name.pop_back();
+        file_name += "_";
+      }
+
+      std::stringstream ss;
+      if (clist.second.size() == 1 && clist.second[0] == "") {
+        other_category_list.insert(other_category_list.begin(), "-");
+        saveSettingsFile(name_space, ss, other_category_list, max_line_length,
+                         comment_indent, also_children);
+      } else {
+        saveSettingsFile(name_space, ss, clist.second, max_line_length,
+                         comment_indent, also_children);
+      }
+      std::string workingString = ss.str();
+      workingString.erase(
+          std::remove_if(workingString.begin(), workingString.end(),
+                         [](char c) { return c == ' ' || c == 11; }),
+          workingString.end());
+      bool lastCharEnter = false;
+      bool fileEmpty = true;
+      for (auto c : workingString) {
+        if (c == 10) {
+          lastCharEnter = true;
+        } else {
+          if (lastCharEnter == true) {
+            if (!(c == '+' || c == '-' || c == 10)) {
+              fileEmpty = false;
+            }
+          }
+          lastCharEnter = false;
+        }
+      }
+      if (!fileEmpty) {
+        std::ofstream file (file_name + clist.first);
+        file << ss.str();
+        file.close();
+      }
+    }
+  }
+} // end Parameters::saveSettingsFiles
