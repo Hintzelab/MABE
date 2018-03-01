@@ -149,6 +149,7 @@ inline int Trit(Type d) {
 }
 */
 
+/*
 inline vector<string> parseCSVLine(string rawLine, const char separator = ',') {
 	vector<string> dataLine;
 	string dataEntry;
@@ -186,6 +187,41 @@ inline vector<string> parseCSVLine(string rawLine, const char separator = ',') {
 	dataLine.push_back(dataEntry);  // we are at the end of the line. add dataEntry to dataLine
 	dataEntry.clear();  // ... and clear out dataEntry to make room for the next value
 	return dataLine;
+}
+*/
+
+inline std::vector<std::string> parseCSVLine(std::string raw_line,
+                                             const char separator = ',',
+                                             const char sep_except = '"') {
+  std::vector<std::string> data_line;
+  std::string s, se;
+  s += separator;
+  se += sep_except;
+  std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
+  bool in_quotes = false;
+  std::string quoted_string;
+  for (auto &m : forEachRegexMatch(raw_line, piece)) {
+    if (m[2].str() == se) {
+      if (!in_quotes) {
+        data_line.push_back(m[1].str());
+        in_quotes = true;
+      } else {
+        quoted_string += m[1].str();
+        data_line.push_back(quoted_string);
+        quoted_string = "";
+        in_quotes = false;
+      }
+    } else {
+      if (!in_quotes)
+        data_line.push_back(m[1].str());
+      else
+        quoted_string += m[0].str();
+    }
+  }
+  data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
+                                 [](std::string s) { return s == ""; }),
+                  data_line.end());
+  return data_line;
 }
 
 // reads a csv file with header and converts to a map of string,vector<string>
