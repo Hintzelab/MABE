@@ -695,105 +695,265 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
   return saveFiles;
 }
 
+/* **** old version will be deprecated upon resolution of MABE namespace
+semantics
+void Parameters::saveSettingsFile(const string& nameSpace, stringstream& FILE,
+vector<string> categoryList, int _maxLineLength, int _commentIndent, bool
+alsoChildren, int nameSpaceLevel) {
+        map<string, vector<string>> sortedParameters;
+        root->lookupTable(nameSpace)->parametersToSortedList(sortedParameters);
+        if (!root->lookupTable(nameSpace)->neverSave) {
+                string currentIndent = "";
+                vector<string> nameSpaceParts = nameSpaceToNameParts(nameSpace);
 
-void Parameters::saveSettingsFile(const string& nameSpace, stringstream& FILE, vector<string> categoryList, int _maxLineLength, int _commentIndent, bool alsoChildren, int nameSpaceLevel) {
-	map<string, vector<string>> sortedParameters;
-	root->lookupTable(nameSpace)->parametersToSortedList(sortedParameters);
-	if (!root->lookupTable(nameSpace)->neverSave) {
-		string currentIndent = "";
-		vector<string> nameSpaceParts = nameSpaceToNameParts(nameSpace);
+                for (int i = 0; i < nameSpaceLevel; i++) {
+                        currentIndent += "  ";
+                        nameSpaceParts.erase(nameSpaceParts.begin());
+                }
 
-		for (int i = 0; i < nameSpaceLevel; i++) {
-			currentIndent += "  ";
-			nameSpaceParts.erase(nameSpaceParts.begin());
-		}
+                if (nameSpaceParts.size() > 0) {
+                        for (auto p : nameSpaceParts) {
+                                FILE << currentIndent << "+ " << p.substr(0,
+p.size() - 2) << "\n";
+                                nameSpaceLevel++;
+                                currentIndent += "  ";
+                        }
+                }
+                if (categoryList.size() > 0 && categoryList[0] == "-") {
+                        if (sortedParameters.find("GLOBAL") !=
+sortedParameters.end() && !(find(categoryList.begin(), categoryList.end(),
+"GLOBAL") != categoryList.end())) {
+                                FILE << currentIndent << "% GLOBAL" << "\n";
+                                for (auto parameter :
+sortedParameters["GLOBAL"]) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
+                } else {  // write parameters to file.
+                        if (sortedParameters.find("GLOBAL") !=
+sortedParameters.end() && find(categoryList.begin(), categoryList.end(),
+"GLOBAL") != categoryList.end()) {
+                                FILE << currentIndent << "% GLOBAL" << "\n";
+                                for (auto parameter :
+sortedParameters["GLOBAL"]) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
 
-		if (nameSpaceParts.size() > 0) {
-			for (auto p : nameSpaceParts) {
-				FILE << currentIndent << "+ " << p.substr(0, p.size() - 2) << "\n";
-				nameSpaceLevel++;
-				currentIndent += "  ";
-			}
-		}
-		if (categoryList.size() > 0 && categoryList[0] == "-") {
-			if (sortedParameters.find("GLOBAL") != sortedParameters.end() && !(find(categoryList.begin(), categoryList.end(), "GLOBAL") != categoryList.end())) {
-				FILE << currentIndent << "% GLOBAL" << "\n";
-				for (auto parameter : sortedParameters["GLOBAL"]) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
-		} else {  // write parameters to file.
-			if (sortedParameters.find("GLOBAL") != sortedParameters.end() && find(categoryList.begin(), categoryList.end(), "GLOBAL") != categoryList.end()) {
-				FILE << currentIndent << "% GLOBAL" << "\n";
-				for (auto parameter : sortedParameters["GLOBAL"]) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
+                }
+                sortedParameters.erase("GLOBAL");
 
-		}
-		sortedParameters.erase("GLOBAL");
+                for (auto group : sortedParameters) {
+                        bool saveThis = false;
+                        if (categoryList.size() > 0 && categoryList[0] != "-") {
+                                for (auto cat : categoryList) {
+                                        if ((int) group.first.size() >= ((int)
+cat.size()) - 1) {
+                                                if (group.first == cat) {
+                                                        saveThis = true;
+                                                } else {
+                                                        if ((int) cat.size() > 0
+&& cat[((int) cat.size()) - 1] == '*') {
+                                                                if
+(group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
+                                                                        saveThis
+= true;
+                                                                }
+                                                        }
+                                                }
+                                        }
 
-		for (auto group : sortedParameters) {
-			bool saveThis = false;
-			if (categoryList.size() > 0 && categoryList[0] != "-") {
-				for (auto cat : categoryList) {
-					if ((int) group.first.size() >= ((int) cat.size()) - 1) {
-						if (group.first == cat) {
-							saveThis = true;
-						} else {
-							if ((int) cat.size() > 0 && cat[((int) cat.size()) - 1] == '*') {
-								if (group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
-									saveThis = true;
-								}
-							}
-						}
-					}
+                                }
+                        } else {
+                                saveThis = true;
+                                for (auto cat : categoryList) {
+                                        if ((int) group.first.size() >= ((int)
+cat.size()) - 1) {
+                                                if (group.first == cat) {
+                                                        saveThis = false;
+                                                } else {
+                                                        if ((int) cat.size() > 0
+&& cat[((int) cat.size()) - 1] == '*') {
+                                                                if
+(group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
+                                                                        saveThis
+= false;
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                        if (saveThis) {
+                                FILE << currentIndent << "% " << group.first <<
+"\n";
+                                for (auto parameter : group.second) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
+                }
+                if (alsoChildren) {
+                        vector<shared_ptr<ParametersTable>> checklist =
+root->lookupTable(nameSpace)->getChildren();
+                        sort(checklist.begin(), checklist.end());
+                        for (auto c : checklist) {
+                                saveSettingsFile(c->getTableNameSpace(), FILE,
+categoryList, _maxLineLength, _commentIndent, true, nameSpaceLevel);
+                        }
+                }
 
-				}
-			} else {
-				saveThis = true;
-				for (auto cat : categoryList) {
-					if ((int) group.first.size() >= ((int) cat.size()) - 1) {
-						if (group.first == cat) {
-							saveThis = false;
-						} else {
-							if ((int) cat.size() > 0 && cat[((int) cat.size()) - 1] == '*') {
-								if (group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
-									saveThis = false;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (saveThis) {
-				FILE << currentIndent << "% " << group.first << "\n";
-				for (auto parameter : group.second) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
-		}
-		if (alsoChildren) {
-			vector<shared_ptr<ParametersTable>> checklist = root->lookupTable(nameSpace)->getChildren();
-			sort(checklist.begin(), checklist.end());
-			for (auto c : checklist) {
-				saveSettingsFile(c->getTableNameSpace(), FILE, categoryList, _maxLineLength, _commentIndent, true, nameSpaceLevel);
-			}
-		}
+                while (nameSpaceParts.size() > 0) {
+                        currentIndent = currentIndent.substr(2,
+currentIndent.size());
+                        FILE << currentIndent << "- (" <<
+nameSpaceParts[nameSpaceParts.size() - 1].substr(0,
+nameSpaceParts[nameSpaceParts.size() - 1].size() - 2) << ")\n";
+                        nameSpaceParts.pop_back();
+                }
+                //cout << "  - \"" << fileName << "\" has been created.\n";
+        }
+}
+*/
 
-		while (nameSpaceParts.size() > 0) {
-			currentIndent = currentIndent.substr(2, currentIndent.size());
-			FILE << currentIndent << "- (" << nameSpaceParts[nameSpaceParts.size() - 1].substr(0, nameSpaceParts[nameSpaceParts.size() - 1].size() - 2) << ")\n";
-			nameSpaceParts.pop_back();
-		}
-		//cout << "  - \"" << fileName << "\" has been created.\n";
-	}
+void Parameters::saveSettingsFile(const std::string &name_space,
+                                  std::stringstream &file,
+                                  std::vector<std::string> category_list,
+                                  int max_line_length, int comment_indent,
+                                  bool also_children, int name_space_level) {
+
+  if (root->lookupTable(name_space)->neverSave)
+    return;
+
+
+
+  std::map<std::string, std::vector<std::string>> sortedParameters;
+  root->lookupTable(name_space)->parametersToSortedList(sortedParameters);
+    
+  std::string current_indent = "";
+
+/*   *** Will uncomment and fix when namespaces are actually needed
+    auto name_space_parts = nameSpaceToNameParts(name_space);
+	for (int i = 0; i < name_space_level; i++) {
+      currentIndent += "  ";
+      name_space_parts.erase(name_space_parts.begin());
+    }
+
+    if (name_space_parts.size() > 0) {
+      for (auto p : name_space_parts) {
+        file << currentIndent << "+ " << p.substr(0, p.size() - 2) << "\n";
+        name_space_level++;
+        currentIndent += "  ";
+      }
+    }
+ */
+ 	if (category_list.size() > 0 && category_list[0] == "-") {
+      if (sortedParameters.find("GLOBAL") != sortedParameters.end() &&
+          !(find(category_list.begin(), category_list.end(), "GLOBAL") !=
+            category_list.end())) {
+        file << current_indent << "% GLOBAL"
+             << "\n";
+        for (auto parameter : sortedParameters["GLOBAL"]) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file <<
+          // currentIndent << "  " << parameter << "\n";
+        }
+        file << "\n";
+      }
+    } else { // write parameters to file.
+      if (sortedParameters.find("GLOBAL") != sortedParameters.end() &&
+          find(category_list.begin(), category_list.end(), "GLOBAL") !=
+              category_list.end()) {
+        file << current_indent << "% GLOBAL"
+             << "\n";
+        for (auto parameter : sortedParameters["GLOBAL"]) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file <<
+          // currentIndent << "  " << parameter << "\n";
+        }
+        file << "\n";
+      }
+    }
+    sortedParameters.erase("GLOBAL");
+
+    for (auto group : sortedParameters) {
+      bool saveThis = false;
+      if (category_list.size() > 0 && category_list[0] != "-") {
+        for (auto cat : category_list) {
+          if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+            if (group.first == cat) {
+              saveThis = true;
+            } else {
+              if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+                if (group.first.substr(0, cat.size() - 1) ==
+                    cat.substr(0, cat.size() - 1)) {
+                  saveThis = true;
+                }
+              }
+            }
+          }
+        }
+      } else {
+        saveThis = true;
+        for (auto cat : category_list) {
+          if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+            if (group.first == cat) {
+              saveThis = false;
+            } else {
+              if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+                if (group.first.substr(0, cat.size() - 1) ==
+                    cat.substr(0, cat.size() - 1)) {
+                  saveThis = false;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (saveThis) {
+        file << current_indent << "% " << group.first << "\n";
+        for (auto parameter : group.second) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file << currentIndent << "  " << parameter <<
+          //"\n";
+        }
+        file << "\n";
+      }
+    }
+
+	if (also_children) {
+      std::vector<std::shared_ptr<ParametersTable>> checklist =
+          root->lookupTable(name_space)->getChildren();
+      sort(checklist.begin(), checklist.end());
+      for (auto c : checklist) {
+        saveSettingsFile(c->getTableNameSpace(), file, category_list,
+                         max_line_length, comment_indent, true, name_space_level);
+      }
+    }
+/*   *** Will uncomment and fix when namespaces are actually needed
+    while (name_space_parts.size() > 0) {
+      currentIndent = currentIndent.substr(2, currentIndent.size());
+      file << currentIndent << "- ("
+           << name_space_parts[name_space_parts.size() - 1].substr(
+                  0, name_space_parts[name_space_parts.size() - 1].size() - 2)
+           << ")\n";
+      name_space_parts.pop_back();
+    }
+*/    // cout << "  - \"" << fileName << "\" has been created.\n";
 }
 
 void Parameters::printParameterWithWraparound(stringstream& FILE, string _currentIndent, string _parameter, int _maxLineLength, int _commentIndent) {
