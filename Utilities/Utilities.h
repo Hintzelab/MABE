@@ -260,6 +260,31 @@ inline map<string, vector<string>> readFromCSVFile(const string& fileName, const
 }
 */
 
+inline std::map<std::string, std::vector<std::string>>
+readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
+                       const char sep_except = '"') {
+  std::map<std::string, std::vector<std::string>> data; // the final map
+  std::ifstream file(file_name);
+  if (!file.is_open()) {
+    cout << " Error: readColumnsFromCSVFile cannot open file " << file_name
+         << std::endl;
+    exit(1);
+  }
+
+  std::string raw_line;
+  getline(file, raw_line);
+  auto attribute_names = parseCSVLine(raw_line, separator, sep_except);
+
+  while (getline(file, raw_line)) {
+    auto data_line = parseCSVLine(raw_line, separator, sep_except);
+    for (auto i = 0u; i < data_line.size(); i++)
+      data[attribute_names.at(i)].push_back(data_line.at(i));
+  }
+
+  return data;
+}
+
+
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same index
 inline string CSVLookUp(map<string, vector<string>> CSV_Table, const string& lookupKey, const string& lookupValue, const string& returnKey) {
