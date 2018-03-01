@@ -524,7 +524,7 @@ Parameters::readParametersFile(std::string file_name) {
   return config_file_list;
 }
 
-
+/*
 bool Parameters::initializeParameters(int argc, const char * argv[]) {
 
 	if (root == nullptr) {
@@ -628,6 +628,73 @@ bool Parameters::initializeParameters(int argc, const char * argv[]) {
 //		exit(0);
 //	}
 }
+*/
+
+bool Parameters::initializeParameters(int argc, const char *argv[]) {
+
+  if (root == nullptr) {
+    root = ParametersTable::makeTable();
+  }
+
+  std::unordered_map<std::string, std::string> command_line_list;
+  std::vector<std::string> fileList;
+
+  bool saveFiles = false;
+  Parameters::readCommandLine(argc, argv, command_line_list, fileList,
+                              saveFiles);
+
+  std::string workingNameSpace, workingCategory, workingParameterName;
+
+  for (const auto &fileName : fileList) { // load all files in order - this
+                                          // order is arbitrary if wildcarded?
+    std::unordered_map<std::string, std::string> file_list =
+        Parameters::readParametersFile(fileName);
+    for (const auto &file : file_list) {
+      parseFullParameterName(file.first, workingNameSpace, workingCategory,
+                             workingParameterName);
+      if (!root->getParameterTypeAndSetParameter(
+              workingCategory + "-" + workingParameterName, file.second,
+              workingNameSpace, true)) {
+        cout << (saveFiles ? "   WARNING" : "  ERROR")
+             << " :: while reading file \"" << fileName << "\" found \""
+             << workingNameSpace + workingCategory + "-" + workingParameterName
+             << ".\n      But \""
+             << workingCategory + "-" + workingParameterName
+             << "\" is not a registered parameter!" << endl
+             << (saveFiles ? "      This parameter will not be saved "
+                             "to new files."
+                           : "  Exiting.")
+             << endl;
+        if (!saveFiles) {
+          exit(1);
+        }
+      }
+    }
+  }
+  for (const auto &command :
+       command_line_list) { // load command line parameters last
+    parseFullParameterName(command.first, workingNameSpace, workingCategory,
+                           workingParameterName);
+    if (!root->getParameterTypeAndSetParameter(
+            workingCategory + "-" + workingParameterName, command.second,
+            workingNameSpace, true)) {
+      cout << (saveFiles ? "   WARNING" : "  ERROR")
+           << " :: while reading command line found \""
+           << workingNameSpace + workingCategory + "-" + workingParameterName
+           << ".\n      But \"" << workingCategory + "-" + workingParameterName
+           << "\" is not a registered parameter!" << endl
+           << (saveFiles ? "      This parameter will not be saved "
+                           "to new files."
+                         : "  Exiting.")
+           << endl;
+      if (!saveFiles) {
+        exit(1);
+      }
+    }
+  }
+  return saveFiles;
+}
+
 
 void Parameters::saveSettingsFile(const string& nameSpace, stringstream& FILE, vector<string> categoryList, int _maxLineLength, int _commentIndent, bool alsoChildren, int nameSpaceLevel) {
 	map<string, vector<string>> sortedParameters;
