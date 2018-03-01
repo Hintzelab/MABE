@@ -10,42 +10,37 @@
 
 #include<regex>
 #include "Parameters.h"
-using namespace std;
+//using namespace std;
 
 shared_ptr<ParametersTable> Parameters::root;
 
 long long ParametersTable::nextTableID = 0;
 
-template<> inline
-const bool ParametersEntry<bool>::getBool() {
-	return get();
+template <> inline const bool ParametersEntry<bool>::getBool() { return get(); }
+
+template <> inline const string ParametersEntry<string>::getString() {
+  return get();
 }
 
-template<> inline
-const string ParametersEntry<string>::getString() {
-	return get();
+template <> inline const int ParametersEntry<int>::getInt() { return get(); }
+
+template <> inline const double ParametersEntry<double>::getDouble() {
+  return get();
 }
 
-template<> inline
-const int ParametersEntry<int>::getInt() {
-	return get();
+shared_ptr<ParameterLink<bool>>
+Parameters::getBoolLink(const string &name, shared_ptr<ParametersTable> table) {
+  auto entry = table->lookupBoolEntry(name);
+  auto newLink = make_shared<ParameterLink<bool>>(name, entry, table);
+  return newLink;
 }
 
-template<> inline
-const double ParametersEntry<double>::getDouble() {
-	return get();
-}
-
-shared_ptr<ParameterLink<bool>> Parameters::getBoolLink(const string& name, shared_ptr<ParametersTable> table) {
-	auto entry = table->lookupBoolEntry(name);
-	auto newLink = make_shared<ParameterLink<bool>>(name, entry, table);
-	return newLink;
-}
-
-shared_ptr<ParameterLink<string>> Parameters::getStringLink(const string& name, shared_ptr<ParametersTable> table) {
-	auto entry = table->lookupStringEntry(name);
-	auto newLink = make_shared<ParameterLink<string>>(name, entry, table);
-	return newLink;
+shared_ptr<ParameterLink<string>>
+Parameters::getStringLink(const string &name,
+                          shared_ptr<ParametersTable> table) {
+  auto entry = table->lookupStringEntry(name);
+  auto newLink = make_shared<ParameterLink<string>>(name, entry, table);
+  return newLink;
 }
 
 shared_ptr<ParameterLink<int>> Parameters::getIntLink(const string& name, shared_ptr<ParametersTable> table) {
@@ -59,7 +54,7 @@ shared_ptr<ParameterLink<double>> Parameters::getDoubleLink(const string& name, 
 	auto newLink = make_shared<ParameterLink<double>>(name, entry, table);
 	return newLink;
 }
-
+/*
 void Parameters::parseFullParameterName(const string& fullName, string& nameSpace, string& category, string& parameterName) {
 	int i = fullName.size() - 1;
 	nameSpace = "";
@@ -97,6 +92,30 @@ void Parameters::parseFullParameterName(const string& fullName, string& nameSpac
 	} else {
 		nameSpace = workingString;
 	}
+}
+*/
+void Parameters::parseFullParameterName(const std::string &full_name,
+                                        std::string &name_space_name,
+                                        std::string &category_name,
+                                        std::string &parameter_name) {
+  // no need for error checking, since this is internal??
+  // Then it should be a private member at least.
+
+  std::regex param(R"(^(.*::)?(\w+)-(\w+)$)");
+  std::smatch m;
+  if (std::regex_match(full_name, m, param)) {
+    name_space_name = m[1].str();
+    category_name = m[2].str();
+    parameter_name = m[3].str();
+  } else {
+    // this doesn't distinguish between command line parameters and setting file
+    // parameters
+    cout << "  ERROR! :: found misformatted parameter \"" << full_name
+         << "\"\n  Parameters must have format: [category]-[name] "
+            "or [name space][category]-[name]"
+         << endl;
+    exit(1);
+  }
 }
 
 void Parameters::readCommandLine(
@@ -149,12 +168,7 @@ MASTER = default 100 # by default :)
   for (int i = 1; i < argc; i++)
     arguments += argv[i], arguments += " ";
   std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
-//  for (auto &m : Utilities::ForEachRegexMatch(arguments, command_line_arguments)) {
-  for (std::sregex_iterator end,
-       i = std::sregex_iterator(arguments.begin(), arguments.end(),
-                               command_line_arguments);
-       i != end; i++) {
-    std::smatch m = *i;
+  for (auto &m : forEachRegexMatch(arguments, command_line_arguments)) {
     switch (m[1].str()[0]) {
     case 'h':
       cout << "Usage: " << argv[0] << usage_message << endl;
@@ -209,7 +223,7 @@ MASTER = default 100 # by default :)
   }
 } // end Parameters::readCommandLine()
 
-
+/*
 unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	unordered_map<string, string> config_file_list;
 	set<char> nameFirstLegalChars = {  // characters that can be used as the first "letter" of a name
@@ -425,7 +439,92 @@ unordered_map<string, string> Parameters::readParametersFile(string fileName) {
 	}
 	return config_file_list;
 }
+*/
 
+std::unordered_map<std::string, std::string>
+Parameters::readParametersFile(std::string file_name) {
+
+  std::unordered_map<std::string, std::string> config_file_list;
+
+  std::ifstream file(file_name); // open file named by file_name
+  if (!file.is_open()) {
+    cout << "  ERROR! unable to open file \"" << file_name << "\".\nExiting.\n";
+    exit(1);
+  }
+  std::string dirty_line;
+  std::string category_name;
+  std::string name_space_name;
+
+  while (std::getline(file, dirty_line)) {
+
+    std::regex comments("#.*");
+    std::string line = std::regex_replace(dirty_line, comments, "");
+
+    std::regex empty_lines(R"(^\s*$)");
+    if (std::regex_match(line, empty_lines))
+      continue;
+
+    {
+      std::regex category(R"(^\s*%\s*(\w*)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, category)) {
+        category_name = m[1].str();
+		continue;
+      }
+    }
+
+    {
+      std::regex name_space_open(R"(^\s*\+\s*(\w+::)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_space_open)) {
+        name_space_name += m[1].str();
+        continue;
+      }
+    }
+
+    {
+      std::regex name_space_close(R"(^\s*-\s*$)");
+      std::regex name_space_remove_last(R"(::\w+::)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_space_close)) {
+        if (name_space_name.empty()) {
+          cout << " Error: no namespace to descend, already at root:: "
+                  "namespace. "
+               << endl;
+          exit(1);
+        }
+        name_space_name =
+            std::regex_replace(name_space_name, name_space_remove_last, "::");
+        continue;
+      }
+	}
+
+    {
+      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(.+)\s*$)");
+      std::smatch m;
+      if (std::regex_match(line, m, name_value_pair)) {
+        auto name = name_space_name + category_name + "-" + m[1].str();
+        if (config_file_list.find(name) != config_file_list.end()) {
+          cout << "  Error: \"" << name << "\" is defined more then once in file: \""
+               << file_name << "\".\n exiting.\n";
+          exit(1);
+        }
+        config_file_list[name] = m[2].str();
+        continue;
+      }
+    }
+
+    cout
+        << " Error: unrecognised line " << endl
+        << dirty_line << " in file " << file_name << endl
+        << R"(See https://github.com/Hintzelab/MABE/wiki/Parameters-Name-Space  for correct usage.)"
+        << endl;
+  }
+
+  return config_file_list;
+}
+
+/*
 bool Parameters::initializeParameters(int argc, const char * argv[]) {
 
 	if (root == nullptr) {
@@ -529,107 +628,335 @@ bool Parameters::initializeParameters(int argc, const char * argv[]) {
 //		exit(0);
 //	}
 }
+*/
 
-void Parameters::saveSettingsFile(const string& nameSpace, stringstream& FILE, vector<string> categoryList, int _maxLineLength, int _commentIndent, bool alsoChildren, int nameSpaceLevel) {
-	map<string, vector<string>> sortedParameters;
-	root->lookupTable(nameSpace)->parametersToSortedList(sortedParameters);
-	if (!root->lookupTable(nameSpace)->neverSave) {
-		string currentIndent = "";
-		vector<string> nameSpaceParts = nameSpaceToNameParts(nameSpace);
+bool Parameters::initializeParameters(int argc, const char *argv[]) {
 
-		for (int i = 0; i < nameSpaceLevel; i++) {
-			currentIndent += "  ";
-			nameSpaceParts.erase(nameSpaceParts.begin());
-		}
+  if (root == nullptr) {
+    root = ParametersTable::makeTable();
+  }
 
-		if (nameSpaceParts.size() > 0) {
-			for (auto p : nameSpaceParts) {
-				FILE << currentIndent << "+ " << p.substr(0, p.size() - 2) << "\n";
-				nameSpaceLevel++;
-				currentIndent += "  ";
-			}
-		}
-		if (categoryList.size() > 0 && categoryList[0] == "-") {
-			if (sortedParameters.find("GLOBAL") != sortedParameters.end() && !(find(categoryList.begin(), categoryList.end(), "GLOBAL") != categoryList.end())) {
-				FILE << currentIndent << "% GLOBAL" << "\n";
-				for (auto parameter : sortedParameters["GLOBAL"]) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
-		} else {  // write parameters to file.
-			if (sortedParameters.find("GLOBAL") != sortedParameters.end() && find(categoryList.begin(), categoryList.end(), "GLOBAL") != categoryList.end()) {
-				FILE << currentIndent << "% GLOBAL" << "\n";
-				for (auto parameter : sortedParameters["GLOBAL"]) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
+  std::unordered_map<std::string, std::string> command_line_list;
+  std::vector<std::string> fileList;
 
-		}
-		sortedParameters.erase("GLOBAL");
+  bool saveFiles = false;
+  Parameters::readCommandLine(argc, argv, command_line_list, fileList,
+                              saveFiles);
 
-		for (auto group : sortedParameters) {
-			bool saveThis = false;
-			if (categoryList.size() > 0 && categoryList[0] != "-") {
-				for (auto cat : categoryList) {
-					if ((int) group.first.size() >= ((int) cat.size()) - 1) {
-						if (group.first == cat) {
-							saveThis = true;
-						} else {
-							if ((int) cat.size() > 0 && cat[((int) cat.size()) - 1] == '*') {
-								if (group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
-									saveThis = true;
-								}
-							}
-						}
-					}
+  std::string workingNameSpace, workingCategory, workingParameterName;
 
-				}
-			} else {
-				saveThis = true;
-				for (auto cat : categoryList) {
-					if ((int) group.first.size() >= ((int) cat.size()) - 1) {
-						if (group.first == cat) {
-							saveThis = false;
-						} else {
-							if ((int) cat.size() > 0 && cat[((int) cat.size()) - 1] == '*') {
-								if (group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
-									saveThis = false;
-								}
-							}
-						}
-					}
-				}
-			}
-			if (saveThis) {
-				FILE << currentIndent << "% " << group.first << "\n";
-				for (auto parameter : group.second) {
-					printParameterWithWraparound(FILE, currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
-//					FILE << currentIndent << "  " << parameter << "\n";
-				}
-				FILE << "\n";
-			}
-		}
-		if (alsoChildren) {
-			vector<shared_ptr<ParametersTable>> checklist = root->lookupTable(nameSpace)->getChildren();
-			sort(checklist.begin(), checklist.end());
-			for (auto c : checklist) {
-				saveSettingsFile(c->getTableNameSpace(), FILE, categoryList, _maxLineLength, _commentIndent, true, nameSpaceLevel);
-			}
-		}
-
-		while (nameSpaceParts.size() > 0) {
-			currentIndent = currentIndent.substr(2, currentIndent.size());
-			FILE << currentIndent << "- (" << nameSpaceParts[nameSpaceParts.size() - 1].substr(0, nameSpaceParts[nameSpaceParts.size() - 1].size() - 2) << ")\n";
-			nameSpaceParts.pop_back();
-		}
-		//cout << "  - \"" << fileName << "\" has been created.\n";
-	}
+  for (const auto &fileName : fileList) { // load all files in order - this
+                                          // order is arbitrary if wildcarded?
+    std::unordered_map<std::string, std::string> file_list =
+        Parameters::readParametersFile(fileName);
+    for (const auto &file : file_list) {
+      parseFullParameterName(file.first, workingNameSpace, workingCategory,
+                             workingParameterName);
+      if (!root->getParameterTypeAndSetParameter(
+              workingCategory + "-" + workingParameterName, file.second,
+              workingNameSpace, true)) {
+        cout << (saveFiles ? "   WARNING" : "  ERROR")
+             << " :: while reading file \"" << fileName << "\" found \""
+             << workingNameSpace + workingCategory + "-" + workingParameterName
+             << ".\n      But \""
+             << workingCategory + "-" + workingParameterName
+             << "\" is not a registered parameter!" << endl
+             << (saveFiles ? "      This parameter will not be saved "
+                             "to new files."
+                           : "  Exiting.")
+             << endl;
+        if (!saveFiles) {
+          exit(1);
+        }
+      }
+    }
+  }
+  for (const auto &command :
+       command_line_list) { // load command line parameters last
+    parseFullParameterName(command.first, workingNameSpace, workingCategory,
+                           workingParameterName);
+    if (!root->getParameterTypeAndSetParameter(
+            workingCategory + "-" + workingParameterName, command.second,
+            workingNameSpace, true)) {
+      cout << (saveFiles ? "   WARNING" : "  ERROR")
+           << " :: while reading command line found \""
+           << workingNameSpace + workingCategory + "-" + workingParameterName
+           << ".\n      But \"" << workingCategory + "-" + workingParameterName
+           << "\" is not a registered parameter!" << endl
+           << (saveFiles ? "      This parameter will not be saved "
+                           "to new files."
+                         : "  Exiting.")
+           << endl;
+      if (!saveFiles) {
+        exit(1);
+      }
+    }
+  }
+  return saveFiles;
 }
 
+/* **** old version will be deprecated upon resolution of MABE namespace
+semantics
+void Parameters::saveSettingsFile(const string& nameSpace, stringstream& FILE,
+vector<string> categoryList, int _maxLineLength, int _commentIndent, bool
+alsoChildren, int nameSpaceLevel) {
+        map<string, vector<string>> sortedParameters;
+        root->lookupTable(nameSpace)->parametersToSortedList(sortedParameters);
+        if (!root->lookupTable(nameSpace)->neverSave) {
+                string currentIndent = "";
+                vector<string> nameSpaceParts = nameSpaceToNameParts(nameSpace);
+
+                for (int i = 0; i < nameSpaceLevel; i++) {
+                        currentIndent += "  ";
+                        nameSpaceParts.erase(nameSpaceParts.begin());
+                }
+
+                if (nameSpaceParts.size() > 0) {
+                        for (auto p : nameSpaceParts) {
+                                FILE << currentIndent << "+ " << p.substr(0,
+p.size() - 2) << "\n";
+                                nameSpaceLevel++;
+                                currentIndent += "  ";
+                        }
+                }
+                if (categoryList.size() > 0 && categoryList[0] == "-") {
+                        if (sortedParameters.find("GLOBAL") !=
+sortedParameters.end() && !(find(categoryList.begin(), categoryList.end(),
+"GLOBAL") != categoryList.end())) {
+                                FILE << currentIndent << "% GLOBAL" << "\n";
+                                for (auto parameter :
+sortedParameters["GLOBAL"]) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
+                } else {  // write parameters to file.
+                        if (sortedParameters.find("GLOBAL") !=
+sortedParameters.end() && find(categoryList.begin(), categoryList.end(),
+"GLOBAL") != categoryList.end()) {
+                                FILE << currentIndent << "% GLOBAL" << "\n";
+                                for (auto parameter :
+sortedParameters["GLOBAL"]) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
+
+                }
+                sortedParameters.erase("GLOBAL");
+
+                for (auto group : sortedParameters) {
+                        bool saveThis = false;
+                        if (categoryList.size() > 0 && categoryList[0] != "-") {
+                                for (auto cat : categoryList) {
+                                        if ((int) group.first.size() >= ((int)
+cat.size()) - 1) {
+                                                if (group.first == cat) {
+                                                        saveThis = true;
+                                                } else {
+                                                        if ((int) cat.size() > 0
+&& cat[((int) cat.size()) - 1] == '*') {
+                                                                if
+(group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
+                                                                        saveThis
+= true;
+                                                                }
+                                                        }
+                                                }
+                                        }
+
+                                }
+                        } else {
+                                saveThis = true;
+                                for (auto cat : categoryList) {
+                                        if ((int) group.first.size() >= ((int)
+cat.size()) - 1) {
+                                                if (group.first == cat) {
+                                                        saveThis = false;
+                                                } else {
+                                                        if ((int) cat.size() > 0
+&& cat[((int) cat.size()) - 1] == '*') {
+                                                                if
+(group.first.substr(0, cat.size() - 1) == cat.substr(0, cat.size() - 1)) {
+                                                                        saveThis
+= false;
+                                                                }
+                                                        }
+                                                }
+                                        }
+                                }
+                        }
+                        if (saveThis) {
+                                FILE << currentIndent << "% " << group.first <<
+"\n";
+                                for (auto parameter : group.second) {
+                                        printParameterWithWraparound(FILE,
+currentIndent + "  ", parameter, _maxLineLength, _commentIndent);
+//					FILE << currentIndent << "  " <<
+parameter << "\n";
+                                }
+                                FILE << "\n";
+                        }
+                }
+                if (alsoChildren) {
+                        vector<shared_ptr<ParametersTable>> checklist =
+root->lookupTable(nameSpace)->getChildren();
+                        sort(checklist.begin(), checklist.end());
+                        for (auto c : checklist) {
+                                saveSettingsFile(c->getTableNameSpace(), FILE,
+categoryList, _maxLineLength, _commentIndent, true, nameSpaceLevel);
+                        }
+                }
+
+                while (nameSpaceParts.size() > 0) {
+                        currentIndent = currentIndent.substr(2,
+currentIndent.size());
+                        FILE << currentIndent << "- (" <<
+nameSpaceParts[nameSpaceParts.size() - 1].substr(0,
+nameSpaceParts[nameSpaceParts.size() - 1].size() - 2) << ")\n";
+                        nameSpaceParts.pop_back();
+                }
+                //cout << "  - \"" << fileName << "\" has been created.\n";
+        }
+}
+*/
+
+void Parameters::saveSettingsFile(const std::string &name_space,
+                                  std::stringstream &file,
+                                  std::vector<std::string> category_list,
+                                  int max_line_length, int comment_indent,
+                                  bool also_children, int name_space_level) {
+
+  if (root->lookupTable(name_space)->neverSave)
+    return;
+
+
+
+  std::map<std::string, std::vector<std::string>> sortedParameters;
+  root->lookupTable(name_space)->parametersToSortedList(sortedParameters);
+    
+  std::string current_indent = "";
+
+/*   *** Will uncomment and fix when namespaces are actually needed
+    auto name_space_parts = nameSpaceToNameParts(name_space);
+	for (int i = 0; i < name_space_level; i++) {
+      currentIndent += "  ";
+      name_space_parts.erase(name_space_parts.begin());
+    }
+
+    if (name_space_parts.size() > 0) {
+      for (auto p : name_space_parts) {
+        file << currentIndent << "+ " << p.substr(0, p.size() - 2) << "\n";
+        name_space_level++;
+        currentIndent += "  ";
+      }
+    }
+ */
+ 	if (category_list.size() > 0 && category_list[0] == "-") {
+      if (sortedParameters.find("GLOBAL") != sortedParameters.end() &&
+          !(find(category_list.begin(), category_list.end(), "GLOBAL") !=
+            category_list.end())) {
+        file << current_indent << "% GLOBAL"
+             << "\n";
+        for (auto parameter : sortedParameters["GLOBAL"]) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file <<
+          // currentIndent << "  " << parameter << "\n";
+        }
+        file << "\n";
+      }
+    } else { // write parameters to file.
+      if (sortedParameters.find("GLOBAL") != sortedParameters.end() &&
+          find(category_list.begin(), category_list.end(), "GLOBAL") !=
+              category_list.end()) {
+        file << current_indent << "% GLOBAL"
+             << "\n";
+        for (auto parameter : sortedParameters["GLOBAL"]) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file <<
+          // currentIndent << "  " << parameter << "\n";
+        }
+        file << "\n";
+      }
+    }
+    sortedParameters.erase("GLOBAL");
+
+    for (auto group : sortedParameters) {
+      bool saveThis = false;
+      if (category_list.size() > 0 && category_list[0] != "-") {
+        for (auto cat : category_list) {
+          if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+            if (group.first == cat) {
+              saveThis = true;
+            } else {
+              if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+                if (group.first.substr(0, cat.size() - 1) ==
+                    cat.substr(0, cat.size() - 1)) {
+                  saveThis = true;
+                }
+              }
+            }
+          }
+        }
+      } else {
+        saveThis = true;
+        for (auto cat : category_list) {
+          if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+            if (group.first == cat) {
+              saveThis = false;
+            } else {
+              if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+                if (group.first.substr(0, cat.size() - 1) ==
+                    cat.substr(0, cat.size() - 1)) {
+                  saveThis = false;
+                }
+              }
+            }
+          }
+        }
+      }
+      if (saveThis) {
+        file << current_indent << "% " << group.first << "\n";
+        for (auto parameter : group.second) {
+          printParameterWithWraparound(file, current_indent + "  ", parameter,
+                                       max_line_length, comment_indent);
+          //					file << currentIndent << "  " << parameter <<
+          //"\n";
+        }
+        file << "\n";
+      }
+    }
+
+	if (also_children) {
+      std::vector<std::shared_ptr<ParametersTable>> checklist =
+          root->lookupTable(name_space)->getChildren();
+      sort(checklist.begin(), checklist.end());
+      for (auto c : checklist) {
+        saveSettingsFile(c->getTableNameSpace(), file, category_list,
+                         max_line_length, comment_indent, true, name_space_level);
+      }
+    }
+/*   *** Will uncomment and fix when namespaces are actually needed
+    while (name_space_parts.size() > 0) {
+      currentIndent = currentIndent.substr(2, currentIndent.size());
+      file << currentIndent << "- ("
+           << name_space_parts[name_space_parts.size() - 1].substr(
+                  0, name_space_parts[name_space_parts.size() - 1].size() - 2)
+           << ")\n";
+      name_space_parts.pop_back();
+    }
+*/    // cout << "  - \"" << fileName << "\" has been created.\n";
+}
+
+/*
 void Parameters::printParameterWithWraparound(stringstream& FILE, string _currentIndent, string _parameter, int _maxLineLength, int _commentIndent) {
 	int currentLineLength = _currentIndent.size();
 	FILE << _currentIndent;
@@ -699,7 +1026,55 @@ void Parameters::printParameterWithWraparound(stringstream& FILE, string _curren
 		}
 	}
 }
+*/
 
+void Parameters::printParameterWithWraparound(std::stringstream &file,
+                                              std::string current_indent,
+                                              std::string entire_parameter,
+                                              int max_line_length,
+                                              int comment_indent) {
+
+  auto pos_of_comment =
+      entire_parameter.find_first_of("@@@#"); // must be cleaned
+  if (pos_of_comment == std::string::npos) {
+    cout << " Error : parameter has no comment";
+    exit(1); // which makes type conversion to int safe after this??
+  }
+  if (int(pos_of_comment) > max_line_length - 9) {
+    cout << " Error : parameter name and value too large to fit on single "
+            "line. Ignoring column width for this line\n";
+  }
+
+  std::string line;
+  line += current_indent;
+  line += entire_parameter.substr(0, pos_of_comment);  // write name-value
+
+  std::string sub_line(comment_indent, ' ');
+  if (int(line.length()) < comment_indent)
+    line +=
+        sub_line.substr(0, comment_indent - line.length()); // pad with spaces
+
+  auto comment = entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
+
+  // add as much of the comment as possible to the line
+  auto next_newline = comment.find_first_of('\n');
+  auto comment_cut = std::min(  // yuck, must express more clearly
+      next_newline == std::string::npos ? max_line_length : int(next_newline),
+      max_line_length - std::max(comment_indent, int(line.length())));
+  line += comment.substr(0, comment_cut);
+  file << line << '\n';
+ 
+  // write rest of the comments right-aligned
+  comment = comment.substr(std::min(comment_cut + 1, int(comment.length())));
+  std::regex aligned_comments(R"((.*\n|.{)" + std::to_string(comment_indent) +
+                              R"(}))");
+  for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
+    file << sub_line << "# " << m[1].str();
+  }
+  file << '\n';
+}
+
+/*  **** old version will be deprecated upon resolution of MABE namespace semantics
 void Parameters::saveSettingsFiles(int _maxLineLength, int _commentIndent, vector<string> nameSpaceList, vector<pair<string, vector<string>>> categoryLists) {
 	bool alsoChildren;
 	string fileName;
@@ -761,3 +1136,67 @@ void Parameters::saveSettingsFiles(int _maxLineLength, int _commentIndent, vecto
 		}
 	}
 }
+*/
+
+void Parameters::saveSettingsFiles(
+    int max_line_length, int comment_indent,
+    std::vector<std::string> name_space_list,
+    std::vector<std::pair<std::string, std::vector<std::string>>>
+        category_lists) {
+  bool also_children;
+  std::string file_name;
+  std::vector<std::string> other_category_list;
+  for (auto name_space : name_space_list) {
+    for (auto clist : category_lists) {
+      other_category_list.insert(other_category_list.end(), clist.second.begin(),
+                               clist.second.end());
+      if (!name_space.empty() && name_space.back() == '*') {
+        name_space.pop_back();
+        also_children = true;
+      } else {
+        also_children = false;
+      }
+      // why bother at all?
+      std::regex colon(R"(::)");
+      file_name = std::regex_replace(name_space, colon, "_");
+      if (!file_name.empty()) {
+        file_name.pop_back();
+        file_name += "_";
+      }
+
+      std::stringstream ss;
+      if (clist.second.size() == 1 && clist.second[0] == "") {
+        other_category_list.insert(other_category_list.begin(), "-");
+        saveSettingsFile(name_space, ss, other_category_list, max_line_length,
+                         comment_indent, also_children);
+      } else {
+        saveSettingsFile(name_space, ss, clist.second, max_line_length,
+                         comment_indent, also_children);
+      }
+      std::string workingString = ss.str();
+      workingString.erase(
+          std::remove_if(workingString.begin(), workingString.end(),
+                         [](char c) { return c == ' ' || c == 11; }),
+          workingString.end());
+      bool lastCharEnter = false;
+      bool fileEmpty = true;
+      for (auto c : workingString) {
+        if (c == 10) {
+          lastCharEnter = true;
+        } else {
+          if (lastCharEnter == true) {
+            if (!(c == '+' || c == '-' || c == 10)) {
+              fileEmpty = false;
+            }
+          }
+          lastCharEnter = false;
+        }
+      }
+      if (!fileEmpty) {
+        std::ofstream file (file_name + clist.first);
+        file << ss.str();
+        file.close();
+      }
+    }
+  }
+} // end Parameters::saveSettingsFiles
