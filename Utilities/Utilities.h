@@ -403,7 +403,7 @@ inline static bool stringToValue(const std::string &source, T &target) {
   return ss >> target ? !(ss >> remaining) : false;
 }
 
-
+/*
 // converts a vector of string to a vector of type of returnData
 template<class T>
 void convertCSVListToVector(string stringData, vector<T> &returnData, const char separator = ',') {
@@ -430,6 +430,37 @@ void convertCSVListToVector(string stringData, vector<T> &returnData, const char
 		}
 	}
 }
+*/
+
+// converts a vector of string to a vector of type of returnData
+template <class T>
+inline void convertCSVListToVector(std::string string_data,
+                                   std::vector<T> &return_data,
+                                   const char separator = ',',
+                                   const char sep_except = '"') {
+  return_data.clear();
+  // check all uses of this function to see if leading and trailing quotes are
+  // needed
+  std::regex stripoff(R"(^"?\[?(.*?)]?"?$)");
+  std::smatch m;
+  if (!std::regex_match(string_data, m, stripoff)) {
+    cout << " Error :  unrecognized csv string " << string_data
+         << "in convertCSVListToVector " << endl;
+    exit(1);
+  }
+  string_data = m[1].str();
+  T temp;  // immediately assign from stringToValue
+  for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
+    if (!stringToValue(s, temp)) {
+      cout << " --- while parsing: " << string_data << " .... " << endl;
+      cout << " In convertCSVListToVector() attempt to convert string " << s
+           << " to  value failed\n " << endl;
+      exit(1);
+    }
+    return_data.push_back(temp);
+  }
+}
+
 
 // this is here so we can use to string and it will work even if we give it a string as input
 inline string to_string(string str) {
