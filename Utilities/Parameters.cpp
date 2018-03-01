@@ -10,7 +10,7 @@
 
 #include<regex>
 #include "Parameters.h"
-using namespace std;
+//using namespace std;
 
 shared_ptr<ParametersTable> Parameters::root;
 
@@ -117,6 +117,7 @@ void Parameters::parseFullParameterName(const std::string &full_name,
     exit(1);
   }
 }
+
 void Parameters::readCommandLine(
     int argc, const char **argv,
     std::unordered_map<std::string, std::string> &param_name_values, std::vector<std::string> &file_list,
