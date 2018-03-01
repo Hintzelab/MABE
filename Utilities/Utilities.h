@@ -47,7 +47,7 @@ inline std::vector<Match> forEachRegexMatch(const std::string &s,
     v.push_back(Match(*i));
   return v;
 }
-
+/*
 inline vector<string> nameSpaceToNameParts(const string& nameSpace) {
 	string localNameSpace = nameSpace;
 	vector<string> nameParts;
@@ -80,7 +80,25 @@ inline vector<string> nameSpaceToNameParts(const string& nameSpace) {
 	}
 	return nameParts;
 }
+*/
 
+inline std::vector<std::string>
+nameSpaceToNameParts(const std::string &name_space) {
+  std::vector<std::string> name_parts;
+  std::regex valid_name_space(R"(^(\w+::)*$)");
+  if (!std::regex_match(name_space, valid_name_space)) {
+    cout << "  Error::in nameSpaceToNameParts(const string& nameSpace). name "
+            "space is invalid.\n  Can't parse \""
+         << name_space << "\"\n   Parameter name space must end in ::\nExiting."
+         << endl;
+    exit(1);
+  }
+  std::regex name_space_part(R"(\w+::)");
+  for (auto &m : forEachRegexMatch(name_space, name_space_part))
+    name_parts.push_back(m.str());
+
+  return name_parts;
+}
 
 /*
  * return x % y were (-1 % y) = (y - 1)
