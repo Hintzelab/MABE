@@ -358,8 +358,7 @@ CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
   return csv_table[return_key][pos];
 }
 
-
-
+/*
 // Put an arbitrary value to the target variable, return false on conversion failure
 template<class T>
 static bool load_value(const string& value, T& target) {
@@ -374,7 +373,6 @@ static bool load_value(const string& value, T& target) {
 		return ss.fail();
 	}
 }
-
 // Put an arbitrary value to the target variable, return false on conversion failure (COPIES FUNCTION OF load_value()!)
 template<class T>
 static bool stringToValue(const string& source, T& target) {
@@ -389,6 +387,22 @@ static bool stringToValue(const string& source, T& target) {
 		return ss.fail();
 	}
 }
+*/
+
+template<class T>
+inline static bool load_value(const std::string& value, T& target) {
+  std::stringstream ss(value);
+  std::string remaining;
+  return ss >> target ? !(ss >> remaining) : false;
+}
+
+template <class T>
+inline static bool stringToValue(const std::string &source, T &target) {
+  std::stringstream ss(source);
+  std::string remaining;
+  return ss >> target ? !(ss >> remaining) : false;
+}
+
 
 // converts a vector of string to a vector of type of returnData
 template<class T>
