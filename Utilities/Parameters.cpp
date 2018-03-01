@@ -16,36 +16,31 @@ shared_ptr<ParametersTable> Parameters::root;
 
 long long ParametersTable::nextTableID = 0;
 
-template<> inline
-const bool ParametersEntry<bool>::getBool() {
-	return get();
+template <> inline const bool ParametersEntry<bool>::getBool() { return get(); }
+
+template <> inline const string ParametersEntry<string>::getString() {
+  return get();
 }
 
-template<> inline
-const string ParametersEntry<string>::getString() {
-	return get();
+template <> inline const int ParametersEntry<int>::getInt() { return get(); }
+
+template <> inline const double ParametersEntry<double>::getDouble() {
+  return get();
 }
 
-template<> inline
-const int ParametersEntry<int>::getInt() {
-	return get();
+shared_ptr<ParameterLink<bool>>
+Parameters::getBoolLink(const string &name, shared_ptr<ParametersTable> table) {
+  auto entry = table->lookupBoolEntry(name);
+  auto newLink = make_shared<ParameterLink<bool>>(name, entry, table);
+  return newLink;
 }
 
-template<> inline
-const double ParametersEntry<double>::getDouble() {
-	return get();
-}
-
-shared_ptr<ParameterLink<bool>> Parameters::getBoolLink(const string& name, shared_ptr<ParametersTable> table) {
-	auto entry = table->lookupBoolEntry(name);
-	auto newLink = make_shared<ParameterLink<bool>>(name, entry, table);
-	return newLink;
-}
-
-shared_ptr<ParameterLink<string>> Parameters::getStringLink(const string& name, shared_ptr<ParametersTable> table) {
-	auto entry = table->lookupStringEntry(name);
-	auto newLink = make_shared<ParameterLink<string>>(name, entry, table);
-	return newLink;
+shared_ptr<ParameterLink<string>>
+Parameters::getStringLink(const string &name,
+                          shared_ptr<ParametersTable> table) {
+  auto entry = table->lookupStringEntry(name);
+  auto newLink = make_shared<ParameterLink<string>>(name, entry, table);
+  return newLink;
 }
 
 shared_ptr<ParameterLink<int>> Parameters::getIntLink(const string& name, shared_ptr<ParametersTable> table) {
@@ -59,7 +54,7 @@ shared_ptr<ParameterLink<double>> Parameters::getDoubleLink(const string& name, 
 	auto newLink = make_shared<ParameterLink<double>>(name, entry, table);
 	return newLink;
 }
-
+/*
 void Parameters::parseFullParameterName(const string& fullName, string& nameSpace, string& category, string& parameterName) {
 	int i = fullName.size() - 1;
 	nameSpace = "";
@@ -98,7 +93,30 @@ void Parameters::parseFullParameterName(const string& fullName, string& nameSpac
 		nameSpace = workingString;
 	}
 }
+*/
+void Parameters::parseFullParameterName(const std::string &full_name,
+                                        std::string &name_space_name,
+                                        std::string &category_name,
+                                        std::string &parameter_name) {
+  // no need for error checking, since this is internal??
+  // Then it should be a private member at least.
 
+  std::regex param(R"(^(.*::)?(\w+)-(\w+)$)");
+  std::smatch m;
+  if (std::regex_match(full_name, m, param)) {
+    name_space_name = m[1].str();
+    category_name = m[2].str();
+    parameter_name = m[3].str();
+  } else {
+    // this doesn't distinguish between command line parameters and setting file
+    // parameters
+    cout << "  ERROR! :: found misformatted parameter \"" << full_name
+         << "\"\n  Parameters must have format: [category]-[name] "
+            "or [name space][category]-[name]"
+         << endl;
+    exit(1);
+  }
+}
 void Parameters::readCommandLine(
     int argc, const char **argv,
     std::unordered_map<std::string, std::string> &param_name_values, std::vector<std::string> &file_list,
