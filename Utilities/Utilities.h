@@ -568,7 +568,38 @@ inline int vectorToTritToInt(const std::vector<Type> &nodes,
 // :3 (with defaultMax = 20)              /   0,3,6,9,12,15,18
 // 4,10-15,30:2 ((with defaultMax = 40)   /   4,10,11,12,13,14,15,30,32,34,36,38,40
 
-
+inline std::vector<int> seq(const std::string sequence_string,
+                            int default_max = -1, bool add_zero = false) {
+  std::set<int> result;
+  // as described above
+  std::regex sequence(   // needs to be documented somewhere
+      R"((?:(\d+)|(?:(?:(?:(\d+)-)?(\d+))?(?::(\d+))?))(?:,|$))");
+  for (auto &m : forEachRegexMatch(sequence_string, sequence)) {
+    if (m[0].str().empty())
+      continue;
+    if (!m[1].str().empty()) {
+      result.insert(std::stoi(m[1].str()));
+      continue;
+    }
+    auto step = m[4].str().empty() ? 1 : std::stoi(m[4].str());
+    auto start = m[2].str().empty()
+                     ? m[3].str().empty() ? 0 : std::stoi(m[3].str())
+                     : std::stoi(m[2].str());
+    auto finish = m[2].str().empty() ? default_max : std::stoi(m[3].str());
+    if (finish == -1) {
+      cout << " Error: Must provide default_max or specify end of range "
+           << endl;
+      return std::vector<int>();
+    }
+    for (; start <= finish; start += step)
+      result.insert(start);
+  }
+  if (add_zero)
+    result.insert(0);
+  std::vector<int> v(result.begin(), result.end());
+  return v;
+}
+/*
 inline vector<int> seq(const string seqStr, int defaultMax = -1, bool addZero = false) {
 	stringstream ss(seqStr);
 	int n;
@@ -689,6 +720,7 @@ inline vector<int> seq(const string seqStr, int defaultMax = -1, bool addZero = 
 
 	return seq;
 }
+*/
 
 // load a line from FILE. IF the line is empty or a comment (starts with #), skip line.
 // if the line is not empty/comment, clean ss and load line.
