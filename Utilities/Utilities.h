@@ -224,6 +224,7 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
   return data_line;
 }
 
+/*
 // reads a csv file with header and converts to a map of string,vector<string>
 inline map<string, vector<string>> readFromCSVFile(const string& fileName, const char separator = ',') {
 	std::ifstream FILE(fileName);
@@ -257,6 +258,7 @@ inline map<string, vector<string>> readFromCSVFile(const string& fileName, const
 	}
 	return data;
 }
+*/
 
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same index
