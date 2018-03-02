@@ -79,6 +79,8 @@ private:
   std::vector<std::vector<long>> keyword_least(size_t, std::string,
                                                std::string);
   std::vector<std::vector<long>> keyword_any(size_t, std::string);
+  std::vector<std::vector<long>> keyword_match(std::string, std::string,
+                                               std::string);
 
   void print_organism(long); // strictly to debug all_organisms entries
 };

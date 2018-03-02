@@ -315,12 +315,51 @@ Loader::parse_collection(std::string expr) {
             return keyword_any(stol(match[1].str()), match[2].str());
         }
       
-	  	// if nothing matches 
+ 		{
+          std::regex command_match(
+              R"(^\s*match\s+(\w+)\s+where\s+(\S+)\s+from\s+(\w+)\s*$)");
+          std::smatch match;
+          if (std::regex_match(expr, match, command_match))
+            return keyword_match(match[1].str(),
+                                 match[2].str(), match[3].str());
+        }
+	  
+		// if no keyword matches 
 	cout << " error: syntax error while trying to resolve " << endl
 		<< expr<< endl;
 	exit(1);
 
 } // end Loader::parse_token
+
+std::vector<std::vector<long>> Loader::keyword_match(std::string attribute,
+                                                     std::string value,
+                                                     std::string resource) {
+
+  std::vector<std::vector<long>> coll;
+  if (collection_org_lists.find(resource) == collection_org_lists.end()) {
+    cout << "Unrecognised token " << resource << endl;
+    exit(1);
+  }
+
+  for (const auto &p : collection_org_lists.at(resource)) {
+    const auto from_pop = p;
+    for (const auto &o : from_pop)
+      if (all_organisms.at(o).attributes.find(attribute) ==
+          all_organisms.at(o).attributes.end()) {
+        cout << "error: " << resource
+             << " contains organisms without attribute " << attribute << endl;
+        exit(1);
+      }
+    std::vector<long> pop;
+    std::copy_if(std::begin(from_pop), std::end(from_pop),
+                 std::back_inserter(pop), [&](long index) {
+                   return all_organisms.at(index).attributes.at(attribute) ==
+                          value;
+                 });
+    coll.push_back(pop);
+  }
+  return coll;
+}
 
 std::vector<std::vector<long>> Loader::keyword_greatest(size_t number,
                                                         std::string attribute,
