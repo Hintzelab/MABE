@@ -500,7 +500,7 @@ Parameters::readParametersFile(std::string file_name) {
 	}
 
     {
-      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(.+)\s*$)");
+      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(\S?.*\S)\s*$)");
       std::smatch m;
       if (std::regex_match(line, m, name_value_pair)) {
         auto name = name_space_name + category_name + "-" + m[1].str();
