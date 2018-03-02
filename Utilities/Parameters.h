@@ -699,8 +699,9 @@ public:
       stringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "string") {
-      std::string value;
-      stringToValue(value_as_string, value);
+      std::string value = value_as_string;
+	  // since there might be spaces in the value, can't call
+      //  stringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "int") {
       int value;
