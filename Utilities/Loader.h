@@ -41,6 +41,8 @@ private:
 
   // 	methods
 
+  std::string load_from_file(const std::string &);
+  
   std::vector<std::string>
       expand_files(std::string);// for user inputted wildcards
   std::pair<long, long>
@@ -77,6 +79,8 @@ private:
   std::vector<std::vector<long>> keyword_least(size_t, std::string,
                                                std::string);
   std::vector<std::vector<long>> keyword_any(size_t, std::string);
+  std::vector<std::vector<long>> keyword_match(std::string, std::string,
+                                               std::string);
 
   void print_organism(long); // strictly to debug all_organisms entries
 };

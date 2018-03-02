@@ -157,6 +157,9 @@ MASTER = default 100 # by default :)
 #some_var = greatest 5 by ID from { '*.csv' }
 #MASTER = collapse some_var
  
+# an example with exact match
+#MASTER = match ID where 3 from 'snapshot_organisms_0.csv' 
+
 # a convoluted example :P
 #another_var = greatest 5 by ID from { '*.csv' } 
 #still_another_var = greatest 2 by ID from { '*.csv' : least 10 by score_AVE from { */LOD_*.csv : */SSWD_*.csv } : '*/*.csv' } 
@@ -500,7 +503,7 @@ Parameters::readParametersFile(std::string file_name) {
 	}
 
     {
-      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(.+)\s*$)");
+      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(\S?.*\S)\s*$)");
       std::smatch m;
       if (std::regex_match(line, m, name_value_pair)) {
         auto name = name_space_name + category_name + "-" + m[1].str();

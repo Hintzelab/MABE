@@ -20,11 +20,7 @@ using std::cout;
 using std::endl;
 using zz::fs::Directory; // filesystem crawling
 
-std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
-Loader::load_population(const std::string &loader_file_name) {
-
-  tk_counter = 0;
-
+  std::string Loader::load_from_file(const std::string &loader_file_name){
   std::ifstream flines(loader_file_name);
   if (!flines.is_open()) {
     std::cout << " error: population loader file " << loader_file_name
@@ -36,8 +32,22 @@ Loader::load_population(const std::string &loader_file_name) {
 
   std::cout << "Creating population from " << loader_file_name << std::endl;
 
-  auto all_lines = clean_lines(flines);
+  return  clean_lines(flines);
 
+  }
+
+
+std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
+Loader::load_population(const std::string &loader_option) {
+
+  tk_counter = 0;
+
+  std::regex plf_file(R"(.*\.plf)");
+
+  auto all_lines = std::regex_match(loader_option, plf_file)
+                       ? load_from_file(loader_option)
+                       : loader_option;
+  
   all_lines = find_and_generate_all_files(all_lines);
 
   parse_all_commands(all_lines);
@@ -305,12 +315,51 @@ Loader::parse_collection(std::string expr) {
             return keyword_any(stol(match[1].str()), match[2].str());
         }
       
-	  	// if nothing matches 
+ 		{
+          std::regex command_match(
+              R"(^\s*match\s+(\w+)\s+where\s+(\S+)\s+from\s+(\w+)\s*$)");
+          std::smatch match;
+          if (std::regex_match(expr, match, command_match))
+            return keyword_match(match[1].str(),
+                                 match[2].str(), match[3].str());
+        }
+	  
+		// if no keyword matches 
 	cout << " error: syntax error while trying to resolve " << endl
 		<< expr<< endl;
 	exit(1);
 
 } // end Loader::parse_token
+
+std::vector<std::vector<long>> Loader::keyword_match(std::string attribute,
+                                                     std::string value,
+                                                     std::string resource) {
+
+  std::vector<std::vector<long>> coll;
+  if (collection_org_lists.find(resource) == collection_org_lists.end()) {
+    cout << "Unrecognised token " << resource << endl;
+    exit(1);
+  }
+
+  for (const auto &p : collection_org_lists.at(resource)) {
+    const auto from_pop = p;
+    for (const auto &o : from_pop)
+      if (all_organisms.at(o).attributes.find(attribute) ==
+          all_organisms.at(o).attributes.end()) {
+        cout << "error: " << resource
+             << " contains organisms without attribute " << attribute << endl;
+        exit(1);
+      }
+    std::vector<long> pop;
+    std::copy_if(std::begin(from_pop), std::end(from_pop),
+                 std::back_inserter(pop), [&](long index) {
+                   return all_organisms.at(index).attributes.at(attribute) ==
+                          value;
+                 });
+    coll.push_back(pop);
+  }
+  return coll;
+}
 
 std::vector<std::vector<long>> Loader::keyword_greatest(size_t number,
                                                         std::string attribute,
