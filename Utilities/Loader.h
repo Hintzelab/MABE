@@ -41,6 +41,8 @@ private:
 
   // 	methods
 
+  std::string load_from_file(const std::string &);
+  
   std::vector<std::string>
       expand_files(std::string);// for user inputted wildcards
   std::pair<long, long>

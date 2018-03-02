@@ -20,11 +20,7 @@ using std::cout;
 using std::endl;
 using zz::fs::Directory; // filesystem crawling
 
-std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
-Loader::load_population(const std::string &loader_file_name) {
-
-  tk_counter = 0;
-
+  std::string Loader::load_from_file(const std::string &loader_file_name){
   std::ifstream flines(loader_file_name);
   if (!flines.is_open()) {
     std::cout << " error: population loader file " << loader_file_name
@@ -36,8 +32,22 @@ Loader::load_population(const std::string &loader_file_name) {
 
   std::cout << "Creating population from " << loader_file_name << std::endl;
 
-  auto all_lines = clean_lines(flines);
+  return  clean_lines(flines);
 
+  }
+
+
+std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
+Loader::load_population(const std::string &loader_option) {
+
+  tk_counter = 0;
+
+  std::regex plf_file(R"(.*\.plf)");
+
+  auto all_lines = std::regex_match(loader_option, plf_file)
+                       ? load_from_file(loader_option)
+                       : loader_option;
+  
   all_lines = find_and_generate_all_files(all_lines);
 
   parse_all_commands(all_lines);
