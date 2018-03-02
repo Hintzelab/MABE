@@ -253,7 +253,11 @@ int main(int argc, const char *argv[]) {
     Loader loader;
     auto orgs_to_load = loader.load_population(file_to_load);
     int population_size = orgs_to_load.size();
-
+	
+	if (!population_size) {
+		std::cout << "error: MASTER must contain at least one organism" << std::endl;
+		exit(1);
+	}
     // add population_size organisms which look like progenitor but could be
     // loaded from file
     for (auto &org : orgs_to_load) {
