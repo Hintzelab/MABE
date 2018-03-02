@@ -157,6 +157,9 @@ MASTER = default 100 # by default :)
 #some_var = greatest 5 by ID from { '*.csv' }
 #MASTER = collapse some_var
  
+# an example with exact match
+#MASTER = match ID where 3 from 'snapshot_organisms_0.csv' 
+
 # a convoluted example :P
 #another_var = greatest 5 by ID from { '*.csv' } 
 #still_another_var = greatest 2 by ID from { '*.csv' : least 10 by score_AVE from { */LOD_*.csv : */SSWD_*.csv } : '*/*.csv' } 
