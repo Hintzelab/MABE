@@ -22,8 +22,8 @@ shared_ptr<ParameterLink<int>> Global::updatesPL =
 shared_ptr<ParameterLink<string>> Global::initPopPL =
     Parameters::register_parameter(
         "GLOBAL-initPop", (string) "MASTER = default 100",
-        "initial population to start MABE (if it's .plf syntax it will be "
-        "parse as such. If it's a file name with .plf that population loader "
+        "initial population to start MABE (if it's .plf syntax it will be \n"
+        "parsed as such. If it's a file name with .plf that population loader "
         "file is parsed");
 shared_ptr<ParameterLink<string>> Global::modePL =
     Parameters::register_parameter(
@@ -34,7 +34,7 @@ shared_ptr<ParameterLink<int>> Global::maxLineLengthPL =
     Parameters::register_parameter("PARAMETER_FILES-maxLineLength", 80,
                                    "maximum line length");
 shared_ptr<ParameterLink<int>> Global::commentIndentPL =
-    Parameters::register_parameter("PARAMETER_FILES-commentIndent", 40,
+    Parameters::register_parameter("PARAMETER_FILES-commentIndent", 30,
                                    "minimum space before comments");
 
 shared_ptr<ParameterLink<string>> Global::visualizePopulationFilePL =
