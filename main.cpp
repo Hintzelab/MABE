@@ -251,7 +251,7 @@ int main(int argc, const char *argv[]) {
 
     auto file_to_load = Global::initPopPL->get(PT);
     Loader loader;
-    auto orgs_to_load = loader.load_population(file_to_load);
+    auto orgs_to_load = loader.loadPopulation(file_to_load);
     int population_size = orgs_to_load.size();
 	
 	if (!population_size) {
