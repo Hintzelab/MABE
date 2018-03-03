@@ -1044,7 +1044,7 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
     exit(1); // which makes type conversion to int safe after this??
   }
   if (int(pos_of_comment) > max_line_length - 9) {
-    cout << " Error : parameter name and value too large to fit on single "
+    cout << " Warning: parameter name and value too large to fit on single "
             "line. Ignoring column width for this line\n";
   }
 
@@ -1068,11 +1068,13 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
   file << line << '\n';
  
   // write rest of the comments right-aligned
-  comment = comment.substr(std::min(comment_cut + 1, int(comment.length())));
-  std::regex aligned_comments(R"((.*\n|.{)" + std::to_string(comment_indent) +
+  comment = comment.substr(std::min(comment_cut , int(comment.length())));
+  std::regex aligned_comments(R"((.*\n|.{1,)" + std::to_string(max_line_length - comment_indent) +
                               R"(}))");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
-    file << sub_line << "# " << m[1].str();
+    auto comment_piece = m[1].str();
+    file << sub_line << "# " << comment_piece
+         << (comment_piece.back() == '\n' ? "" : "\n");
   }
   file << '\n';
 }
