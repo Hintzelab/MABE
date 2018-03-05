@@ -10,15 +10,14 @@
 
 #include<regex>
 #include "Parameters.h"
-//using namespace std;
 
-shared_ptr<ParametersTable> Parameters::root;
+std::shared_ptr<ParametersTable> Parameters::root;
 
 long long ParametersTable::nextTableID = 0;
 
 template <> inline const bool ParametersEntry<bool>::getBool() { return get(); }
 
-template <> inline const string ParametersEntry<string>::getString() {
+template <> inline const std::string ParametersEntry<std::string>::getString() {
   return get();
 }
 
@@ -28,30 +27,30 @@ template <> inline const double ParametersEntry<double>::getDouble() {
   return get();
 }
 
-shared_ptr<ParameterLink<bool>>
-Parameters::getBoolLink(const string &name, shared_ptr<ParametersTable> table) {
+std::shared_ptr<ParameterLink<bool>>
+Parameters::getBoolLink(const std::string &name, std::shared_ptr<ParametersTable> table) {
   auto entry = table->lookupBoolEntry(name);
-  auto newLink = make_shared<ParameterLink<bool>>(name, entry, table);
+  auto newLink = std::make_shared<ParameterLink<bool>>(name, entry, table);
   return newLink;
 }
 
-shared_ptr<ParameterLink<string>>
-Parameters::getStringLink(const string &name,
-                          shared_ptr<ParametersTable> table) {
+std::shared_ptr<ParameterLink<std::string>>
+Parameters::getStringLink(const std::string &name,
+                          std::shared_ptr<ParametersTable> table) {
   auto entry = table->lookupStringEntry(name);
-  auto newLink = make_shared<ParameterLink<string>>(name, entry, table);
+  auto newLink = std::make_shared<ParameterLink<std::string>>(name, entry, table);
   return newLink;
 }
 
-shared_ptr<ParameterLink<int>> Parameters::getIntLink(const string& name, shared_ptr<ParametersTable> table) {
+std::shared_ptr<ParameterLink<int>> Parameters::getIntLink(const std::string& name, std::shared_ptr<ParametersTable> table) {
 	auto entry = table->lookupIntEntry(name);
-	auto newLink = make_shared<ParameterLink<int>>(name, entry, table);
+	auto newLink = std::make_shared<ParameterLink<int>>(name, entry, table);
 	return newLink;
 }
 
-shared_ptr<ParameterLink<double>> Parameters::getDoubleLink(const string& name, shared_ptr<ParametersTable> table) {
+std::shared_ptr<ParameterLink<double>> Parameters::getDoubleLink(const std::string& name, std::shared_ptr<ParametersTable> table) {
 	auto entry = table->lookupDoubleEntry(name);
-	auto newLink = make_shared<ParameterLink<double>>(name, entry, table);
+	auto newLink = std::make_shared<ParameterLink<double>>(name, entry, table);
 	return newLink;
 }
 /*
@@ -110,10 +109,10 @@ void Parameters::parseFullParameterName(const std::string &full_name,
   } else {
     // this doesn't distinguish between command line parameters and setting file
     // parameters
-    cout << "  ERROR! :: found misformatted parameter \"" << full_name
+    std::cout << "  ERROR! :: found misformatted parameter \"" << full_name
          << "\"\n  Parameters must have format: [category]-[name] "
             "or [name space][category]-[name]"
-         << endl;
+         << std::endl;
     exit(1);
   }
 }
@@ -174,7 +173,7 @@ MASTER = default 100 # by default :)
   for (auto &m : forEachRegexMatch(arguments, command_line_arguments)) {
     switch (m[1].str()[0]) {
     case 'h':
-      cout << "Usage: " << argv[0] << usage_message << endl;
+      std::cout << "Usage: " << argv[0] << usage_message << std::endl;
       exit(1);
     case 'l': {
       std::ofstream plf_file("population_loader.plf");
@@ -204,14 +203,14 @@ MASTER = default 100 # by default :)
       while (sp >> param_name) {
         if (sp >> param_value) {
           if (param_name_values.find(param_name) != param_name_values.end()) {
-            cout << "  ERROR :: Parameter \"" << param_name
+            std::cout << "  ERROR :: Parameter \"" << param_name
                  << "\" is defined more then once on the command "
                     "line.\nExiting.\n";
             exit(1);
           }
           param_name_values[param_name] = param_value;
         } else {
-          cout << "  ERROR :: Parameter \"" << param_name
+          std::cout << "  ERROR :: Parameter \"" << param_name
                << "\" is defined on command line with out a "
                   "value.\nExiting.\n";
           exit(1);
@@ -220,7 +219,7 @@ MASTER = default 100 # by default :)
       break;
     }
     default:
-      cout << "  Error on command line. Unrecognized option. Exiting." << endl;
+      std::cout << "  Error on command line. Unrecognized option. Exiting." << std::endl;
       exit(1);
     }
   }
@@ -451,7 +450,7 @@ Parameters::readParametersFile(std::string file_name) {
 
   std::ifstream file(file_name); // open file named by file_name
   if (!file.is_open()) {
-    cout << "  ERROR! unable to open file \"" << file_name << "\".\nExiting.\n";
+    std::cout << "  ERROR! unable to open file \"" << file_name << "\".\nExiting.\n";
     exit(1);
   }
   std::string dirty_line;
@@ -491,9 +490,9 @@ Parameters::readParametersFile(std::string file_name) {
       std::smatch m;
       if (std::regex_match(line, m, name_space_close)) {
         if (name_space_name.empty()) {
-          cout << " Error: no namespace to descend, already at root:: "
+          std::cout << " Error: no namespace to descend, already at root:: "
                   "namespace. "
-               << endl;
+               << std::endl;
           exit(1);
         }
         name_space_name =
@@ -508,7 +507,7 @@ Parameters::readParametersFile(std::string file_name) {
       if (std::regex_match(line, m, name_value_pair)) {
         auto name = name_space_name + category_name + "-" + m[1].str();
         if (config_file_list.find(name) != config_file_list.end()) {
-          cout << "  Error: \"" << name << "\" is defined more then once in file: \""
+          std::cout << "  Error: \"" << name << "\" is defined more then once in file: \""
                << file_name << "\".\n exiting.\n";
           exit(1);
         }
@@ -517,11 +516,11 @@ Parameters::readParametersFile(std::string file_name) {
       }
     }
 
-    cout
-        << " Error: unrecognised line " << endl
-        << dirty_line << " in file " << file_name << endl
+    std::cout
+        << " Error: unrecognised line " << std::endl
+        << dirty_line << " in file " << file_name << std::endl
         << R"(See https://github.com/Hintzelab/MABE/wiki/Parameters-Name-Space  for correct usage.)"
-        << endl;
+        << std::endl;
   }
 
   return config_file_list;
@@ -658,16 +657,16 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
       if (!root->getParameterTypeAndSetParameter(
               workingCategory + "-" + workingParameterName, file.second,
               workingNameSpace, true)) {
-        cout << (saveFiles ? "   WARNING" : "  ERROR")
+        std::cout << (saveFiles ? "   WARNING" : "  ERROR")
              << " :: while reading file \"" << fileName << "\" found \""
              << workingNameSpace + workingCategory + "-" + workingParameterName
              << ".\n      But \""
              << workingCategory + "-" + workingParameterName
-             << "\" is not a registered parameter!" << endl
+             << "\" is not a registered parameter!" << std::endl
              << (saveFiles ? "      This parameter will not be saved "
                              "to new files."
                            : "  Exiting.")
-             << endl;
+             << std::endl;
         if (!saveFiles) {
           exit(1);
         }
@@ -681,15 +680,15 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
     if (!root->getParameterTypeAndSetParameter(
             workingCategory + "-" + workingParameterName, command.second,
             workingNameSpace, true)) {
-      cout << (saveFiles ? "   WARNING" : "  ERROR")
+      std::cout << (saveFiles ? "   WARNING" : "  ERROR")
            << " :: while reading command line found \""
            << workingNameSpace + workingCategory + "-" + workingParameterName
            << ".\n      But \"" << workingCategory + "-" + workingParameterName
-           << "\" is not a registered parameter!" << endl
+           << "\" is not a registered parameter!" << std::endl
            << (saveFiles ? "      This parameter will not be saved "
                            "to new files."
                          : "  Exiting.")
-           << endl;
+           << std::endl;
       if (!saveFiles) {
         exit(1);
       }
@@ -1040,11 +1039,11 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
   auto pos_of_comment =
       entire_parameter.find_first_of("@@@#"); // must be cleaned
   if (pos_of_comment == std::string::npos) {
-    cout << " Error : parameter has no comment";
+    std::cout << " Error : parameter has no comment";
     exit(1); // which makes type conversion to int safe after this??
   }
   if (int(pos_of_comment) > max_line_length - 9) {
-    cout << " Warning: parameter name and value too large to fit on single "
+    std::cout << " Warning: parameter name and value too large to fit on single "
             "line. Ignoring column width for this line\n";
   }
 
