@@ -11,26 +11,28 @@
 #include "DefaultArchivist.h"
 
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
-std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::Arch_outputMethodStrPL =
-    Parameters::register_parameter(
-        "ARCHIVIST-outputMethod", (std::string) "This_string_is_set_by_modules.h",
+std::shared_ptr<ParameterLink<std::string>>
+    DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter(
+        "ARCHIVIST-outputMethod",
+        (std::string) "This_string_is_set_by_modules.h",
         "This_string_is_set_by_modules.h"); // string parameter for
                                             // outputMethod;
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 
-std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::Arch_realtimeSequencePL =
-    Parameters::register_parameter(
+std::shared_ptr<ParameterLink<std::string>>
+    DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter(
         "ARCHIVIST_DEFAULT-realtimeSequence", (std::string) ":10",
         "How often to write to realtime data files. (format: x = single value, "
         "x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = "
         "from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::SS_Arch_dataSequencePL =
-    Parameters::register_parameter(
+std::shared_ptr<ParameterLink<std::string>>
+    DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter(
         "ARCHIVIST_DEFAULT-snapshotDataSequence", (std::string) ":100",
         "How often to save a realtime snapshot data file. (format: x = single "
         "value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on "
         "z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::SS_Arch_organismSequencePL =
+std::shared_ptr<
+    ParameterLink<std::string>> DefaultArchivist::SS_Arch_organismSequencePL =
     Parameters::register_parameter(
         "ARCHIVIST_DEFAULT-snapshotOrganismsSequence", (std::string) ":1000",
         "How often to save a realtime snapshot genome file. (format: x = "
@@ -51,16 +53,19 @@ std::shared_ptr<ParameterLink<std::string>>
             "data to be saved into average file (must be values that can "
             "generate an average). If empty, MABE will try to figure it out");
 
-std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::Arch_FilePrefixPL =
-    Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix",
-                                   (std::string) "NONE", "prefix for files saved by "
-                                                    "this archivst. \"NONE\" "
-                                                    "indicates no prefix.");
-std::shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeDataFilesPL =
-    Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotDataFiles",
-                                   false, "if true, snapshot data files will "
-                                          "be written (with all non genome "
-                                          "data for entire population)");
+std::shared_ptr<ParameterLink<std::string>>
+    DefaultArchivist::Arch_FilePrefixPL =
+        Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix",
+                                       (std::string) "NONE",
+                                       "prefix for files saved by "
+                                       "this archivst. \"NONE\" "
+                                       "indicates no prefix.");
+std::shared_ptr<ParameterLink<bool>>
+    DefaultArchivist::SS_Arch_writeDataFilesPL = Parameters::register_parameter(
+        "ARCHIVIST_DEFAULT-writeSnapshotDataFiles", false,
+        "if true, snapshot data files will "
+        "be written (with all non genome "
+        "data for entire population)");
 std::shared_ptr<ParameterLink<bool>>
     DefaultArchivist::SS_Arch_writeOrganismsFilesPL =
         Parameters::register_parameter(
@@ -122,7 +127,7 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
     realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->get(), true);
     if (realtimeSequence.size() == 0) {
       std::cout << "unable to translate ARCHIVIST_DEFAULT-realtimeSequence \""
-           << realtimeSequenceStr << "\".\nExiting." << std::endl;
+                << realtimeSequenceStr << "\".\nExiting." << std::endl;
       exit(1);
     }
   }
@@ -132,8 +137,9 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
     realtimeDataSequence.clear();
     realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
     if (realtimeDataSequence.size() == 0) {
-      std::cout << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \""
-           << dataSequenceStr << "\".\nExiting." << std::endl;
+      std::cout
+          << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \""
+          << dataSequenceStr << "\".\nExiting." << std::endl;
       exit(1);
     }
   }
@@ -144,9 +150,10 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
     realtimeOrganismSequence =
         seq(organismIntervalStr, Global::updatesPL->get(), true);
     if (realtimeOrganismSequence.size() == 0) {
-      std::cout << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismsSequence "
-              "\""
-           << organismIntervalStr << "\".\nExiting." << std::endl;
+      std::cout
+          << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismsSequence "
+             "\""
+          << organismIntervalStr << "\".\nExiting." << std::endl;
       exit(1);
     }
   }
@@ -188,13 +195,15 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> popFileColumns,
           uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
         uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] =
             DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
-        // std::cout << "set behavior: " << key.substr(seperatorCharPos + 1) << " to
+        // std::cout << "set behavior: " << key.substr(seperatorCharPos + 1) <<
+        // " to
         // " << key.substr(0, seperatorCharPos);
       } else { // key already in map
         uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] =
             uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |
             DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
-        // std::cout << "added behavior: " << key.substr(seperatorCharPos + 1) << "
+        // std::cout << "added behavior: " << key.substr(seperatorCharPos + 1)
+        // << "
         // to " << key.substr(0, seperatorCharPos);
       }
     } else { // add key normally, because it has no special flags specified
@@ -305,7 +314,8 @@ void DefaultArchivist::saveSnapshotData(
   // now for each org, update ancestors and save if in saveList
   for (auto org : population) {
 
-    // std::cout << "---------------\n now looking at: " << org->ID << std::endl;
+    // std::cout << "---------------\n now looking at: " << org->ID <<
+    // std::endl;
     // std::cout << "  with parents List (" << org->parents.size() << "): ";
     // for (auto a : org->parents) {
     //	std::cout << a->ID << "  ";
@@ -341,7 +351,8 @@ void DefaultArchivist::saveSnapshotData(
         auto parent = parentCheckList.back(); // this is "this parent"
         parentCheckList.pop_back(); // remove this parent from checklist
 
-        // std::cout << "\n org: " << org->ID << " parent: " << parent->ID << std::endl;
+        // std::cout << "\n org: " << org->ID << " parent: " << parent->ID <<
+        // std::endl;
         if (find(saveList.begin(), saveList.end(), parent) !=
             saveList.end()) { // if this parent is being saved, they will serve
                               // as an ancestor
@@ -360,7 +371,8 @@ void DefaultArchivist::saveSnapshotData(
             // parent->ID << " is old enough or has self as ancestor..." <<
             // std::endl;
             for (auto ancestorID : parent->snapshotAncestors) {
-              // std::cout << "adding from parent " << parent->ID << " ancestor " <<
+              // std::cout << "adding from parent " << parent->ID << " ancestor
+              // " <<
               // ancestorID << std::endl;
               org->snapshotAncestors.insert(ancestorID);
             }
@@ -383,16 +395,18 @@ void DefaultArchivist::saveSnapshotData(
 
     } else {                                    // org has self for ancestor
       if (org->timeOfBirth >= Global::update) { // if this is a new org...
-        std::cout << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found "
-                "new org (age < 1) with self as ancestor (with ID: "
-             << org->ID
-             << "... this will result in a new root to the phylogony tree!"
-             << std::endl;
+        std::cout
+            << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found "
+               "new org (age < 1) with self as ancestor (with ID: "
+            << org->ID
+            << "... this will result in a new root to the phylogony tree!"
+            << std::endl;
         if (saveNewOrgs) {
           std::cout << "    this org is being saved" << std::endl;
         } else {
-          std::cout << "    this org is not being saved (this may be very bad...)"
-               << std::endl;
+          std::cout
+              << "    this org is not being saved (this may be very bad...)"
+              << std::endl;
         }
       }
     }
@@ -400,7 +414,8 @@ void DefaultArchivist::saveSnapshotData(
     if (org->timeOfBirth < Global::update || saveNewOrgs) {
       // std::cout << "  is being saved" << std::endl;
       for (auto ancestorID : org->snapshotAncestors) {
-        // std::cout << org->ID << " adding ancestor " << ancestorID << " to dataMap"
+        // std::cout << org->ID << " adding ancestor " << ancestorID << " to
+        // dataMap"
         // << std::endl;
         org->dataMap.append("snapshotAncestors", ancestorID);
       }
@@ -452,8 +467,8 @@ void DefaultArchivist::saveSnapshotOrganisms(
 
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
-bool DefaultArchivist::archive(std::vector<std::shared_ptr<Organism>> population,
-                               int flush) {
+bool DefaultArchivist::archive(
+    std::vector<std::shared_ptr<Organism>> population, int flush) {
 
   if (finished) {
     return finished;
