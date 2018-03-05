@@ -11,8 +11,17 @@
 #include "AbstractBrain.h"
 
 ////// BRAIN-brainType is actually set by Modules.h //////
-shared_ptr<ParameterLink<string>> AbstractBrain::brainTypeStrPL = Parameters::register_parameter("BRAIN-brainType", (string) "This_string_is_set_by_modules.h", "This_string_is_set_by_modules.h");  // string parameter for outputMethod;
+std::shared_ptr<ParameterLink<std::string>> AbstractBrain::brainTypeStrPL =
+    Parameters::register_parameter(
+        "BRAIN-brainType", (std::string) "This_string_is_set_by_modules.h",
+        "This_string_is_set_by_modules.h"); // string parameter for
+                                            // outputMethod;
 ////// BRAIN-brainType is actually set by Modules.h //////
 
-																																																					  //shared_ptr<ParameterLink<int>> AbstractBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN-hiddenNodes", 8, "number of hidden nodes, if brain type supports hiden nodes");  // string parameter for outputMethod;
-//shared_ptr<ParameterLink<bool>> AbstractBrain::serialProcessingPL = Parameters::register_parameter("BRAIN-serialProcessing", false, "outputs from units will write to nodes, not nodesNext");
+// shared_ptr<ParameterLink<int>> AbstractBrain::hiddenNodesPL =
+// Parameters::register_parameter("BRAIN-hiddenNodes", 8, "number of hidden
+// nodes, if brain type supports hiden nodes");  // string parameter for
+// outputMethod;
+// shared_ptr<ParameterLink<bool>> AbstractBrain::serialProcessingPL =
+// Parameters::register_parameter("BRAIN-serialProcessing", false, "outputs from
+// units will write to nodes, not nodesNext");

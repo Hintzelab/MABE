@@ -10,16 +10,20 @@
 
 #include "AbstractOptimizer.h"
 
+/*
 #include <algorithm>
 #include <math.h>
-#include <stdlib.h>     // for atoi
+#include <stdlib.h> // for atoi
 
 #include "../Utilities/Random.h"
-
-using namespace std;
+*/
 
 ////// OPTIMIZER-optimizer is actually set by Modules.h //////
-shared_ptr<ParameterLink<string>> AbstractOptimizer::Optimizer_MethodStrPL = Parameters::register_parameter("OPTIMIZER-optimizer", (string) "This_string_is_set_by_modules.h", "This_string_is_set_by_modules.h");  // string parameter for outputMethod;
+std::shared_ptr<ParameterLink<std::string>> AbstractOptimizer::Optimizer_MethodStrPL =
+    Parameters::register_parameter(
+        "OPTIMIZER-optimizer", (std::string) "This_string_is_set_by_modules.h",
+        "This_string_is_set_by_modules.h"); // string parameter for
+                                            // outputMethod;
 ////// OPTIMIZER-optimizer is actually set by Modules.h //////
 
 /*
@@ -27,14 +31,17 @@ shared_ptr<ParameterLink<string>> AbstractOptimizer::Optimizer_MethodStrPL = Par
  * place holder function, copies population to make new population
  * no selection and no mutation
  */
-//void BaseOptimizer::makeNextGeneration(vector<shared_ptr<Organism>> &population) {
+// void BaseOptimizer::makeNextGeneration(vector<shared_ptr<Organism>>
+// &population) {
 //	vector<shared_ptr<Organism>> nextPopulation;
 //	for (size_t i = 0; i < population.size(); i++) {
-//		shared_ptr<Organism> newOrg = make_shared<Organism>(population[i], population[i]->genome);
+//		shared_ptr<Organism> newOrg = make_shared<Organism>(population[i],
+//population[i]->genome);
 //		nextPopulation.push_back(newOrg);
 //	}
 //	for (size_t i = 0; i < population.size(); i++) {
-//		population[i]->kill();  // set org.alive = 0 and delete the organism if it has no offspring
+//		population[i]->kill();  // set org.alive = 0 and delete the
+//organism if it has no offspring
 //	}
 //	population = nextPopulation;
 //}
