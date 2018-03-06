@@ -121,8 +121,8 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
   realtimeDataSequence.push_back(0);
   realtimeOrganismSequence.push_back(0);
 
-  if (writePopFile != false || writeMaxFile != false) {
-    std::string realtimeSequenceStr = Arch_realtimeSequencePL->get(PT);
+  if (writePopFile || writeMaxFile ) {
+    auto realtimeSequenceStr = Arch_realtimeSequencePL->get(PT);
     realtimeSequence.clear();
     realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->get(), true);
     if (realtimeSequence.size() == 0) {
@@ -132,8 +132,8 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
     }
   }
 
-  if (writeSnapshotDataFiles != false) {
-    std::string dataSequenceStr = SS_Arch_dataSequencePL->get(PT);
+  if (writeSnapshotDataFiles) {
+    auto dataSequenceStr = SS_Arch_dataSequencePL->get(PT);
     realtimeDataSequence.clear();
     realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
     if (realtimeDataSequence.size() == 0) {
@@ -144,8 +144,8 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
     }
   }
 
-  if (writeSnapshotGenomeFiles != false) {
-    std::string organismIntervalStr = SS_Arch_organismSequencePL->get(PT);
+  if (writeSnapshotGenomeFiles) {
+    auto organismIntervalStr = SS_Arch_organismSequencePL->get(PT);
     realtimeOrganismSequence.clear();
     realtimeOrganismSequence =
         seq(organismIntervalStr, Global::updatesPL->get(), true);
@@ -157,6 +157,12 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
       exit(1);
     }
   }
+
+  // this avoids bounds check on ...Index, since the ...Sequence can never
+  // evaluate true for last element
+  realtimeSequence.push_back(-1);
+  realtimeDataSequence.push_back(-1);
+  realtimeOrganismSequence.push_back(-1);
 
   realtimeSequenceIndex = 0;
   realtimeDataSeqIndex = 0;
@@ -470,107 +476,108 @@ void DefaultArchivist::saveSnapshotOrganisms(
 bool DefaultArchivist::archive(
     std::vector<std::shared_ptr<Organism>> population, int flush) {
 
-  if (finished) {
+  if (finished)
+    return finished;
+
+  finished = Global::update >= Global::updatesPL->get();
+ 
+  if (flush == 1) 
+    return finished;
+
+  if ((Global::update == realtimeSequence[realtimeSequenceIndex]) &&
+      !flush) { // do not write files on flush - these organisms have
+                // not been evaluated!
+    writeRealTimeFiles(population); // write to Max and Pop files
+    realtimeSequenceIndex++;
+  }
+
+  if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) &&
+      !flush && writeSnapshotDataFiles) { // do not write files on flush - these
+                                          // organisms have not been evaluated!
+    saveSnapshotData(population);
+    realtimeDataSeqIndex++;
+  }
+
+  if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) &&
+      !flush &&
+      writeSnapshotGenomeFiles) { // do not write files on flush - these
+                                  // organisms have not been evaluated!
+    saveSnapshotOrganisms(population);
+    realtimeOrganismSeqIndex++;
+  }
+
+  if (!writeSnapshotDataFiles) {
+    // we don't need to worry about tracking parents or
+    // lineage, so we clear out this data every generation.
+    for (auto org : population)
+      org->parents.clear();
     return finished;
   }
-  if (flush != 1) {
-    if ((Global::update == realtimeSequence[realtimeSequenceIndex]) &&
-        (flush == 0)) { // do not write files on flush - these organisms have
-                        // not been evaluated!
-      writeRealTimeFiles(population); // write to Max and Pop files
-      if (realtimeSequenceIndex + 1 < (int)realtimeSequence.size()) {
-        realtimeSequenceIndex++;
-      }
-    }
 
-    if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) &&
-        (flush == 0) &&
-        writeSnapshotDataFiles) { // do not write files on flush - these
-                                  // organisms have not been evaluated!
-      saveSnapshotData(population);
-      if (realtimeDataSeqIndex + 1 < (int)realtimeDataSequence.size()) {
-        realtimeDataSeqIndex++;
-      }
-    }
-    if ((Global::update ==
-         realtimeOrganismSequence[realtimeOrganismSeqIndex]) &&
-        (flush == 0) &&
-        writeSnapshotGenomeFiles) { // do not write files on flush - these
-                                    // organisms have not been evaluated!
-      saveSnapshotOrganisms(population);
-      if (realtimeOrganismSeqIndex + 1 < (int)realtimeOrganismSequence.size()) {
-        realtimeOrganismSeqIndex++;
-      }
-    }
+  auto const minBirthTime = // no generic lambdas in c++11 :(
+      (*std::min_element(
+           std::begin(population), std::end(population),
+           [](std::shared_ptr<Organism> lhs, std::shared_ptr<Organism> rhs) {
+             return lhs->timeOfBirth < rhs->timeOfBirth;
+           }))
+          ->timeOfBirth;
 
-    std::vector<std::shared_ptr<Organism>> toCheck;
-    std::unordered_set<std::shared_ptr<Organism>> checked;
-    int minBirthTime =
-        population[0]->timeOfBirth; // time of birth of oldest org being saved
-                                    // in this update (init with random value)
 
-    for (auto org :
-         population) { // we don't need to worry about tracking parents or
-                       // lineage, so we clear out this data every generation.
-      if (!writeSnapshotDataFiles) {
-        org->parents.clear();
-      } else if (org->snapshotAncestors.find(org->ID) !=
-                 org->snapshotAncestors.end()) { // if ancestors contains self,
-                                                 // then this org has been saved
-                                                 // and it's ancestor list has
-                                                 // been collapsed
-        org->parents.clear();
-        checked.insert(org); // make a note, so we don't check this org later
-        minBirthTime = std::min(org->timeOfBirth, minBirthTime);
-      } else {                  // org has not ever been saved to file...
-        toCheck.push_back(org); // we will need to check to see if we can do
-                                // clean up related to this org
-        checked.insert(org);    // make a note, so we don't check twice
-        minBirthTime = std::min(org->timeOfBirth, minBirthTime);
-      }
-    }
+  auto need_to_clean = population;
+  need_to_clean.clear();  // we haven't cleaned anything yet
 
-    while (toCheck.size() > 0) {
-      auto org = toCheck.back();
-      toCheck.pop_back();
-      if (org->timeOfBirth <
-          minBirthTime) {     // no living org can be this orgs ancestor
-        org->parents.clear(); // we can safely release parents
-      } else {
-        for (auto p : org->parents) { // we need to check parents (if any)
-          if (checked.find(p) == checked.end()) { // if parent is not already in
-                                                  // checked list (i.e. either
-                                                  // checked or going to be)
-            toCheck.push_back(p);
-            checked.insert(org); // make a note, so we don't check twice
-          }
+  for (auto org : population)
+    if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
+      // if ancestors contains self, then this org has been saved
+      // and it's ancestor list has been collapsed
+      org->parents.clear();
+    else                      // org has not ever been saved to file...
+      need_to_clean.push_back(org); // we will need to check to see if we can do
+                              // clean up related to this org
+
+  auto cleaned = population;
+
+  while (!need_to_clean.empty()) {
+    auto org = need_to_clean.back();
+    need_to_clean.pop_back();
+    if (org->timeOfBirth < minBirthTime)
+      // no living org can be this orgs ancestor
+      org->parents.clear(); // so we can safely release parents
+    else
+      for (auto parent : org->parents) // we need to check parents (if any)
+        if (std::find(std::begin(cleaned), std::end(cleaned), parent) ==
+            cleaned.end()) { // if parent is not already in
+                             // cleaned list (i.e. either
+                             // cleaned or going to be)
+          need_to_clean.push_back(parent);
+
+		  /*** def a bug ***/
+          cleaned.push_back(org); // make a note, so we don't clean twice
         }
-      }
-    }
   }
+
   // if we are at the end of the run
-  finished = Global::update >= Global::updatesPL->get();
   return finished;
 }
 
-bool DefaultArchivist::isDataUpdate(int checkUpdate) {
-  if (checkUpdate == -1) {
-    checkUpdate = Global::update;
-  }
-  bool check = find(realtimeSequence.begin(), realtimeSequence.end(),
-                    checkUpdate) != realtimeSequence.end();
-  check = check ||
-          find(realtimeDataSequence.begin(), realtimeDataSequence.end(),
-               checkUpdate) != realtimeDataSequence.end();
-  return check;
+bool DefaultArchivist::isDataUpdate(int check_update) {
+
+  check_update = check_update == -1 ? Global::update : check_update;
+
+  return std::find(std::begin(realtimeSequence), std::end(realtimeSequence),
+                   check_update) != std::end(realtimeSequence) or
+         std::find(std::begin(realtimeDataSequence),
+                   std::end(realtimeDataSequence),
+                   check_update) != std::end(realtimeSequence);
 }
 
-bool DefaultArchivist::isOrganismUpdate(int checkUpdate) {
-  if (checkUpdate == -1) {
-    checkUpdate = Global::update;
-  }
-  bool check =
-      find(realtimeOrganismSequence.begin(), realtimeOrganismSequence.end(),
-           checkUpdate) != realtimeOrganismSequence.end();
-  return check;
+bool DefaultArchivist::isOrganismUpdate(int check_update) {
+
+  check_update = check_update == -1 ? Global::update : check_update;
+
+  return std::find(std::begin(realtimeOrganismSequence),
+                   std::end(realtimeOrganismSequence),
+                   check_update) != std::end(realtimeOrganismSequence);
 }
+
+
