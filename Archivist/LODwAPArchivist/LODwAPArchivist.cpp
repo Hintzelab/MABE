@@ -76,7 +76,7 @@ LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstr
 
 }
 
-bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flush) {
 	if (finished && !flush) {
 		return finished;
 	}

@@ -99,17 +99,17 @@ public:
   virtual ~DefaultArchivist() = default;
 
   // save Max and average file data
-  void writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> &population);
+  void writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
-  void saveSnapshotData(std::vector<std::shared_ptr<Organism>> population);
+  void saveSnapshotData(std::vector<std::shared_ptr<Organism>>  & /*population*/);
 
   // void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
-  void saveSnapshotOrganisms(std::vector<std::shared_ptr<Organism>> population);
+  void saveSnapshotOrganisms(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
   // save data and manage in memory data
   // return true if next save will be > updates + terminate after
-  virtual bool archive(std::vector<std::shared_ptr<Organism>> population,
-                       int flush = 0);
+  virtual bool archive(std::vector<std::shared_ptr<Organism>> & /*population*/,
+                       int /*flush*/ = 0);
 
   // virtual void processAllLists(OldDataMap &dm);
 

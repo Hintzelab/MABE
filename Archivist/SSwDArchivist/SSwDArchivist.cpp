@@ -107,7 +107,7 @@ void SSwDArchivist::cleanup() {
 	}
 }
 
-bool SSwDArchivist::archive(vector<shared_ptr<Organism>> population, int flush) {
+bool SSwDArchivist::archive(vector<shared_ptr<Organism>> &population, int flush) {
 
 	if (finished && !flush) {
 		return finished;

@@ -282,7 +282,7 @@ double aveValue;
 }
 
 void DefaultArchivist::saveSnapshotData(
-    std::vector<std::shared_ptr<Organism>> population) {
+    std::vector<std::shared_ptr<Organism>> & population) {
   // write out data
   std::string dataFileName =
       DataFilePrefix + "_" + std::to_string(Global::update) + ".csv";
@@ -444,7 +444,7 @@ void DefaultArchivist::saveSnapshotData(
 }
 
 void DefaultArchivist::saveSnapshotOrganisms(
-    std::vector<std::shared_ptr<Organism>> population) {
+    std::vector<std::shared_ptr<Organism>> & population) {
   // write out organims
   std::string organismFileName =
       OrganismFilePrefix + "_" + std::to_string(Global::update) + ".csv";
@@ -475,7 +475,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
 // return true if next save will be > updates + terminate after
 // archive MUST be called on every lobal::updates - ENFORCE 
 bool DefaultArchivist::archive(
-    std::vector<std::shared_ptr<Organism>> population, int flush) {
+    std::vector<std::shared_ptr<Organism>> & population, int flush) {
 
   if (finished)
     return finished;
