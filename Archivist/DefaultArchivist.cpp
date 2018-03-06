@@ -231,7 +231,7 @@ void DefaultArchivist::writeRealTimeFiles(
   // write out population data
 
   if (writePopFile) {
-    double aveValue;
+double aveValue;
     DataMap PopMap;
 
     // for (auto key : DefaultPopFileColumns) {
@@ -473,6 +473,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
 
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
+// archive MUST be called on every lobal::updates - ENFORCE 
 bool DefaultArchivist::archive(
     std::vector<std::shared_ptr<Organism>> population, int flush) {
 
@@ -511,8 +512,28 @@ bool DefaultArchivist::archive(
     // lineage, so we clear out this data every generation.
     for (auto org : population)
       org->parents.clear();
-    return finished;
+  } else {
+	clean_up_parents(population);
   }
+
+
+  // if we are at the end of the run
+  return finished;
+}
+
+void DefaultArchivist::clean_up_parents(std::vector<std::shared_ptr<Organism>> &population) {
+
+  auto need_to_clean = population;
+  need_to_clean.clear(); // we haven't cleaned anything yet
+
+  for (auto org : population)
+    if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
+      // if ancestors contains self, then this org has been saved
+      // and it's ancestor list has been collapsed
+      org->parents.clear();
+    else                            // org has not ever been saved to file...
+      need_to_clean.push_back(org); // we will need to check to see if we can do
+                                    // clean up related to this org
 
   auto const minBirthTime = // no generic lambdas in c++11 :(
       (*std::min_element(
@@ -522,20 +543,7 @@ bool DefaultArchivist::archive(
            }))
           ->timeOfBirth;
 
-
-  auto need_to_clean = population;
-  need_to_clean.clear();  // we haven't cleaned anything yet
-
-  for (auto org : population)
-    if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
-      // if ancestors contains self, then this org has been saved
-      // and it's ancestor list has been collapsed
-      org->parents.clear();
-    else                      // org has not ever been saved to file...
-      need_to_clean.push_back(org); // we will need to check to see if we can do
-                              // clean up related to this org
-
-  auto cleaned = population;
+  auto logged = population;
 
   while (!need_to_clean.empty()) {
     auto org = need_to_clean.back();
@@ -545,19 +553,14 @@ bool DefaultArchivist::archive(
       org->parents.clear(); // so we can safely release parents
     else
       for (auto parent : org->parents) // we need to check parents (if any)
-        if (std::find(std::begin(cleaned), std::end(cleaned), parent) ==
-            cleaned.end()) { // if parent is not already in
-                             // cleaned list (i.e. either
-                             // cleaned or going to be)
+        if (std::find(std::begin(logged), std::end(logged), parent) ==
+            logged.end()) { // if parent is not already in
+                            // logged list (i.e. either
+                            // logged or going to be)
           need_to_clean.push_back(parent);
-
-		  /*** def a bug ***/
-          cleaned.push_back(org); // make a note, so we don't clean twice
+          logged.push_back(parent); // make a note, so we don't clean twice
         }
   }
-
-  // if we are at the end of the run
-  return finished;
 }
 
 bool DefaultArchivist::isDataUpdate(int check_update) {

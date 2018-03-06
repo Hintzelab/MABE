@@ -113,6 +113,9 @@ public:
 
   // virtual void processAllLists(OldDataMap &dm);
 
+  void clean_up_parents(std::vector<std::shared_ptr<Organism>> & /*population*/);
+
+
   virtual bool isDataUpdate(int checkUpdate = -1);
   virtual bool isOrganismUpdate(int checkUpdate = -1);
 
