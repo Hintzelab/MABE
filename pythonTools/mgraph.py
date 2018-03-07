@@ -26,9 +26,10 @@ parser.add_argument('-imageSize', type=float, default = [10,10], help='size of i
 parser.add_argument('-yRange', type=int, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
 parser.add_argument('-xRange', type=int, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
 
-parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','95conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95 percent confidence intervals), 99conf (99 percent confidence intervals), reps (show data for all reps) - default : ave 95conf', nargs='+', required=False)
+parser.add_argument('-pltWhat', type=str, metavar='{ave,error,reps}',choices=('ave','error','reps'), default = ['ave','error'], help='what should be ploted. ave (averages), error, reps (show data for all reps) - default : ave error', nargs='+', required=False)
 parser.add_argument('-pltStyle', type=str, choices=('line','point','randomLine','randomPoint'), default = 'line', help='plot style. Random is useful if plotting multiple data on the same plot - default : line', required=False)
 parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','barXY'), default = 'region', help='how error is ploted - default : region', required=False)
+#parser.add_argument('-errorMethod', type=str, choices=('stderr'), default = ['stderr'], help='what error is ploted - default : region', required=False)
 
 parser.add_argument('-numCol', type=str, metavar='#', default = '3', help='if ploting a multi plot (default), how many columns in plot - default : 3', required=False)
 parser.add_argument('-combineConditions', action='store_true', default = False, help='if ploting multiple conditions, adding this flag will combine data from files with same name - default (if not set) : OFF', required=False)
@@ -85,7 +86,7 @@ import matplotlib.cm as cm
 import fnmatch
 import ast
 
-def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','95conf'], PltStyle = 'line', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
+def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','error'], PltStyle = 'line', ErrorMethod = 'stderr', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
 	MajorFontSize = args.fontSizeMajor
 	MinorFontSize = args.fontSizeMinor
 	TickFontSize = args.fontSizeTicks
@@ -116,8 +117,6 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		styleList = styleListRandomPoint
 		PltStyle = 'o'
 
-	assert len(ConditionsList) <= len(styleList) # until the above lists are dynamically built, this assert must be here to prevent index out of bounds errors
-
 	fig = plt.figure(figsize=(imageSize[0],imageSize[1]))                                                # create a new figure
 	fig.subplots_adjust(hspace=.35)
 
@@ -137,9 +136,9 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 		NamesList = [x for x in NamesList if not integrateName in x]
 
 	if len(NamesList) == 1:
-		Columns = 1
+		Columns = 1;
 	if len(NamesList) == 2:
-		Columns = 2
+		Columns = 2;
 							
 	Rows = math.ceil(float(len(NamesList))/float(Columns))      # calcualate how many rows we need
 	for conditionCount in range(len(ConditionsList)):
@@ -169,7 +168,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 				#aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
 				quantity = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns = 'repName', values = NamesList[nameCount]).mean(axis=1).tail(1)
 				quantity = quantity.iloc[0]
-				if 'std' in PltWhat:
+				if 'error' in PltWhat:
 					quantityErr = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns = 'repName', values = NamesList[nameCount]).std(axis=1).tail(1)
 					plt.bar([conditionCount], [quantity], yerr=quantityErr)
 				else:
@@ -188,7 +187,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 								data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
 								PltStyle, alpha = .25, color = PltColor,label='_nolegend_')
 
-				if ('ave' in PltWhat) or ('std' in PltWhat):
+				if ('ave' in PltWhat) or ('error' in PltWhat):
 					aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
 					aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
 
@@ -202,10 +201,13 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 							errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).mean(axis=1)
 							plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
 					#plt.plot(aveXCoordinate, aveLine, PltStyle, color = PltColor, linewidth = args.lineWeight, label = ThisLabel) ## plot below so it's on top
-				if 'std' in PltWhat:
-					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
-					errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).std(axis=1)
-
+				if 'error' in PltWhat:
+					if (ErrorMethod == "stderr"):
+						errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).std(axis=1)
+						errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).std(axis=1)
+					else:
+						print ('ERROR: errorMethod "' + ErrorMethod + '" not found.',flush=True)
+						exit()
 					if (ErrorStyle == 'bar'):
 						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
 					if (ErrorStyle == 'barX'):
@@ -216,42 +218,6 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 						plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
 				if ('ave' in PltWhat):
 					plt.plot(aveXCoordinate, aveLine, PltStyle, markersize = 10, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
-				if ('sem' in PltWhat):
-					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).sem(axis=1)
-					errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).sem(axis=1)
-
-					if (ErrorStyle == 'bar'):
-						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barX'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barXY'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'region'):
-						plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
-				if ('95conf' in PltWhat):
-					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).sem(axis=1).multiply(1.96)
-					errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).sem(axis=1).multiply(1.96)
-
-					if (ErrorStyle == 'bar'):
-						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barX'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barXY'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'region'):
-						plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
-				if ('99conf' in PltWhat):
-					errorLineY = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = NamesList[nameCount]).sem(axis=1).multiply(2.58)
-					errorLineX = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns='repName', values = XCoordinateName).sem(axis=1).multiply(2.58)
-
-					if (ErrorStyle == 'bar'):
-						plt.errorbar(aveXCoordinate, aveLine,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barX'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'barXY'):
-						plt.errorbar(aveXCoordinate, aveLine,xerr = errorLineX,yerr = errorLineY,color = PltColor, alpha = .5,fmt='.')
-					if (ErrorStyle == 'region'):
-						plt.fill_between(aveXCoordinate, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15)
 			if ((len(ConditionsList) > 1) or (CombineData))and legendLocation != '':
 				if args.lastOnly:
 					plt.xlabel('Conditions', fontsize=MinorFontSize)
@@ -327,7 +293,7 @@ godFrames = {}
 for file in files:
 	godFrames[file]=pandas.DataFrame()
 conCount = 0
-updateMin = 1000000000
+updateMin = 1000000000;
 
 for con in cons:
 	for file in files:
@@ -442,7 +408,7 @@ if args.combineConditions:
 		#####
 		#####
 
-		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
+		allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = cons, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
 
 else:
 	for con in cons:
@@ -472,7 +438,7 @@ else:
 			#####
 			#####
 		
-			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
+			allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorMethod = 'stderr', ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)#plt.gcf()
 
 #plt.tight_layout()
 
