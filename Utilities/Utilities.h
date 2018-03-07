@@ -212,7 +212,7 @@ inline void convertCSVListToVector(std::string string_data,
   return_data.clear();
   // check all uses of this function to see if leading and trailing quotes are
   // needed
-  std::regex stripoff(R"(^"?\[?(.*?)]?"?$)");
+  std::regex stripoff(R"(^"?\[?(.*?)\]?"?$)");
   std::smatch m;
   if (!std::regex_match(string_data, m, stripoff)) {
     std::cout << " Error :  unrecognized csv string " << string_data
@@ -272,7 +272,6 @@ inline int vectorToBitToInt(const std::vector<Type> &nodes,
       [&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
 }
 
-// see vectorToBitToInt, same process, but for Trits
 template <typename Type>
 inline int vectorToTritToInt(const std::vector<Type> &nodes,
                              const std::vector<int> &nodeAddresses,
@@ -346,7 +345,6 @@ inline std::vector<int> seq(const std::string sequence_string,
   std::vector<int> v(result.begin(), result.end());
   return v;
 }
-
 
 // load a line from FILE. IF the line is empty or a comment (starts with #),
 // skip line.
