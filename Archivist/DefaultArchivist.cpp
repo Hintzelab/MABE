@@ -286,6 +286,7 @@ void DefaultArchivist::saveSnapshotData(
   // write out data
   std::string dataFileName =
       DataFilePrefix + "_" + std::to_string(Global::update) + ".csv";
+
   if (files.find("snapshotData") ==
       files.end()) { // first make sure that the dataFile has been set up.
     // population[0]->dataMap.Set("ancestors", "placeHolder");  // add ancestors
@@ -297,36 +298,28 @@ void DefaultArchivist::saveSnapshotData(
     files["snapshotData"].push_back("snapshotAncestors");
   }
 
-  // first, determine which orgs in population need to be saved.
-  std::vector<std::shared_ptr<Organism>> saveList;
-  int minBirthTime = population[0]->timeOfBirth; // time of birth of oldest org
-                                                 // being saved in this update
-                                                 // (init with random value)
 
-  if (saveNewOrgs) {
-    saveList = population;
-    for (auto org : population) {
-      minBirthTime = std::min(org->timeOfBirth, minBirthTime);
-    }
-  } else {
-    for (auto org : population) {
-      if (org->timeOfBirth < Global::update) {
-        saveList.push_back(org);
-      }
-      minBirthTime = std::min(org->timeOfBirth, minBirthTime);
-    }
-  }
+  auto const minBirthTime = // no generic lambdas in c++11 :(
+      (*std::min_element(
+           std::begin(population), std::end(population),
+           [](std::shared_ptr<Organism> lhs, std::shared_ptr<Organism> rhs) {
+             return lhs->timeOfBirth < rhs->timeOfBirth;
+           }))
+          ->timeOfBirth;
+
+  // first, determine which orgs in population need to be saved.
+  auto saveList = population;
+
+  if (!saveNewOrgs)
+    saveList.erase(std::remove_if(std::begin(saveList), std::end(saveList),
+                                  [](std::shared_ptr<Organism> org) {
+
+                                    return org->timeOfBirth >= Global::update;
+                                  }),
+                   std::end(saveList));
 
   // now for each org, update ancestors and save if in saveList
   for (auto org : population) {
-
-    // std::cout << "---------------\n now looking at: " << org->ID <<
-    // std::endl;
-    // std::cout << "  with parents List (" << org->parents.size() << "): ";
-    // for (auto a : org->parents) {
-    //	std::cout << a->ID << "  ";
-    //}
-    // std::cout << std::endl;
 
     if (org->snapshotAncestors.size() != 1 ||
         org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
@@ -402,7 +395,7 @@ void DefaultArchivist::saveSnapshotData(
     } else {                                    // org has self for ancestor
       if (org->timeOfBirth >= Global::update) { // if this is a new org...
         std::cout
-            << "  WARRNING :: in DefaultArchivist::saveSnapshotData(), found "
+            << "  WARNING :: in DefaultArchivist::saveSnapshotData(), found "
                "new org (age < 1) with self as ancestor (with ID: "
             << org->ID
             << "... this will result in a new root to the phylogony tree!"
@@ -521,7 +514,8 @@ bool DefaultArchivist::archive(
   return finished;
 }
 
-void DefaultArchivist::clean_up_parents(std::vector<std::shared_ptr<Organism>> &population) {
+void DefaultArchivist::clean_up_parents(
+    std::vector<std::shared_ptr<Organism>> &population) {
 
   auto need_to_clean = population;
   need_to_clean.clear(); // we haven't cleaned anything yet
