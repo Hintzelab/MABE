@@ -111,10 +111,15 @@ public:
   virtual bool archive(std::vector<std::shared_ptr<Organism>> & /*population*/,
                        int /*flush*/ = 0);
 
-  // virtual void processAllLists(OldDataMap &dm);
+  void saveOrgToFile(std::shared_ptr<Organism> /*org*/,
+                     const std::string & /*data_file_name*/);
 
-  void clean_up_parents(std::vector<std::shared_ptr<Organism>> & /*population*/);
+  void cleanUpParents(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
+  void
+  resolveAncestors(std::shared_ptr<Organism> /*org*/,
+                         std::vector<std::shared_ptr<Organism>> & /*save_file*/,
+                         int /*min_birth_time*/);
 
   virtual bool isDataUpdate(int checkUpdate = -1);
   virtual bool isOrganismUpdate(int checkUpdate = -1);

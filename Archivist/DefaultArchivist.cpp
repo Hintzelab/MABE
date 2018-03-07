@@ -283,7 +283,8 @@ double aveValue;
 
 void DefaultArchivist::saveSnapshotData(
     std::vector<std::shared_ptr<Organism>> & population) {
-  // write out data
+
+  	// write out data
   std::string dataFileName =
       DataFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
@@ -323,6 +324,66 @@ void DefaultArchivist::saveSnapshotData(
 
     if (org->snapshotAncestors.size() != 1 ||
         org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
+
+      org->snapshotAncestors.clear();
+
+	  resolveAncestors(org,saveList,minBirthTime);
+
+
+    } else {                      // org has exactly self for ancestor
+      if (org->timeOfBirth >= Global::update) { // if this is a new org...
+        std::cout
+            << "  WARNING :: in DefaultArchivist::saveSnapshotData(), found "
+               "new org (age < 1) with self as ancestor (with ID: "
+            << org->ID
+            << "... this will result in a new root to the phylogony tree!"
+            << std::endl;
+        if (saveNewOrgs)
+          std::cout << "    this org is being saved" << std::endl;
+        else
+          std::cout
+              << "    this org is not being saved (this may be very bad...)"
+              << std::endl;
+      }
+    }
+
+    // now that we know that ancestor list is good for this org...
+    if (org->timeOfBirth < Global::update || saveNewOrgs) 
+		saveOrgToFile(org,dataFileName);
+  }
+
+  FileManager::closeFile(dataFileName); // since this is a snapshot, we will not
+                                        // be writting to this file again.
+}
+
+void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
+                                     const std::string &data_file_name) {
+
+  // std::cout << "  is being saved" << std::endl;
+  for (auto ancestorID : org->snapshotAncestors) {
+    // std::cout << org->ID << " adding ancestor " << ancestorID << " to
+    // dataMap"
+    // << std::endl;
+    org->dataMap.append("snapshotAncestors", ancestorID);
+  }
+  org->dataMap.setOutputBehavior("snapshotAncestors", DataMap::LIST);
+
+  org->snapshotAncestors.clear(); // now that we have saved the ancestor
+                                  // data, set ancestors to self (so that
+                                  // others will inherit correctly)
+  org->snapshotAncestors.insert(org->ID);
+  org->dataMap.set("update", Global::update);
+  org->dataMap.setOutputBehavior("update", DataMap::FIRST);
+  org->dataMap.writeToFile(
+      data_file_name, files["snapshotData"]); // append new data to the file
+  org->dataMap.clear("snapshotAncestors");
+  org->dataMap.clear("update");
+}
+
+
+void DefaultArchivist::resolveAncestors(
+    std::shared_ptr<Organism> org,
+    std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
       // if this org does not only contain only itself in snapshotAncestors then
       // it has not been saved before.
       // we must confirm that snapshotAncestors is correct because things may
@@ -343,97 +404,41 @@ void DefaultArchivist::saveSnapshotData(
       // if they are at least as old as the oldest org being saved to this file
       // then we can simply append their ancestors
 
-      org->snapshotAncestors.clear();
-      std::vector<std::shared_ptr<Organism>> parentCheckList = org->parents;
+  auto parent_check_list = org->parents;
 
-      while (parentCheckList.size() > 0) {
-        auto parent = parentCheckList.back(); // this is "this parent"
-        parentCheckList.pop_back(); // remove this parent from checklist
+  while (!parent_check_list.empty()) {
+    auto parent = parent_check_list.back(); // this is "this parent"
+    parent_check_list.pop_back();           // remove this parent from checklist
 
-        // std::cout << "\n org: " << org->ID << " parent: " << parent->ID <<
-        // std::endl;
-        if (find(saveList.begin(), saveList.end(), parent) !=
-            saveList.end()) { // if this parent is being saved, they will serve
-                              // as an ancestor
-          org->snapshotAncestors.insert(parent->ID);
-        } else { // this parent is not being saved
-          if (parent->timeOfBirth < minBirthTime ||
-              (parent->snapshotAncestors.size() == 1 &&
-               parent->snapshotAncestors.find(parent->ID) !=
-                   parent->snapshotAncestors.end())) {
-            // if this parent is old enough that it can not have a parent in the
-            // save list (and is not in save list),
-            // or this parent has self in it's ancestor list (i.e. it has
-            // already been saved to another file),
-            // copy ancestors from this parent
-            // std::cout << "getting ancestors for " << org->ID << " parent " <<
-            // parent->ID << " is old enough or has self as ancestor..." <<
-            // std::endl;
-            for (auto ancestorID : parent->snapshotAncestors) {
-              // std::cout << "adding from parent " << parent->ID << " ancestor
-              // " <<
-              // ancestorID << std::endl;
-              org->snapshotAncestors.insert(ancestorID);
-            }
-          } else { // this parent not old enough (see if above), add this
-                   // parents parents to check list (we need to keep looking)
-            for (auto p : parent->parents) {
-              parentCheckList.push_back(p);
-            }
-          }
-        }
-      }
-
-      /* // uncomment to see updated ancesstors list
-      std::cout << "  new snapshotAncestors List: ";
-      for (auto a : org->snapshotAncestors) {
-              std::cout << a << "  ";
-      }
-      std::cout << std::endl;
-      */
-
-    } else {                                    // org has self for ancestor
-      if (org->timeOfBirth >= Global::update) { // if this is a new org...
-        std::cout
-            << "  WARNING :: in DefaultArchivist::saveSnapshotData(), found "
-               "new org (age < 1) with self as ancestor (with ID: "
-            << org->ID
-            << "... this will result in a new root to the phylogony tree!"
-            << std::endl;
-        if (saveNewOrgs) {
-          std::cout << "    this org is being saved" << std::endl;
-        } else {
-          std::cout
-              << "    this org is not being saved (this may be very bad...)"
-              << std::endl;
-        }
-      }
+    if (find(save_list.begin(), save_list.end(), parent) !=
+        save_list.end()) { // if this parent is being saved, they will serve
+                          // as an ancestor
+      org->snapshotAncestors.insert(parent->ID);
+      continue;
     }
-    // now that we know that ancestor list is good for this org...
-    if (org->timeOfBirth < Global::update || saveNewOrgs) {
-      // std::cout << "  is being saved" << std::endl;
-      for (auto ancestorID : org->snapshotAncestors) {
-        // std::cout << org->ID << " adding ancestor " << ancestorID << " to
-        // dataMap"
-        // << std::endl;
-        org->dataMap.append("snapshotAncestors", ancestorID);
-      }
-      org->dataMap.setOutputBehavior("snapshotAncestors", DataMap::LIST);
 
-      org->snapshotAncestors.clear(); // now that we have saved the ancestor
-                                      // data, set ancestors to self (so that
-                                      // others will inherit correctly)
-      org->snapshotAncestors.insert(org->ID);
-      org->dataMap.set("update", Global::update);
-      org->dataMap.setOutputBehavior("update", DataMap::FIRST);
-      org->dataMap.writeToFile(
-          dataFileName, files["snapshotData"]); // append new data to the file
-      org->dataMap.clear("snapshotAncestors");
-      org->dataMap.clear("update");
+	// this parent is not being saved
+    if (parent->timeOfBirth < min_birth_time ||
+        (parent->snapshotAncestors.size() == 1 &&
+         parent->snapshotAncestors.find(parent->ID) !=
+             parent->snapshotAncestors.end())) {
+      // if this parent is old enough that it can not have a parent in the
+      // save list (and is not in save list),
+      // or this parent has self in it's ancestor list (i.e. it has
+      // already been saved to another file),
+      // copy ancestors from this parent
+      for (auto ancestor_id : parent->snapshotAncestors) {
+        org->snapshotAncestors.insert(ancestor_id);
+      }
+      continue;
+    }
+
+	// this parent not old enough (see if above), add this
+    // parents parents to check list (we need to keep looking)
+    for (auto p : parent->parents) {
+      parent_check_list.push_back(p);
     }
   }
-  FileManager::closeFile(dataFileName); // since this is a snapshot, we will not
-                                        // be writting to this file again.
 }
 
 void DefaultArchivist::saveSnapshotOrganisms(
@@ -506,7 +511,7 @@ bool DefaultArchivist::archive(
     for (auto org : population)
       org->parents.clear();
   } else {
-	clean_up_parents(population);
+	cleanUpParents(population);
   }
 
 
@@ -514,7 +519,7 @@ bool DefaultArchivist::archive(
   return finished;
 }
 
-void DefaultArchivist::clean_up_parents(
+void DefaultArchivist::cleanUpParents(
     std::vector<std::shared_ptr<Organism>> &population) {
 
   auto need_to_clean = population;
