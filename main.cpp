@@ -117,6 +117,8 @@ int main(int argc, const char *argv[]) {
   map<string, shared_ptr<Group>> groups;
   shared_ptr<ParametersTable> PT;
 
+  cout << "\nRunning World " << world->worldTypePL->get() << "\n";
+
   auto worldRequirements = world->requiredGroups();
   // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
   // is empty, create "default" group.
