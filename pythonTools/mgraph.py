@@ -188,7 +188,8 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 								data[data["repName"] == Rep][data["con"] == ConditionsList[conditionCount]][NamesList[nameCount]],
 								PltStyle, alpha = .25, color = PltColor,label='_nolegend_')
 
-				if ('ave' in PltWhat) or ('std' in PltWhat):
+				# any plot that is dependant on the average line must trigger this 'if' statment
+				if ('ave' in PltWhat) or ('std' in PltWhat) or ('sem' in PltWhat) or ('95conf' in PltWhat) or ('99conf' in PltWhat):
 					aveLine = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = NamesList[nameCount]).mean(axis=1)
 					aveXCoordinate = data[data["con"] == ConditionsList[conditionCount]].pivot(index = dataIndex, columns ='repName', values = XCoordinateName).mean(axis=1)
 
