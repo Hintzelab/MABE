@@ -73,9 +73,9 @@ std::shared_ptr<ParameterLink<bool>>
             "if true, snapshot organisms files will be written (with all "
             "organisms for entire population)");
 
-DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
+DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
                                    std::string _groupPrefix)
-    : PT(_PT), groupPrefix(_groupPrefix) {
+    : PT(PT_), groupPrefix(_groupPrefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
   writeMaxFile = Arch_writeMaxFilePL->get(PT);
@@ -173,9 +173,9 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> _PT,
 
 DefaultArchivist::DefaultArchivist(std::vector<std::string> popFileColumns,
                                    std::shared_ptr<Abstract_MTree> _maxFormula,
-                                   std::shared_ptr<ParametersTable> _PT,
+                                   std::shared_ptr<ParametersTable> PT_,
                                    std::string _groupPrefix)
-    : DefaultArchivist(_PT, _groupPrefix) {
+    : DefaultArchivist(PT_, _groupPrefix) {
   convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
   maxFormula = _maxFormula;
   if (DefaultPopFileColumns.size() <= 0) {

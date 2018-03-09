@@ -13,8 +13,8 @@
 shared_ptr<ParameterLink<bool>> HumanBrain::useActionMapPL = Parameters::register_parameter("BRAIN_HUMAN-useActionMap", false, "if true, an action map will be used to translate user input");
 shared_ptr<ParameterLink<string>> HumanBrain::actionMapFileNamePL = Parameters::register_parameter("BRAIN_HUMAN-actionMapFileName", (string) "actionMap.txt", "if useActionMap = true, use this file");
 
-HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+HumanBrain::HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 	useActionMap = useActionMapPL->get(PT);
 	actionMapFileName = actionMapFileNamePL->get(PT);
 
@@ -118,12 +118,12 @@ void HumanBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGeno
 // do nothing;
 }
 
-shared_ptr<AbstractBrain> HumanBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> HumanBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
-	auto newBrain = make_shared<HumanBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT_);
 	return newBrain;
 }
 

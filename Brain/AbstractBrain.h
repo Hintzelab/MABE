@@ -216,7 +216,7 @@ public:
   //	}
 
   virtual std::shared_ptr<AbstractBrain>
-  makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr) {
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) {
     std::cout << "ERROR IN AbstractBrain::makeCopy() - You are using the abstract "
             "copy constructor for brains. You must define your own"
          << std::endl;

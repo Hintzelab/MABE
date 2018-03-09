@@ -44,8 +44,8 @@ shared_ptr<ParameterLink<int>> WireBrain::bitsPerCodonPL = Parameters::register_
 
 shared_ptr<ParameterLink<string>> WireBrain::genomeNamePL = Parameters::register_parameter("BRAIN_WIRE_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
-WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes,  _PT) {
+WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes,  PT_) {
 
 	allowNegativeCharge = allowNegativeChargePL->get(PT);
 	defaultWidth = defaultWidthPL->get(PT);
@@ -97,8 +97,8 @@ WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable
 	popFileColumns.push_back("wireBrainConnectionsCount");
 }
 
-WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
+WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		WireBrain(_nrInNodes, _nrOutNodes, PT_) {
 	initialize();
 
 	if ((int) genome.size() < width * depth * height) {
@@ -118,8 +118,8 @@ WireBrain::WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes
 	popFileColumns.push_back("wireBrainConnectionsCount");
 }
 
-WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		WireBrain(_nrInNodes, _nrOutNodes, _PT) {
+WireBrain::WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		WireBrain(_nrInNodes, _nrOutNodes, PT_) {
 	//cout << "in WireBrain(shared_ptr<AbstractGenome> genome, int _nrOfNodes)" << endl;
 	initialize();
 
@@ -1161,12 +1161,12 @@ void WireBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenom
 	}
 }
 
-shared_ptr<AbstractBrain> WireBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> WireBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
-	auto newBrain = make_shared<WireBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<WireBrain>(nrInputValues, nrOutputValues, PT_);
 
 	newBrain->allCells = allCells;
 	newBrain->wireAddresses = wireAddresses;

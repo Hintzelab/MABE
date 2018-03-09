@@ -20,8 +20,8 @@ shared_ptr<ParameterLink<int>> TestWorld::evaluationsPerGenerationPL = Parameter
 shared_ptr<ParameterLink<string>> TestWorld::groupNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
 shared_ptr<ParameterLink<string>> TestWorld::brainNamePL = Parameters::register_parameter("WORLD_TEST_NAMES-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
-TestWorld::TestWorld(shared_ptr<ParametersTable> _PT) :
-		AbstractWorld(_PT) {
+TestWorld::TestWorld(shared_ptr<ParametersTable> PT_) :
+		AbstractWorld(PT_) {
 
 	// columns to be added to ave file
 	popFileColumns.clear();

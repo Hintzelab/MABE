@@ -51,8 +51,8 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::nextPopSizePL =
         "size of population after optimization(MTree). -1 indicates use "
         "current population size");
 
-SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> _PT)
-    : AbstractOptimizer(_PT) {
+SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
+    : AbstractOptimizer(PT_) {
 
   selectionMethod = selectionMethodPL->get(PT);
   numberParents = numberParentsPL->get(PT);

@@ -21,8 +21,8 @@ shared_ptr<ParameterLink<double>> ConstantValuesBrain::initializeConstantValuePL
 
 shared_ptr<ParameterLink<string>> ConstantValuesBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CONSTANT_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
-ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+ConstantValuesBrain::ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 // columns to be added to ave file
 	popFileColumns.clear();
@@ -148,12 +148,12 @@ void ConstantValuesBrain::initializeGenomes(unordered_map<string, shared_ptr<Abs
 	}
 }
 
-shared_ptr<AbstractBrain> ConstantValuesBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> ConstantValuesBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
-	auto newBrain = make_shared<ConstantValuesBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<ConstantValuesBrain>(nrInputValues, nrOutputValues, PT_);
 
 	for (int i = 0; i < nrOutputValues; i++) {
 		newBrain->outputValues[i] = outputValues[i];

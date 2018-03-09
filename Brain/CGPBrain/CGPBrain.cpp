@@ -26,8 +26,8 @@ shared_ptr<ParameterLink<int>> CGPBrain::codonMaxPL = Parameters::register_param
 
 shared_ptr<ParameterLink<bool>> CGPBrain::readFromOutputsPL = Parameters::register_parameter("BRAIN_CGP-readFromOutputs", true, "if true, previous updates outputs will be available as inputs.");
 
-CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-	AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+	AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 	convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
 	//nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() : PT->lookupInt("BRAIN_CGP-hiddenNodes");
@@ -76,8 +76,8 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> 
 
 }
 
-CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, shared_ptr<ParametersTable> _PT) :
-	CGPBrain(_nrInNodes, _nrOutNodes, _PT) {
+CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, shared_ptr<ParametersTable> PT_) :
+	CGPBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 	brainVectors.resize(nrOutputTotal);
 	auto handler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)]);
@@ -408,12 +408,12 @@ void CGPBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome
 	_genomes[genomeNamePL->get(PT)]->fillRandom();
 }
 
-shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> CGPBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
-	auto newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, PT_);
 	newBrain->brainVectors = brainVectors;
 	return newBrain;
 }

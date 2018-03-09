@@ -90,11 +90,11 @@ public:
 
   const std::shared_ptr<ParametersTable> PT;
 
-  DefaultArchivist(std::shared_ptr<ParametersTable> _PT = nullptr,
+  DefaultArchivist(std::shared_ptr<ParametersTable> PT = nullptr,
                    std::string _groupPrefix = "");
   DefaultArchivist(std::vector<std::string> popFileColumns,
                    std::shared_ptr<Abstract_MTree> _maxFormula = nullptr,
-                   std::shared_ptr<ParametersTable> _PT = nullptr,
+                   std::shared_ptr<ParametersTable> PT = nullptr,
                    std::string _groupPrefix = "");
   virtual ~DefaultArchivist() = default;
 

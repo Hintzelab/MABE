@@ -35,13 +35,13 @@ public:
     vector<vector<double>> Wf,Wi,Wc,Wo;
     vector<double> ft,it,Ct,Ot,dt;
     vector<double> bt,bi,bC,bO;
-    int _I,_O;
+    int I_,O_;
     vector<double> C,X,H;
 
     
 	LSTMBrain() = delete;
 
-	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
+	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_);
 
 	virtual ~LSTMBrain() = default;
 

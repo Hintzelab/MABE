@@ -133,14 +133,14 @@ public:
   std::vector<std::string> popFileColumns; // = {"genomeLength"};
 
   AbstractGenome() = delete;
-  AbstractGenome(std::shared_ptr<ParametersTable> _PT) : PT(_PT) {}
+  AbstractGenome(std::shared_ptr<ParametersTable> PT_) : PT(PT_) {}
 
   virtual ~AbstractGenome() = default;
   // virtual shared_ptr<AbstractGenome::Handler>
   // newHandler(shared_ptr<AbstractGenome> _genome, bool _readDirection = true)
   // override {
 
-  virtual std::shared_ptr<AbstractGenome> makeCopy(std::shared_ptr<ParametersTable> _PT) {
+  virtual std::shared_ptr<AbstractGenome> makeCopy(std::shared_ptr<ParametersTable> PT_) {
     std::cout << "ERROR IN AbstractGenome::makeCopy() - You are using the abstract "
             "copy constructor for genomes. You must define your own"
          << std::endl;
