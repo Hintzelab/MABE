@@ -334,23 +334,23 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 }
 
 //template<class T>
-//CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+//CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 //	setupCircularGenome(_size, _alphabetSize);
 //}
 
 template<class T>
-CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
 	cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char" << endl;
 	exit(1);
 }
 
 template<>
-CircularGenome<int>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<int>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	if (_alphabetSize != 2) {
 		cout << "ERROR: in CircularGenome constructor, alphabetSize for bool must be 2!" << endl;
 		exit(1);
@@ -358,11 +358,11 @@ CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, shared_ptr
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<double>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<double>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	if (_alphabetSize > 256 || _alphabetSize < 2) {
 		cout << "ERROR: in CircularGenome constructor, alphabetSize for unsigned char must be 2 or greater and 256 or less!" << endl;
 		exit(1);
@@ -371,12 +371,12 @@ CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, s
 }
 
 template<class T>
-shared_ptr<AbstractGenome> CircularGenome<T>::makeCopy(shared_ptr<ParametersTable> _PT) {
-	if (_PT == nullptr) {
-		_PT = PT;
+shared_ptr<AbstractGenome> CircularGenome<T>::makeCopy(shared_ptr<ParametersTable> PT_) {
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
 
-	auto newGenome = make_shared<CircularGenome>(alphabetSize, 1, _PT);
+	auto newGenome = make_shared<CircularGenome>(alphabetSize, 1, PT_);
 	newGenome->sites = sites; 
 
 	return newGenome;

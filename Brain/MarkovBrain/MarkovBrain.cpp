@@ -31,8 +31,8 @@ void MarkovBrain::readParameters(){
 	nextNodes.resize(nrNodes, 0);
 }
 
-MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 	readParameters();
 
@@ -49,9 +49,9 @@ MarkovBrain::MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes
 	fillInConnectionsLists();
 }
 
-MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
-	GLB = _GLB;
+MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> GLB_, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
+	GLB = GLB_;
 	//make a node map to handle genome value to brain state address look up.
 
 	readParameters();
@@ -69,10 +69,10 @@ MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNode
 	fillInConnectionsLists();
 }
 
-MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		MarkovBrain(_GLB, _nrInNodes, _nrOutNodes, _PT) {
-	//cout << "in MarkovBrain::MarkovBrain(shared_ptr<Base_GateListBuilder> _GLB, shared_ptr<AbstractGenome> genome, int _nrOfBrainStates)\n\tabout to - gates = GLB->buildGateList(genome, nrOfBrainStates);" << endl;
-	gates = GLB->buildGateList(_genomes[genomeName], nrNodes, _PT);
+MarkovBrain::MarkovBrain(shared_ptr<AbstractGateListBuilder> GLB_, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		MarkovBrain(GLB_, _nrInNodes, _nrOutNodes, PT_) {
+	//cout << "in MarkovBrain::MarkovBrain(shared_ptr<Base_GateListBuilder> GLB_, shared_ptr<AbstractGenome> genome, int _nrOfBrainStates)\n\tabout to - gates = GLB->buildGateList(genome, nrOfBrainStates);" << endl;
+	gates = GLB->buildGateList(_genomes[genomeName], nrNodes, PT_);
 	inOutReMap();  // map ins and outs from genome values to brain states
 	fillInConnectionsLists();
 }
@@ -250,15 +250,15 @@ void MarkovBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGen
 	}
 }
 
-shared_ptr<AbstractBrain> MarkovBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> MarkovBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
 	vector<shared_ptr<AbstractGate>> _gates; 
 	for (auto gate : gates) {
 		_gates.push_back(gate->makeCopy());
 	}
-	auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, PT_);
 	return newBrain;
 }

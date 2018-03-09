@@ -65,35 +65,35 @@ public:
   bool trackOrganism =
       false; // if false, genome will be deleted when organism dies.
 
-  void initOrganism(std::shared_ptr<ParametersTable> _PT);
+  void initOrganism(std::shared_ptr<ParametersTable> PT_);
 
   Organism() = delete;
   Organism(
-      std::shared_ptr<ParametersTable> _PT = nullptr); // make an empty organism
+      std::shared_ptr<ParametersTable> PT_ = nullptr); // make an empty organism
   // Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain>
-  // _brain, shared_ptr<ParametersTable> _PT = nullptr);  // make a parentless
+  // _brain, shared_ptr<ParametersTable> PT_ = nullptr);  // make a parentless
   // organism with a genome, and a brain
   // Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome,
-  // shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> _PT =
+  // shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> PT_ =
   // nullptr);  // make an organism with one parent, a genome and a brain
   // determined from the parents brain type.
   // Organism(const vector<shared_ptr<Organism>> from,
   // shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain,
-  // shared_ptr<ParametersTable> _PT = nullptr);  // make a organism with many
+  // shared_ptr<ParametersTable> PT_ = nullptr);  // make a organism with many
   // parents, a genome, and a brain determined from the parents brain type.
 
   Organism(
       std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
           &_genomes,
       std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-      std::shared_ptr<ParametersTable> _PT =
+      std::shared_ptr<ParametersTable> PT_ =
           nullptr); // make a parentless organism with a genome, and a brain
   Organism(
       std::shared_ptr<Organism> from,
       std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
           &_genomes,
       std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-      std::shared_ptr<ParametersTable> _PT = nullptr); // make an organism with
+      std::shared_ptr<ParametersTable> PT_ = nullptr); // make an organism with
                                                        // one parent, a genome
                                                        // and a brain determined
                                                        // from the parents brain
@@ -103,7 +103,7 @@ public:
       std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
           &_genomes,
       std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-      std::shared_ptr<ParametersTable> _PT = nullptr); // make a organism with
+      std::shared_ptr<ParametersTable> PT_ = nullptr); // make a organism with
                                                        // many parents, a
                                                        // genome, and a brain
                                                        // determined from the
@@ -128,6 +128,6 @@ public:
   virtual std::shared_ptr<Organism>
   makeMutatedOffspringFromMany(std::vector<std::shared_ptr<Organism>> from);
   virtual std::shared_ptr<Organism>
-  makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr);
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr);
 };
 

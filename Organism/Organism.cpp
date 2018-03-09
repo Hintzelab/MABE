@@ -26,8 +26,8 @@ int Organism::organismIDCounter = -1; // every organism will get a unique ID
 
 // this is used to hold the most recent common ancestor
 
-void Organism::initOrganism(std::shared_ptr<ParametersTable> _PT) {
-  PT = _PT;
+void Organism::initOrganism(std::shared_ptr<ParametersTable> PT_) {
+  PT = PT_;
   ID = registerOrganism();
   alive = true;
   offspringCount = 0;           // because it's alive;
@@ -42,8 +42,8 @@ void Organism::initOrganism(std::shared_ptr<ParametersTable> _PT) {
  * create an empty organism - it must be filled somewhere else.
  * parents is left empty (this is organism has no parents!)
  */
-Organism::Organism(std::shared_ptr<ParametersTable> _PT) {
-  initOrganism(_PT);
+Organism::Organism(std::shared_ptr<ParametersTable> PT_) {
+  initOrganism(PT_);
   ancestors.insert(ID); // it is it's own Ancestor for data tracking purposes
   snapshotAncestors.insert(ID);
 }
@@ -59,8 +59,8 @@ Organism::Organism(std::shared_ptr<ParametersTable> _PT) {
 Organism::Organism(
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-    std::shared_ptr<ParametersTable> _PT) {
-  initOrganism(_PT);
+    std::shared_ptr<ParametersTable> PT_) {
+  initOrganism(PT_);
 
   genomes = _genomes;
 
@@ -104,8 +104,8 @@ Organism::Organism(
     std::shared_ptr<Organism> from,
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-    std::shared_ptr<ParametersTable> _PT) {
-  initOrganism(_PT);
+    std::shared_ptr<ParametersTable> PT_) {
+  initOrganism(PT_);
 
   genomes = _genomes;
 
@@ -157,8 +157,8 @@ Organism::Organism(
     std::vector<std::shared_ptr<Organism>> from,
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
-    std::shared_ptr<ParametersTable> _PT) {
-  initOrganism(_PT);
+    std::shared_ptr<ParametersTable> PT_) {
+  initOrganism(PT_);
 
   genomes = _genomes;
 
@@ -352,8 +352,8 @@ std::shared_ptr<Organism> Organism::getMostRecentCommonAncestor(
 }
 
 std::shared_ptr<Organism>
-Organism::makeCopy(std::shared_ptr<ParametersTable> _PT) {
-  auto newOrg = std::make_shared<Organism>(_PT);
+Organism::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+  auto newOrg = std::make_shared<Organism>(PT_);
   for (auto genome : genomes) {
     newOrg->genomes[genome.first] = genome.second->makeCopy(genome.second->PT);
   }

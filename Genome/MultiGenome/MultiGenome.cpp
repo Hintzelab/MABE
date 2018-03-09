@@ -266,7 +266,7 @@ vector<vector<int>> MultiGenome::Handler::readTable(pair<int, int> tableSize, pa
 }
 
 // make an empty genome and ploidy = 1
-MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+MultiGenome::MultiGenome(shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 
 	//initialPloidyLPL = (PT == nullptr) ? initialGenomeSizePL : Parameters::getIntLink("GENOME_CIRCULAR-sizeInitial", PT);;
 	//initialChromosomesLPL = ;
@@ -299,8 +299,8 @@ MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
 }
 
 // make a genome with 1 chromosome
-MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> _PT) :
-		MultiGenome(_PT) {
+MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> PT_) :
+		MultiGenome(PT_) {
 	//ploidy = 1;
 	chromosomes.push_back(_chromosome->makeLike());
 	/////////chromosomes[0]->fillRandom();  // resize and set with random values
@@ -308,8 +308,8 @@ MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<
 }
 
 // make a genome with 1 or more chromosome and ploidy >= 1
-MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _ploidy, shared_ptr<ParametersTable> _PT) :
-		MultiGenome(_PT) {
+MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _ploidy, shared_ptr<ParametersTable> PT_) :
+		MultiGenome(PT_) {
 	ploidy = _ploidy;
 	if (ploidy < 1) {
 		cout << "Error: Genome must have plodiy >= 1";
@@ -325,8 +325,8 @@ MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromos
 	recordDataMap();
 }
 
-shared_ptr<AbstractGenome> MultiGenome::makeCopy(shared_ptr<ParametersTable> _PT) {
-	auto newGenome = make_shared<MultiGenome>(_PT);
+shared_ptr<AbstractGenome> MultiGenome::makeCopy(shared_ptr<ParametersTable> PT_) {
+	auto newGenome = make_shared<MultiGenome>(PT_);
 	newGenome->chromosomes.resize(0);
 	for (auto chromosome : chromosomes) {
 		newGenome->chromosomes.push_back(chromosome->makeCopy());

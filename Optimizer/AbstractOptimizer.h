@@ -36,7 +36,7 @@ public:
   std::unordered_set<std::shared_ptr<Organism>>
       killList; // set of organisms to be killed after archive
 
-  AbstractOptimizer(std::shared_ptr<ParametersTable> _PT) : PT(_PT) {}
+  AbstractOptimizer(std::shared_ptr<ParametersTable> PT_) : PT(PT_) {}
 
   virtual ~AbstractOptimizer() = default;
   // virtual vector<shared_ptr<Organism>>

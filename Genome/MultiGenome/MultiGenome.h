@@ -120,10 +120,10 @@ public:
 	vector<shared_ptr<AbstractChromosome>> chromosomes;
 
 	MultiGenome() = delete;
-	MultiGenome(shared_ptr<ParametersTable> _PT);
-	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> _PT);
-	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _plodiy, shared_ptr<ParametersTable> _PT);
-	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT) override;
+	MultiGenome(shared_ptr<ParametersTable> PT_);
+	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> PT_);
+	MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _plodiy, shared_ptr<ParametersTable> PT_);
+	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> PT_) override;
 	virtual ~MultiGenome() = default;
 
 	virtual shared_ptr<AbstractGenome> makeLike() override {

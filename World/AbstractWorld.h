@@ -31,7 +31,7 @@ public:
 
   std::vector<std::string> popFileColumns;
 
-  AbstractWorld(std::shared_ptr<ParametersTable> _PT) : PT(_PT) {}
+  AbstractWorld(std::shared_ptr<ParametersTable> PT_) : PT(PT_) {}
   virtual ~AbstractWorld() = default;
 
   virtual std::unordered_map<std::string, std::unordered_set<std::string>>

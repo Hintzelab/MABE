@@ -29,7 +29,7 @@ public:
 	string groupName;
 	string brainName;
 	
-	XorWorld(shared_ptr<ParametersTable> _PT = nullptr);
+	XorWorld(shared_ptr<ParametersTable> PT_ = nullptr);
 	virtual ~XorWorld() = default;
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) override;
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
