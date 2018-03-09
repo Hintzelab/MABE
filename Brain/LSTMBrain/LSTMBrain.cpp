@@ -15,13 +15,13 @@ shared_ptr<ParameterLink<string>> LSTMBrain::genomeNamePL = Parameters::register
 
 
 
-LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-		AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+LSTMBrain::LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+		AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 	genomeName = genomeNamePL->get(PT);
 
-            _I=_nrInNodes;
-            _O=_nrOutNodes;
+            I_=_nrInNodes;
+            O_=_nrOutNodes;
             /*
 	valueMin = (PT == nullptr) ? valueMinPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMin");
 	valueMax = (PT == nullptr) ? valueMaxPL->lookup() : PT->lookupDouble("BRAIN_CONSTANT-valueMax");
@@ -44,37 +44,37 @@ shared_ptr<AbstractBrain> LSTMBrain::makeBrain(unordered_map<string, shared_ptr<
 	shared_ptr<LSTMBrain> newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues,PT);
 	auto genomeHandler = _genomes[genomeName]->newHandler(_genomes[genomeName], true);
     
-    newBrain->_I=_I;
-    newBrain->_O=_O;
-    newBrain->C.resize(_O);
-    newBrain->H.resize(_O);
-    newBrain->X.resize(_I+_O);
-    newBrain->Wf.resize(_I+_O);
-    newBrain->Wi.resize(_I+_O);
-    newBrain->Wc.resize(_I+_O);
-    newBrain->Wo.resize(_I+_O);
-    newBrain->bt.resize(_O);
-    newBrain->bi.resize(_O);
-    newBrain->bC.resize(_O);
-    newBrain->bO.resize(_O);
+    newBrain->I_=I_;
+    newBrain->O_=O_;
+    newBrain->C.resize(O_);
+    newBrain->H.resize(O_);
+    newBrain->X.resize(I_+O_);
+    newBrain->Wf.resize(I_+O_);
+    newBrain->Wi.resize(I_+O_);
+    newBrain->Wc.resize(I_+O_);
+    newBrain->Wo.resize(I_+O_);
+    newBrain->bt.resize(O_);
+    newBrain->bi.resize(O_);
+    newBrain->bC.resize(O_);
+    newBrain->bO.resize(O_);
     
-    newBrain->ft.resize(_O);
-    newBrain->it.resize(_O);
-    newBrain->Ct.resize(_O);
-    newBrain->Ot.resize(_O);
-    newBrain->dt.resize(_O);
-    for(int i=0;i<_O;i++){
+    newBrain->ft.resize(O_);
+    newBrain->it.resize(O_);
+    newBrain->Ct.resize(O_);
+    newBrain->Ot.resize(O_);
+    newBrain->dt.resize(O_);
+    for(int i=0;i<O_;i++){
         newBrain->bt[i]=genomeHandler->readDouble(-1.0, 1.0);
         newBrain->bi[i]=genomeHandler->readDouble(-1.0, 1.0);
         newBrain->bC[i]=genomeHandler->readDouble(-1.0, 1.0);
         newBrain->bO[i]=genomeHandler->readDouble(-1.0, 1.0);
     }
-    for(int i=0;i<_I+_O;i++){
+    for(int i=0;i<I_+O_;i++){
         newBrain->Wf[i].clear();
         newBrain->Wi[i].clear();
         newBrain->Wc[i].clear();
         newBrain->Wo[i].clear();
-        for(int j=0;j<_O;j++){
+        for(int j=0;j<O_;j++){
             newBrain->Wf[i].push_back(genomeHandler->readDouble(-1.0, 1.0));
             newBrain->Wi[i].push_back(genomeHandler->readDouble(-1.0, 1.0));
             newBrain->Wc[i].push_back(genomeHandler->readDouble(-1.0, 1.0));
@@ -107,17 +107,17 @@ shared_ptr<AbstractBrain> LSTMBrain::makeBrain(unordered_map<string, shared_ptr<
 }
 
 void LSTMBrain::resetBrain() {
-    for(int i=0;i<_I+_O;i++){
+    for(int i=0;i<I_+O_;i++){
         X[i]=0.0;
     }
-    for(int o=0;o<_O;o++){
+    for(int o=0;o<O_;o++){
         H[o]=0.0;
         C[o]=0.0;
     }
 }
 
 void LSTMBrain::update() {
-    for(int i=0;i<_I;i++)
+    for(int i=0;i<I_;i++)
         X[i]=inputValues[i];
     singleLayerUpdate(X, ft, Wf);
     vectorMathElementalPlus(ft,bt,ft);
@@ -137,18 +137,18 @@ void LSTMBrain::update() {
     vectorMathElementalMultiply(C, ft, C);
     vectorMathElementalMultiply(it, Ct, Ct);
     vectorMathElementalPlus(C, Ct, C);
-    for(int o=0;o<_O;o++)
+    for(int o=0;o<O_;o++)
         dt[o]=C[o];
     vectorMathTanh(dt);
     vectorMathElementalMultiply(Ot, dt, H);
-    for(int o=0;o<_O;o++){
-        X[o+_I]=H[o];
+    for(int o=0;o<O_;o++){
+        X[o+I_]=H[o];
         outputValues[o]=H[o];
     }
 }
 
 void inline LSTMBrain::resetOutputs() {
-    for(int o=0;o<_O;o++){
+    for(int o=0;o<O_;o++){
         H[o]=0.0;
     }
 }
@@ -179,7 +179,7 @@ DataMap LSTMBrain::getStats(string& prefix) {
 }
 
 void LSTMBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) {
-    //int totalGenomeSizeNeeded=(_I*_O*4)+(_O*4);
+    //int totalGenomeSizeNeeded=(I_*O_*4)+(O_*4);
     _genomes[genomeName]->fillRandom();
     //printf("%s\n",_genome->genomeToStr().c_str());
     //exit(0);
@@ -289,14 +289,14 @@ void LSTMBrain::showVector(vector<double> &V){
     printf("\n");
 }
 
-shared_ptr<AbstractBrain> LSTMBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> LSTMBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-    if (_PT == nullptr) {
-        _PT = PT;
+    if (PT_ == nullptr) {
+        PT_ = PT;
     }
-    auto newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues, _PT);
-    newBrain->_I=_I;
-    newBrain->_O=_O;
+    auto newBrain = make_shared<LSTMBrain>(nrInputValues, nrOutputValues, PT_);
+    newBrain->I_=I_;
+    newBrain->O_=O_;
     
     newBrain->Wf=Wf;
     newBrain->Wi=Wi;

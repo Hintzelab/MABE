@@ -41,7 +41,7 @@ public:
 
 	ConstantValuesBrain() = delete;
 
-	ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
 
 	virtual ~ConstantValuesBrain() = default;
 
@@ -62,7 +62,7 @@ public:
 	virtual void resetBrain() override;
 	virtual void resetOutputs() override;
 
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) override;
 
 	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
 };

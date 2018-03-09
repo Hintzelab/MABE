@@ -20,10 +20,10 @@ shared_ptr<ParameterLink<string>> XorWorld::brainNamePL = Parameters::register_p
 shared_ptr<ParameterLink<int>> XorWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_XOR-evaluationsPerGeneration", 1, "Number of times to test each Genome per generation (useful with non-deterministic brains)");
 shared_ptr<ParameterLink<int>> XorWorld::brainUpdatesPL = Parameters::register_parameter("WORLD_XOR-brainUpdates", 10, "Number of times the brain gets to receive input and perform 1 brain update, before the brain's output is queried.");
 
-XorWorld::XorWorld(shared_ptr<ParametersTable> _PT) :AbstractWorld(_PT) {
+XorWorld::XorWorld(shared_ptr<ParametersTable> PT_) :AbstractWorld(PT_) {
 	
-	groupName = groupNamePL->get(_PT);
-	brainName = brainNamePL->get(_PT);
+	groupName = groupNamePL->get(PT_);
+	brainName = brainNamePL->get(PT_);
      brainUpdates = brainUpdatesPL->get(PT);
 	
 	// columns to be added to ave file

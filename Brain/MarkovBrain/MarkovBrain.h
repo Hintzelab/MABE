@@ -75,13 +75,13 @@ class MarkovBrain : public AbstractBrain {
 
 	MarkovBrain() = delete;
 
-	MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	MarkovBrain(shared_ptr<AbstractGateListBuilder> _GLB, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	MarkovBrain(vector<shared_ptr<AbstractGate>> _gates, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
+	MarkovBrain(shared_ptr<AbstractGateListBuilder> GLB_, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
+	MarkovBrain(shared_ptr<AbstractGateListBuilder> GLB_, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
 
 	virtual ~MarkovBrain() = default;
 
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) override;
 
 	void readParameters();
 

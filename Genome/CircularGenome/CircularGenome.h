@@ -119,17 +119,17 @@ public:
 
 	CircularGenome() = delete;
 
-	CircularGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+	CircularGenome(shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 		setupCircularGenome(256, 100);
 	}
 
-//	CircularGenome(double _alphabetSize, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+//	CircularGenome(double _alphabetSize, shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 //		alphabetSize = _alphabetSize;
 //	}
 
-	CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT);
+	CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> PT_);
 
-	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> _PT);
+	virtual shared_ptr<AbstractGenome> makeCopy(shared_ptr<ParametersTable> PT_);
 	
 	virtual ~CircularGenome() = default;
 
