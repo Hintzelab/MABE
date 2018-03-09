@@ -20,11 +20,7 @@ using std::cout;
 using std::endl;
 using zz::fs::Directory; // filesystem crawling
 
-std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
-Loader::load_population(const std::string &loader_file_name) {
-
-  tk_counter = 0;
-
+  std::string Loader::loadFromFile(const std::string &loader_file_name){
   std::ifstream flines(loader_file_name);
   if (!flines.is_open()) {
     std::cout << " error: population loader file " << loader_file_name
@@ -36,11 +32,25 @@ Loader::load_population(const std::string &loader_file_name) {
 
   std::cout << "Creating population from " << loader_file_name << std::endl;
 
-  auto all_lines = clean_lines(flines);
+  return  cleanLines(flines);
 
-  all_lines = find_and_generate_all_files(all_lines);
+  }
 
-  parse_all_commands(all_lines);
+
+std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
+Loader::loadPopulation(const std::string &loader_option) {
+
+  tk_counter = 0;
+
+  std::regex plf_file(R"(.*\.plf)");
+
+  auto all_lines = std::regex_match(loader_option, plf_file)
+                       ? loadFromFile(loader_option)
+                       : loader_option;
+  
+  all_lines = findAndGenerateAllFiles(all_lines);
+
+  parseAllCommands(all_lines);
 
   if (collection_org_lists.find("MASTER") == collection_org_lists.end()) {
     cout << "error: Must load from variable named MASTER" << endl;
@@ -56,7 +66,7 @@ Loader::load_population(const std::string &loader_file_name) {
 
   auto final_orgs = collection_org_lists.at("MASTER")[0];
 
-  show_final_population(final_orgs);
+  showFinalPopulation(final_orgs);
 
   std::transform(
       final_orgs.begin(), final_orgs.end(),
@@ -68,9 +78,9 @@ Loader::load_population(const std::string &loader_file_name) {
       });
 
   return final_population;
-} // end Loader::load_population
+} // end Loader::loadPopulation
 
-void Loader::show_final_population(std::vector<long> orgs) {
+void Loader::showFinalPopulation(std::vector<long> orgs) {
   cout << endl
        << "Loading "
        << std::accumulate(orgs.begin(), orgs.end(), 0, [](long acc, long i) {
@@ -93,7 +103,7 @@ void Loader::show_final_population(std::vector<long> orgs) {
   }
 }
 
-void Loader::parse_all_commands(std::string all_lines) {
+void Loader::parseAllCommands(std::string all_lines) {
   // split into commands. These are all collection-assignments
   std::regex command(
       R"((?:(\w+)\s*=)(.*?)(?=(?:(?:\w+\s*=))|$))");
@@ -107,11 +117,11 @@ void Loader::parse_all_commands(std::string all_lines) {
     std::smatch m = *i;
     auto expr = m[2].str();
     auto name = m[1].str();
-    collection_org_lists[name] = parse_expression(expr);
+    collection_org_lists[name] = parseExpression(expr);
   }
 }
 
-std::string Loader::clean_lines(std::ifstream &flines) {
+std::string Loader::cleanLines(std::ifstream &flines) {
   // read lines, strip out all trailing comments, and create one long string.
   std::string all_lines = " ", line;
   std::regex comments("#.*");
@@ -132,7 +142,7 @@ std::string Loader::clean_lines(std::ifstream &flines) {
   return all_lines;
 }
 
-std::string Loader::find_and_generate_all_files(std::string all_lines) {
+std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
 
   /*
   for (auto &p :
@@ -157,7 +167,7 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
     std::string new_tk =
         tk_name + std::to_string(tk_counter++); // creating new token
     all_lines = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
-    auto exp_files = expand_files(m[1].str()); // expand the filename
+    auto exp_files = expandFiles(m[1].str()); // expand the filename
     collection_of_files[new_tk] =
         exp_files; //  update list of files assoc with collection name
     actual_files.insert(exp_files.begin(),
@@ -172,7 +182,7 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
        actual_files) { // load all populations from file ONCE.
     // this creates a SINGLE list of organisms that can be efficiently accessed
  // should be done in parallel 
-    file_contents[file] =  generate_population(file);
+    file_contents[file] =  generatePopulation(file);
   }
 
   	// create all collections from file names
@@ -186,10 +196,10 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
   return all_lines;
 }
 
-std::vector<std::vector<long>> Loader::parse_expression(std::string expr) {
+std::vector<std::vector<long>> Loader::parseExpression(std::string expr) {
 
 
-  if (!balanced_braces(expr)) {
+  if (!balancedBraces(expr)) {
     cout << " Expression " << expr << " does not have balanced braces " << endl;
     exit(1);
   }
@@ -224,7 +234,7 @@ std::vector<std::vector<long>> Loader::parse_expression(std::string expr) {
       auto p = collection_org_lists.find(token) != collection_org_lists.end()
                    ? collection_org_lists[token]
                    : // expression is already evaluated collection
-                   parse_collection(
+                   parseCollection(
                        sub_expr[1].str()); // expression needs to be parsed
 
       coll.insert(coll.end(), p.begin(), p.end());
@@ -235,9 +245,9 @@ std::vector<std::vector<long>> Loader::parse_expression(std::string expr) {
 
   // return population  at top of stack
   return collection_org_lists[local_tk_stack.back().first];
-} // end  Loader::parse_expression
+} // end  Loader::parseExpression
 
-bool Loader::balanced_braces(std::string s) {
+bool Loader::balancedBraces(std::string s) {
   long k = 0;
   for (auto &c : s)
     switch (c) {
@@ -254,7 +264,7 @@ bool Loader::balanced_braces(std::string s) {
 }
 
 std::vector<std::vector<long>>
-Loader::parse_collection(std::string expr) {
+Loader::parseCollection(std::string expr) {
 	//semantics of collection choosing
 
 //	cout << expr << endl;
@@ -263,21 +273,21 @@ Loader::parse_collection(std::string expr) {
           std::regex command_collapse(R"(^\s*collapse\s+(\w+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_collapse))
-            return keyword_collapse(match[1].str());
+            return keywordCollapse(match[1].str());
         }
  
  		{
           std::regex command_random(R"(^\s*random\s+(\d+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_random))
-            return keyword_random(stol(match[1].str()));
+            return keywordRandom(stol(match[1].str()));
         }
  
  		{
           std::regex command_default(R"(^\s*default\s+(\d+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_default))
-            return keyword_default(stol(match[1].str()));
+            return keywordDefault(stol(match[1].str()));
         }
  
  		{
@@ -285,7 +295,7 @@ Loader::parse_collection(std::string expr) {
               R"(^\s*greatest\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_greatest))
-            return keyword_greatest(stoul(match[1].str()), match[2].str(),
+            return keywordGreatest(stoul(match[1].str()), match[2].str(),
                                 match[3].str());
         }
  
@@ -294,7 +304,7 @@ Loader::parse_collection(std::string expr) {
               R"(^\s*least\s+(\d+)\s+by\s+(\w+)\s+from\s+(\w+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_least))
-            return keyword_least(stol(match[1].str()),
+            return keywordLeast(stol(match[1].str()),
                                  match[2].str(), match[3].str());
         }
       
@@ -302,17 +312,56 @@ Loader::parse_collection(std::string expr) {
           std::regex command_any(R"(^\s*any\s+(\d+)\s+from\s+(\w+)\s*$)");
           std::smatch match;
           if (std::regex_match(expr, match, command_any))
-            return keyword_any(stol(match[1].str()), match[2].str());
+            return keywordAny(stol(match[1].str()), match[2].str());
         }
       
-	  	// if nothing matches 
+ 		{
+          std::regex command_match(
+              R"(^\s*match\s+(\w+)\s+where\s+(\S+)\s+from\s+(\w+)\s*$)");
+          std::smatch match;
+          if (std::regex_match(expr, match, command_match))
+            return keywordMatch(match[1].str(),
+                                 match[2].str(), match[3].str());
+        }
+	  
+		// if no keyword matches 
 	cout << " error: syntax error while trying to resolve " << endl
 		<< expr<< endl;
 	exit(1);
 
 } // end Loader::parse_token
 
-std::vector<std::vector<long>> Loader::keyword_greatest(size_t number,
+std::vector<std::vector<long>> Loader::keywordMatch(std::string attribute,
+                                                     std::string value,
+                                                     std::string resource) {
+
+  std::vector<std::vector<long>> coll;
+  if (collection_org_lists.find(resource) == collection_org_lists.end()) {
+    cout << "Unrecognised token " << resource << endl;
+    exit(1);
+  }
+
+  for (const auto &p : collection_org_lists.at(resource)) {
+    const auto from_pop = p;
+    for (const auto &o : from_pop)
+      if (all_organisms.at(o).attributes.find(attribute) ==
+          all_organisms.at(o).attributes.end()) {
+        cout << "error: " << resource
+             << " contains organisms without attribute " << attribute << endl;
+        exit(1);
+      }
+    std::vector<long> pop;
+    std::copy_if(std::begin(from_pop), std::end(from_pop),
+                 std::back_inserter(pop), [&](long index) {
+                   return all_organisms.at(index).attributes.at(attribute) ==
+                          value;
+                 });
+    coll.push_back(pop);
+  }
+  return coll;
+}
+
+std::vector<std::vector<long>> Loader::keywordGreatest(size_t number,
                                                         std::string attribute,
                                                         std::string resource) {
   std::vector<std::vector<long>> coll;
@@ -348,7 +397,7 @@ std::vector<std::vector<long>> Loader::keyword_greatest(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_least(size_t number,
+std::vector<std::vector<long>> Loader::keywordLeast(size_t number,
                                                      std::string attribute,
                                                      std::string resource) {
   std::vector<std::vector<long>> coll;
@@ -377,7 +426,7 @@ std::vector<std::vector<long>> Loader::keyword_least(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_any(size_t number,
+std::vector<std::vector<long>> Loader::keywordAny(size_t number,
                                                    std::string resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
@@ -400,7 +449,7 @@ std::vector<std::vector<long>> Loader::keyword_any(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_collapse(std::string name) {
+std::vector<std::vector<long>> Loader::keywordCollapse(std::string name) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(name) == collection_org_lists.end()) {
     cout << "Unrecognised token " << name << endl;
@@ -414,21 +463,21 @@ std::vector<std::vector<long>> Loader::keyword_collapse(std::string name) {
 return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_random(long number) {
+std::vector<std::vector<long>> Loader::keywordRandom(long number) {
   std::vector<std::vector<long>> coll;
   std::vector<long> pop(number, -1);
   coll.push_back(pop);
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keyword_default(long number) {
+std::vector<std::vector<long>> Loader::keywordDefault(long number) {
   std::vector<std::vector<long>> coll;
   std::vector<long> pop(number, -2);
   coll.push_back(pop);
   return coll;
 }
 
-std::vector<std::string> Loader::expand_files(const std::string f) {
+std::vector<std::string> Loader::expandFiles(const std::string f) {
 
   std::vector<std::string> result;
   std::regex wildcard(R"(\*)");
@@ -448,11 +497,11 @@ std::vector<std::string> Loader::expand_files(const std::string f) {
     exit(1);
   }
   return result;
-} // end Loader::expand_files
+} // end Loader::expandFiles
 
-std::pair<long, long> Loader::generate_population(const std::string file_name) {
+std::pair<long, long> Loader::generatePopulation(const std::string file_name) {
 
-  auto org_file_data = get_attribute_map(file_name);
+  auto org_file_data = getAttributeMap(file_name);
   auto file_contents_pair =
       std::make_pair(all_organisms.size(), org_file_data.size());
 
@@ -466,7 +515,7 @@ std::pair<long, long> Loader::generate_population(const std::string file_name) {
   std::map<long, std::map<std::string, std::string>> data_file_data;
   if (std::find(all_possible_file_names.begin(), all_possible_file_names.end(),
                 data_file_name) != all_possible_file_names.end()) {
-    data_file_data = get_attribute_map(data_file_name);
+    data_file_data = getAttributeMap(data_file_name);
   }
 
   //Note - no checking for overlapping columns
@@ -493,12 +542,12 @@ std::pair<long, long> Loader::generate_population(const std::string file_name) {
   }
 
   return file_contents_pair;
-} // end Loader::generate_population
+} // end Loader::generatePopulation
 
 // reads organisms or data file. return key of ID to map of attributes to values 
 // attributes do NOT include ID
 std::map<long, std::map<std::string, std::string>>
-Loader::get_attribute_map(const std::string &file_name) {
+Loader::getAttributeMap(const std::string &file_name) {
 
   std::map<long, std::map<std::string, std::string>> result;
 
@@ -574,13 +623,13 @@ Loader::get_attribute_map(const std::string &file_name) {
   }
   file.close();
   return result;
-} // end Loader::get_attribute_map
+} // end Loader::getAttributeMap
 
-void Loader::print_organism(long i) {
+void Loader::printOrganism(long i) {
 
   if (i != -1)
     std::cout << "\tID: " << all_organisms.at(i).orig_ID << " from file "
               << all_organisms.at(i).from_file << std::endl;
   else
     std::cout << "\trandom default organism" << endl;
-} // end Loader::print_organism
+} // end Loader::printOrganism

@@ -15,7 +15,7 @@ class Loader {
 public:
 
   std::vector<std::pair<long, std::unordered_map<std::string, std::string>>>
-  load_population(const std::string &);
+  loadPopulation(const std::string &);
 
 private:
   struct organism { // all of the organisms info pulled from organisms_files and
@@ -41,43 +41,47 @@ private:
 
   // 	methods
 
+  std::string loadFromFile(const std::string &);
+  
   std::vector<std::string>
-      expand_files(std::string);// for user inputted wildcards
+      expandFiles(std::string);// for user inputted wildcards
   std::pair<long, long>
-      generate_population(std::string);
+      generatePopulation(std::string);
   // read MABE generated files and constructs organsims 
   // redundant function from MABE - should be cleaned
   //
-  std::map<long, std::map<std::string, std::string>> get_attribute_map(
+  std::map<long, std::map<std::string, std::string>> getAttributeMap(
       const std::string &); // read file and construct partial organism
 
-  void parse_all_commands(
+  void parseAllCommands(
       std::string); // read file and parse every assignment to user
                     // defined variable
-  std::vector<std::vector<long>> parse_expression(
+  std::vector<std::vector<long>> parseExpression(
       std::string); // unpack and parse entire user-defined expression
   std::vector<std::vector<long>>
-      parse_collection(std::string); // parse single user defined collection
+      parseCollection(std::string); // parse single user defined collection
 
   std::string
-  clean_lines(std::ifstream &); // clean comments and check for invalid syntax
-  std::string find_and_generate_all_files(std::string all_lines);
+  cleanLines(std::ifstream &); // clean comments and check for invalid syntax
+  std::string findAndGenerateAllFiles(std::string all_lines);
   // a level of indirection so that all possible files the user might need are
   // read exactly once
-  bool balanced_braces(std::string); // simple syntactic check to avoid issues
+  bool balancedBraces(std::string); // simple syntactic check to avoid issues
                                      // when deep inside an evaluation
-  void show_final_population(std::vector<long>);
+  void showFinalPopulation(std::vector<long>);
 
   // methods for all keywords
-  std::vector<std::vector<long>> keyword_collapse(std::string);
-  std::vector<std::vector<long>> keyword_random(long number);
-  std::vector<std::vector<long>> keyword_default(long number);
-  std::vector<std::vector<long>> keyword_greatest(size_t, std::string,
+  std::vector<std::vector<long>> keywordCollapse(std::string);
+  std::vector<std::vector<long>> keywordRandom(long number);
+  std::vector<std::vector<long>> keywordDefault(long number);
+  std::vector<std::vector<long>> keywordGreatest(size_t, std::string,
                                                   std::string);
-  std::vector<std::vector<long>> keyword_least(size_t, std::string,
+  std::vector<std::vector<long>> keywordLeast(size_t, std::string,
                                                std::string);
-  std::vector<std::vector<long>> keyword_any(size_t, std::string);
+  std::vector<std::vector<long>> keywordAny(size_t, std::string);
+  std::vector<std::vector<long>> keywordMatch(std::string, std::string,
+                                               std::string);
 
-  void print_organism(long); // strictly to debug all_organisms entries
+  void printOrganism(long); // strictly to debug all_organisms entries
 };
 

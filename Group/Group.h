@@ -15,21 +15,21 @@
 #include "../Optimizer/AbstractOptimizer.h"
 #include "../Organism/Organism.h"
 
-using namespace std;
-
 class Group {
- public:
-	vector<shared_ptr<Organism>> population;
-	shared_ptr<Organism> templateOrg;
-	shared_ptr<DefaultArchivist> archivist;
-	shared_ptr<AbstractOptimizer> optimizer;
+public:
+  std::vector<std::shared_ptr<Organism>> population;
+  std::shared_ptr<Organism> templateOrg;
+  std::shared_ptr<DefaultArchivist> archivist;
+  std::shared_ptr<AbstractOptimizer> optimizer;
 
-	Group();
-	Group(vector<shared_ptr<Organism>> _population, shared_ptr<AbstractOptimizer> _optimizer, shared_ptr<DefaultArchivist> _archivist);
-	~Group();
+  Group();
+  Group(std::vector<std::shared_ptr<Organism>> _population,
+        std::shared_ptr<AbstractOptimizer> _optimizer,
+        std::shared_ptr<DefaultArchivist> _archivist);
+  ~Group();
 
-	bool archive(int flush = 0);
-	void optimize();
-	void cleanup();
+  bool archive(int flush = 0);
+  void optimize();
+  void cleanup();
 };
 
