@@ -10,27 +10,22 @@
 
 #include "../Group/Group.h"
 
-Group::Group() {  // create an empty Group
+Group::Group() { // create an empty Group
 }
 
-Group::Group(vector<shared_ptr<Organism>> _population, shared_ptr<AbstractOptimizer> _optimizer, shared_ptr<DefaultArchivist> _archivist) {
-	population = _population;
-	optimizer = _optimizer;
-	archivist = _archivist;
+Group::Group(std::vector<std::shared_ptr<Organism>> _population,
+             std::shared_ptr<AbstractOptimizer> _optimizer,
+             std::shared_ptr<DefaultArchivist> _archivist) {
+  population = _population;
+  optimizer = _optimizer;
+  archivist = _archivist;
 }
 
-Group::~Group() {
-}
+Group::~Group() {}
 
-bool Group::archive(int flush) {
-	return archivist->archive(population, flush);
-}
+bool Group::archive(int flush) { return archivist->archive(population, flush); }
 
-void Group::optimize() {
-	optimizer->optimize(population);
-}
+void Group::optimize() { optimizer->optimize(population); }
 
-void Group::cleanup() {
-	optimizer->cleanup(population);
-}
+void Group::cleanup() { optimizer->cleanup(population); }
 
