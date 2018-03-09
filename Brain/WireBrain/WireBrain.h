@@ -125,15 +125,15 @@ public:
 
 	int nrValues;
 
-	WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
+	WireBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
+	WireBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
+	WireBrain(const vector<bool> &genome, int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
 	virtual ~WireBrain() = default;
 
 	virtual void initialize();
 	virtual void connectPruneAndSetPopColumns(vector<pair<int, int>> wormholeList);
 	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) override;
 
 	virtual void chargeUpdate();
 	virtual void chargeUpdateTrit();

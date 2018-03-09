@@ -65,15 +65,15 @@ public:
   public:
     SimpleOptimizer *SO;
     AbstractSelector() = default;
-    AbstractSelector(SimpleOptimizer *_SO) : SO(_SO){};
+    AbstractSelector(SimpleOptimizer *SO_) : SO(SO_){};
     virtual int select() = 0;
     virtual std::string getType() = 0;
   };
 
   class RouletteSelector : public AbstractSelector {
   public:
-    RouletteSelector(std::string &argumentsString, SimpleOptimizer *_SO)
-        : AbstractSelector(_SO) {
+    RouletteSelector(std::string &argumentsString, SimpleOptimizer *SO_)
+        : AbstractSelector(SO_) {
       // now decode arguments
       std::vector<std::string> arguments;
       std::stringstream ss(argumentsString); // Turn the string into a stream.
@@ -109,8 +109,8 @@ public:
   class TournamentSelector : public AbstractSelector {
   public:
     int tournamentSize;
-    TournamentSelector(std::string &argumentsString, SimpleOptimizer *_SO)
-        : AbstractSelector(_SO) {
+    TournamentSelector(std::string &argumentsString, SimpleOptimizer *SO_)
+        : AbstractSelector(SO_) {
       // now decode arguments
       std::vector<std::string> arguments;
       std::stringstream ss(argumentsString); // Turn the string into a stream.

@@ -296,7 +296,7 @@ public:
 
 	vector<vector<vector<Point2d>>> perfectSensorSites;
 
-	BerryWorld(shared_ptr<ParametersTable> _PT);
+	BerryWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~BerryWorld() = default;
 
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) override;
