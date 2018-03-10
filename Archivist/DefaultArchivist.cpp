@@ -198,7 +198,8 @@ void DefaultArchivist::writeRealTimeFiles(
     std::shared_ptr<Organism> best_org;
     auto score = -1.f;
     for (auto org : population)
-      if (org->timeOfBirth < Global::update || save_new_orgs_) {
+      if (org->timeOfBirth <
+          Global::update) { // make sure eval() can be called on this org
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
         if (sc > score) {
           score = sc;
