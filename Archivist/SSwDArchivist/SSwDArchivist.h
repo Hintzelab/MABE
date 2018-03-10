@@ -52,7 +52,7 @@ class SSwDArchivist : public DefaultArchivist {  // SnapShot with Delay
 	// key is Global::nextGenomeWrite or Global::nextDataWrite
 
 	SSwDArchivist() = delete;
-	SSwDArchivist(vector<string> popFileColumns = {}, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
+	SSwDArchivist(vector<string> popFileColumns = {}, string _maxDMValue = "", shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
 
 	virtual ~SSwDArchivist() = default;
 

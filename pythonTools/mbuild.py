@@ -80,6 +80,8 @@ for linenum,line in enumerate(lines):
         continue
     linenum+=1 ## sane line numbering starting at 1
     if len(line) != 2:
+        print("Line "  + linenum + " is incorrectly formatted. The line's contents are: ")
+        print(line)
         exit()
     if line[0] == '%': ## set current category
         currentOption = line[1]
@@ -180,13 +182,13 @@ outFile.write('}\n')
 # modules.h:makeArchivist
 
 outFile.write('\n\n//create an archivist\n')
-outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT, string groupPrefix = ""){\n')
+outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> PT, string groupPrefix = ""){\n')
 outFile.write('  shared_ptr<DefaultArchivist> newArchivist;\n')
 outFile.write('  bool found = false;\n')
 outFile.write('  string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);\n')
 for option in options["Archivist"]:
     outFile.write('  if (archivistType == "'+option+'") {\n')
-    outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT, groupPrefix);\n')
+    outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxDMValue, PT, groupPrefix);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')

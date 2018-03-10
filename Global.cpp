@@ -15,7 +15,7 @@ shared_ptr<ParameterLink<int>> Global::randomSeedPL = Parameters::register_param
 shared_ptr<ParameterLink<int>> Global::updatesPL = Parameters::register_parameter("GLOBAL-updates", 50, "how long the program will run");
 //shared_ptr<ParameterLink<int>> Global::popSizePL = Parameters::register_parameter("GLOBAL-popSize", 100, "number of genomes in the population");
 shared_ptr<ParameterLink<string>> Global::initPopPL = Parameters::register_parameter("GLOBAL-initPop",(string) "100"  , "initial population to start MABE (if it's a number then those many default organisms will be loaded. If it's a file name with .plf that population loader file is parsed");
-shared_ptr<ParameterLink<string>> Global::modePL = Parameters::register_parameter("GLOBAL-mode", (string) "run", "mode to run MABE in [run,visualize]");
+shared_ptr<ParameterLink<string>> Global::modePL = Parameters::register_parameter("GLOBAL-mode", (string) "run", "mode to run MABE in [run,visualize,analyze]");
 
 
 shared_ptr<ParameterLink<int>> Global::maxLineLengthPL = Parameters::register_parameter("PARAMETER_FILES-maxLineLength", 180, "maximum line length");

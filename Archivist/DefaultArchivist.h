@@ -48,7 +48,7 @@ class DefaultArchivist {
 	string MaxFileName;  // name of the Max file (all stats for best brain when file is writtne to)
 	string PopFileName;  // name of the Population file (ave and var for population at each timepoint)
 	string PopFileColumnNames;  // data to be saved into average file (must be values that can generate an average)
-	shared_ptr<Abstract_MTree> maxFormula;  // what value will be used to determine which organism to write to max file
+	string maxDMValue;  // what value will be used to determine which organism to write to max file
 
 
 	vector<int> realtimeSequence;  // how often to write out data
@@ -77,7 +77,7 @@ class DefaultArchivist {
 	const shared_ptr<ParametersTable> PT;
 
 	DefaultArchivist(shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
-	DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula = nullptr, shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
+	DefaultArchivist(vector<string> popFileColumns, string _maxDMValue = "", shared_ptr<ParametersTable> _PT = nullptr, string _groupPrefix = "");
 	virtual ~DefaultArchivist() = default;
 
 	//save Max and average file data

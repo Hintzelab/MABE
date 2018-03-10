@@ -178,7 +178,7 @@ ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> _PT) :
 }
 
 
-void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 	// before we get into what a world might look like, let's look at using the MTree that was
 	// seeup in the constructor.
 	// see MTree - https://github.com/Hintzelab/MABE/wiki/MTree
@@ -242,7 +242,7 @@ void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visua
 
 
 
-	// analyse, visualize and, debug flags
+	// analyze, visualize and, debug flags
 	// these <int> flags are provided to allow you to have some control over your worlds behaior.
 	// Debug is set directly with a parameter (it is a feature of the AbstractWorld.) In visualize
 	// mode, worlds are called with the visualize flag set to 1. Analise is like visualize, but
@@ -273,7 +273,7 @@ void ExampleWorld::evaluateSolo(shared_ptr<Organism> org, int analyse, int visua
 	// and only move it into the dataMap once the evaluation is complete.
 }
 
-void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
+void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
 	
 	// if your world evaluates one organism at a time, you can simple leave the
 	// following code in place.
@@ -281,7 +281,7 @@ void ExampleWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse,
 	// get the size of the population we are evaluating
 	int popSize = groups[groupNameSpacePL->get(PT)]->population.size(); 
 	for (int i = 0; i < popSize; i++) { // for each organism, run evaluateSolo.
-		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyse, visualize, debug);
+		evaluateSolo(groups[groupNameSpacePL->get(PT)]->population[i], analyze, visualize, debug);
 	}
 
 	// ** Before you read the remainder of the comments in this function you should farmiliarize yourself

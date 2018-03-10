@@ -369,7 +369,7 @@ std::vector<std::vector<long>> Loader::keyword_least(size_t number,
     std::partial_sort_copy(
         from_pop.begin(), from_pop.end(), pop.begin(), pop.end(),
         [&](long lhs, long rhs) {
-          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) <
+          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) >
                  std::stod(all_organisms.at(rhs).attributes.at(attribute));
         });
     coll.push_back(pop);
@@ -444,7 +444,7 @@ std::vector<std::string> Loader::expand_files(const std::string f) {
                });
 
   if (result.empty()) {
-    cout << " warning: " << f<< " doesn't not match any files" << endl;
+    cout << " warning: " << f<< " does not match any files" << endl;
     exit(1);
   }
   return result;

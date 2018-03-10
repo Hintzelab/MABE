@@ -44,11 +44,11 @@ public:
 	//	return { { groupName,{"B:"+ brainName+","+to_string(requiredInputs)+","+to_string(requiredOutputs)}} }; // default requires a root group and a brain (in root namespace) and no genome 
 	//}
 
-	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse = 0, int visualize = 0, int debug = 0) {
+	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyze = 0, int visualize = 0, int debug = 0) {
 		cout << "  chosen world does not define evaluate()! Exiting." << endl;
 		exit(1);
 	};
-	virtual void evaluateSolo(shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 		cout << "  chosen world does not define evaluateSolo()! Exiting." << endl;
 		exit(1);
 	};

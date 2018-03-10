@@ -20,7 +20,7 @@ shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_realtimeSequencePL = Pa
 	"How often to write to realtime data files. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotDataSequence", (string) ":100",
 	"How often to save a realtime snapshot data file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismSequence", (string) ":1000",
+shared_ptr<ParameterLink<string>> DefaultArchivist::SS_Arch_organismSequencePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-snapshotOrganismsSequence", (string) ":1000",
 	"How often to save a realtime snapshot genome file. (format: x = single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 
 shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writePopFilePL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writePopFile", true, "Save data to average file?");
@@ -31,7 +31,7 @@ shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_DefaultPopFileColumnNam
 shared_ptr<ParameterLink<string>> DefaultArchivist::Arch_FilePrefixPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix", (string) "NONE", "prefix for files saved by this archivst. \"NONE\" indicates no prefix.");
 shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeDataFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotDataFiles", false,
 	"if true, snapshot data files will be written (with all non genome data for entire population)");
-shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles", false, "if true, snapshot organism files will be written (with all organisms for entire population)");
+shared_ptr<ParameterLink<bool>> DefaultArchivist::SS_Arch_writeOrganismsFilesPL = Parameters::register_parameter("ARCHIVIST_DEFAULT-writeSnapshotOrganismsFiles", false, "if true, snapshot organisms files will be written (with all organisms for entire population)");
 
 DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	PT(_PT), groupPrefix(_groupPrefix) {
@@ -85,7 +85,7 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 		realtimeOrganismSequence.clear();
 		realtimeOrganismSequence = seq(organismIntervalStr, Global::updatesPL->get(), true);
 		if (realtimeOrganismSequence.size() == 0) {
-			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismSequence \"" << organismIntervalStr << "\".\nExiting." << endl;
+			cout << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismsSequence \"" << organismIntervalStr << "\".\nExiting." << endl;
 			exit(1);
 		}
 	}
@@ -97,10 +97,10 @@ DefaultArchivist::DefaultArchivist(shared_ptr<ParametersTable> _PT, string _grou
 	finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
+DefaultArchivist::DefaultArchivist(vector<string> popFileColumns, string _maxDMValue, shared_ptr<ParametersTable> _PT, string _groupPrefix) :
 	DefaultArchivist(_PT, _groupPrefix) {
 	convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
-	maxFormula = _maxFormula;
+	maxDMValue = _maxDMValue;
 	if (DefaultPopFileColumns.size() <= 0) {
 		DefaultPopFileColumns = popFileColumns;
 	}
@@ -164,23 +164,24 @@ void DefaultArchivist::writeRealTimeFiles(vector<shared_ptr<Organism>> &populati
 	}
 
 	// write out Max data
-	if (writeMaxFile && maxFormula != nullptr) {
+	if (writeMaxFile && maxDMValue != "") {
 		double bestScore;
 		shared_ptr<Organism> bestOrg;
+		bool foundValid = false;
 		for (size_t i = 0; i < population.size(); i++) {
-			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
-				// find a valid score!
-				bestScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
-				bestOrg = population[i];
-				i = population.size();
-			}
-		}
-		for (size_t i = 0; i < population.size(); i++) {
-			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
-				double newScore = maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
-				if (newScore > bestScore) {
+			if (population[i]->timeOfBirth < Global::update || saveNewOrgs) { // if older then now or save new organisms (which were just born)
+				double newScore = population[i]->dataMap.getAverage(maxDMValue);
+				if (!foundValid) {
+					// this is the first vaid score we have found
+					foundValid = true;
 					bestScore = newScore;
 					bestOrg = population[i];
+				}
+				else { // this is not the first valid, see if it's best
+					if (newScore > bestScore) {
+						bestScore = newScore;
+						bestOrg = population[i];
+					}
 				}
 			}
 		}

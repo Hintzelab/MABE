@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <cmath>
 #include <vector>
 #include <iostream>
 
@@ -23,7 +24,7 @@ public:
 	double x;
 	double y;
 
-	const double pi = std::atan(1.0) * 4;
+	const double pi = atan(1.0) * 4;
 
 	Point2d() {
 		x = 0.0;
@@ -70,6 +71,13 @@ public:
 		newVect.x = x - other.x;
 		newVect.y = y - other.y;
 		return newVect;
+	}
+
+	bool operator==(Point2d other) { // scalar/dot product of this and other
+		if (x == other.x && y == other.y) {
+			return true;
+		}
+		return false;
 	}
 
 	double dist() { // length between this point and 0,0
