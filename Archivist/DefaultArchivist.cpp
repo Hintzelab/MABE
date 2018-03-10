@@ -125,23 +125,12 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
     auto realtimeSequenceStr = Arch_realtimeSequencePL->get(PT);
     realtimeSequence.clear();
     realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->get(), true);
-    if (realtimeSequence.size() == 0) {
-      std::cout << "unable to translate ARCHIVIST_DEFAULT-realtimeSequence \""
-                << realtimeSequenceStr << "\".\nExiting." << std::endl;
-      exit(1);
-    }
   }
 
   if (writeSnapshotDataFiles) {
     auto dataSequenceStr = SS_Arch_dataSequencePL->get(PT);
     realtimeDataSequence.clear();
     realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
-    if (realtimeDataSequence.size() == 0) {
-      std::cout
-          << "unable to translate ARCHIVIST_DEFAULT-snapshotDataSequence \""
-          << dataSequenceStr << "\".\nExiting." << std::endl;
-      exit(1);
-    }
   }
 
   if (writeSnapshotGenomeFiles) {
@@ -149,13 +138,6 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
     realtimeOrganismSequence.clear();
     realtimeOrganismSequence =
         seq(organismIntervalStr, Global::updatesPL->get(), true);
-    if (realtimeOrganismSequence.size() == 0) {
-      std::cout
-          << "unable to translate ARCHIVIST_DEFAULT-snapshotOrganismsSequence "
-             "\""
-          << organismIntervalStr << "\".\nExiting." << std::endl;
-      exit(1);
-    }
   }
 
   // this avoids bounds check on ...Index, since the ...Sequence can never
