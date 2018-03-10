@@ -151,12 +151,14 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> popFileColumns,
                                    std::shared_ptr<ParametersTable> PT_,
                                    std::string _groupPrefix)
     : DefaultArchivist(PT_, _groupPrefix) {
+
   convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
   maxFormula = _maxFormula;
-  if (DefaultPopFileColumns.size() <= 0) {
+
+  if (DefaultPopFileColumns.empty())
     DefaultPopFileColumns = popFileColumns;
-  }
-  for (auto key : DefaultPopFileColumns) {
+
+  for (auto &key : DefaultPopFileColumns) {
     if (key == "update") {
       uniqueColumnNameToOutputBehaviors[key] = 0;
       continue;
@@ -164,37 +166,16 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> popFileColumns,
 
     // Now check to see if key ends in an '_' and a known output method (from
     // DataMap i.e. AVE, PROD, etc.)
-    size_t seperatorCharPos = key.find_last_of('_');
+    auto seperatorCharPos = key.find_last_of('_');
     if (seperatorCharPos != std::string::npos &&
         DataMap::knownOutputBehaviors.find(key.substr(seperatorCharPos + 1)) !=
-            DataMap::knownOutputBehaviors.end()) { // if there is an '&'
+            DataMap::knownOutputBehaviors.end())
       // if it does end in a known output method then add this method to the
       // uiqueColumnNameToOutputBehaviors map for that key
-      // key[seperatorCharPos] = '_';
-      if (uniqueColumnNameToOutputBehaviors.find(
-              key.substr(0, seperatorCharPos)) ==
-          uniqueColumnNameToOutputBehaviors.end()) { // if key not in map
-        uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] =
-            DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
-        // std::cout << "set behavior: " << key.substr(seperatorCharPos + 1) <<
-        // " to
-        // " << key.substr(0, seperatorCharPos);
-      } else { // key already in map
-        uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] =
-            uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |
-            DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
-        // std::cout << "added behavior: " << key.substr(seperatorCharPos + 1)
-        // << "
-        // to " << key.substr(0, seperatorCharPos);
-      }
-    } else { // add key normally, because it has no special flags specified
-      if (uniqueColumnNameToOutputBehaviors.find(key) ==
-          uniqueColumnNameToOutputBehaviors.end()) {
-        uniqueColumnNameToOutputBehaviors[key] = DataMap::AVE;
-      } else {
-        uniqueColumnNameToOutputBehaviors[key] |= DataMap::AVE;
-      }
-    }
+      uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |=
+          DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
+    else // add key normally, because it has no special flags specified
+      uniqueColumnNameToOutputBehaviors[key] |= DataMap::AVE;
   }
 }
 
