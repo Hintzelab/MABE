@@ -56,7 +56,5 @@ public:
 
 	virtual bool archive(vector<shared_ptr<Organism>> &population, int flush = 0) override;
 
-	virtual bool isDataUpdate(int checkUpdate = -1) override;
-	virtual bool isOrganismUpdate(int checkUpdate = -1) override;
 };
 

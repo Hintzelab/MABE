@@ -121,8 +121,6 @@ public:
                          std::vector<std::shared_ptr<Organism>> & /*save_file*/,
                          int /*min_birth_time*/);
 
-  virtual bool isDataUpdate(int checkUpdate = -1);
-  virtual bool isOrganismUpdate(int checkUpdate = -1);
 
   std::map<std::string, int> uniqueColumnNameToOutputBehaviors;
 };

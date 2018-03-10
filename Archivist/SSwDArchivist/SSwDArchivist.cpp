@@ -436,20 +436,5 @@ bool SSwDArchivist::archive(vector<shared_ptr<Organism>> &population, int flush)
 	return finished;
 }
 
-bool SSwDArchivist::isDataUpdate(int checkUpdate) {
-	if (checkUpdate == -1) {
-		checkUpdate = Global::update;
-	}
-	bool check = DefaultArchivist::isDataUpdate(checkUpdate);
-	check = check || find(dataSequence.begin(), dataSequence.end(), checkUpdate) != dataSequence.end();
-	return check;
-}
 
-bool SSwDArchivist::isOrganismUpdate(int checkUpdate) {
-	if (checkUpdate == -1) {
-		checkUpdate = Global::update;
-	}
-	bool check = DefaultArchivist::isOrganismUpdate(checkUpdate);
-	check = check || find(organismSequence.begin(), organismSequence.end(), checkUpdate) != organismSequence.end();
-	return check;
-}
+

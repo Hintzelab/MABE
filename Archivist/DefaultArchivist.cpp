@@ -518,24 +518,5 @@ void DefaultArchivist::cleanUpParents(
   }
 }
 
-bool DefaultArchivist::isDataUpdate(int check_update) {
-
-  check_update = check_update == -1 ? Global::update : check_update;
-
-  return std::find(std::begin(realtimeSequence), std::end(realtimeSequence),
-                   check_update) != std::end(realtimeSequence) or
-         std::find(std::begin(realtimeDataSequence),
-                   std::end(realtimeDataSequence),
-                   check_update) != std::end(realtimeSequence);
-}
-
-bool DefaultArchivist::isOrganismUpdate(int check_update) {
-
-  check_update = check_update == -1 ? Global::update : check_update;
-
-  return std::find(std::begin(realtimeOrganismSequence),
-                   std::end(realtimeOrganismSequence),
-                   check_update) != std::end(realtimeOrganismSequence);
-}
 
 
