@@ -74,7 +74,7 @@ std::shared_ptr<ParameterLink<bool>>
             "organisms for entire population)");
 
 DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
-                                   std::string group_prefix)
+                                   const std::string & group_prefix)
     : PT(PT_), group_prefix_(group_prefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
@@ -145,7 +145,7 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
 DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
                                    std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
-                                   std::string group_prefix)
+                                   const std::string & group_prefix)
     : DefaultArchivist(PT_,group_prefix) {
 
   convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
@@ -156,7 +156,7 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
 
   for (auto &key : default_pop_file_columns_) {
     if (key == "update") {
-      uniqueColumnNameToOutputBehaviors[key] = 0;
+      unique_column_name_to_output_behaviors_[key] = 0;
       continue;
     }
 
@@ -168,10 +168,10 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
             DataMap::knownOutputBehaviors.end())
       // if it does end in a known output method then add this method to the
       // uiqueColumnNameToOutputBehaviors map for that key
-      uniqueColumnNameToOutputBehaviors[key.substr(0, seperatorCharPos)] |=
+      unique_column_name_to_output_behaviors_[key.substr(0, seperatorCharPos)] |=
           DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
     else // add key normally, because it has no special flags specified
-      uniqueColumnNameToOutputBehaviors[key] |= DataMap::AVE;
+      unique_column_name_to_output_behaviors_[key] |= DataMap::AVE;
   }
 }
 
@@ -183,20 +183,13 @@ void DefaultArchivist::writeRealTimeFiles(
   // write out population data
 
   if (writePopFile) {
-double aveValue;
     DataMap PopMap;
-
-    // for (auto key : DefaultPopFileColumns) {
-    //	if (key != "update") {
-    for (auto kv : uniqueColumnNameToOutputBehaviors) {
-      if (kv.first != "update") {
-        aveValue = 0;
-        for (auto org : population) {
-          if (org->timeOfBirth < Global::update || save_new_orgs_) {
+    for (auto &kv : unique_column_name_to_output_behaviors_) {
+      if (kv.first != "update")
+        for (auto org : population)
+          if (org->timeOfBirth < Global::update || save_new_orgs_)
             PopMap.append(kv.first, org->dataMap.getAverage(kv.first));
-          }
-        }
-      }
+
       PopMap.setOutputBehavior(kv.first, kv.second);
     }
     PopMap.set("update", Global::update);
@@ -206,30 +199,28 @@ double aveValue;
 
   // write out Max data
   if (writeMaxFile && max_formula_ != nullptr) {
-    double bestScore;
-    std::shared_ptr<Organism> bestOrg;
-    for (size_t i = 0; i < population.size(); i++) {
-      if (population[i]->timeOfBirth < Global::update || save_new_orgs_) {
-        // find a valid score!
-        bestScore =
-            max_formula_->eval(population[i]->dataMap, population[i]->PT)[0];
-        bestOrg = population[i];
-        i = population.size();
-      }
-    }
-    for (size_t i = 0; i < population.size(); i++) {
-      if (population[i]->timeOfBirth < Global::update || save_new_orgs_) {
-        double newScore =
-            max_formula_->eval(population[i]->dataMap, population[i]->PT)[0];
-        if (newScore > bestScore) {
-          bestScore = newScore;
-          bestOrg = population[i];
+
+    std::shared_ptr<Organism> best_org;
+    auto score = -1.f;
+    for (auto org : population)
+      if (org->timeOfBirth < Global::update || save_new_orgs_) {
+        auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
+        if (sc > score) {
+          score = sc;
+          best_org = org;
         }
       }
+
+    if (score < 0) {
+      std::cout
+          << " Error: could not find Max score organism to save to MaxFile"
+          << std::endl;
+      exit(1);
     }
-    bestOrg->dataMap.set("update", Global::update);
-    bestOrg->dataMap.writeToFile(MaxFileName);
-    bestOrg->dataMap.clear("update");
+    
+	best_org->dataMap.set("update", Global::update);
+    best_org->dataMap.writeToFile(MaxFileName);
+    best_org->dataMap.clear("update");
   }
 }
 

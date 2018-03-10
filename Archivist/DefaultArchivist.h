@@ -85,23 +85,25 @@ public:
   std::vector<std::string>
       default_pop_file_columns_; // what columns will be written into the PopFile
 
+  std::map<std::string, int> unique_column_name_to_output_behaviors_;
+
   bool finished_ = false; // if finished, then as far as the archivist is concerned, we
                  // can stop the run.
 
   const std::shared_ptr<ParametersTable> PT;
 
   DefaultArchivist(std::shared_ptr<ParametersTable> /*PT*/ = nullptr,
-                   std::string /*_groupPrefix*/ = "");
+                   const std::string & /*_groupPrefix*/ = "");
   DefaultArchivist(std::vector<std::string> & /*popFileColumns*/,
                    std::shared_ptr<Abstract_MTree> /*_maxFormula*/ = nullptr,
                    std::shared_ptr<ParametersTable> /*PT*/ = nullptr,
-                   std::string /*_groupPrefix*/ = "");
+                   const std::string & /*_groupPrefix*/ = "");
   virtual ~DefaultArchivist() = default;
 
   // save Max and average file data
   void writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
-  void saveSnapshotData(std::vector<std::shared_ptr<Organism>>  & /*population*/);
+  void saveSnapshotData(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
   // void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
   void saveSnapshotOrganisms(std::vector<std::shared_ptr<Organism>> & /*population*/);
@@ -122,5 +124,4 @@ public:
                          int /*min_birth_time*/);
 
 
-  std::map<std::string, int> uniqueColumnNameToOutputBehaviors;
 };
