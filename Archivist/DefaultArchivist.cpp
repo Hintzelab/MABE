@@ -117,28 +117,21 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
   writeSnapshotDataFiles = SS_Arch_writeDataFilesPL->get(PT);
   writeSnapshotGenomeFiles = SS_Arch_writeOrganismsFilesPL->get(PT);
 
-  realtimeSequence.push_back(0);
-  realtimeDataSequence.push_back(0);
-  realtimeOrganismSequence.push_back(0);
 
-  if (writePopFile || writeMaxFile ) {
-    auto realtimeSequenceStr = Arch_realtimeSequencePL->get(PT);
-    realtimeSequence.clear();
-    realtimeSequence = seq(realtimeSequenceStr, Global::updatesPL->get(), true);
-  }
+  if (writePopFile || writeMaxFile ) 
+    realtimeSequence =
+        seq(Arch_realtimeSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
-  if (writeSnapshotDataFiles) {
-    auto dataSequenceStr = SS_Arch_dataSequencePL->get(PT);
-    realtimeDataSequence.clear();
-    realtimeDataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
-  }
+  if (writeSnapshotDataFiles) 
+    realtimeDataSequence =
+        seq(SS_Arch_dataSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
-  if (writeSnapshotGenomeFiles) {
-    auto organismIntervalStr = SS_Arch_organismSequencePL->get(PT);
-    realtimeOrganismSequence.clear();
+  if (writeSnapshotGenomeFiles) 
     realtimeOrganismSequence =
-        seq(organismIntervalStr, Global::updatesPL->get(), true);
-  }
+        seq(SS_Arch_organismSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
   // this avoids bounds check on ...Index, since the ...Sequence can never
   // evaluate true for last element
