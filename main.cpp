@@ -359,11 +359,11 @@ int main(int argc, const char *argv[]) {
       cout << "update: " << Global::update << "   " << flush;
       done = true; // until we find out otherwise, assume we are done.
       for (auto const &group : groups) {
-        if (!group.second->archivist->finished) {
+        if (!group.second->archivist->finished_) {
           group.second->optimize(); // create the next updates population
           group.second
               ->archive(); // save data, update memory and delete unneeded data;
-          if (!group.second->archivist->finished) {
+          if (!group.second->archivist->finished_) {
             done = false; // if any groups archivist says we are not done, then
                           // we are not done
           }

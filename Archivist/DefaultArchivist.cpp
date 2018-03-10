@@ -74,41 +74,41 @@ std::shared_ptr<ParameterLink<bool>>
             "organisms for entire population)");
 
 DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
-                                   std::string _groupPrefix)
-    : PT(PT_), groupPrefix(_groupPrefix) {
+                                   std::string group_prefix)
+    : PT(PT_), group_prefix_(group_prefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
   writeMaxFile = Arch_writeMaxFilePL->get(PT);
 
   PopFileName =
-      (groupPrefix == "")
+      (group_prefix_ == "")
           ? "pop.csv"
-          : groupPrefix.substr(0, groupPrefix.size() - 2) + "__pop.csv";
+          : group_prefix_.substr(0, group_prefix_.size() - 2) + "__pop.csv";
   PopFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
                     ? PopFileName
                     : Arch_FilePrefixPL->get(PT) + PopFileName;
 
   MaxFileName =
-      (groupPrefix == "")
+      (group_prefix_ == "")
           ? "max.csv"
-          : groupPrefix.substr(0, groupPrefix.size() - 2) + "__max.csv";
+          : group_prefix_.substr(0, group_prefix_.size() - 2) + "__max.csv";
   MaxFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
                     ? MaxFileName
                     : Arch_FilePrefixPL->get(PT) + MaxFileName;
 
   PopFileColumnNames = Arch_DefaultPopFileColumnNamesPL->get(PT);
 
-  DataFilePrefix = (groupPrefix == "")
+  DataFilePrefix = (group_prefix_ == "")
                        ? "snapshot_data"
-                       : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" +
+                       : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" +
                              "snapshot_data";
   DataFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE")
                        ? DataFilePrefix
                        : Arch_FilePrefixPL->get(PT) + DataFilePrefix;
 
-  OrganismFilePrefix = (groupPrefix == "")
+  OrganismFilePrefix = (group_prefix_ == "")
                            ? "snapshot_organisms"
-                           : groupPrefix.substr(0, groupPrefix.size() - 2) +
+                           : group_prefix_.substr(0, group_prefix_.size() - 2) +
                                  "__" + "snapshot_organisms";
   OrganismFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE")
                            ? OrganismFilePrefix
@@ -139,26 +139,22 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
   realtimeDataSequence.push_back(-1);
   realtimeOrganismSequence.push_back(-1);
 
-  realtimeSequenceIndex = 0;
-  realtimeDataSeqIndex = 0;
-  realtimeOrganismSeqIndex = 0;
 
-  finished = false;
 }
 
-DefaultArchivist::DefaultArchivist(std::vector<std::string> popFileColumns,
-                                   std::shared_ptr<Abstract_MTree> _maxFormula,
+DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
+                                   std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
-                                   std::string _groupPrefix)
-    : DefaultArchivist(PT_, _groupPrefix) {
+                                   std::string group_prefix)
+    : DefaultArchivist(PT_,group_prefix) {
 
-  convertCSVListToVector(PopFileColumnNames, DefaultPopFileColumns);
-  maxFormula = _maxFormula;
+  convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
+  max_formula_ = max_formula;
 
-  if (DefaultPopFileColumns.empty())
-    DefaultPopFileColumns = popFileColumns;
+  if (default_pop_file_columns_.empty())
+    default_pop_file_columns_ = popFileColumns;
 
-  for (auto &key : DefaultPopFileColumns) {
+  for (auto &key : default_pop_file_columns_) {
     if (key == "update") {
       uniqueColumnNameToOutputBehaviors[key] = 0;
       continue;
@@ -196,7 +192,7 @@ double aveValue;
       if (kv.first != "update") {
         aveValue = 0;
         for (auto org : population) {
-          if (org->timeOfBirth < Global::update || saveNewOrgs) {
+          if (org->timeOfBirth < Global::update || save_new_orgs_) {
             PopMap.append(kv.first, org->dataMap.getAverage(kv.first));
           }
         }
@@ -209,22 +205,22 @@ double aveValue;
   }
 
   // write out Max data
-  if (writeMaxFile && maxFormula != nullptr) {
+  if (writeMaxFile && max_formula_ != nullptr) {
     double bestScore;
     std::shared_ptr<Organism> bestOrg;
     for (size_t i = 0; i < population.size(); i++) {
-      if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
+      if (population[i]->timeOfBirth < Global::update || save_new_orgs_) {
         // find a valid score!
         bestScore =
-            maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
+            max_formula_->eval(population[i]->dataMap, population[i]->PT)[0];
         bestOrg = population[i];
         i = population.size();
       }
     }
     for (size_t i = 0; i < population.size(); i++) {
-      if (population[i]->timeOfBirth < Global::update || saveNewOrgs) {
+      if (population[i]->timeOfBirth < Global::update || save_new_orgs_) {
         double newScore =
-            maxFormula->eval(population[i]->dataMap, population[i]->PT)[0];
+            max_formula_->eval(population[i]->dataMap, population[i]->PT)[0];
         if (newScore > bestScore) {
           bestScore = newScore;
           bestOrg = population[i];
@@ -244,15 +240,15 @@ void DefaultArchivist::saveSnapshotData(
   std::string dataFileName =
       DataFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
-  if (files.find("snapshotData") ==
-      files.end()) { // first make sure that the dataFile has been set up.
+  if (files_.find("snapshotData") ==
+      files_.end()) { // first make sure that the dataFile has been set up.
     // population[0]->dataMap.Set("ancestors", "placeHolder");  // add ancestors
     // so it will be in files (holds columns to be output for each file)
-    files["snapshotData"] =
+    files_["snapshotData"] =
         population[0]->dataMap.getKeys(); // get all keys from the valid orgs
                                           // dataMap (all orgs should have the
                                           // same keys in their dataMaps)
-    files["snapshotData"].push_back("snapshotAncestors");
+    files_["snapshotData"].push_back("snapshotAncestors");
   }
 
 
@@ -267,7 +263,7 @@ void DefaultArchivist::saveSnapshotData(
   // first, determine which orgs in population need to be saved.
   auto saveList = population;
 
-  if (!saveNewOrgs)
+  if (!save_new_orgs_)
     saveList.erase(std::remove_if(std::begin(saveList), std::end(saveList),
                                   [](std::shared_ptr<Organism> org) {
 
@@ -294,7 +290,7 @@ void DefaultArchivist::saveSnapshotData(
             << org->ID
             << "... this will result in a new root to the phylogony tree!"
             << std::endl;
-        if (saveNewOrgs)
+        if (save_new_orgs_)
           std::cout << "    this org is being saved" << std::endl;
         else
           std::cout
@@ -304,7 +300,7 @@ void DefaultArchivist::saveSnapshotData(
     }
 
     // now that we know that ancestor list is good for this org...
-    if (org->timeOfBirth < Global::update || saveNewOrgs) 
+    if (org->timeOfBirth < Global::update || save_new_orgs_) 
 		saveOrgToFile(org,dataFileName);
   }
 
@@ -331,7 +327,7 @@ void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
   org->dataMap.set("update", Global::update);
   org->dataMap.setOutputBehavior("update", DataMap::FIRST);
   org->dataMap.writeToFile(
-      data_file_name, files["snapshotData"]); // append new data to the file
+      data_file_name, files_["snapshotData"]); // append new data to the file
   org->dataMap.clear("snapshotAncestors");
   org->dataMap.clear("update");
 }
@@ -404,7 +400,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
       OrganismFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
   for (auto org : population) {
-    if (org->timeOfBirth < Global::update || saveNewOrgs) {
+    if (org->timeOfBirth < Global::update || save_new_orgs_) {
       DataMap OrgMap;
       OrgMap.set("ID", org->ID);
       std::string tempName;
@@ -431,34 +427,34 @@ void DefaultArchivist::saveSnapshotOrganisms(
 bool DefaultArchivist::archive(
     std::vector<std::shared_ptr<Organism>> & population, int flush) {
 
-  if (finished)
-    return finished;
+  if (finished_)
+    return finished_;
 
-  finished = Global::update >= Global::updatesPL->get();
+  finished_ = Global::update >= Global::updatesPL->get();
  
   if (flush == 1) 
-    return finished;
+    return finished_;
 
-  if ((Global::update == realtimeSequence[realtimeSequenceIndex]) &&
+  if ((Global::update == realtimeSequence[realtime_sequence_index_]) &&
       !flush) { // do not write files on flush - these organisms have
                 // not been evaluated!
     writeRealTimeFiles(population); // write to Max and Pop files
-    realtimeSequenceIndex++;
+    realtime_sequence_index_++;
   }
 
-  if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) &&
+  if ((Global::update == realtimeDataSequence[realtime_data_seq_index_]) &&
       !flush && writeSnapshotDataFiles) { // do not write files on flush - these
                                           // organisms have not been evaluated!
     saveSnapshotData(population);
-    realtimeDataSeqIndex++;
+    realtime_data_seq_index_++;
   }
 
-  if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) &&
+  if ((Global::update == realtimeOrganismSequence[realtime_organism_seq_index_]) &&
       !flush &&
       writeSnapshotGenomeFiles) { // do not write files on flush - these
                                   // organisms have not been evaluated!
     saveSnapshotOrganisms(population);
-    realtimeOrganismSeqIndex++;
+    realtime_organism_seq_index_++;
   }
 
   if (!writeSnapshotDataFiles) {
@@ -472,7 +468,7 @@ bool DefaultArchivist::archive(
 
 
   // if we are at the end of the run
-  return finished;
+  return finished_;
 }
 
 void DefaultArchivist::cleanUpParents(

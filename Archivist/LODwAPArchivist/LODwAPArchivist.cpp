@@ -22,13 +22,13 @@ shared_ptr<ParameterLink<string>> LODwAPArchivist::LODwAP_Arch_FilePrefixPL = Pa
 
 
 
-LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT_, string _groupPrefix) :
-		DefaultArchivist(popFileColumns, _maxFormula, PT_, _groupPrefix) {
+LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT_, string group_prefix) :
+		DefaultArchivist(popFileColumns, _maxFormula, PT_, group_prefix) {
 
 	pruneInterval = LODwAP_Arch_pruneIntervalPL->get(PT);
 	terminateAfter = LODwAP_Arch_terminateAfterPL->get(PT);
-	DataFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE")? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((groupPrefix == "") ? "LOD_data.csv" : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "LOD_data.csv"));
-	OrganismFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE") ? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((groupPrefix == "") ? "LOD_organisms.csv"  : groupPrefix.substr(0, groupPrefix.size() - 2) + "__" + "LOD_organisms.csv"));
+	DataFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE")? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((group_prefix_ == "") ? "LOD_data.csv" : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" + "LOD_data.csv"));
+	OrganismFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE") ? "" : LODwAP_Arch_FilePrefixPL->get(PT)) + (((group_prefix_ == "") ? "LOD_organisms.csv"  : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" + "LOD_organisms.csv"));
 
 	writeDataFile = LODwAP_Arch_writeDataFilePL->get(PT);
 	writeOrganismFile = LODwAP_Arch_writeOrganismFilePL->get(PT);
@@ -77,27 +77,27 @@ LODwAPArchivist::LODwAPArchivist(vector<string> popFileColumns, shared_ptr<Abstr
 }
 
 bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flush) {
-	if (finished && !flush) {
-		return finished;
+	if (finished_ && !flush) {
+		return finished_;
 	}
 
-	if ((Global::update == realtimeSequence[realtimeSequenceIndex]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
+	if ((Global::update == realtimeSequence[realtime_sequence_index_]) && (flush == 0)) {  // do not write files on flush - these organisms have not been evaluated!
 		writeRealTimeFiles(population);  // write to Max and average files
-		if (realtimeSequenceIndex + 1 < (int) realtimeSequence.size()) {
-			realtimeSequenceIndex++;
+		if (realtime_sequence_index_ + 1 < (int) realtimeSequence.size()) {
+			realtime_sequence_index_++;
 		}
 	}
 
-	if ((Global::update == realtimeDataSequence[realtimeDataSeqIndex]) && (flush == 0) && writeSnapshotDataFiles) {  // do not write files on flush - these organisms have not been evaluated!
+	if ((Global::update == realtimeDataSequence[realtime_data_seq_index_]) && (flush == 0) && writeSnapshotDataFiles) {  // do not write files on flush - these organisms have not been evaluated!
 		saveSnapshotData(population);
-		if (realtimeDataSeqIndex + 1 < (int) realtimeDataSequence.size()) {
-			realtimeDataSeqIndex++;
+		if (realtime_data_seq_index_ + 1 < (int) realtimeDataSequence.size()) {
+			realtime_data_seq_index_++;
 		}
 	}
-	if ((Global::update == realtimeOrganismSequence[realtimeOrganismSeqIndex]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
+	if ((Global::update == realtimeOrganismSequence[realtime_organism_seq_index_]) && (flush == 0) && writeSnapshotGenomeFiles) {  // do not write files on flush - these organisms have not been evaluated!
 		saveSnapshotOrganisms(population);
-		if (realtimeOrganismSeqIndex + 1 < (int) realtimeOrganismSequence.size()) {
-			realtimeOrganismSeqIndex++;
+		if (realtime_organism_seq_index_ + 1 < (int) realtimeOrganismSequence.size()) {
+			realtime_organism_seq_index_++;
 		}
 	}
 
@@ -110,11 +110,11 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flus
 
 	if ((Global::update % pruneInterval == 0) || (flush == 1)) {
 
-		if (files.find(DataFileName) == files.end()) {  // if file has not be initialized yet
-			files[DataFileName].push_back("update");
-			files[DataFileName].push_back("timeToCoalescence");
+		if (files_.find(DataFileName) == files_.end()) {  // if file has not be initialized yet
+			files_[DataFileName].push_back("update");
+			files_[DataFileName].push_back("timeToCoalescence");
 			for (auto key : population[0]->dataMap.getKeys()) {  // store keys from data map associated with file name
-				files[DataFileName].push_back(key);
+				files_[DataFileName].push_back(key);
 			}
 		}
 
@@ -141,7 +141,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flus
 				TTC = max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
 				current->dataMap.set("timeToCoalescence", TTC);
 				current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
-				current->dataMap.writeToFile(DataFileName, files[DataFileName]);  // append new data to the file
+				current->dataMap.writeToFile(DataFileName, files_[DataFileName]);  // append new data to the file
 				current->dataMap.clear("update");
 				current->dataMap.clear("timeToCoalescence");
 				if ((int) dataSequence.size() > dataSeqIndex + 1) {
@@ -196,7 +196,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flus
 	// if we have reached the end of time OR we have pruned past updates (i.e. written out all data up to updates), then we ae done!
 	//cout << "\nHERE" << endl;
 	//cout << Global::update << " >= " << Global::updatesPL->get() << " + " << terminateAfter << endl;
-	finished = finished || (Global::update >= Global::updatesPL->get() + terminateAfter || lastPrune >= Global::updatesPL->get());
+	finished_ = finished_ || (Global::update >= Global::updatesPL->get() + terminateAfter || lastPrune >= Global::updatesPL->get());
 
 	/*
 	////////////////////////////////////////////////////////
@@ -226,7 +226,7 @@ bool LODwAPArchivist::archive(vector<shared_ptr<Organism>> &population, int flus
 	////////////////////////////////////////////////////////
 	*/
 
-	return finished;
+	return finished_;
 }
 
 

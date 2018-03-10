@@ -59,43 +59,43 @@ public:
                    // at each timepoint)
   std::string PopFileColumnNames; // data to be saved into average file (must be
                                   // values that can generate an average)
-  std::shared_ptr<Abstract_MTree>
-      maxFormula; // what value will be used to determine
-                  // which organism to write to max file
-
-  std::vector<int> realtimeSequence; // how often to write out data
-  int realtimeSequenceIndex;
-
-  std::vector<int> realtimeDataSequence;
-  std::vector<int> realtimeOrganismSequence;
-  int realtimeDataSeqIndex;
-  int realtimeOrganismSeqIndex;
 
   std::string DataFilePrefix;     // name of the Data file
   std::string OrganismFilePrefix; // name of the Genome file (genomes on LOD)
   bool writeSnapshotDataFiles;    // if true, write data file
   bool writeSnapshotGenomeFiles;  // if true, write genome file
 
-  bool saveNewOrgs = false;
+  std::vector<int> realtimeSequence; // how often to write out data
+  std::vector<int> realtimeDataSequence;
+  std::vector<int> realtimeOrganismSequence;
+  int realtime_sequence_index_ = 0;
+  int realtime_data_seq_index_ = 0;
+  int realtime_organism_seq_index_ = 0;
 
-  std::string groupPrefix;
+  std::string group_prefix_;
+
+  std::shared_ptr<Abstract_MTree>
+      max_formula_; // what value will be used to determine
+                  // which organism to write to max file
+
+  bool save_new_orgs_ = false;
 
   std::map<std::string, std::vector<std::string>>
-      files; // list of files (NAME,LIST OF COLUMNS)
+      files_; // list of files (NAME,LIST OF COLUMNS)
   std::vector<std::string>
-      DefaultPopFileColumns; // what columns will be written into the PopFile
+      default_pop_file_columns_; // what columns will be written into the PopFile
 
-  bool finished; // if finished, then as far as the archivist is concerned, we
+  bool finished_ = false; // if finished, then as far as the archivist is concerned, we
                  // can stop the run.
 
   const std::shared_ptr<ParametersTable> PT;
 
-  DefaultArchivist(std::shared_ptr<ParametersTable> PT = nullptr,
-                   std::string _groupPrefix = "");
-  DefaultArchivist(std::vector<std::string> popFileColumns,
-                   std::shared_ptr<Abstract_MTree> _maxFormula = nullptr,
-                   std::shared_ptr<ParametersTable> PT = nullptr,
-                   std::string _groupPrefix = "");
+  DefaultArchivist(std::shared_ptr<ParametersTable> /*PT*/ = nullptr,
+                   std::string /*_groupPrefix*/ = "");
+  DefaultArchivist(std::vector<std::string> & /*popFileColumns*/,
+                   std::shared_ptr<Abstract_MTree> /*_maxFormula*/ = nullptr,
+                   std::shared_ptr<ParametersTable> /*PT*/ = nullptr,
+                   std::string /*_groupPrefix*/ = "");
   virtual ~DefaultArchivist() = default;
 
   // save Max and average file data
