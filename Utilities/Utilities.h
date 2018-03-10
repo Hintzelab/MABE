@@ -212,14 +212,17 @@ inline void convertCSVListToVector(std::string string_data,
   return_data.clear();
   // check all uses of this function to see if leading and trailing quotes are
   // needed
-  std::regex stripoff(R"(^"?\[?(.*?)\]?"?$)");
-  std::smatch m;
-  if (!std::regex_match(string_data, m, stripoff)) {
-    std::cout << " Error :  unrecognized csv string " << string_data
-              << "in convertCSVListToVector " << std::endl;
-    exit(1);
-  }
-  string_data = m[1].str();
+  std::regex stripoff_qoute(R"(^"(.*?)?"$)");
+  std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
+  std::smatch m_quote;
+  string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
+                    ? m_quote[1].str()
+                    : string_data;
+  std::smatch m_square;
+  string_data = std::regex_match(string_data, m_square, stripoff_square_brackets)
+                    ? m_square[1].str()
+                    : string_data;
+
   T temp; // immediately assign from stringToValue
   for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
     if (!stringToValue(s, temp)) {
