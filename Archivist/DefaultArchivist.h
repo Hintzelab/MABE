@@ -22,33 +22,7 @@
 #include "../Utilities/MTree.h"
 
 class DefaultArchivist {
-public:
-  static std::shared_ptr<ParameterLink<std::string>>
-      Arch_outputMethodStrPL; // string parameter for outputMethod;
-
-  static std::shared_ptr<ParameterLink<bool>>
-      Arch_writeMaxFilePL; // if true, Max file will be created
-  static std::shared_ptr<ParameterLink<bool>>
-      Arch_writePopFilePL; // if true, pop file will be created
-  static std::shared_ptr<ParameterLink<std::string>>
-      Arch_DefaultPopFileColumnNamesPL; // data to be saved into average file
-                                        // (must be values that can generate an
-                                        // average)
-
-  static std::shared_ptr<ParameterLink<std::string>>
-      Arch_realtimeSequencePL; // how often to write out data
-  static std::shared_ptr<ParameterLink<std::string>>
-      SS_Arch_dataSequencePL; // how often to save data
-  static std::shared_ptr<ParameterLink<std::string>>
-      SS_Arch_organismSequencePL; // how often to save genomes
-
-  static std::shared_ptr<ParameterLink<std::string>>
-      Arch_FilePrefixPL; // name of the Data file
-  static std::shared_ptr<ParameterLink<bool>>
-      SS_Arch_writeDataFilesPL; // if true, write data file
-  static std::shared_ptr<ParameterLink<bool>>
-      SS_Arch_writeOrganismsFilesPL; // if true, write genome file
-
+protected:
   bool writeMaxFile; // if true, Max file will be created
   bool writePopFile; // if true, pop file will be created
   std::string
@@ -76,21 +50,70 @@ public:
 
   std::shared_ptr<Abstract_MTree>
       max_formula_; // what value will be used to determine
-                  // which organism to write to max file
+                    // which organism to write to max file
 
   bool save_new_orgs_ = false;
 
   std::map<std::string, std::vector<std::string>>
       files_; // list of files (NAME,LIST OF COLUMNS)
-  std::vector<std::string>
-      default_pop_file_columns_; // what columns will be written into the PopFile
+  std::vector<std::string> default_pop_file_columns_; // what columns will be
+                                                      // written into the
+                                                      // PopFile
 
   std::map<std::string, int> unique_column_name_to_output_behaviors_;
 
-  bool finished_ = false; // if finished, then as far as the archivist is concerned, we
-                 // can stop the run.
+  bool finished_ =
+      false; // if finished, then as far as the archivist is concerned, we
+             // can stop the run.
 
   const std::shared_ptr<ParametersTable> PT;
+
+  // save Max and average file data
+  void
+  writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
+
+  void
+  saveSnapshotData(std::vector<std::shared_ptr<Organism>> & /*population*/);
+
+  // void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
+  void saveSnapshotOrganisms(
+      std::vector<std::shared_ptr<Organism>> & /*population*/);
+
+  void saveOrgToFile(std::shared_ptr<Organism> /*org*/,
+                     const std::string & /*data_file_name*/);
+
+  void cleanUpParents(std::vector<std::shared_ptr<Organism>> & /*population*/);
+
+  void resolveAncestors(std::shared_ptr<Organism> /*org*/,
+                        std::vector<std::shared_ptr<Organism>> & /*save_file*/,
+                        int /*min_birth_time*/);
+
+public:
+  static std::shared_ptr<ParameterLink<std::string>>
+      Arch_outputMethodStrPL; // string parameter for outputMethod;
+
+  static std::shared_ptr<ParameterLink<bool>>
+      Arch_writeMaxFilePL; // if true, Max file will be created
+  static std::shared_ptr<ParameterLink<bool>>
+      Arch_writePopFilePL; // if true, pop file will be created
+  static std::shared_ptr<ParameterLink<std::string>>
+      Arch_DefaultPopFileColumnNamesPL; // data to be saved into average file
+                                        // (must be values that can generate an
+                                        // average)
+
+  static std::shared_ptr<ParameterLink<std::string>>
+      Arch_realtimeSequencePL; // how often to write out data
+  static std::shared_ptr<ParameterLink<std::string>>
+      SS_Arch_dataSequencePL; // how often to save data
+  static std::shared_ptr<ParameterLink<std::string>>
+      SS_Arch_organismSequencePL; // how often to save genomes
+
+  static std::shared_ptr<ParameterLink<std::string>>
+      Arch_FilePrefixPL; // name of the Data file
+  static std::shared_ptr<ParameterLink<bool>>
+      SS_Arch_writeDataFilesPL; // if true, write data file
+  static std::shared_ptr<ParameterLink<bool>>
+      SS_Arch_writeOrganismsFilesPL; // if true, write genome file
 
   DefaultArchivist(std::shared_ptr<ParametersTable> /*PT*/ = nullptr,
                    const std::string & /*_groupPrefix*/ = "");
@@ -100,28 +123,8 @@ public:
                    const std::string & /*_groupPrefix*/ = "");
   virtual ~DefaultArchivist() = default;
 
-  // save Max and average file data
-  void writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
-
-  void saveSnapshotData(std::vector<std::shared_ptr<Organism>> & /*population*/);
-
-  // void saveSnapshotGenomes(vector<shared_ptr<Organism>> population);
-  void saveSnapshotOrganisms(std::vector<std::shared_ptr<Organism>> & /*population*/);
-
   // save data and manage in memory data
   // return true if next save will be > updates + terminate after
   virtual bool archive(std::vector<std::shared_ptr<Organism>> & /*population*/,
                        int /*flush*/ = 0);
-
-  void saveOrgToFile(std::shared_ptr<Organism> /*org*/,
-                     const std::string & /*data_file_name*/);
-
-  void cleanUpParents(std::vector<std::shared_ptr<Organism>> & /*population*/);
-
-  void
-  resolveAncestors(std::shared_ptr<Organism> /*org*/,
-                         std::vector<std::shared_ptr<Organism>> & /*save_file*/,
-                         int /*min_birth_time*/);
-
-
 };
