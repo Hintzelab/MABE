@@ -321,11 +321,18 @@ inline std::vector<int> seq(const std::string sequence_string,
                             int default_max = -1, bool add_zero = false) {
   std::set<int> result;
   // as described above
-  std::regex sequence( // needs to be documented somewhere
-      R"((?:(\d+)|(?:(?:(?:(\d+)-)?(\d+))?(?::(\d+))?))(?:,|$))");
-  for (auto &m : forEachRegexMatch(sequence_string, sequence)) {
-    if (m[0].str().empty())
-      continue;
+  std::regex commas(
+      R"(([^,]+)(?:,|$))");
+  std::regex sub_seq( // needs to be documented somewhere
+      R"((\d+)|(?:(?:(?:(\d+)-)?(\d+))?(?::(\d+))?))");
+  for (auto & sub_seq_match : forEachRegexMatch(sequence_string, commas)) {
+	std::string sub = sub_seq_match[1].str();
+    std::smatch m;
+    if (!std::regex_match(sub, m, sub_seq)) {
+      std::cout << " Error : sequence " << sequence_string
+                << " cannot be parsed";
+      exit(1);
+    }
     if (!m[1].str().empty()) {
       result.insert(std::stoi(m[1].str()));
       continue;
