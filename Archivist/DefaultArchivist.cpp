@@ -74,7 +74,7 @@ std::shared_ptr<ParameterLink<bool>>
             "organisms for entire population)");
 
 DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
-                                   const std::string &group_prefix)
+                                   const std::string & group_prefix)
     : PT(PT_), group_prefix_(group_prefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
@@ -100,8 +100,8 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
 
   DataFilePrefix = (group_prefix_ == "")
                        ? "snapshot_data"
-                       : group_prefix_.substr(0, group_prefix_.size() - 2) +
-                             "__" + "snapshot_data";
+                       : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" +
+                             "snapshot_data";
   DataFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE")
                        ? DataFilePrefix
                        : Arch_FilePrefixPL->get(PT) + DataFilePrefix;
@@ -117,30 +117,36 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
   writeSnapshotDataFiles = SS_Arch_writeDataFilesPL->get(PT);
   writeSnapshotGenomeFiles = SS_Arch_writeOrganismsFilesPL->get(PT);
 
-  if (writePopFile || writeMaxFile)
+
+  if (writePopFile || writeMaxFile ) 
     realtimeSequence =
         seq(Arch_realtimeSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
-  if (writeSnapshotDataFiles)
+  if (writeSnapshotDataFiles) 
     realtimeDataSequence =
         seq(SS_Arch_dataSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
-  if (writeSnapshotGenomeFiles)
-    realtimeOrganismSequence = seq(SS_Arch_organismSequencePL->get(PT),
-                                   Global::updatesPL->get(), true);
+  if (writeSnapshotGenomeFiles) 
+    realtimeOrganismSequence =
+        seq(SS_Arch_organismSequencePL->get(PT), Global::updatesPL->get(), true);
+  
 
   // this avoids bounds check on ...Index, since the ...Sequence can never
   // evaluate true for last element
   realtimeSequence.push_back(-1);
   realtimeDataSequence.push_back(-1);
   realtimeOrganismSequence.push_back(-1);
+
+
 }
 
-DefaultArchivist::DefaultArchivist(std::vector<std::string> &popFileColumns,
+DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
                                    std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
-                                   const std::string &group_prefix)
-    : DefaultArchivist(PT_, group_prefix) {
+                                   const std::string & group_prefix)
+    : DefaultArchivist(PT_,group_prefix) {
 
   convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
   max_formula_ = max_formula;
@@ -162,8 +168,7 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> &popFileColumns,
             DataMap::knownOutputBehaviors.end())
       // if it does end in a known output method then add this method to the
       // uiqueColumnNameToOutputBehaviors map for that key
-      unique_column_name_to_output_behaviors_[key.substr(0,
-                                                         seperatorCharPos)] |=
+      unique_column_name_to_output_behaviors_[key.substr(0, seperatorCharPos)] |=
           DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
     else // add key normally, because it has no special flags specified
       unique_column_name_to_output_behaviors_[key] |= DataMap::AVE;
@@ -198,8 +203,7 @@ void DefaultArchivist::writeRealTimeFiles(
     std::shared_ptr<Organism> best_org;
     auto score = -1.f;
     for (auto org : population)
-      if (org->timeOfBirth <
-          Global::update) { // make sure eval() can be called on this org
+      if (org->timeOfBirth < Global::update /*|| save_new_orgs_*/) {
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
         if (sc > score) {
           score = sc;
@@ -213,7 +217,6 @@ void DefaultArchivist::writeRealTimeFiles(
           << std::endl;
       exit(1);
     }
-
     best_org->dataMap.set("update", Global::update);
     best_org->dataMap.writeToFile(MaxFileName);
     best_org->dataMap.clear("update");
@@ -221,9 +224,9 @@ void DefaultArchivist::writeRealTimeFiles(
 }
 
 void DefaultArchivist::saveSnapshotData(
-    std::vector<std::shared_ptr<Organism>> &population) {
+    std::vector<std::shared_ptr<Organism>> & population) {
 
-  // write out data
+  	// write out data
   std::string dataFileName =
       DataFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
@@ -237,6 +240,7 @@ void DefaultArchivist::saveSnapshotData(
                                           // same keys in their dataMaps)
     files_["snapshotData"].push_back("snapshotAncestors");
   }
+
 
   auto const minBirthTime = // no generic lambdas in c++11 :(
       (*std::min_element(
@@ -265,9 +269,10 @@ void DefaultArchivist::saveSnapshotData(
 
       org->snapshotAncestors.clear();
 
-      resolveAncestors(org, saveList, minBirthTime);
+	  resolveAncestors(org,saveList,minBirthTime);
 
-    } else { // org has exactly self for ancestor
+
+    } else {                      // org has exactly self for ancestor
       if (org->timeOfBirth >= Global::update) { // if this is a new org...
         std::cout
             << "  WARNING :: in DefaultArchivist::saveSnapshotData(), found "
@@ -285,8 +290,8 @@ void DefaultArchivist::saveSnapshotData(
     }
 
     // now that we know that ancestor list is good for this org...
-    if (org->timeOfBirth < Global::update || save_new_orgs_)
-      saveOrgToFile(org, dataFileName);
+    if (org->timeOfBirth < Global::update || save_new_orgs_) 
+		saveOrgToFile(org,dataFileName);
   }
 
   FileManager::closeFile(dataFileName); // since this is a snapshot, we will not
@@ -317,28 +322,29 @@ void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
   org->dataMap.clear("update");
 }
 
+
 void DefaultArchivist::resolveAncestors(
     std::shared_ptr<Organism> org,
     std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
-  // if this org does not only contain only itself in snapshotAncestors then
-  // it has not been saved before.
-  // we must confirm that snapshotAncestors is correct because things may
-  // have changed while we were not looking
-  // this process does 2 things:
-  // a) if this org is being saved then it makes sure it's up to date
-  // b) it makes sure that it's ancestor list is correct so that it's
-  // offspring will pass on the correct ancestor info.
-  //
-  // How does it work? (good question)
-  // get a checklist of parents of the current org
-  // for each parent, if they are going to be saved in this update, yay, we
-  // can just assign their ID to the ancestor list
-  // ... if they are not going to be saved then we need to check their
-  // ancestors to see if they are going to be saved,
-  // unless they are atleast as old as the oldest org being saved to this
-  // file.
-  // if they are at least as old as the oldest org being saved to this file
-  // then we can simply append their ancestors
+      // if this org does not only contain only itself in snapshotAncestors then
+      // it has not been saved before.
+      // we must confirm that snapshotAncestors is correct because things may
+      // have changed while we were not looking
+      // this process does 2 things:
+      // a) if this org is being saved then it makes sure it's up to date
+      // b) it makes sure that it's ancestor list is correct so that it's
+      // offspring will pass on the correct ancestor info.
+      //
+      // How does it work? (good question)
+      // get a checklist of parents of the current org
+      // for each parent, if they are going to be saved in this update, yay, we
+      // can just assign their ID to the ancestor list
+      // ... if they are not going to be saved then we need to check their
+      // ancestors to see if they are going to be saved,
+      // unless they are atleast as old as the oldest org being saved to this
+      // file.
+      // if they are at least as old as the oldest org being saved to this file
+      // then we can simply append their ancestors
 
   auto parent_check_list = org->parents;
 
@@ -348,12 +354,12 @@ void DefaultArchivist::resolveAncestors(
 
     if (find(save_list.begin(), save_list.end(), parent) !=
         save_list.end()) { // if this parent is being saved, they will serve
-                           // as an ancestor
+                          // as an ancestor
       org->snapshotAncestors.insert(parent->ID);
       continue;
     }
 
-    // this parent is not being saved
+	// this parent is not being saved
     if (parent->timeOfBirth < min_birth_time ||
         (parent->snapshotAncestors.size() == 1 &&
          parent->snapshotAncestors.find(parent->ID) !=
@@ -369,7 +375,7 @@ void DefaultArchivist::resolveAncestors(
       continue;
     }
 
-    // this parent not old enough (see if above), add this
+	// this parent not old enough (see if above), add this
     // parents parents to check list (we need to keep looking)
     for (auto p : parent->parents) {
       parent_check_list.push_back(p);
@@ -378,7 +384,7 @@ void DefaultArchivist::resolveAncestors(
 }
 
 void DefaultArchivist::saveSnapshotOrganisms(
-    std::vector<std::shared_ptr<Organism>> &population) {
+    std::vector<std::shared_ptr<Organism>> & population) {
   // write out organims
   std::string organismFileName =
       OrganismFilePrefix + "_" + std::to_string(Global::update) + ".csv";
@@ -407,16 +413,16 @@ void DefaultArchivist::saveSnapshotOrganisms(
 
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
-// archive MUST be called on every lobal::updates - ENFORCE
+// archive MUST be called on every lobal::updates - ENFORCE 
 bool DefaultArchivist::archive(
-    std::vector<std::shared_ptr<Organism>> &population, int flush) {
+    std::vector<std::shared_ptr<Organism>> & population, int flush) {
 
   if (finished_)
     return finished_;
 
   finished_ = Global::update >= Global::updatesPL->get();
-
-  if (flush == 1)
+ 
+  if (flush == 1) 
     return finished_;
 
   if ((Global::update == realtimeSequence[realtime_sequence_index_]) &&
@@ -433,8 +439,7 @@ bool DefaultArchivist::archive(
     realtime_data_seq_index_++;
   }
 
-  if ((Global::update ==
-       realtimeOrganismSequence[realtime_organism_seq_index_]) &&
+  if ((Global::update == realtimeOrganismSequence[realtime_organism_seq_index_]) &&
       !flush &&
       writeSnapshotGenomeFiles) { // do not write files on flush - these
                                   // organisms have not been evaluated!
@@ -448,8 +453,9 @@ bool DefaultArchivist::archive(
     for (auto org : population)
       org->parents.clear();
   } else {
-    cleanUpParents(population);
+	cleanUpParents(population);
   }
+
 
   // if we are at the end of the run
   return finished_;
@@ -497,4 +503,6 @@ void DefaultArchivist::cleanUpParents(
         }
   }
 }
+
+
 
