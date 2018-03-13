@@ -53,228 +53,173 @@ LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
 
   pruneInterval = LODwAP_Arch_pruneIntervalPL->get(PT);
   terminateAfter = LODwAP_Arch_terminateAfterPL->get(PT);
-  DataFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE")
+  data_file_name_ = (LODwAP_Arch_FilePrefixPL->get(PT) == "NONE"
                       ? ""
                       : LODwAP_Arch_FilePrefixPL->get(PT)) +
-                 (((group_prefix_ == "")
+                 (group_prefix_ == ""
                        ? "LOD_data.csv"
                        : group_prefix_.substr(0, group_prefix_.size() - 2) +
-                             "__" + "LOD_data.csv"));
-  OrganismFileName = ((LODwAP_Arch_FilePrefixPL->get(PT) == "NONE")
+                             "__" + "LOD_data.csv");
+  organism_file_name_ = (LODwAP_Arch_FilePrefixPL->get(PT) == "NONE"
                           ? ""
                           : LODwAP_Arch_FilePrefixPL->get(PT)) +
-                     (((group_prefix_ == "")
+                     (group_prefix_ == ""
                            ? "LOD_organisms.csv"
                            : group_prefix_.substr(0, group_prefix_.size() - 2) +
-                                 "__" + "LOD_organisms.csv"));
+                                 "__" + "LOD_organisms.csv");
 
   writeDataFile = LODwAP_Arch_writeDataFilePL->get(PT);
   writeOrganismFile = LODwAP_Arch_writeOrganismFilePL->get(PT);
 
-  dataSequence.push_back(0);
-  organismSequence.push_back(0);
+  dataSequence = seq(LODwAP_Arch_dataSequencePL->get(PT), Global::updatesPL->get(), true);
+  organismSequence = seq(LODwAP_Arch_organismSequencePL->get(PT), Global::updatesPL->get(), true);
 
-  auto dataSequenceStr = LODwAP_Arch_dataSequencePL->get(PT);
-  auto genomeSequenceStr = LODwAP_Arch_organismSequencePL->get(PT);
+  dataSequence.push_back(Global::updatesPL->get() + terminateAfter + 1);
+  organismSequence.push_back(Global::updatesPL->get() + terminateAfter + 1);
 
-  dataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
-  if (dataSequence.size() == 0) {
-    std::cout << "unable to translate ARCHIVIST_LODWAP-dataSequence \""
-         << dataSequenceStr << "\".\nExiting." << std::endl;
-    exit(1);
-  }
-  organismSequence = seq(genomeSequenceStr, Global::updatesPL->get(), true);
-  if (organismSequence.size() == 0) {
-    std::cout << "unable to translate ARCHIVIST_LODWAP-organismsSequence \""
-         << genomeSequenceStr << "\".\nExiting." << std::endl;
-    exit(1);
-  }
-
-  if (writeDataFile != false) {
-    dataSequence.clear();
-    dataSequence = seq(dataSequenceStr, Global::updatesPL->get(), true);
-    if (dataSequence.size() == 0) {
-      std::cout << "unable to translate ARCHIVIST_SSWD-dataSequence \""
-           << dataSequenceStr << "\".\nExiting." << std::endl;
-      exit(1);
-    }
-  }
-
-  if (writeOrganismFile != false) {
-    organismSequence = seq(genomeSequenceStr, Global::updatesPL->get(), true);
-    if (organismSequence.size() == 0) {
-      std::cout << "unable to translate ARCHIVIST_SSWD-organismsSequence \""
-           << genomeSequenceStr << "\".\nExiting." << std::endl;
-      exit(1);
-    }
-  }
-
-  dataSeqIndex = 0;
-  organismSeqIndex = 0;
-  nextDataWrite = dataSequence[dataSeqIndex];
-  nextOrganismWrite = organismSequence[organismSeqIndex];
-
-  lastPrune = 0;
+  next_data_write_ = dataSequence[data_seq_index];
+  next_organism_write_ = organismSequence[organism_seq_index];
 }
+
+void LODwAPArchivist::constructLODFiles(std::shared_ptr<Organism> org) {
+  files_[data_file_name_].push_back("update");
+  files_[data_file_name_].push_back("timeToCoalescence");
+  auto all_keys = org->dataMap.getKeys();
+  for (auto &key : all_keys) { // store keys from data map
+                               // associated with file name
+    files_[data_file_name_].push_back(key);
+  }
+}
+
+int LODwAPArchivist::writeLODDataFile(
+    std::vector<std::shared_ptr<Organism>> &LOD,
+    std::shared_ptr<Organism> real_MRCA,
+    std::shared_ptr<Organism> effective_MRCA) {
+
+  int time_to_coalescence;
+  while (next_data_write_ <=
+         std::min(
+             effective_MRCA->timeOfBirth,
+             Global::updatesPL->get())) { // if there is convergence before the
+                                          // next data interval
+    auto current = LOD[next_data_write_ - last_prune_];
+    current->dataMap.set("update", next_data_write_);
+    current->dataMap.setOutputBehavior("update", DataMap::FIRST);
+    time_to_coalescence =
+        std::max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
+    current->dataMap.set("timeToCoalescence", time_to_coalescence);
+    current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
+    current->dataMap.writeToFile(
+        data_file_name_,
+        files_[data_file_name_]); // append new data to the file
+    current->dataMap.clear("update");
+    current->dataMap.clear("timeToCoalescence");
+
+	next_data_write_ = dataSequence[++data_seq_index];
+  }
+  return time_to_coalescence;
+}
+
+
+void LODwAPArchivist::writeLODOrganismFile(
+    std::vector<std::shared_ptr<Organism>> &LOD,
+    std::shared_ptr<Organism> effective_MRCA) {
+
+  while (next_organism_write_ <=
+         std::min(
+             effective_MRCA->timeOfBirth,
+             Global::updatesPL->get())) { // if there is convergence before the
+                                          // next data interval
+
+    auto current = LOD[next_organism_write_ - last_prune_];
+    DataMap OrgMap;
+    OrgMap.set("ID", current->ID);
+    OrgMap.set("update", next_organism_write_);
+    OrgMap.setOutputBehavior("update", DataMap::FIRST);
+
+    for (auto & genome : current->genomes) {
+      auto name = "GENOME_" + genome.first;
+      OrgMap.merge(genome.second->serialize(name));
+    }
+    for (auto & brain : current->brains) {
+      auto name = "BRAIN_" + brain.first;
+      OrgMap.merge(brain.second->serialize(name));
+    }
+    OrgMap.writeToFile(organism_file_name_); // append new data to the file
+
+    next_organism_write_ = organismSequence[++organism_seq_index];
+  }
+}
+
 
 bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population,
                               int flush) {
+
   if (finished_ && !flush) {
     return finished_;
   }
 
-  if ((Global::update == realtimeSequence[realtime_sequence_index_]) &&
-      (flush == 0)) { // do not write files on flush - these organisms have not
-                      // been evaluated!
-    writeRealTimeFiles(population); // write to Max and average files
-    if (realtime_sequence_index_ + 1 < (int)realtimeSequence.size()) {
-      realtime_sequence_index_++;
-    }
-  }
-
-  if ((Global::update == realtimeDataSequence[realtime_data_seq_index_]) &&
-      (flush == 0) &&
-      writeSnapshotDataFiles) { // do not write files on flush - these organisms
-                                // have not been evaluated!
-    saveSnapshotData(population);
-    if (realtime_data_seq_index_ + 1 < (int)realtimeDataSequence.size()) {
-      realtime_data_seq_index_++;
-    }
-  }
-  if ((Global::update ==
-       realtimeOrganismSequence[realtime_organism_seq_index_]) &&
-      (flush == 0) &&
-      writeSnapshotGenomeFiles) { // do not write files on flush - these
-                                  // organisms have not been evaluated!
-    saveSnapshotOrganisms(population);
-    if (realtime_organism_seq_index_ + 1 <
-        (int)realtimeOrganismSequence.size()) {
-      realtime_organism_seq_index_++;
-    }
-  }
-
-  if (writeOrganismFile &&
-      find(organismSequence.begin(), organismSequence.end(), Global::update) !=
-          organismSequence.end()) {
-    for (auto org : population) { // if this update is in the genome sequence,
-                                  // turn on genome tracking.
-      org->trackOrganism = true;
-    }
-  }
-
-  if ((Global::update % pruneInterval == 0) || (flush == 1)) {
-
-    if (files_.find(DataFileName) ==
-        files_.end()) { // if file has not be initialized yet
-      files_[DataFileName].push_back("update");
-      files_[DataFileName].push_back("timeToCoalescence");
-      for (auto key :
-           population[0]->dataMap.getKeys()) { // store keys from data map
-                                               // associated with file name
-        files_[DataFileName].push_back(key);
-      }
-    }
-
-    // get the MRCA
-    std::vector<std::shared_ptr<Organism>> LOD =
-        population[0]->getLOD(population[0]); // get line of decent
-    std::shared_ptr<Organism> effective_MRCA;
-    std::shared_ptr<Organism> real_MRCA;
-    if (flush) { // if flush then we don't care about coalescence
-      std::cout << "flushing LODwAP: using population[0] as Most Recent Common "
-              "Ancestor (MRCA)"
-           << std::endl;
-      effective_MRCA = population[0]->parents[0]; // this assumes that a
-                                                  // population was created, but
-                                                  // not tested at the end of
-                                                  // the evolution loop!
-      real_MRCA = population[0]->getMostRecentCommonAncestor(
-          LOD); // find the convergance point in the LOD.
-    } else {
-      effective_MRCA = population[0]->getMostRecentCommonAncestor(
-          LOD); // find the convergance point in the LOD.
-      real_MRCA = effective_MRCA;
-    }
-
-    // Save Data
-    int TTC;
-    if (writeDataFile) {
-      while ((effective_MRCA->timeOfBirth >= nextDataWrite) &&
-             (nextDataWrite <=
-              Global::updatesPL->get())) { // if there is convergence before the
-                                           // next data interval
-        std::shared_ptr<Organism> current = LOD[nextDataWrite - lastPrune];
-        current->dataMap.set("update", nextDataWrite);
-        current->dataMap.setOutputBehavior("update", DataMap::FIRST);
-        TTC = std::max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
-        current->dataMap.set("timeToCoalescence", TTC);
-        current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
-        current->dataMap.writeToFile(
-            DataFileName, files_[DataFileName]); // append new data to the file
-        current->dataMap.clear("update");
-        current->dataMap.clear("timeToCoalescence");
-        if ((int)dataSequence.size() > dataSeqIndex + 1) {
-          dataSeqIndex++;
-          nextDataWrite = dataSequence[dataSeqIndex];
-        } else {
-          nextDataWrite = Global::updatesPL->get() + terminateAfter + 1;
-        }
-      }
-      if (flush) {
-        std::cout << "Most Recent Common Ancestor/Time to Coalescence was " << TTC
-             << " updates ago." << std::endl;
-      }
-    }
-
-    // Save Organisms
-    if (writeOrganismFile) {
-
-      while ((effective_MRCA->timeOfBirth >= nextOrganismWrite) &&
-             (nextOrganismWrite <=
-              Global::updatesPL->get())) { // if there is convergence before the
-                                           // next data interval
-
-        std::shared_ptr<Organism> current = LOD[nextOrganismWrite - lastPrune];
-
-        DataMap OrgMap;
-        OrgMap.set("ID", current->ID);
-        OrgMap.set("update", nextOrganismWrite);
-        OrgMap.setOutputBehavior("update", DataMap::FIRST);
-        std::string tempName;
-
-        for (auto genome : current->genomes) {
-          tempName = "GENOME_" + genome.first;
-          OrgMap.merge(genome.second->serialize(tempName));
-        }
-        for (auto brain : current->brains) {
-          tempName = "BRAIN_" + brain.first;
-          OrgMap.merge(brain.second->serialize(tempName));
-        }
-        OrgMap.writeToFile(OrganismFileName); // append new data to the file
-
-        if ((int)organismSequence.size() > organismSeqIndex + 1) {
-          organismSeqIndex++;
-          nextOrganismWrite = organismSequence[organismSeqIndex];
-        } else {
-          nextOrganismWrite = Global::updatesPL->get() + terminateAfter + 1;
-        }
-      }
-    }
-    // data and genomes have now been written out up till the MRCA
-    // so all data and genomes from before the MRCA can be deleted
-    effective_MRCA->parents.clear();
-    lastPrune = effective_MRCA->timeOfBirth; // this will hold the time of the
-                                             // oldest genome in RAM
-  }
-
   // if we have reached the end of time OR we have pruned past updates (i.e.
-  // written out all data up to updates), then we ae done!
-  // cout << "\nHERE" << endl;
-  // cout << Global::update << " >= " << Global::updatesPL->get() << " + " <<
-  // terminateAfter << endl;
+  // written out all data up to updates), then we are done!
   finished_ = finished_ ||
               (Global::update >= Global::updatesPL->get() + terminateAfter ||
-               lastPrune >= Global::updatesPL->get());
+               last_prune_ >= Global::updatesPL->get());
+
+  if (!flush) // do not write files on flush - these
+  			  // organisms have not been evaluated!
+  	writeDefArchFiles(population);
+
+  if (writeOrganismFile &&
+      std::find(organismSequence.begin(), organismSequence.end(),
+                Global::update) != organismSequence.end())
+    for (auto org : population) // if this update is in the genome sequence,
+                                // turn on genome tracking.
+      org->trackOrganism = true;
+
+  if (Global::update % pruneInterval && flush != 1) 
+  return finished_;
+
+  if (files_.find(data_file_name_) ==
+      files_.end()) // if file has not be initialized yet
+    constructLODFiles(population[0]);
+
+  // get the MRCA
+  auto some_org = population[0];
+  auto LOD = some_org->getLOD(some_org); // get line of descent
+  if (flush) // if flush then we don't care about coalescence
+    std::cout << "flushing LODwAP: using population[0] as Most Recent Common "
+                 "Ancestor (MRCA)"
+              << std::endl;
+  auto effective_MRCA =
+      flush // this assumes that a population was created, but not tested at
+          // the end of the evolution loop!
+          ? some_org->parents[0]
+          : some_org->getMostRecentCommonAncestor(
+                LOD); // find the convergence point in the LOD.
+  auto real_MRCA =
+      flush ? some_org->getMostRecentCommonAncestor(LOD)
+            : effective_MRCA; // find the convergence point in the LOD.
+
+  // Save Data
+  if (writeDataFile) {
+    auto time_to_coalescence = writeLODDataFile(LOD, real_MRCA, effective_MRCA);
+    if (flush)
+      std::cout << "Most Recent Common Ancestor/Time to Coalescence was "
+                << time_to_coalescence << " updates ago." << std::endl;
+  }
+
+  // Save Organisms
+  if (writeOrganismFile)
+    writeLODOrganismFile(LOD, effective_MRCA);
+
+  // data and genomes have now been written out up till the MRCA
+  // so all data and genomes from before the MRCA can be deleted
+  effective_MRCA->parents.clear();
+  last_prune_ = effective_MRCA->timeOfBirth; // this will hold the time of the
+                                             // oldest genome in RAM
+
+  return finished_;
+
 
   /*
   ////////////////////////////////////////////////////////
@@ -310,6 +255,5 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
   ////////////////////////////////////////////////////////
   */
 
-  return finished_;
 }
 

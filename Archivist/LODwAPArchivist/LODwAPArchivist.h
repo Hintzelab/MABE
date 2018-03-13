@@ -36,30 +36,18 @@ public:
   int pruneInterval;            // how often to attempt to prune the LOD
   int terminateAfter;           // how long to run after updates (to get better
                                 // coalescence)
-  std::string DataFileName;          // name of the Data file
-  std::string OrganismFileName;      // name of the Genome file (genomes on LOD)
   bool writeDataFile;           // if true, write data file
   bool writeOrganismFile;       // if true, write genome file
 
-  int lastPrune; // last time Genome was Pruned
+  void constructLODFiles(std::shared_ptr<Organism> /*org*/);
 
-  //// info about files under management
-  int nextDataWrite;     // next time data files will be written to disk
-  int nextOrganismWrite; // next time a genome file will be written to
-                         // genome.csv
+  int writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+                        std::shared_ptr<Organism> /*real_MRCA*/,
+                        std::shared_ptr<Organism> /*effective_MRCA*/);
 
-  int dataSeqIndex;
-  int organismSeqIndex;
+  void writeLODOrganismFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+                        std::shared_ptr<Organism> /*effective_MRCA*/);
 
-  // int nextDataCheckPoint;  // next time data files contents need to be
-  // checkpointed (this is needed particularly to handle delay > interval)
-  // int nextGenomeCheckPoint;  // next time a genome files contents need to be
-  // checkpointed (this is needed particularly to handle delay > interval)
-
-  // unordered_map<int, vector<weak_ptr<Organism>>> checkpoints;  // used by
-  // SSwD only - this keeps lists of orgs that may be written (if they have
-  // living decendents)
-  //// key is Global::nextGenomeWrite or Global::nextDataWrite
   LODwAPArchivist() = delete;
   LODwAPArchivist(std::vector<std::string> popFileColumns = {},
                   std::shared_ptr<Abstract_MTree> _maxFormula = nullptr,
@@ -70,5 +58,28 @@ public:
 
   virtual bool archive(std::vector<std::shared_ptr<Organism>> &population,
                        int flush = 0) override;
+ 
+ 
+  std::string data_file_name_;          // name of the Data file
+  std::string organism_file_name_;      // name of the Genome file (genomes on LOD)
+  int last_prune_ = 0; // last time Genome was Pruned
+
+  //// info about files under management
+  int next_data_write_;     // next time data files will be written to disk
+  int next_organism_write_; // next time a genome file will be written to
+                         // genome.csv
+
+  int data_seq_index = 0;
+  int organism_seq_index = 0;
+
+  // int nextDataCheckPoint;  // next time data files contents need to be
+  // checkpointed (this is needed particularly to handle delay > interval)
+  // int nextGenomeCheckPoint;  // next time a genome files contents need to be
+  // checkpointed (this is needed particularly to handle delay > interval)
+
+  // unordered_map<int, vector<weak_ptr<Organism>>> checkpoints;  // used by
+  // SSwD only - this keeps lists of orgs that may be written (if they have
+  // living decendents)
+  //// key is Global::nextGenomeWrite or Global::nextDataWrite
 };
 

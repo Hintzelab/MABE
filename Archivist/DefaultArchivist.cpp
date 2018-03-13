@@ -203,7 +203,7 @@ void DefaultArchivist::writeRealTimeFiles(
     std::shared_ptr<Organism> best_org;
     auto score = -1.f;
     for (auto org : population)
-      if (org->timeOfBirth < Global::update /*|| save_new_orgs_*/) {
+      if (org->timeOfBirth < Global::update || save_new_orgs_) {
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
         if (sc > score) {
           score = sc;
@@ -411,6 +411,30 @@ void DefaultArchivist::saveSnapshotOrganisms(
                                             // again.
 }
 
+void DefaultArchivist::writeDefArchFiles(
+    std::vector<std::shared_ptr<Organism>> &population) {
+
+  if (Global::update ==
+      realtimeSequence[realtime_sequence_index_]) {
+    writeRealTimeFiles(population); // write to Max and Pop files
+    realtime_sequence_index_++;
+  }
+
+  if (Global::update == realtimeDataSequence[realtime_data_seq_index_] &&
+     writeSnapshotDataFiles) {
+    saveSnapshotData(population);
+    realtime_data_seq_index_++;
+  }
+
+  if (Global::update ==
+          realtimeOrganismSequence[realtime_organism_seq_index_] &&
+      writeSnapshotGenomeFiles) {
+    saveSnapshotOrganisms(population);
+    realtime_organism_seq_index_++;
+  }
+}
+
+
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
 // archive MUST be called on every lobal::updates - ENFORCE 
@@ -425,27 +449,9 @@ bool DefaultArchivist::archive(
   if (flush == 1) 
     return finished_;
 
-  if ((Global::update == realtimeSequence[realtime_sequence_index_]) &&
-      !flush) { // do not write files on flush - these organisms have
-                // not been evaluated!
-    writeRealTimeFiles(population); // write to Max and Pop files
-    realtime_sequence_index_++;
-  }
-
-  if ((Global::update == realtimeDataSequence[realtime_data_seq_index_]) &&
-      !flush && writeSnapshotDataFiles) { // do not write files on flush - these
-                                          // organisms have not been evaluated!
-    saveSnapshotData(population);
-    realtime_data_seq_index_++;
-  }
-
-  if ((Global::update == realtimeOrganismSequence[realtime_organism_seq_index_]) &&
-      !flush &&
-      writeSnapshotGenomeFiles) { // do not write files on flush - these
-                                  // organisms have not been evaluated!
-    saveSnapshotOrganisms(population);
-    realtime_organism_seq_index_++;
-  }
+  if (!flush) // do not write files on flush - these
+  			  // organisms have not been evaluated!
+    writeDefArchFiles(population);
 
   if (!writeSnapshotDataFiles) {
     // we don't need to worry about tracking parents or

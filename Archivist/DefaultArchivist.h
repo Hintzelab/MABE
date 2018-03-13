@@ -22,7 +22,8 @@
 #include "../Utilities/MTree.h"
 
 class DefaultArchivist {
-protected:
+//protected:
+public:
   bool writeMaxFile; // if true, Max file will be created
   bool writePopFile; // if true, pop file will be created
   std::string
@@ -68,6 +69,9 @@ protected:
 
   const std::shared_ptr<ParametersTable> PT;
 
+  void
+  writeDefArchFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
+
   // save Max and average file data
   void
   writeRealTimeFiles(std::vector<std::shared_ptr<Organism>> & /*population*/);
@@ -88,7 +92,6 @@ protected:
                         std::vector<std::shared_ptr<Organism>> & /*save_file*/,
                         int /*min_birth_time*/);
 
-public:
   static std::shared_ptr<ParameterLink<std::string>>
       Arch_outputMethodStrPL; // string parameter for outputMethod;
 
