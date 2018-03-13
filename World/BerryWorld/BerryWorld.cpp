@@ -10,11 +10,15 @@
 
 #include "BerryWorld.h"
 
-shared_ptr<ParameterLink<int>> BerryWorld::worldSizeXPL = Parameters::register_parameter("WORLD_BERRY-worldSizeX", 8, "width of world if no map files are provided (in which case a random world is generated)");
+shared_ptr<ParameterLink<int>> BerryWorld::worldSizeXPL = Parameters::register_parameter("WORLD_BERRY-worldSizeX", 8, "width of world if no map files are provided (random map will be generated from initialFoodDistribution)");
 shared_ptr<ParameterLink<int>> BerryWorld::worldSizeYPL = Parameters::register_parameter("WORLD_BERRY-worldSizeY", 8, "height of world if no map files are provided");
-shared_ptr<ParameterLink<bool>> BerryWorld::worldHasWallPL = Parameters::register_parameter("WORLD_BERRY-worldHasWall", true, "if map is not provided, does the generated world have a wall around the edge? (maps must define their own walls)");
+shared_ptr<ParameterLink<bool>> BerryWorld::worldHasWallPL = Parameters::register_parameter("WORLD_BERRY-worldHasWall", true, "if world is being generated randomly (i.e. not loaded from file),\ndoes the world have a wall around the edge? (maps must define their own walls)");
 shared_ptr<ParameterLink<int>> BerryWorld::rotationResolutionPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-directions", 8, "the number of directions organisms can face\n  i.e. 36 = 10 degree turns, 8 = 45 degree turns, etc.");
 shared_ptr<ParameterLink<double>> BerryWorld::maxTurnPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-maxTurn", .25, "harvesters can turn this amount per world update (i.e. if directions = 16 and maxTurn = .25, then 4 turns are allowed per\nworld update). This is implemented by allowing multipile turn (by 360 / directions degrees) actions in a single world update.");
+
+shared_ptr<ParameterLink<bool>> BerryWorld::allowTurnPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-allowTurn", true, "if true, harvesters will be able to turn(change facing direction)");
+shared_ptr<ParameterLink<bool>> BerryWorld::allowSidestepPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-allowSidestep", false, "if true, harvesters will be able to move sideways (i.e. 90 degrees to facing)");
+shared_ptr<ParameterLink<bool>> BerryWorld::allowBackstepPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-allowBackstep", false, "if true, harvesters will be able to move backwards");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::seeOtherPL = Parameters::register_parameter("WORLD_BERRY_SENSORS_VISION-seeOther", false, "can harvesters detect other harvesters with their vision sensor?");
 shared_ptr<ParameterLink<bool>> BerryWorld::smellOtherPL = Parameters::register_parameter("WORLD_BERRY_SENSORS_SMELL-smellOther", false, "can harvesters detect other harvesters with their smell sensor?");
@@ -45,20 +49,22 @@ shared_ptr<ParameterLink<int>> BerryWorld::smellSensorDistancePL = Parameters::r
 shared_ptr<ParameterLink<int>> BerryWorld::smellSensorArcSizePL = Parameters::register_parameter("WORLD_BERRY_SENSORS_SMELL-smellSensorArcSize", 180, "how wide is a smell arc (degrees)");
 shared_ptr<ParameterLink<string>> BerryWorld::smellSensorDirectionsPL = Parameters::register_parameter("WORLD_BERRY_SENSORS_SMELL-smellSensorDirections", (string) "[0,.25,.5,.75]", "what directions can org smell? (if value is < 1, then this value will be multipied by directions)");
 
-shared_ptr<ParameterLink<int>> BerryWorld::evalTimePL = Parameters::register_parameter("WORLD_BERRY-evalationTime", 400, "number of world updates per generation");
-shared_ptr<ParameterLink<int>> BerryWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_BERRY-evaluationsPerGeneration", 1, "how many times should this world be run when evaluating an agent (useful to correct for chance)");
+shared_ptr<ParameterLink<int>> BerryWorld::evalTimePL = Parameters::register_parameter("WORLD_BERRY-evalationTime", 400, "number of world updates per evaluation (i.e. number of actions each agent can perform per map)");
+shared_ptr<ParameterLink<int>> BerryWorld::evaluationsPerGenerationPL = Parameters::register_parameter("WORLD_BERRY-evaluationsPerGeneration", 1, "The world will be run one the entire population this number of times (useful to correct for chance in world or organism)");
 shared_ptr<ParameterLink<int>> BerryWorld::evaluateGroupSizePL = Parameters::register_parameter("WORLD_BERRY_GROUP-groupSize", 1, "organisms will be evaluated in groups of this size, the groups will be determined randomly.  \nIf (population size / groupSize) has a remainder, some organisms will be evaluated more then once.\n  -1 indicates to evaluate all organisms at the same time.");
-shared_ptr<ParameterLink<string>> BerryWorld::cloneScoreRulePL = Parameters::register_parameter("WORLD_BERRY_GROUP-cloneScoreRule", (string)"ALL", "if clones is > 0 what score rule will be used. ALL = score all clones, BEST = score only best clone, WORST = score only worst clone");
+shared_ptr<ParameterLink<string>> BerryWorld::groupScoreRulePL = Parameters::register_parameter("WORLD_BERRY_GROUP-groupScoreRule", (string)"SOLO", "how should groups be scored? SOLO = no group scoring. ALL = each group member receives all scores(effectivly average), BEST = each group member receives score of best in group, WORST = each group member receives score of worst in group");
+shared_ptr<ParameterLink<string>> BerryWorld::cloneScoreRulePL = Parameters::register_parameter("WORLD_BERRY_GROUP-cloneScoreRule", (string)"ALL", "if clones is > 0 what score rule will be applied to the parent organism. ALL = score from all clones(effectivly average), BEST = only the score from the best clone, WORST = only the score from the worst clone. if groupScoreRule is not SOLO this parametdr is ignored.");
 shared_ptr<ParameterLink<int>> BerryWorld::clonesPL = Parameters::register_parameter("WORLD_BERRY_GROUP-clones", 0, "evaluation groups will be padded with this number of clones for each harvester. I.e. if group size is 3 and clones is 1, the actual group size will be 6");
 
 shared_ptr<ParameterLink<double>> BerryWorld::switchCostPL = Parameters::register_parameter("WORLD_BERRY_SCORE-switchCost", 1.4, "cost paid when switching between food types");
 shared_ptr<ParameterLink<double>> BerryWorld::hitWallCostPL = Parameters::register_parameter("WORLD_BERRY_SCORE-hitWallCost", 0.0, "cost paid if a move failed because of a wall being in the way");
 shared_ptr<ParameterLink<double>> BerryWorld::hitOtherCostPL = Parameters::register_parameter("WORLD_BERRY_SCORE-hitOtherCost", 0.0, "cost paid if a move failed because of another harvester being in the way");
-shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnPL = Parameters::register_parameter("WORLD_BERRY-alwaysStartOnResource", -1, "all organisms will start on this type of food (-1 = random start locations)");
+shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnPL = Parameters::register_parameter("WORLD_BERRY-alwaysStartOnResource", -1, "all organisms will start on this type of food (-1 = random non-wall start locations)");
+shared_ptr<ParameterLink<string>> BerryWorld::validStartConfigurationsPL = Parameters::register_parameter("WORLD_BERRY-startConfigurations", (string)"[-1]", "If alwaysStartOn is -1 and no start locations are provided by a map, these will determin inital placment of harvesters.\nformat: [x,y,facing[,x,y,facing,x,y,facing]] if value = [-1] = all random starts (default); -1 in facing position will pick random facing for that location.");
 
-shared_ptr<ParameterLink<int>> BerryWorld::foodTypesPL = Parameters::register_parameter("WORLD_BERRY_FOOD-foodTypes", 2, "how many different types of food (1,2 or 3)");
+shared_ptr<ParameterLink<int>> BerryWorld::foodTypesPL = Parameters::register_parameter("WORLD_BERRY_FOOD-foodTypes", 2, "how many different types of food (valid values:1,2,3,4,5,6,7,8)");
 
-shared_ptr<ParameterLink<string>> BerryWorld::initialFoodDistributionPL = Parameters::register_parameter("WORLD_BERRY_FOOD-initialFoodDistribution", (string)"[-1]", "values to use when filling in (auto generated maps)\n  [1,1,2] = 2/3 1, 1/3 2\n  [-1,0,2] = 1/3 random from food types, 1/3 0, 1/3 2");
+shared_ptr<ParameterLink<string>> BerryWorld::initialFoodDistributionPL = Parameters::register_parameter("WORLD_BERRY_FOOD-initialFoodDistribution", (string)"[-1]", "values used to generate world when maps are not loaded.\nList provides types of foods and probability of that food on each location.\n  [1,1,2] = 2/3 1, 1/3 2\n  [-1,0,2] = 1/3 random from food types, 1/3 0, 1/3 2");
 
 shared_ptr<ParameterLink<double>> BerryWorld::reward1PL = Parameters::register_parameter("WORLD_BERRY_SCORE-reward1", 1.0, "reward for eating food1");
 shared_ptr<ParameterLink<double>> BerryWorld::reward2PL = Parameters::register_parameter("WORLD_BERRY_SCORE-reward2", 1.0, "reward for eating food2");
@@ -69,7 +75,7 @@ shared_ptr<ParameterLink<double>> BerryWorld::reward6PL = Parameters::register_p
 shared_ptr<ParameterLink<double>> BerryWorld::reward7PL = Parameters::register_parameter("WORLD_BERRY_SCORE-reward7", 1.0, "reward for eating food7");
 shared_ptr<ParameterLink<double>> BerryWorld::reward8PL = Parameters::register_parameter("WORLD_BERRY_SCORE-reward8", 1.0, "reward for eating food8");
 
-shared_ptr<ParameterLink<string>> BerryWorld::replace1PL = Parameters::register_parameter("WORLD_BERRY_FOOD-replace1", (string)"[-1]", "when food 1 is eaten, what should replace it?\nreplacement is chosen randomly from list\nelements that appear more then once are more likely to be selected\n-1 will choose randomly from available food types");
+shared_ptr<ParameterLink<string>> BerryWorld::replace1PL = Parameters::register_parameter("WORLD_BERRY_FOOD-replace1", (string)"[-1]", "when food 1 is eaten, what should replace it?\nreplacement is chosen randomly from this list\nelements that appear more then once are more likely to be selected\n-1 will choose randomly from available food types");
 shared_ptr<ParameterLink<string>> BerryWorld::replace2PL = Parameters::register_parameter("WORLD_BERRY_FOOD-replace2", (string)"[-1]", "replace rule for food2");
 shared_ptr<ParameterLink<string>> BerryWorld::replace3PL = Parameters::register_parameter("WORLD_BERRY_FOOD-replace3", (string)"[-1]", "replace rule for food3");
 shared_ptr<ParameterLink<string>> BerryWorld::replace4PL = Parameters::register_parameter("WORLD_BERRY_FOOD-replace4", (string)"[-1]", "replace rule for food4");
@@ -89,17 +95,22 @@ shared_ptr<ParameterLink<double>> BerryWorld::poison7PL = Parameters::register_p
 shared_ptr<ParameterLink<double>> BerryWorld::poison8PL = Parameters::register_parameter("WORLD_BERRY_SCORE-poison8", 0.0, "cost for landing on food8");
 
 shared_ptr<ParameterLink<bool>> BerryWorld::allowMoveAndEatPL = Parameters::register_parameter("WORLD_BERRY-allowEatAndMove", false, "if false, and there is an eat output and move output, move outputs will be ignored\nif true and there is both an eat and move output, eat will happen first, then move.");
-shared_ptr<ParameterLink<bool>> BerryWorld::alwaysEatPL = Parameters::register_parameter("WORLD_BERRY-alwaysEat", false, "if true, organism will have only two outputs. organism will always attempt eat before moving. If false, there will be a third input for eat");
+shared_ptr<ParameterLink<bool>> BerryWorld::alwaysEatPL = Parameters::register_parameter("WORLD_BERRY-alwaysEat", false, "if true, organism will have only two outputs. organism will always attempt eat before moving. If false, there will be a third input for eat which must be activated for the agent to eat");
 
 shared_ptr<ParameterLink<string>> BerryWorld::groupNameSpacePL = Parameters::register_parameter("WORLD_BERRY_NAMESPACE-NameSpace_group", (string)"root::", "namespace of group to be evaluated");
 shared_ptr<ParameterLink<string>> BerryWorld::brainNameSpacePL = Parameters::register_parameter("WORLD_BERRY_NAMESPACE-NameSpace_brain", (string)"root::", "namespace for parameters used to define brain");
 
 shared_ptr<ParameterLink<double>> BerryWorld::moveDefaultPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-moveDefault", 1.0, "distance harvester moves when output is move");
-shared_ptr<ParameterLink<double>> BerryWorld::moveMinPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-moveMin", 0.0, "min distance harvester moves every update (even if output is not move)");
+shared_ptr<ParameterLink<double>> BerryWorld::moveMinPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-moveMin", 0.0, "min distance harvester moves every world update (even if output is not move)");
+shared_ptr<ParameterLink<double>> BerryWorld::moveMinPerTurnPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-moveMinPerTurn", 0.0, "min distance harvester moves every time harvester turns (there may be more then one turn in a world update)");
 shared_ptr<ParameterLink<bool>> BerryWorld::snapToGridPL = Parameters::register_parameter("WORLD_BERRY_GEOMETRY-snapTpGrid", true, "if true, harvester will always move to center of nearest space");
 
 shared_ptr<ParameterLink<string>> BerryWorld::mapFilesPL = Parameters::register_parameter("WORLD_BERRY_MAPS-mapFiles", (string) "[]", "list of names of file containing maps (if NONE, random map will be generated) e.g. [World/HarvestXWorld/maps/patch.txt]");
 shared_ptr<ParameterLink<string>> BerryWorld::whichMapsPL = Parameters::register_parameter("WORLD_BERRY_MAPS-whichMaps", (string) "[1/1]", "list of maps from mapFiles to use to evaluate each harvester, type/name will select named map,\n* in either position = all,\na number = randomly select that number of maps (will fail if there are not enough maps)");
+
+shared_ptr<ParameterLink<string>> BerryWorld::triggerFoodsPL = Parameters::register_parameter("WORLD_BERRY_TRIGGERS-triggerFoods", (string) "[]", "list of foods with triggers, for each food in this list, there must also be a level and event\nmore then one food may be included in a trigger (seperated by +). All food must be <= level in this case");
+shared_ptr<ParameterLink<string>> BerryWorld::triggerFoodLevelsPL = Parameters::register_parameter("WORLD_BERRY_TRIGGERS-triggerFoodLevels", (string) "[]", "list of levels when food triggers will activate, events will trigger when the associated food drops to or below this level");
+shared_ptr<ParameterLink<string>> BerryWorld::triggerFoodEventsPL = Parameters::register_parameter("WORLD_BERRY_TRIGGERS-triggerFoodEvents", (string) "[]", "list of events which will take place when trigger activates\nT*[num] = all harvesters in the current group gain score of (world updates remaining * num)\nS[num] = all harvesters gain score of num\n R[A,B,...] replace A with B (i.e. replace all 2 with 1 can be used to reset map)\nG[x,y,f,...] = generate f at x,y; if any value == -1 then use random in world range or food range\nQ = stop running this evaluation\nrules may be combined with + (i.e. S10+Q)");
 
 
 vector<int> pickUnique(int numAvalible, int numPicks) {
@@ -251,6 +262,10 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName) {
 
 	if (FILE.is_open()) {
 		atEOF = readFileLine(FILE, rawLine, ss);
+		if (atEOF) { // if what's left in file is only whitespace...
+			name = "XXXXXXXXXXXXXXXXXXXX";
+			return true;
+		}
 		ss >> rubbishString >> rubbishString >> name;
 		// now that we have the name and type, we can make the PT. The namespace will be based on the parents (the world) name space.
 		// PT = make_shared<ParametersTable>(parentPT->getTableNameSpace()+"::"+fileName+"__"+name,Parameters::root);
@@ -384,7 +399,74 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName) {
 					newGenerator.replaceRule = replaceRule;
 					generators.push_back(newGenerator);
 				}
+				atEOF = readFileLine(FILE, rawLine, ss); // read next line of file
+			}
+			// LOAD TRIGGERS
+			while (ss.peek() == 'T') { // this line defines a Trigger
+				// T : [F[+F]] : [L] : [R[+R]]
+				// T indicates that this line in the map file is a trigger
+				// F is a food, more then one can be listed speperated by '+' (i.e. [2+3])
+				// L is the level below which all indicated foods must drop to trigger event
+				// R is a rule to apply when tigger occures, more then one can be listed sperated by '+' (i.e. [S10+Q])
 
+				if (AbstractWorld::debugPL->get()) {
+					cout << "  While loading map found trigger definition: " << rawLine << endl;
+				}
+				// convert line from file to list of strings
+				string cleanLine;
+				for (auto c : rawLine) { // remove spaces for rawLine to create cleanLine
+					if (c != ' ') {
+						cleanLine.push_back(c);
+					}
+				}
+				vector<string> splitLine(1);
+				for (auto c : cleanLine) { // make splitLine by breaking up cleanLine on ':'
+					if (c == ':') {
+						splitLine.push_back("");
+					}
+					else {
+						splitLine.back().push_back(c);
+					}
+				}
+
+				// load values into this maps triggerFoods, triggerFoodLevels and, triggerFoodEvents
+				vector<string> tempList;
+				double tempValue;
+				convertCSVListToVector(splitLine[1], tempList);
+				for (auto e : tempList) { // collect foods for this trigger in a vector
+					vector<int> foodsInThisTrigger;
+					convertCSVListToVector(e, foodsInThisTrigger, '+');
+					triggerFoods.push_back(foodsInThisTrigger);
+				}
+				convertCSVListToVector(splitLine[2], tempList);
+				for (auto e : tempList) {
+					load_value(e, tempValue);
+					triggerFoodLevels.push_back(tempValue);
+				}
+
+				//get the rules (these may have ','s in them and '[]'s ... am I mad?!
+				auto tempString = splitLine[3];
+				if (tempString[0] == '[') {
+					tempString = tempString.substr(1, tempString.size() - 2);  // strip off leading and trailing square brackets
+				}
+				if (tempString.size() > 0) {
+					triggerFoodEvents.push_back("");
+				}
+				bool inElement = false;
+				for (auto c : tempString) {
+					if (c == ',' && !inElement) {
+						triggerFoodEvents.push_back("");
+					}
+					else {
+						if (c == '[') {
+							inElement = true;
+						}
+						if (c == ']') {
+							inElement = false;
+						}
+						triggerFoodEvents.back().push_back(c);
+					}
+				} // end get trigger rules
 				atEOF = readFileLine(FILE, rawLine, ss); // read next line of file
 			}
 			if (ss.peek() == '*') { // this checks that we read to the end of the map definition
@@ -405,8 +487,8 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName) {
 	return goodRead;
 }
 
-BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
-		AbstractWorld(PT_) {
+BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
+		AbstractWorld(_PT) {
 
 	cout << "Berry world setup:" << endl;
 
@@ -415,14 +497,77 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
 	////////////////////////////////////////////////////////
 
 	convertCSVListToVector(initialFoodDistributionPL->get(PT), initialFoodDistribution);
+	convertCSVListToVector(validStartConfigurationsPL->get(PT), validStartConfigurations);
 	moveDefault = moveDefaultPL->get(PT);
 	moveMin = moveMinPL->get(PT);
+	moveMinPerTurn = moveMinPerTurnPL->get(PT);
 	snapToGrid = snapToGridPL->get(PT);
 	worldX = worldSizeXPL->get(PT);
 	worldY = worldSizeYPL->get(PT);
+	worldHasWall = worldHasWallPL->get(PT);
 	alwaysEat = alwaysEatPL->get(PT);
 	allowMoveAndEat = allowMoveAndEatPL->get(PT) || alwaysEat;
 
+	allowTurn = allowTurnPL->get(PT);
+	allowSidestep = allowSidestepPL->get(PT);
+	allowBackstep = allowBackstepPL->get(PT);
+
+	usePerfectSensor = usePerfectSensorPL->get(PT);
+	useDownSensor = useDownSensorPL->get(PT);
+
+	seeFood = seeFoodPL->get(PT);
+	smellFood = smellFoodPL->get(PT);
+	perfectDetectsFood = perfectDetectsFoodPL->get(PT);
+	seeOther = seeOtherPL->get(PT);
+	smellOther = smellOtherPL->get(PT);
+	perfectDetectsOther = perfectDetectsOtherPL->get(PT);
+	seeWalls = seeWallsPL->get(PT);
+	smellWalls = smellWallsPL->get(PT);
+	perfectDetectsWalls = perfectDetectsWallsPL->get(PT);
+
+
+	vector<string> tempList;
+	double tempValue;
+	convertCSVListToVector(triggerFoodsPL->get(PT),tempList);
+	for (auto e : tempList) { // collect foods for this trigger in a vector
+		vector<int> foodsInThisTrigger;
+		convertCSVListToVector(e, foodsInThisTrigger, '+');
+		triggerFoods.push_back(foodsInThisTrigger);
+	}
+	convertCSVListToVector(triggerFoodLevelsPL->get(PT), tempList);
+	for (auto e : tempList) {
+		load_value(e, tempValue);
+		triggerFoodLevels.push_back(tempValue);
+	}
+
+	//get the rules (these may have ','s in them and '[]'s ... am I mad?!
+	auto tempString = triggerFoodEventsPL->get(PT);
+	if (tempString[0] == '[') {
+		tempString = tempString.substr(1, tempString.size() - 2);  // strip off leading and trailing square brackets
+	}
+
+	bool inElement = false;
+	if (tempString.size() > 0) {
+		triggerFoodEvents.push_back("");
+	}
+	for (auto c : tempString) {
+		if (c == ',' && !inElement) {
+			triggerFoodEvents.push_back("");
+		}
+		else {
+			if (c == '[') {
+				inElement = true;
+			}
+			if (c == ']') {
+				inElement = false;
+			}
+			triggerFoodEvents.back().push_back(c);
+		}
+	} // end get trigger rules
+	// backup triggers from config files. if using random maps we won't need these, but if useing file maps, these will allow resets
+	configTriggerFoods = triggerFoods;
+	configTriggerFoodLevels = triggerFoodLevels;
+	configTriggerFoodEvents = triggerFoodEvents;
 
 	if (cloneScoreRulePL->get(PT) == "ALL") {
 		cloneScoreRule = 0;
@@ -437,6 +582,24 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
 		cout << "    cloneScoreRule \"" << cloneScoreRulePL->get(PT) << "\" is not a valid rule - must be ALL, BEST or WORST.\n    exiting." << endl;
 		exit(1);
 	}
+
+	if (groupScoreRulePL->get(PT) == "SOLO") {
+		groupScoreRule = -1;
+	}
+	else if (groupScoreRulePL->get(PT) == "ALL") {
+		groupScoreRule = 0;
+	}
+	else  if (groupScoreRulePL->get(PT) == "BEST") {
+		groupScoreRule = 1;
+	}
+	else  if (groupScoreRulePL->get(PT) == "WORST") {
+		groupScoreRule = 2;
+	}
+	else {
+		cout << "    groupScoreRule \"" << groupScoreRulePL->get(PT) << "\" is not a valid rule - must be SOLO, ALL, BEST or WORST.\n    exiting." << endl;
+		exit(1);
+	}
+
 	////////////////////////////////////////////////////////
 	// setup food and poison ///////////////////////////////
 	////////////////////////////////////////////////////////
@@ -645,6 +808,7 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
 	if (mapFiles.size() == 0) {
 		mapFiles.push_back("NONE");
 	}
+	
 	if (mapFiles[0] != "NONE") {
 		cout << "Berry World loading maps..." << endl;
 		for (auto mapFile : mapFiles) {
@@ -657,41 +821,60 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
 			while (!FILE.eof()) {
 				WorldMap newMap;
 				goodRead = newMap.loadMap(FILE, mapFile);
-				if (goodRead) {
+				if (goodRead && newMap.name != "XXXXXXXXXXXXXXXXXXXX") {
 					// set up valid locations
-					for (int x = 0; x < newMap.worldX; x++) { // for every location in the map (excluding the edge)
-						for (int y = 0; y < newMap.worldY; y++) {
-							Point2d loc(x, y);
-							int valueHere;
-							if (newMap.useStartMap) {
-								valueHere = newMap.startData(loc) > 0 ? alwaysStartOn : WALL;
-							}
-							else {
-								valueHere = (int)newMap.data(loc);
-							}
-							if ((alwaysStartOn == -1 && valueHere < WALL) || valueHere == alwaysStartOn) {
-								newMap.startLocations.push_back(loc); // if random start locations (-1) or food at this space matches alwaysStartOn, add to validSpaces
-								newMap.startFacing.push_back((int)newMap.startData(loc));
-							}
-							if (valueHere > foodTypes && valueHere != 9 && valueHere != -1) {
-								cout << "  file map " << newMap.name << " from file: " << mapFile << " contains foodype not currently in use.\nexiting." << endl;
-								exit(1);
+					if (newMap.useStartMap || validStartConfigurations[0] == -1 || alwaysStartOn != -1) {
+						//this map is providing starts or there are no validStartConfigurations (i.e. we need to make them up) or there is an always start on defined
+						for (int x = 0; x < newMap.worldX; x++) { // for every location in the map
+							for (int y = 0; y < newMap.worldY; y++) {
+								Point2d loc(x, y);
+								int valueHere;
+								if (newMap.useStartMap) { // if a start map was provied with this map
+									valueHere = newMap.startData(loc) > 0 ? alwaysStartOn : WALL; // if value in start is > then make value here the always start on value,
+																								  // or (if this is not a start on location) make value here a wall
+																								  //(to block this as a start location) 
+								}
+								else {
+									valueHere = (int)newMap.data(loc);
+								}
+								if ((alwaysStartOn == -1 && valueHere < WALL) || valueHere == alwaysStartOn) { // if start anywhere and here is not a wall or here is a valid start location
+									newMap.startLocations.push_back(loc); // if random start locations (-1) or food at this space matches alwaysStartOn, add to validSpaces
+									if (newMap.useStartMap) {
+										newMap.startFacing.push_back((int)newMap.startData(loc)); // if using start map, get location from start map
+									}
+									else {
+										newMap.startFacing.push_back(1); // otherwise put a 1 in the list (random direction will be generated when harverster is placed)
+									}
+								}
+								if ((int)newMap.data(loc) > foodTypes && valueHere != 9 && valueHere != -1) {
+									cout << "  map " << newMap.name << " from file: " << mapFile << " contains foodype not currently in use.\nexiting." << endl;
+									exit(1);
+								}
 							}
 						}
+					} // end set up valid starts when not using validStartConfigurations
+					else { // this map is not providing starts and there are validStartConfigurations
+						for (int i = 0; i < validStartConfigurations.size(); i += 3) {
+							newMap.startLocations.push_back(Point2d(validStartConfigurations[i], validStartConfigurations[i + 1]));
+							newMap.startFacing.push_back(validStartConfigurations[i + 2]);
+						}
 					}
-
 					worldMaps[mapFile][newMap.name] = newMap;
 					mapNames[mapFile].push_back(newMap.name);
 					cout << "    loaded map: " << newMap.name << " from file: " << mapFile << endl;
 				}
 				else {
-					cout << "  While loading map " << newMap.name << " from file: " << mapFile << ", a problem was encountered.\nexiting" << endl;
-					exit(1);
+					if (newMap.name != "XXXXXXXXXXXXXXXXXXXX") {
+						cout << "  While loading map " << newMap.name << " from file: " << mapFile << ", a problem was encountered.\nexiting" << endl;
+						exit(1);
+					}
 				}
 			}
 			FILE.close();
 		}
 	}
+
+
 
 	/////////////////////////////////////////////////////////////////////////////////////
 	//  get map usage //////////////////////////////////////////////////////////////////
@@ -714,16 +897,100 @@ BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
 		cout << "In BerryWorld you either have too few or too many foodTypes (must be >0 and <=8)\n\nExiting\n\n";
 		exit(1);
 	}
-	if (alwaysEatPL->get(PT)) {
-		requiredOutputs = 2; // number of outputs brain must provide, 2 for move
+
+
+	// if only turn or only sidestep then 2 moveOutputs are needed
+	// if turn and sidestep or any combo with move back then 3 moveOutputs are needed
+	// actions are maped to outputs with actionLookup:
+	//  0 = no action
+	//  1 = move forward
+	//  2 = move back
+	//  3 = turn left
+	//  4 = turn right
+	//  5 = step left
+	//  6 = step right
+	// if !alwaysEat then requiredOutputs + 1 (if this output is on harvester will try to eat)
+
+	if (allowTurn && !allowSidestep && !allowBackstep) {
+		requiredOutputs = 2; // 01:turnleft,10:turnright,11:forward
+		moveOutputs = 2;
+		actionLookup[0] = 0;
+		actionLookup[1] = 3; // 01 turn right
+		actionLookup[2] = 4; // 10 turn left
+		actionLookup[3] = 1; // 11 move forward
+	}
+	else if (!allowTurn && allowSidestep && !allowBackstep) {
+		requiredOutputs = 2; // 01:stepleft,10:stepright,11:forward
+		moveOutputs = 2;
+		actionLookup[0] = 0;
+		actionLookup[1] = 5; // 01 step right
+		actionLookup[2] = 6; // 10 step left
+		actionLookup[3] = 1; // 11 move forward
+	}
+	else if (allowTurn && allowSidestep && !allowBackstep) {
+		requiredOutputs = 3;
+		moveOutputs = 3;
+		actionLookup[0] = 0;
+		actionLookup[1] = 3; // 001 turn right
+		actionLookup[2] = 4; // 010 turn left
+		actionLookup[3] = 1; // 011 move forward
+		actionLookup[4] = 0;
+		actionLookup[5] = 5; // 101 step right
+		actionLookup[6] = 6; // 110 step left
+		actionLookup[7] = 0;
+	}
+	else if (allowTurn && !allowSidestep && allowBackstep) {
+		requiredOutputs = 3;
+		moveOutputs = 3;
+		actionLookup[0] = 0;
+		actionLookup[1] = 3; // 001 turn right
+		actionLookup[2] = 4; // 010 turn left
+		actionLookup[3] = 1; // 011 move forward
+		actionLookup[4] = 0;
+		actionLookup[5] = 0;
+		actionLookup[6] = 0;
+		actionLookup[7] = 2; // 111 move back
+	}
+	else if (!allowTurn && allowSidestep && allowBackstep) {
+		requiredOutputs = 3;
+		moveOutputs = 3;
+		actionLookup[0] = 0;
+		actionLookup[1] = 5; // 001 step right
+		actionLookup[2] = 6; // 010 step left
+		actionLookup[3] = 1; // 011 move forward
+		actionLookup[4] = 0;
+		actionLookup[5] = 0;
+		actionLookup[6] = 0;
+		actionLookup[7] = 2; // 111 move back
+	}
+	else if (allowTurn && allowSidestep && allowBackstep) {
+		requiredOutputs = 3;
+		moveOutputs = 3;
+		actionLookup[0] = 0;
+		actionLookup[1] = 2; // 001 turn right
+		actionLookup[2] = 3; // 010 turn left
+		actionLookup[3] = 1; // 011 move forward
+		actionLookup[4] = 0;
+		actionLookup[5] = 5; // 101 step right
+		actionLookup[6] = 6; // 110 step left
+		actionLookup[7] = 2; // 111 move back 
 	}
 	else {
-		requiredOutputs = 3;  // number of outputs brain must provide, 2 for move, 1 for eat
+		cout << "both allowTurn and allowSidestep are false, atleast one must be true. Exiting" << endl;
+		exit(1);
 	}
 
-	requiredInputs = visionSensorCount * ( (foodTypes * seeFoodPL->get(PT) ) + seeOtherPL->get(PT) + seeWallsPL->get(PT));
-	requiredInputs += smellSensorCount * ( (foodTypes * smellFoodPL->get(PT) ) + smellOtherPL->get(PT) + smellWallsPL->get(PT));
-	requiredInputs += perfectSensorCount * ((foodTypes * perfectDetectsFoodPL->get(PT)) + perfectDetectsOtherPL->get(PT) + perfectDetectsWallsPL->get(PT));
+
+	foodCounts.resize(10, 0); // this will hold counts on map
+
+
+	if (!alwaysEat) {
+		requiredOutputs += 1; // brain needs extra output for eat
+	}
+
+	requiredInputs = visionSensorCount * ( (foodTypes * seeFood ) + seeOther + seeWalls);
+	requiredInputs += smellSensorCount * ( (foodTypes * smellFood ) + smellOther + smellWalls);
+	requiredInputs += perfectSensorCount * ((foodTypes * perfectDetectsFood) + perfectDetectsOther + perfectDetectsWalls);
 	requiredInputs += useDownSensorPL->get(PT) * foodTypes; // down sensor (just food)
 	cout << "  HarvestWorld (with current settings) requires organisms with a brain (" << brainNameSpacePL->get(PT) << ") with " << requiredInputs << " inputs and " << requiredOutputs << " outputs.\n";
 	/////////////////////////////////////////////////////////////////////////////////////
@@ -748,6 +1015,9 @@ void BerryWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyse, i
 	// call runWorld evaluations per generation times
 	for (int i = 0; i < evaluationsPerGenerationPL->get(PT); i++) {
 		runWorld(groups, analyse, visualize, debug);
+	}
+	if (visualize) {  // save state of world before we get started.
+		FileManager::writeToFile("HarvestWorldData.txt", "EOF");
 	}
 }
 
@@ -780,6 +1050,20 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 		else {// tempPopulation.size() is < evalGroupSize, some orgs need to be evaluateded twice (i.e. be in more then one eval group)
 			thisGroup = tempPopulation; // place the rest of the orgs in temp population into thisGroup
 			tempPopulation = groups[groupNameSpacePL->get(PT)]->population; // refresh tempPopulation
+
+			for (auto o : thisGroup) {
+				bool foundCopy = false;
+				int oo = 0;
+				while (!foundCopy) {
+					if (o->ID == tempPopulation[oo]->ID) {
+						tempPopulation[oo] = tempPopulation.back();
+						tempPopulation.pop_back();
+						foundCopy = true;
+					}
+					oo++;
+				}
+			}
+
 			// fill in any remaining spaces randomly...
 			for (int o = thisGroup.size(); o < groupSize; o++) { // fill in the rest of thisGroup
 				auto pick = Random::getIndex(tempPopulation.size()); // get a random index
@@ -805,7 +1089,6 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 	// localize some values. This makes using these values easier.
 	auto evalTime = evalTimePL->get(PT);
 	auto alwaysStartOn = alwaysStartOnPL->get(PT);
-
 
 	Vector2d<int> foodMap; // what food is here?
 
@@ -895,12 +1178,26 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 			startFacing = worldMaps[whichMapsActual[whichMapIndex]][whichMapsActual[whichMapIndex + 1]].startFacing;
 			generators = worldMaps[whichMapsActual[whichMapIndex]][whichMapsActual[whichMapIndex + 1]].generators;
 			savedGenerators = generators;
+
+			// combine trigger info from comfig file with map trigger info
+			triggerFoods = configTriggerFoods;
+			triggerFoodLevels = configTriggerFoodLevels;
+			triggerFoodEvents = configTriggerFoodEvents;
+			for (auto triggerFood : worldMaps[whichMapsActual[whichMapIndex]][whichMapsActual[whichMapIndex + 1]].triggerFoods) {
+				triggerFoods.push_back(triggerFood);
+			}
+			for (auto triggerFoodLevel : worldMaps[whichMapsActual[whichMapIndex]][whichMapsActual[whichMapIndex + 1]].triggerFoodLevels) {
+				triggerFoodLevels.push_back(triggerFoodLevel);
+			}
+			for (auto triggerFoodEvent : worldMaps[whichMapsActual[whichMapIndex]][whichMapsActual[whichMapIndex + 1]].triggerFoodEvents) {
+				triggerFoodEvents.push_back(triggerFoodEvent);
+			}
 		}
 		else { // no whichMaps were provided... generate an uninitalize map.
 			foodMap.reset(worldX, worldY);
 			for (int x = 0; x < worldX; x++) {
 				for (int y = 0; y < worldY; y++) {
-					if (worldHasWallPL->get(PT) && (x == 0 || y == 0 || x == worldX - 1 || y == worldY - 1)) {
+					if (worldHasWall && (x == 0 || y == 0 || x == worldX - 1 || y == worldY - 1)) {
 						foodMap(x, y) = WALL; // if this location is on the edge, make it a wall
 					}
 					else {
@@ -912,12 +1209,28 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					}
 				}
 			}
-			for (int x = 0; x < worldX; x++) { // for every location in the map
-				for (int y = 0; y < worldY; y++) {
-					Point2d loc(x, y);
-					if ((alwaysStartOn == -1 && (int)foodMap(loc) < WALL) || (int)foodMap(loc) == alwaysStartOn) {
-						validSpaces.push_back(loc); // if random start locations (-1) or food at this space matches alwaysStartOn, add to validSpaces
-						startFacing.push_back(1); // if random start locations (-1) or food at this space matches alwaysStartOn, add 1 (start random facing) to startFacing vector
+			if (validStartConfigurations[0]!=-1 && alwaysStartOn == -1) { // if there is are start values and no start on value
+				for (int i = 0; i < validStartConfigurations.size(); i += 3) {
+					cout << "i:" << i << endl;
+					validSpaces.push_back(Point2d(validStartConfigurations[i], validStartConfigurations[i + 1]));
+					if (validStartConfigurations[i + 2] == -1) { // if random facing for this start configuration
+						startFacing.push_back(1);
+					}
+					else {
+						startFacing.push_back(validStartConfigurations[i + 2]+2);
+					}
+				}
+				cout << validSpaces.size();
+				cout << startFacing.size();
+			}
+			else {
+				for (int x = 0; x < worldX; x++) { // for every location in the map
+					for (int y = 0; y < worldY; y++) {
+						Point2d loc(x, y);
+						if ((alwaysStartOn == -1 && (int)foodMap(loc) < WALL) || (int)foodMap(loc) == alwaysStartOn) {
+							validSpaces.push_back(loc); // if random start locations (-1) or food at this space matches alwaysStartOn, add to validSpaces
+							startFacing.push_back(1); // if random start locations (-1) or food at this space matches alwaysStartOn, add 1 (start random facing) to startFacing vector
+						}
 					}
 				}
 			}
@@ -931,6 +1244,19 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 		Vector2d<int> foodLastMap = foodMap; // what food what here before?
 		auto foodMapCopy = foodMap;
 
+
+		// count food on this map
+		foodCounts.assign(10, 0);
+		for (int x = 0; x < worldX; x++) { // for every location in the map
+			for (int y = 0; y < worldY; y++) {
+				Point2d loc(x, y);
+				foodCounts[foodMap(loc)]++;
+			}
+		}
+		auto foodCountsCopy = foodCounts; // backup, used when map is reset
+		auto foodCountsPrior = foodCounts; // this will be one update behind actual and will be used to test if value passed trigger
+
+
 		// make sure there are enough valid starting locations
 		int clones = clonesPL->get(PT);;
 
@@ -942,10 +1268,16 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 		int moveOutput, eatOutput;
 		string visualizeData;
 		// now evaluate each evalGroup
+		
+		int evalGroupCount = 0; // used if saving a group report
+		int saveCount = 0; // used if saving a group report
+
 		for (auto evalGroup : evalGroups) {
 
 			foodMap = foodMapCopy;
 			foodLastMap = foodMapCopy;
+			foodCounts = foodCountsCopy;
+			foodCountsPrior = foodCountsCopy;
 
 			vector<shared_ptr<Harvester>> harvesters;
 			auto tempValidSpaces = validSpaces; // make tempValidSpaces so we can pull elements from it to select unque locations.
@@ -992,6 +1324,7 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					auto newHarvester = make_shared<Harvester>(); // make a new container
 					newHarvester->ID = IDCount++;
 					newHarvester->cloneID = harvesters[i]->ID;
+					newHarvester->isClone = true;
 					newHarvester->org = harvesters[i]->org; // provide access to org though harvester
 					newHarvester->brain = harvesters[i]->brain->makeCopy();
 					// set inital location
@@ -1071,7 +1404,9 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 						Point2d genLoc = generators[genIndex].getLocation();
 						auto replacement = generators[genIndex].getNextResource(foodMap((int)genLoc.x, (int)genLoc.y));
 						if (replacement >= 0) {
+							foodCounts[foodMap(genLoc)]--;
 							foodMap(genLoc) = replacement;
+							foodCounts[foodMap(genLoc)]++;
 							if (visualize) {
 								visualizeData += "I," + to_string((int)genLoc.x) + "," + to_string((int)genLoc.y) + "," + to_string(replacement) + "\n";
 							}
@@ -1095,11 +1430,12 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					shared_ptr<AbstractBrain> brain;
 					brain = harvester->brain;
 
-					int localTime = 0; // localTime is used to make turns cheaper. If all actions cost 1 world update then turns are discuraged.
+					double localTime = 0; // localTime is used to make turns cheaper. If all actions cost 1 world update then turns are discuraged.
 									   // in each world update organisms have some number of localTime updates... turns cost one localUpdate, but move costs more.
 									   // the number of localTime actions avalible is set by the maxTurn parameter
-					while (localTime < (int)((double)rotationResolution /(1.0 /  (double)maxTurn))) {
-						/////////////////
+					double turnCost = 1.0 / (rotationResolution * maxTurn);
+					while (localTime < 1.0) {
+								/////////////////
 						// set the inputs
 						/////////////////
 						int inputCounter = 0;  // This counter is used while setting brain inputs
@@ -1120,19 +1456,19 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 							else {
 								visionSensor.senseTotals(foodMap, locX, locY, sensorFacing, sensorValues, -1, true); // load what sensor sees into sensorValues
 							}
-							if (seeFoodPL->get(PT)) {
+							if (seeFood) {
 								for (int food = 1; food <= foodTypes; food++) {
 									brain->setInput(inputCounter++, sensorValues[food] + sensorValues[food + 10]);
 								}
 							}
-							if (seeOtherPL->get(PT)) {
+							if (seeOther) {
 								int others = 0;
 								for (int val = 10; val < 19; val++) {
 									others += sensorValues[val];
 								}
 								brain->setInput(inputCounter++, others); // set occupied
 							}
-							if (seeWallsPL->get(PT)) {
+							if (seeWalls) {
 								brain->setInput(inputCounter++, sensorValues[WALL]); // set wall
 							}
 						}
@@ -1145,19 +1481,19 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 							else {
 								smellSensor.senseTotals(foodMap, locX, locY, sensorFacing, sensorValues, -1, true); // load what sensor sees into sensorValues
 							}
-							if (smellFoodPL->get(PT)) {
+							if (smellFood) {
 								for (int food = 1; food <= foodTypes; food++) {
 									brain->setInput(inputCounter++, sensorValues[food] + sensorValues[food + 10]);
 								}
 							}
-							if (smellOtherPL->get(PT)) {
+							if (smellOther) {
 								int others = 0;
 								for (int val = 10; val < 19; val++) {
 									others += sensorValues[val];
 								}
 								brain->setInput(inputCounter++, others); // set occupied
 							}
-							if (smellWallsPL->get(PT)) {
+							if (smellWalls) {
 								brain->setInput(inputCounter++, sensorValues[WALL]); // set wall
 							}
 
@@ -1181,32 +1517,32 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 						*/
 
 						// set inputs for perfect Sensor
-						if (usePerfectSensorPL->get(PT)) {
+						if (usePerfectSensor) {
 							for (auto line : perfectSensorSites[harvester->face]) { // for all the lines (senson inputs) in the perfect sensor for the current dirrection
 								fill(sensorValues.begin(), sensorValues.end(), 0);
 								for (auto p : line) { // for each location in the current line (sensor input) get the information at that location
 									sensorValues[foodMap(loopMod(locX + p.x, worldX), loopMod(locY + p.y, worldY))]++;
 								}
-								if (perfectDetectsFoodPL->get(PT)) { // for each type of food, set a brain input
+								if (perfectDetectsFood) { // for each type of food, set a brain input
 									for (int food = 1; food <= foodTypes; food++) {
 										brain->setInput(inputCounter++, sensorValues[food] + sensorValues[food + 10]);
 									}
 								}
-								if (perfectDetectsOtherPL->get(PT)) {
+								if (perfectDetectsOther) {
 									int others = 0;
 									for (int val = 10; val < 19; val++) {
 										others += sensorValues[val];
 									}
 									brain->setInput(inputCounter++, others); // set occupied
 								}
-								if (perfectDetectsWallsPL->get(PT)) {
+								if (perfectDetectsWalls) {
 									brain->setInput(inputCounter++, sensorValues[WALL]); // set wall
 								}
 							}
 						}
 
 						// set inputs for down sensor
-						if (useDownSensorPL->get(PT)) {
+						if (useDownSensor) {
 							for (int food = 1; food <= foodTypes; food++) {
 								brain->setInput(inputCounter++, foodMap(harvester->loc) == (food + 10));
 							}
@@ -1226,7 +1562,10 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 							}
 							cout << endl << endl;
 							foodMap.showGrid();
-
+							cout << endl << endl;
+							for (int i = 0; i < 10; i++) {
+								cout << "foodCount " <<i << " : " << foodCounts[i] << endl;
+							}
 							cout << "\n\n  -- brain update --\n\n";
 						}
 
@@ -1236,63 +1575,89 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 
 						brain->update();
 
-						/////////////////
-						// read the outputs
-						/////////////////
-						// moveOutput has info about the first 2 output bits these [00 = 0 = no action, 10 = 2 = left, 01 = 1 = right, 11 = 3 = move]
-						moveOutput = Bit(brain->readOutput(1)) + (Bit(brain->readOutput(0)) * 2);
-						// eatOutput has info about the 3rd output bit (if !alwaysEat), which either does nothing, or causes an eat.
+						/////////////////////
+						// read brain outputs
+						/////////////////////
+
+						// moveOutput has info about the first 2 or 3 output bits and uses actionLookup to map output to action
+						// actions are maped to outputs with actionLookup:
+						//  0 = no action
+						//  1 = move forward
+						//  2 = move back
+						//  3 = turn left
+						//  4 = turn right
+						//  5 = step left
+						//  6 = step right
+
+						// first get brain values for movement (either 2 or 3 bits) and generate a number in moveOutput (either from 0 to 3 or 0 to 7)
+						int outputCounter = 0;
+						moveOutput = 0;
+						for (int i = 0; i < moveOutputs; i++) {
+							moveOutput = Bit(brain->readOutput(outputCounter++)) + (2 * moveOutput); // read each bit and add to the (previous values * 2)
+						}
 						if (alwaysEat) {
 							eatOutput = 1;
 						}
-						else {
-							eatOutput = Bit(brain->readOutput(2));
+						else { // read addtional output for eat action
+							eatOutput = Bit(brain->readOutput(outputCounter++));
 						}
+
+						// convert move output to an action
+						moveOutput = actionLookup[moveOutput];
 
 						////////////////////////
 						// update world --- food
 						////////////////////////
 
 						if (eatOutput) { // attempt to eat what's here
-							localTime += rotationResolution;
-							auto currentLoc = harvester->loc;
-							Point2d currentSpace((int)currentLoc.x, (int)currentLoc.y);
-							for (int f = 1; f <= foodTypes; f++) {
-								if (foodMap(currentSpace) - 10 == f) { // there is a food here (subtract 10 because harvester is here)
+							localTime += 1; // this action will used up all the time left for this agents world update
+							Point2d currentSpace((int)harvester->loc.x, (int)harvester->loc.y);
+							//for (int f = 1; f <= foodTypes; f++) {
+								if (foodMap(currentSpace) - 10 > 0 ) { // there is a food here (subtract 10 because harvester is here)
+									auto f = foodMap(currentSpace) - 10;
 									if (harvester->lastFoodCollected != f && harvester->lastFoodCollected != 0) { // if last food was 0, this is the first food collected, so no switch
 										harvester->switches++;
 									}
 									harvester->lastFoodCollected = f;
 									harvester->foodCollected[f]++;
+									foodCounts[f]--;
+									foodCounts[0]++;
 									foodMap(currentSpace) = 10; // set map to occupied with no food
 									if (visualize) {
 										visualizeData += "E," + to_string((int)currentSpace.x) + "," + to_string((int)currentSpace.y) + "\n";
 									}
 
 								}
-							}
+							//}
 						}
-
+						
+						/////////////////////////////
+						// update world --- no action
+						/////////////////////////////
+						if (moveOutput == 0) {
+							localTime += 1;
+						}
 						///////////////////////////
 						// update world --- turning
 						///////////////////////////
 
-						// see if harvester is turning
+						double moveDistance = 0;
+
+						// is the harvester turning
 						if (!eatOutput || alwaysEat) { // if harvester did not eat or alwaysEat is set, then harvester may move
-							if (moveOutput == 0) { // do nothing
-								localTime += rotationResolution;;
-							}
-							if (moveOutput == 1) { // turn right
-								localTime++;
+							if (moveOutput == 3) { // turn right
+								localTime += turnCost;
 								harvester->face = loopMod(harvester->face + 1, rotationResolution);
+								moveDistance = moveMinPerTurn;
 								//cout << "turned ID:" << harvester->org->ID << " @ " << harvester->loc.x << "," << harvester->loc.y << "  " << harvester->face << endl;
 								if (visualize) {
 									visualizeData += "TR," + to_string(harvester->ID) + "," + to_string(harvester->face) + "\n";
 								}
 							}
-							if (moveOutput == 2) { // turn left
-								localTime++;
+							if (moveOutput == 4) { // turn left
+								localTime += turnCost;
 								harvester->face = loopMod(harvester->face - 1, rotationResolution);
+								moveDistance = moveMinPerTurn;
 								//cout << "turned ID:" << harvester->org->ID << " @ " << harvester->loc.x << "," << harvester->loc.y << "  " << harvester->face << endl;
 								if (visualize) {
 									visualizeData += "TL," + to_string(harvester->ID) + "," + to_string(harvester->face) + "\n";
@@ -1304,14 +1669,36 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 						// update world --- moving
 						///////////////////////////
 						// see if harvester is moving
-						double moveDistance = (moveOutput == 3) ? moveDefault : moveMin;
-						if ((!eatOutput || alwaysEat) && moveDistance > 0) {
-							if (moveOutput == 3) {
-								localTime += rotationResolution; // we are done with this localTime!
-							}
+
+						int moveOffset = 0; // where (0 = forward), (rotationResolution/2 = backward), (rotationResolution/4 = right) and (right * -1 = left)
+
+						if (moveOutput != 1 && moveOutput != 2 && moveOutput != 5 && moveOutput != 6 && localTime >= 1) {
+							moveDistance = moveMin; // if always move and localtime is expired, and this action is not a move (forward, back, or sidestep) we will move moveMin forwad
+						}
+						else if (moveOutput == 1) { // move forward
+							localTime += 1;
+							moveDistance = moveDefault;
+						}
+						else if (moveOutput == 2) { // move back
+							localTime += 1;
+							moveDistance = -1 * moveDefault;
+						}
+						else if (moveOutput == 5) { // step right
+							localTime += 1;
+							moveDistance = moveDefault;
+							moveOffset = rotationResolution / 4;
+						}
+						else if (moveOutput == 6) { // step left
+							localTime += 1;
+							moveDistance = moveDefault;
+							moveOffset = -1 * (rotationResolution / 4);
+						}
+							
+							
+						if ((!eatOutput || alwaysEat) && moveDistance != 0.0) { // if either no eat happend, or always eat is on AND there is some movement
 							auto currentLoc = harvester->loc; // where are we now?
 							Point2d currentSpace((int)currentLoc.x, (int)currentLoc.y); // which grid space is this?
-							auto targetLoc = moveOnGrid(harvester, moveDistance); // where are we going (if we move)?
+							auto targetLoc = moveOnGrid(harvester, moveDistance, moveOffset); // where are we going (if we move)?
 							Point2d targetSpace((int)targetLoc.x, (int)targetLoc.y); // which space will we move into (if we move?)
 							if (currentSpace == targetSpace) { // if this mode does not change space, then just make the move
 								if (snapToGrid) {
@@ -1332,6 +1719,8 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 										auto newFood = replaceRules[foodLastMap(currentSpace)][newFoodPick] == -1 ? Random::getInt(1,foodTypes): replaceRules[foodLastMap(currentSpace)][newFoodPick];
 										foodMap(currentSpace) = newFood;
 										foodLastMap(currentSpace) = newFood;
+										foodCounts[0]--;
+										foodCounts[newFood]++;
 										if (visualize) {
 											visualizeData += "R," + to_string((int)currentSpace.x) + "," + to_string((int)currentSpace.y) + "," + to_string(newFood) + "\n";
 										}
@@ -1370,9 +1759,204 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					} // end localTime while loop
 				} // end evaluate this harvester
 				  // save map to visualize file
-				if (visualize) {  // save state of world before we get started.
+				if (visualize) {  // save state of world on this update.
 					FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
 				}
+
+				// Determine if a food related event occured
+				// events -- event[+event+event] (i.e. spit on +)
+				// events are defined here, and executed in order
+				// T*[num] = all harvesters score += (world updates remaining * num)
+				// S[num] = all harvesters score += (num) 
+				// R[a,b,...] = in map, replace all a with b (i.e. replace all 2 with 1 to reset map)
+				// G[x,y,f,...] = in map, generate f at x,y; if any value == -1 then use random in world range or food range
+				// M = reset map
+				// Q = set t = worldUpdates
+
+				// see if a foodEvent occurs
+				for (int i = 0; i < (int)triggerFoods.size(); i++) { // for each trigger, see if all conditions are met
+					
+					bool eventTriggerPrimed = false; // did atlease one trigger food for this trigger pass the limit?
+					bool eventCondtionsMet = true; // are all thef trigger foods for this trigger at or below level?
+					// both must be true (all foods <= level and at least one crossed this update) to trigger event
+					for (auto tf : triggerFoods[i]) {
+						if (foodCounts[tf] > triggerFoodLevels[i]) { // if this trigger passed level this turn
+							eventCondtionsMet = false; // atleast one food is greater then level needed to trigger
+						}
+						if (foodCounts[tf] <= triggerFoodLevels[i] && foodCountsPrior[tf] > triggerFoodLevels[i]) { // if this trigger passed level this turn
+							eventTriggerPrimed = true; // atleast one food trigger this update
+						}
+					}
+					if (eventCondtionsMet&&eventTriggerPrimed) {
+						// did this food pass the trigger level for triggerFoods[i] last update or during a generation event this update?
+
+						// update world/haresters based on rules(s)
+						vector<string> rules;
+						double value;
+						convertCSVListToVector(triggerFoodEvents[i], rules, '+');
+						for (auto rule : rules) {
+							if (rule[0] == 'T') { // score based on remaining time
+								load_value(rule.substr(2, rule.size() - 2), value);
+								value *= (evalTime - t);
+								for (auto harvester : harvesters) {
+									harvester->score += value;
+								}
+							} // end time remaining based score rule
+							else if (rule[0] == 'S') { // add value to score
+								load_value(rule.substr(1, rule.size() - 1), value);
+								for (auto harvester : harvesters) {
+									harvester->score += value;
+								}
+							} // end simple score rule
+							else if (rule[0] == 'R') { // replace
+								vector<string> replacePairsStrings;
+								vector<int> replacePairs;
+								convertCSVListToVector(rule.substr(1, rule.size() - 1), replacePairsStrings);
+								for (auto e : replacePairsStrings) {
+									load_value(e, value);
+									replacePairs.push_back(value);
+								}
+								for (int x = 0; x < worldX; x++) { // for every location in the map
+									for (int y = 0; y < worldY; y++) {
+										Point2d loc(x, y);
+										for (int replaceIndex = 0; replaceIndex < (int)replacePairs.size(); replaceIndex += 2) {
+											if (foodMap(loc) == replacePairs[replaceIndex]) {
+												foodCounts[foodMap(loc)]--;
+												foodMap(loc) = replacePairs[replaceIndex + 1];
+												foodLastMap(loc) = foodMap(loc); // update last map so that food replacement will only happen on an eat (not just a visit and move away)
+
+												foodCounts[foodMap(loc)]++;
+												if (visualize) {
+													visualizeData = "R," + to_string((int)loc.x) + "," + to_string((int)loc.y) + "," + to_string(foodMap(loc)) + "\n";
+													FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+												}
+											}
+										}
+									}
+								}
+							} // end replace rule
+							else if (rule[0] == 'G') { // generate
+								vector<string> genStrings;
+								vector<int> genRules;
+								convertCSVListToVector(rule.substr(1, rule.size() - 1), genStrings);
+								for (auto e : genStrings) {
+									load_value(e, value);
+									genRules.push_back(value);
+								}
+								for (int genIndex = 0; genIndex < (int)genRules.size(); genIndex += 3) {
+									Point2d loc(genRules[genIndex], genRules[genIndex + 1]);
+									if (foodMap(loc) < 10) { // do not generate if location is occupied!
+										foodCounts[foodMap(loc)]--;
+										foodMap(loc) = genRules[genIndex + 2];
+										foodLastMap(loc) = foodMap(loc); // update last map so that food replacement will only happen on an eat (not just a visit and move away)
+										foodCounts[foodMap(loc)]++;
+										if (visualize) {
+											visualizeData = "R," + to_string((int)loc.x) + "," + to_string((int)loc.y) + "," + to_string(foodMap(loc)) + "\n";
+											FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+										}
+									}
+								}
+							} // end generate rule
+							else if (rule[0] == 'M') { // reset map
+								// first, if visualizing, send current world and harvester states to visualize file
+								if (visualize) {  // save state inital world and Harvester locations
+									visualizeData = "**TriggerWorld**\n";
+									visualizeData += to_string(rotationResolution) + "," + to_string(worldX) + "," + to_string(worldY) + "," + to_string(groupSize + (groupSize*clones)) + "\n";
+									// save the map
+									for (int y = 0; y < worldY; y++) {
+										for (int x = 0; x < worldX; x++) {
+											visualizeData += to_string(foodMap(x, y) % 10);
+											if (x % worldX == worldX - 1) {
+												visualizeData += "\n";
+											}
+											else {
+												visualizeData += ",";
+											}
+										}
+									}
+									visualizeData += "-\n**TriggerHarvesters**\n";
+									for (auto harvester : harvesters) {
+										visualizeData += to_string(harvester->ID) + "," + to_string(harvester->loc.x) + "," + to_string(harvester->loc.y) + "," + to_string(harvester->face) + "," + to_string(harvester->cloneID) + "\n";
+									}
+									visualizeData += "-";
+									FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+								}
+
+								// next reset map
+								foodMap = foodMapCopy;
+								foodLastMap = foodMapCopy;
+								foodCounts = foodCountsCopy;
+								foodCountsPrior = foodCountsCopy;
+
+								// now place harvesters
+								auto tempValidSpaces = validSpaces; // make tempValidSpaces so we can pull elements from it to select unque locations.
+								auto tempStartFacing = startFacing;
+
+								for (auto harvey : harvesters) {
+									// set new location
+									auto pick = Random::getIndex(tempValidSpaces.size()); // get a random index
+									harvey->loc = tempValidSpaces[pick]; // assign location
+									harvey->loc.x += .5; // place in center of location
+									harvey->loc.y += .5;
+									tempValidSpaces[pick] = tempValidSpaces.back(); // copy last location in tempValidSpaces to pick location
+									tempValidSpaces.pop_back(); // remove last location in tempValidSpaces
+
+
+									// set inital new direction
+									harvey->face = tempStartFacing[pick] == 1 ? Random::getIndex(rotationResolution) : (tempStartFacing[pick] - 2) * (double(rotationResolution) / 8.0); // if startFacing is 1 then pick random, 2 is up, 3 is up right, etc...
+									tempStartFacing[pick] = tempStartFacing.back();
+									tempStartFacing.pop_back();
+
+									// place harvester in world
+									foodMap(harvey->loc) += 10; // set this location to occupied in foodMap - locations in map are 0 if empty, 1->8 if food, 9 if wall, 10 if occupied with no food, 11->18 if occupied with food
+									if (debug) {
+										cout << "placed ID:" << harvey->org->ID << " @ " << harvey->loc.x << "," << harvey->loc.y << "  " << harvey->face << endl;
+									}
+
+								}
+								//reset generators
+								generators.clear();
+								for (auto g : savedGenerators) {
+									generators.push_back(g);
+								}
+								//reset generator events
+								generatorEvents.clear();
+								for (int i = 0; i < (int)generators.size(); i++) {
+									// for each generator, find out next time that generator will fire and add that to generatorEvents
+									// generatorEvents[time][generatorIndex]
+									generatorEvents[generators[i].nextEvent()].push_back(i);
+								}
+								// finally, if visualizing, send current world and harvester states (after rule(s) have been applied) to visualize file
+								if (visualize) {  // save state inital world and Harvester locations
+									visualizeData = "**TriggerWorld**\n";
+									visualizeData += to_string(rotationResolution) + "," + to_string(worldX) + "," + to_string(worldY) + "," + to_string(groupSize + (groupSize*clones)) + "\n";
+									// save the map
+									for (int y = 0; y < worldY; y++) {
+										for (int x = 0; x < worldX; x++) {
+											visualizeData += to_string(foodMap(x, y) % 10);
+											if (x % worldX == worldX - 1) {
+												visualizeData += "\n";
+											}
+											else {
+												visualizeData += ",";
+											}
+										}
+									}
+									visualizeData += "-\n**TriggerHarvesters**\n";
+									for (auto harvester : harvesters) {
+										visualizeData += to_string(harvester->ID) + "," + to_string(harvester->loc.x) + "," + to_string(harvester->loc.y) + "," + to_string(harvester->face) + "," + to_string(harvester->cloneID) + "\n";
+									}
+									visualizeData += "-";
+									FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+								}
+							}
+							else if (rule[0] == 'Q') { // quit now!
+								t = evalTime; // finish this evaluation!
+							}
+						}
+					}
+				}
+				foodCountsPrior = foodCounts; // update prior to be current
 
 			} // end this evalGroup
 
@@ -1384,72 +1968,189 @@ void BerryWorld::runWorld(map<string, shared_ptr<Group>>& groups, int analyse, i
 					harvester->maxFood = max(harvester->foodCollected[f], harvester->maxFood);
 					harvester->totalFood += harvester->foodCollected[f];
 					harvester->foodScore += foodRewards[f] * harvester->foodCollected[f];
-					if (poisonRules[f] != 0) {
-						harvester->org->dataMap.append("poison" + to_string(f), harvester->poisonTotals[f]);
+				}
+				for (int f = 0; f <= foodTypes; f++) {
+					if (poisonRules[f] != 0) { // for each food with a poison rule, add to poision cost
+						harvester->poisonCost+= harvester->poisonTotals[f] * poisonRules[f];
 					}
 				}
 
-				harvester->score = 
+				harvester->score += 
 					harvester->foodScore -
 					((harvester->switches * switchCostPL->get(PT)) + 
 					harvester->poisonCost +
 					(harvester->wallHits * hitWallCostPL->get()) +
 					(harvester->otherHits * hitOtherCostPL->get()));
 			}
-			 // for each organisms, figure out which clone (or clones to save)
-			vector<shared_ptr<Harvester>> saveHarvesters; // this will be a list of harvesters which we save data for
 
-			if (cloneScoreRule == 0) {
-				saveHarvesters = harvesters;
-			}
-			else if (cloneScoreRule == 1) {
-				for (int i = 0; i < groupSize; i++){ // for each primary clone
-					int bestIndex = i;
-					for (auto clone : harvesters[i]->clones) {
-						if (clone->score > harvesters[bestIndex]->score) {
-							bestIndex = clone->ID;
+			// if visualizing and there are groups, save a group report
+			if (visualize && (groupSize != 1 || clones!= 0)) {
+				cout << "creating HarvestWorldGroupReport.csv" << endl;
+				DataMap tempDM;
+
+				for (auto harvester : harvesters) {
+					for (int f = 1; f <= foodTypes; f++) {
+						tempDM.set("food" + to_string(f), harvester->foodCollected[f]);
+						tempDM.setOutputBehavior("food" + to_string(f), DataMap::FIRST);
+					}
+					for (int f = 0; f <= foodTypes; f++) {
+						if (poisonRules[f] != 0) {
+							tempDM.set("poison" + to_string(f), harvester->poisonTotals[f]);
+							tempDM.setOutputBehavior("poison" + to_string(f), DataMap::FIRST);
 						}
 					}
-					saveHarvesters.push_back(harvesters[bestIndex]);
+					tempDM.set("switches", harvester->switches);
+					tempDM.setOutputBehavior("switches", DataMap::FIRST);
+					tempDM.set("consumptionRatio", harvester->maxFood / (harvester->totalFood - harvester->maxFood + 1));
+					tempDM.setOutputBehavior("consumptionRatio", DataMap::FIRST);
+					tempDM.set("wallHits", harvester->wallHits);
+					tempDM.setOutputBehavior("wallHits", DataMap::FIRST);
+					tempDM.set("otherHits", harvester->otherHits);
+					tempDM.setOutputBehavior("otherHits", DataMap::FIRST);
+					tempDM.set("score", harvester->score);
+					tempDM.setOutputBehavior("score", DataMap::FIRST);
+					tempDM.set("index", saveCount++);
+					tempDM.setOutputBehavior("index", DataMap::FIRST);
+					tempDM.set("orgID", harvester->org->ID);
+					tempDM.setOutputBehavior("orgID", DataMap::FIRST);
+					tempDM.set("groupID", harvester->ID);
+					tempDM.setOutputBehavior("groupID", DataMap::FIRST);
+					tempDM.set("whichGroup", evalGroupCount);
+					tempDM.setOutputBehavior("whichGroup", DataMap::FIRST);
+					tempDM.writeToFile("HarvestWorldGroupReport.csv");
 				}
+				evalGroupCount++;
 			}
-			else {
-				for (int i = 0; i < groupSize; i++) { // for each primary clone
-					int worstIndex = i;
-					for (auto clone : harvesters[i]->clones) {
-						if (clone->score < harvesters[worstIndex]->score) {
-							worstIndex = clone->ID;
+
+			if (groupScoreRule == -1) { // group score rule is SOLO, deal with clone score rule 
+			 // for each organisms, figure out which clone (or clones need to have their data saved)
+				vector<shared_ptr<Harvester>> saveHarvesters; // this will be a list of harvesters which we save data for
+
+				if (cloneScoreRule == 0) { // score ALL
+					saveHarvesters = harvesters;
+				}
+				else if (cloneScoreRule == 1) { // score BEST
+					for (int i = 0; i < groupSize; i++) { // for each parent harvester (groups are ordered parents first then clones)
+						int bestIndex = i; // set parent to best
+						for (auto clone : harvesters[i]->clones) { // for each of that parents clones
+							if (clone->score > harvesters[bestIndex]->score) {
+								bestIndex = clone->ID; // if the clone is better, set that id as best
+							}
+						}
+						saveHarvesters.push_back(harvesters[bestIndex]);
+					}
+				}
+				else { // score WORST
+					for (int i = 0; i < groupSize; i++) { // for each parent harvester (groups are ordered parents first then clones)
+						int worstIndex = i; // set parent to worst
+						for (auto clone : harvesters[i]->clones) { // for each of that parents clones
+							if (clone->score < harvesters[worstIndex]->score) {
+								worstIndex = clone->ID; // if the clone is worse, set that id as worst
+							}
+						}
+						saveHarvesters.push_back(harvesters[worstIndex]);
+					}
+				} // end select saveHarvesters
+
+				// now resolve group scoring
+				// score all saveHarvesters
+
+				// now save data to dataMaps for everytone in saveHarvesters
+				for (auto harvester : saveHarvesters) {
+					for (int f = 1; f <= foodTypes; f++) {
+						harvester->org->dataMap.append("food" + to_string(f), harvester->foodCollected[f]);
+					}
+					for (int f = 0; f <= foodTypes; f++) {
+						if (poisonRules[f] != 0) {
+							harvester->org->dataMap.append("poison" + to_string(f), harvester->poisonTotals[f]);
 						}
 					}
-					saveHarvesters.push_back(harvesters[worstIndex]);
+					harvester->org->dataMap.append("switches", harvester->switches);
+					harvester->org->dataMap.append("consumptionRatio", harvester->maxFood / (harvester->totalFood - harvester->maxFood + 1));
+					harvester->org->dataMap.append("wallHits", harvester->wallHits);
+					harvester->org->dataMap.append("otherHits", harvester->otherHits);
+					harvester->org->dataMap.append("score", harvester->score);
 				}
-			} // end select saveHarvesters
-
-			// now save data to dataMaps for everytone in saveHarvesters
-			for (auto harvester : saveHarvesters) {
-				for (int f = 1; f <= foodTypes; f++) {
-					harvester->org->dataMap.append("food" + to_string(f), harvester->foodCollected[f]);
-					if (poisonRules[f] != 0) {
-						harvester->org->dataMap.append("poison" + to_string(f), harvester->poisonTotals[f]);
+			} // end cloneScoreRules when groupScoreRule == SOLO
+			else { // groupScoreRule is not SOLO
+				if (groupScoreRule == 0){ // group score ALL
+					for (auto harvester : harvesters) { // for each harvester
+						if (!harvester->isClone) { // if not a clone assign scores from all harversters in this group
+							for (auto scoreHarvester : harvesters) { // append the score of every harvester (including clones)
+								for (int f = 1; f <= foodTypes; f++) {
+									harvester->org->dataMap.append("food" + to_string(f), scoreHarvester->foodCollected[f]);
+								}
+								for (int f = 0; f <= foodTypes; f++) {
+									if (poisonRules[f] != 0) {
+										harvester->org->dataMap.append("poison" + to_string(f), scoreHarvester->poisonTotals[f]);
+									}
+								}
+								harvester->org->dataMap.append("switches", scoreHarvester->switches);
+								harvester->org->dataMap.append("consumptionRatio", scoreHarvester->maxFood / (scoreHarvester->totalFood - scoreHarvester->maxFood + 1));
+								harvester->org->dataMap.append("wallHits", scoreHarvester->wallHits);
+								harvester->org->dataMap.append("otherHits", scoreHarvester->otherHits);
+								harvester->org->dataMap.append("score", scoreHarvester->score);
+							}
+						}
 					}
-				}
-				harvester->org->dataMap.append("switches", harvester->switches);
-				harvester->org->dataMap.append("consumptionRatio", harvester->maxFood / (harvester->totalFood - harvester->maxFood + 1));
-				harvester->org->dataMap.append("wallHits", harvester->wallHits);
-				harvester->org->dataMap.append("otherHits", harvester->otherHits);
-				harvester->org->dataMap.append("score", harvester->score);
-			}
-
+				} // end groupScoreRule ALL
+				else if (groupScoreRule == 1) { // score BEST
+					// find best (might be clone)
+					int bestIndex = 0;
+					for (auto harvester : harvesters) {
+						if (harvester->score > harvesters[bestIndex]->score) {
+							bestIndex = harvester->ID;
+						}
+					}
+					for (auto harvester : harvesters) {
+						if (!harvester->isClone) { // if not a clone assign values from best
+							for (int f = 1; f <= foodTypes; f++) {
+								harvester->org->dataMap.append("food" + to_string(f), harvesters[bestIndex]->foodCollected[f]);
+							}
+							for (int f = 0; f <= foodTypes; f++) {
+								if (poisonRules[f] != 0) {
+									harvester->org->dataMap.append("poison" + to_string(f), harvesters[bestIndex]->poisonTotals[f]);
+								}
+							}
+							harvester->org->dataMap.append("switches", harvesters[bestIndex]->switches);
+							harvester->org->dataMap.append("consumptionRatio", harvesters[bestIndex]->maxFood / (harvesters[bestIndex]->totalFood - harvesters[bestIndex]->maxFood + 1));
+							harvester->org->dataMap.append("wallHits", harvesters[bestIndex]->wallHits);
+							harvester->org->dataMap.append("otherHits", harvesters[bestIndex]->otherHits);
+							harvester->org->dataMap.append("score", harvesters[bestIndex]->score);
+						}
+					}
+				} // end groupScoreRule BEST
+				else if (groupScoreRule == 2) { // score WORST
+					// find worst (might be clone)
+					int worstIndex = 0;
+					for (auto harvester : harvesters) {
+						if (harvester->score < harvesters[worstIndex]->score) {
+							worstIndex = harvester->ID;
+						}
+					}
+					for (auto harvester : harvesters) {
+						if (!harvester->isClone) { // if not a clone assign values from worst
+							for (int f = 1; f <= foodTypes; f++) {
+								harvester->org->dataMap.append("food" + to_string(f), harvesters[worstIndex]->foodCollected[f]);
+							}
+							for (int f = 0; f <= foodTypes; f++) {
+								if (poisonRules[f] != 0) {
+									harvester->org->dataMap.append("poison" + to_string(f), harvesters[worstIndex]->poisonTotals[f]);
+								}
+							}
+							harvester->org->dataMap.append("switches", harvesters[worstIndex]->switches);
+							harvester->org->dataMap.append("consumptionRatio", harvesters[worstIndex]->maxFood / (harvesters[worstIndex]->totalFood - harvesters[worstIndex]->maxFood + 1));
+							harvester->org->dataMap.append("wallHits", harvesters[worstIndex]->wallHits);
+							harvester->org->dataMap.append("otherHits", harvesters[worstIndex]->otherHits);
+							harvester->org->dataMap.append("score", harvesters[worstIndex]->score);
+						}
+					}
+				} // end groupScoreRule WORST
+			} // end groupScoreRule != SOLO
 		} // end evaluations all evalGroups
 	} // end current map
 } // end HarvestWorld::evaluate
 
-/*
-harvester->org->dataMap.append("switches", harvester->switches);
-harvester->org->dataMap.append("consumptionRatio", harvester->maxFood / (harvester->totalFood - harvester->maxFood + 1));
-harvester->org->dataMap.append("wallHits", harvester->wallHits);
-harvester->org->dataMap.append("otherHits", harvester->otherHits);
-*/
 unordered_map<string, unordered_set<string>> BerryWorld::requiredGroups() {
 	return { 
 		{ groupNameSpacePL->get(PT), { "B:" + brainNameSpacePL->get(PT) + "," + to_string(requiredInputs) + "," + to_string(requiredOutputs) } }
