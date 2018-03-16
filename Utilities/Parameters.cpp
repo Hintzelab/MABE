@@ -161,20 +161,27 @@ MASTER = default 100 # by default :)
     }
     case 'p': {
       std::stringstream sp(m[2].str());
-      std::string param_name, param_value;
+      std::string param_name, param_value, quoted_bit;
       while (sp >> param_name) {
         if (sp >> param_value) {
+          if (param_value[0] == '"') {
+            while (param_value.back() != '"') {
+              sp >> quoted_bit;
+              param_value += " " + quoted_bit;
+            }
+          }
+		  param_value = param_value.substr(1,param_value.size()-2);
           if (param_name_values.find(param_name) != param_name_values.end()) {
             std::cout << "  ERROR :: Parameter \"" << param_name
-                 << "\" is defined more then once on the command "
-                    "line.\nExiting.\n";
+                      << "\" is defined more then once on the command "
+                         "line.\nExiting.\n";
             exit(1);
           }
           param_name_values[param_name] = param_value;
         } else {
           std::cout << "  ERROR :: Parameter \"" << param_name
-               << "\" is defined on command line with out a "
-                  "value.\nExiting.\n";
+                    << "\" is defined on command line with out a "
+                       "value.\nExiting.\n";
           exit(1);
         }
       }
