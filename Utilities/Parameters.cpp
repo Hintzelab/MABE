@@ -169,8 +169,8 @@ MASTER = default 100 # by default :)
               sp >> quoted_bit;
               param_value += " " + quoted_bit;
             }
+            param_value = param_value.substr(1, param_value.size() - 2);
           }
-		  param_value = param_value.substr(1,param_value.size()-2);
           if (param_name_values.find(param_name) != param_name_values.end()) {
             std::cout << "  ERROR :: Parameter \"" << param_name
                       << "\" is defined more then once on the command "
