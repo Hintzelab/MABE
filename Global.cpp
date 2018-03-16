@@ -37,16 +37,6 @@ std::shared_ptr<ParameterLink<int>> Global::commentIndentPL =
     Parameters::register_parameter("PARAMETER_FILES-commentIndent", 30,
                                    "minimum space before comments");
 
-std::shared_ptr<ParameterLink<std::string>> Global::visualizePopulationFilePL =
-    Parameters::register_parameter("VISUALIZATION_MODE-visualizePopulationFile",
-                                   (std::string) "genome_1000.csv",
-                                   "which genome file do you wish to load");
-std::shared_ptr<ParameterLink<std::string>> Global::visualizeOrgIDPL =
-    Parameters::register_parameter(
-        "VISUALIZATION_MODE-visualizeOrgIDs", (std::string) "[-1]",
-        "ID of Genome you would like to visualize. -1 last genome file, -2 all "
-        "genomes in file (world must support group evaluate)");
-
 std::shared_ptr<ParameterLink<std::string>> Global::outputDirectoryPL =
     Parameters::register_parameter("GLOBAL-outputDirectory", (std::string) "./",
                                    "where files will be written");
