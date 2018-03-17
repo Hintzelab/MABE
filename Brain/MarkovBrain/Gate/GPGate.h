@@ -1,4 +1,3 @@
-//  MABE is a product of The Hintze Lab @ MSU
 //     for general research information:
 //         hintzelab.msu.edu
 //     for MABE documentation:
@@ -12,34 +11,31 @@
 
 #include "AbstractGate.h"
 
-using namespace std;
-
 class GPGate : public AbstractGate {
- private:
+private:
+  int operation; // <link> stores the kind of GP operation (Add, Sub, Mult...)
+  std::vector<double> constValues; // list of constant values
+public:
+  static std::shared_ptr<ParameterLink<double>> constValueMinPL;
+  static std::shared_ptr<ParameterLink<double>> constValueMaxPL;
+  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	int operation; // <link> stores the kind of GP operation (Add, Sub, Mult...)
-	vector<double> constValues; // list of constant values
- public:
+  GPGate() = delete;
+  GPGate(std::shared_ptr<ParametersTable> PT_ = nullptr) : AbstractGate(PT_) {
+    operation = 0;
+  }
+  // GPGate(shared_ptr<AbstractGenome> genome,
+  // shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID);
+  GPGate(std::pair<std::vector<int>, std::vector<int>> _addresses, int _operation,
+         std::vector<double> _constValues, int gateID,
+         std::shared_ptr<ParametersTable> = nullptr);
 
-	static shared_ptr<ParameterLink<double>> constValueMinPL;
-	static shared_ptr<ParameterLink<double>> constValueMaxPL;
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
-
-	GPGate() = delete;
-	GPGate(shared_ptr<ParametersTable> _PT = nullptr) :
-		AbstractGate(_PT) {
-		operation = 0;
-	}
-	//GPGate(shared_ptr<AbstractGenome> genome, shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID);
-	GPGate(pair<vector<int>, vector<int>> _addresses, int _operation, vector<double> _constValues, int gateID, shared_ptr<ParametersTable> _PT = nullptr);
-
-	virtual ~GPGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual string description() override;
-	virtual string gateType() override{
-		return "GeneticPrograming";
-	}
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
-
+  virtual ~GPGate() = default;
+  virtual void update(std::vector<double> &states,
+                      std::vector<double> &nextStates) override;
+  virtual std::string description() override;
+  virtual std::string gateType() override { return "GeneticPrograming"; }
+  virtual std::shared_ptr<AbstractGate>
+  makeCopy(std::shared_ptr<ParametersTable>  = nullptr) override;
 };
 

@@ -13,33 +13,31 @@
 #include "AbstractGate.h"
 
 class TritDeterministicGate : public AbstractGate {
- public:
+public:
+  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+  std::vector<std::vector<int>> table;
 
-	vector<vector<int>> table;
+  TritDeterministicGate() = delete;
+  TritDeterministicGate(std::shared_ptr<ParametersTable> PT_ = nullptr)
+      : AbstractGate(PT_) {
+    table = {};
+  }
+  TritDeterministicGate(std::pair<std::vector<int>, std::vector<int>> addresses,
+                        std::vector<std::vector<int>> _table, int ,
+                        std::shared_ptr<ParametersTable>  = nullptr);
 
-	TritDeterministicGate() = delete;
-	TritDeterministicGate(shared_ptr<ParametersTable> _PT = nullptr) :
-		AbstractGate(_PT) {
-		table = {};
-	}
-	TritDeterministicGate(pair<vector<int>,vector<int>> addresses, vector<vector<int>> _table, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
+  virtual ~TritDeterministicGate() = default;
+  virtual void update(std::vector<double> &states,
+                      std::vector<double> &nextStates) override;
 
-	virtual ~TritDeterministicGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
+  // void setupForBits(int* Ins, int nrOfIns, int Out, int logic);
 
-	//void setupForBits(int* Ins, int nrOfIns, int Out, int logic);
+  virtual std::string gateType() override { return "TritDeterministic"; }
 
-	virtual string gateType() override{
-		return "TritDeterministic";
-	}
+  virtual std::shared_ptr<AbstractGate>
+  makeCopy(std::shared_ptr<ParametersTable>  = nullptr) override;
 
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
-
-	//double voidOutput;
+  // double voidOutput;
 };
-
-
-
 

@@ -12,25 +12,24 @@
 
 #include "AbstractGate.h"
 
-using namespace std;
-
-
-class ProbabilisticGate: public AbstractGate {  //conventional probabilistic gate
+class ProbabilisticGate
+    : public AbstractGate { // conventional probabilistic gate
 public:
+  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
-
-	vector<vector<double>> table;
-	ProbabilisticGate() = delete;
-	ProbabilisticGate(shared_ptr<ParametersTable> _PT = nullptr) :
-		AbstractGate(_PT) {
-		table = {};
-	}
-	ProbabilisticGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _rawTable, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
-	virtual ~ProbabilisticGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual string gateType() override{
-		return "Probabilistic";
-	}
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+  std::vector<std::vector<double>> table;
+  ProbabilisticGate() = delete;
+  ProbabilisticGate(std::shared_ptr<ParametersTable> PT_ = nullptr)
+      : AbstractGate(PT_) {
+    table = {};
+  }
+  ProbabilisticGate(std::pair<std::vector<int>, std::vector<int>> addresses,
+                    std::vector<std::vector<int>> _rawTable, int ,
+                    std::shared_ptr<ParametersTable>  = nullptr);
+  virtual ~ProbabilisticGate() = default;
+  virtual void update(std::vector<double> &states,
+                      std::vector<double> &nextStates) override;
+  virtual std::string gateType() override { return "Probabilistic"; }
+  virtual std::shared_ptr<AbstractGate>
+  makeCopy(std::shared_ptr<ParametersTable>  = nullptr) override;
 };
