@@ -8,12 +8,12 @@
   * Circular
   
 % Brain
-  - Markov
-  * CGP
-  - LSTM
+  * Markov
+  + CGP
+  + LSTM
   + ConstantValues
   + Human
-  - Wire
+  + Wire
 	
 % Optimizer
   * Simple
