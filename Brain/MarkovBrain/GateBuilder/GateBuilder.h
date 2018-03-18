@@ -69,8 +69,8 @@ public:
   const std::shared_ptr<ParametersTable> PT;
 
   // Gate_Builder() = default;
-  Gate_Builder(std::shared_ptr<ParametersTable> PT_ = nullptr) : PT(PT_) {
-
+  Gate_Builder(std::shared_ptr<ParametersTable> PT_ = nullptr)
+      : PT(PT_){
     setupGates();
   }
 

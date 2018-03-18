@@ -125,17 +125,15 @@ void Gate_Builder::getSomeBrainAddresses(
     const int &howMany, const int &howManyMax, std::vector<int> &addresses,
     std::shared_ptr<AbstractGenome::Handler> genomeHandler, int code, int gateID,
     std::shared_ptr<ParametersTable> PT_) {
-  int i;
-  for (i = 0; i < howMany; i++) { // for the number of addresses we need
-    addresses[i] =
+  auto i = 0;
+  while (i < howMany) // for the number of addresses we need
+    addresses[i++] =
         genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
                                code, gateID); // get an address
-  }
-  while (i < howManyMax) { // leave room in the genome in case this gate gets
+
+  while (i++ < howManyMax) // leave room in the genome in case this gate gets
                            // more IO later
     genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1);
-    i++;
-  }
 }
 
 // given a genome and a genomeIndex:
@@ -149,26 +147,23 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     std::shared_ptr<ParametersTable>
         PT_) { // (max#in, max#out,currentIndexInGenome,genome,codingRegions)
 
-  int numInputs = genomeHandler->readInt(insRange.first, insRange.second,
-                                         AbstractGate::IN_COUNT_CODE, gateID);
+  auto numInputs = genomeHandler->readInt(insRange.first, insRange.second,
+                                          AbstractGate::IN_COUNT_CODE, gateID);
   // cout << "num_Inputs: " << numInputs << "\n";
-  int numOutputs = genomeHandler->readInt(outsRange.first, outsRange.second,
+  auto numOutputs = genomeHandler->readInt(outsRange.first, outsRange.second,
                                           AbstractGate::OUT_COUNT_CODE, gateID);
   // cout << "num_Outputs: " << numOutputs << "\n";
-  std::vector<int> inputs;
-  std::vector<int> outputs;
+  std::vector<int> inputs(numInputs);
+  std::vector<int> outputs(numOutputs);
 
-  inputs.resize(numInputs);
-  outputs.resize(numOutputs);
-
-  if (insRange.second > 0) {
+  if (insRange.second > 0) 
     getSomeBrainAddresses(numInputs, insRange.second, inputs, genomeHandler,
                           AbstractGate::IN_ADDRESS_CODE, gateID, PT_);
-  }
-  if (outsRange.second > 0) {
+  
+  if (outsRange.second > 0) 
     getSomeBrainAddresses(numOutputs, outsRange.second, outputs, genomeHandler,
                           AbstractGate::OUT_ADDRESS_CODE, gateID, PT_);
-  }
+  
   return {inputs, outputs};
 }
 
@@ -179,54 +174,17 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     const std::string IO_Ranges, int &inMax, int &outMax,
     std::shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID,
     std::shared_ptr<ParametersTable> PT_, const std::string featureName) {
-  std::stringstream ss(IO_Ranges);
-  int inMin, outMin;
-  char c;
 
-  ss >> inMin;
-  if (ss.fail()) {
+  static const std::regex io_range(R"(^(\d+)-(\d+),(\d+)-(\d+)$)"); 
+  std::smatch m;
+  if (!std::regex_match(IO_Ranges, m, io_range)) {
     std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
+              << featureName << "\".\n  Exiting." << std::endl;
     exit(1);
   }
-  ss >> c;
-  if (c != '-') {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  ss >> inMax;
-  if (ss.fail()) {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  ss >> c;
-  if (c != ',') {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  ss >> outMin;
-  if (ss.fail()) {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  ss >> c;
-  if (c != '-') {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  ss >> outMax;
-  if (ss.fail()) {
-    std::cout << "  SYNTAX ERROR in IO_range: \"" << IO_Ranges << "\" for \""
-         << featureName << "\".\n  Exiting." << std::endl;
-    exit(1);
-  }
-  return getInputsAndOutputs({inMin, inMax}, {outMin, outMax}, genomeHandler,
-                             gateID, PT_);
+  return getInputsAndOutputs({std::stol(m[1].str()), std::stol(m[2].str())},
+                             {std::stol(m[3].str()), std::stol(m[4].str())},
+                             genomeHandler, gateID, PT_);
 }
 
 // setupGates() populates Gate::makeGate (a structure containing functions) with
