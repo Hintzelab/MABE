@@ -124,31 +124,32 @@ std::shared_ptr<AbstractBrain> MarkovBrain::makeBrain(
 void MarkovBrain::resetBrain() {
   AbstractBrain::resetBrain();
   nodes.assign(nrNodes, 0.0);
-  for (size_t i = 0; i < gates.size(); i++) {
-    gates[i]->resetGate();
-  }
+  for (auto &g :gates)
+	  g->resetGate();
 }
+
 void MarkovBrain::resetInputs() {
-  for (int i = 0; i < nrInputValues; i++) {
+  for (int i = 0; i < nrInputValues; i++)
     nodes[i] = 0.0;
-  }
 }
+
 void MarkovBrain::resetOutputs() {
-  for (int i = 0; i < nrOutputValues; i++) {
+  for (int i = 0; i < nrOutputValues; i++) 
     nodes[nrInputValues + i] = 0.0;
-  }
 }
 
 void MarkovBrain::update() {
   nextNodes.assign(nrNodes, 0.0);
-  for (int i = 0; i < nrInputValues; i++) {
+
+  for (int i = 0; i < nrInputValues; i++) 
     nodes[i] = inputValues[i];
-  }
-  for (size_t i = 0; i < gates.size(); i++) { // update each gate
-    gates[i]->update(nodes, nextNodes);
-  }
+  
+  for (auto &g :gates) // update each gate
+	  g->update(nodes, nextNodes);
+
   if (randomizeUnconnectedOutputs) {
-    if (randomizeUnconnectedOutputsType == 0) {
+    switch (randomizeUnconnectedOutputsType) {
+    case 0:
       for (int i = 0; i < nrOutputValues; i++) {
         // cout << i << " : " << nextNodesConnections[i] << endl;
         if (nextNodesConnections[nrInputValues + i] ==
@@ -160,17 +161,20 @@ void MarkovBrain::update() {
                              (int)randomizeUnconnectedOutputsMax);
         }
       }
-    } else if (randomizeUnconnectedOutputsType == 1) {
+      break;
+    case 1:
       for (int i = 0; i < nrOutputValues; i++) {
         if (nextNodesConnections[nrInputValues + i] == 0) {
           nextNodes[nrInputValues + i] = Random::getDouble(
               randomizeUnconnectedOutputsMin, randomizeUnconnectedOutputsMax);
         }
       }
-    } else {
-      std::cout << "  ERROR! BRAIN_MARKOV_ADVANCED::randomizeUnconnectedOutputsType "
-              "is invalid. current value: "
-           << randomizeUnconnectedOutputsType << std::endl;
+      break;
+    default:
+      std::cout
+          << "  ERROR! BRAIN_MARKOV_ADVANCED::randomizeUnconnectedOutputsType "
+             "is invalid. current value: "
+          << randomizeUnconnectedOutputsType << std::endl;
       exit(1);
     }
   }
@@ -182,9 +186,8 @@ void MarkovBrain::update() {
 
 void MarkovBrain::inOutReMap() { // remaps genome site values to valid brain
                                  // state addresses
-  for (size_t i = 0; i < gates.size(); i++) {
-    gates[i]->applyNodeMap(nodeMap, nrNodes);
-  }
+  for (auto &g : gates)
+    g->applyNodeMap(nodeMap, nrNodes);
 }
 
 std::string MarkovBrain::description() {
@@ -197,7 +200,7 @@ std::string MarkovBrain::description() {
 void MarkovBrain::fillInConnectionsLists() {
   nodesConnections.resize(nrNodes);
   nextNodesConnections.resize(nrNodes);
-  for (auto g : gates) {
+  for (auto &g : gates) {
     auto gateConnections = g->getConnectionsLists();
     for (auto c : gateConnections.first) {
       nodesConnections[c]++;
@@ -207,18 +210,20 @@ void MarkovBrain::fillInConnectionsLists() {
     }
   }
 }
+
+
 DataMap MarkovBrain::getStats(std::string &prefix) {
   DataMap dataMap;
   dataMap.set(prefix + "markovBrainGates", (int)gates.size());
   std::map<std::string, int> gatecounts;
-  for (auto n : GLB->getInUseGateNames()) {
+  for (auto &n : GLB->getInUseGateNames()) {
     gatecounts[n + "Gates"] = 0;
   }
-  for (auto g : gates) {
+  for (auto &g : gates) {
     gatecounts[g->gateType() + "Gates"]++;
   }
 
-  for (auto n : GLB->getInUseGateNames()) {
+  for (auto &n : GLB->getInUseGateNames()) {
     dataMap.set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
   }
 
@@ -235,28 +240,21 @@ DataMap MarkovBrain::getStats(std::string &prefix) {
               nextNodesConnectionsList);
   dataMap.setOutputBehavior(prefix + "nextNodesConnections", DataMap::LIST);
 
-  return (dataMap);
+  return dataMap;
 }
 
 std::string MarkovBrain::gateList() {
   std::string S = "";
-  for (size_t i = 0; i < gates.size(); i++) {
-    S = S + gates[i]->description();
-  }
+  for (auto &g : gates)
+    S += g->description();
   return S;
 }
 
 std::vector<std::vector<int>> MarkovBrain::getConnectivityMatrix() {
-  std::vector<std::vector<int>> M;
-  M.resize(nrNodes);
-  for (int i = 0; i < nrNodes; i++) {
-    M[i].resize(nrNodes);
-    for (int j = 0; j < nrNodes; j++)
-      M[i][j] = 0;
-  }
-  for (auto G : gates) {
-    std::vector<int> I = G->getIns();
-    std::vector<int> O = G->getOuts();
+  std::vector<std::vector<int>> M(nrNodes,std::vector<int>(nrNodes,0));
+  for (auto &g : gates) {
+    auto I = g->getIns();
+    auto O = g->getOuts();
     for (int i : I)
       for (int o : O)
         M[i][o]++;
@@ -264,15 +262,15 @@ std::vector<std::vector<int>> MarkovBrain::getConnectivityMatrix() {
   return M;
 }
 
-int MarkovBrain::brainSize() { return (int)gates.size(); }
+int MarkovBrain::brainSize() { return gates.size(); }
 
 int MarkovBrain::numGates() { return brainSize(); }
 
 std::vector<int> MarkovBrain::getHiddenNodes() {
-  std::vector<int> temp = {};
-  for (size_t i = nrInputValues + nrOutputValues; i < nodes.size(); i++) {
+  std::vector<int> temp ;
+  for (size_t i = nrInputValues + nrOutputValues; i < nodes.size(); i++) 
     temp.push_back(Bit(nodes[i]));
-  }
+  
   return temp;
 }
 
