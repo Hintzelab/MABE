@@ -753,21 +753,19 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
 
 void Gate_Builder::constructProbabilisticGates( int bitsPerCodon){
     inUseGateNames.insert("Probabilistic");
-    int codonOne = Codes::Probabilistic;
+    auto codonOne = Codes::Probabilistic;
     inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
+    gateStartCodes[codonOne].push_back(codonOne);
+    gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
     intialGateCounts[codonOne] = probGateInitialCountPL->get(PT);
     AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
                          int gateID, std::shared_ptr<ParametersTable> PT_) {
-      std::string IO_Ranges = ProbabilisticGate::IO_RangesPL->get(PT_);
+      auto IO_Ranges = ProbabilisticGate::IO_RangesPL->get(PT_);
       int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
+      auto addresses =
           getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
                               PT_, "BRAIN_MARKOV_GATES_PROBABILISTIC");
-      std::vector<std::vector<int>> rawTable = genomeHandler->readTable(
+      auto  rawTable = genomeHandler->readTable(
           {1 << addresses.first.size(), 1 << addresses.second.size()},
           {(int)pow(2, maxIn), (int)pow(2, maxOut)}, {0, 255},
           AbstractGate::DATA_CODE, gateID);

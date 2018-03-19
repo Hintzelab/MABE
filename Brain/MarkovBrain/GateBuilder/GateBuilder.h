@@ -74,10 +74,9 @@ public:
 
   // the following "Codes" are identifiers for different gate types. These
   // numbers are used to look up constructors, and also as the first half of the
-  // start codon, if codons are being used to generate gates.
-  // More may be added, but the current numbers MUST not change (if they do,
-  // then
-  // genomes will generate different brains! and is not backward-compatible)
+  // start codon, if codons are being used to generate gates.   More may be
+  // added, but the current numbers MUST not change (if they do,   then genomes
+  // will generate different brains! and is not   backward-compatible)
   enum Codes {
     Probabilistic = 42,
     Deterministic = 43,
