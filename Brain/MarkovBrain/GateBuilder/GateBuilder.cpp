@@ -8,8 +8,8 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "GateBuilder.h"
 #include <cmath>
+#include "GateBuilder.h"
 
 std::shared_ptr<ParameterLink<bool>> Gate_Builder::usingProbGatePL =
     Parameters::register_parameter("BRAIN_MARKOV_GATES_PROBABILISTIC-allow",
@@ -187,67 +187,401 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
                              genomeHandler, gateID, PT_);
 }
 
-// setupGates() populates Gate::makeGate (a structure containing functions) with
-// the constructors for various types of gates.
-// there are 256 possible gates identified each by a pair of codons (n followed
-// by 256-n)
-// after initializing Gate::MakeGate, Gate::AddGate() adds values and the
-// associated constructor function to Gate::MakeGate
-void Gate_Builder::setupGates() {
-  // the following "Codes" are identifiers for different gate types. These
-  // number are used to look up constructors and also as the first 1/2 of the
-  // start codeon
-  // if codons are being used to generate gates.
-  // more may be added, but the numbers should not change (if they do, then
-  // genomes will generate different brains!)
-  int ProbabilisticCode = 42; // TODO these should be enums
-  int DeterministicCode = 43;
-  int EpsilonCode = 44;
-  int VoidCode = 45;
-  int GPCode = 46;
-  int TritDeterministicCode = 47;
-  int NeuronCode = 48;
-  int FeedbackCode = 49;
-  int DecomposableCode = 50;
-  int DecomposableFeedbackCode = 51;
-
-  int bitsPerCodon = bitsPerCodonPL->get(PT);
-  makeGate.resize(1 << bitsPerCodon);
-  for (int i = 0; i < (1 << bitsPerCodon); i++) {
-    AddGate(i, nullptr);
-  }
-  gateStartCodes.resize(1 << bitsPerCodon);
-
-  if (usingProbGatePL->get(PT)) {
-    inUseGateNames.insert("Probabilistic");
-    int codonOne = ProbabilisticCode;
+  void Gate_Builder::constructDecomposableFeedbackGates(int code,int bitsPerCodon){
+  	inUseGateNames.insert("DecomposableFeedback");
+    int codonOne = code;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
       gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
     }
-    intialGateCounts[codonOne] = probGateInitialCountPL->get(PT);
+    intialGateCounts[codonOne] =
+        decomposableFeedbackGateInitialCountPL->get(PT);
     AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
                          int gateID, std::shared_ptr<ParametersTable> PT_) {
-      std::string IO_Ranges = ProbabilisticGate::IO_RangesPL->get(PT_);
+      unsigned int posFBNode, negFBNode;
+      unsigned char nrPos, nrNeg;
+      std::vector<double> posLevelOfFB, negLevelOfFB;
+      std::string IO_Ranges = DecomposableFeedbackGate::IO_RangesPL->get(PT_);
       int maxIn, maxOut;
       std::pair<std::vector<int>, std::vector<int>> addresses =
           getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_PROBABILISTIC");
+                              PT_, "BRAIN_MARKOV_GATES_FEEDBACK");
+      // vector<vector<int>> rawTable = genomeHandler->readTable( {1 <<
+      // addresses.first.size(), 1 << addresses.second.size()},
+      // {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255},
+      // AbstractGate::DATA_CODE, gateID);
+      std::vector<std::vector<int>> rawTable(
+          1 << addresses.first.size(),
+          std::vector<int>(1 << addresses.second.size(),
+                      0)); /// correct size, and init to 0
+      /// read factors and generate table data from factors
+      std::vector<std::vector<double>> factorsList(1 << addresses.first.size());
+      for (std::vector<double> &factors : factorsList) {
+        factors.resize(addresses.second.size());
+        for (double &eachFactor : factors) {
+          eachFactor =
+              genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+        }
+      }
+      std::bitset<32> bs(0); /// bitset
+      for (int rowi = 0; rowi < rawTable.size(); rowi++) {
+        for (int outputi = 0; outputi < rawTable[rowi].size(); outputi++) {
+          double p(1.0);
+          bs = outputi;
+          /// loop through bits in each output and multiply
+          /// the appropriate factors together in the right way (1-p) for bit=0
+          /// vs p for bit=1
+          for (int biti = 0; biti < addresses.second.size(); biti++) {
+            p *= (bs[biti] ? factorsList[rowi][biti]
+                           : 1 - factorsList[rowi][biti]);
+          }
+          rawTable[rowi][outputi] = int(255 * p);
+        }
+      }
+      posFBNode = genomeHandler->readInt(
+          0, 255); // we will scale to, say, 256 and floor later.
+      negFBNode = genomeHandler->readInt(0, 255);
+      nrPos = genomeHandler->readInt(0, 3);
+      nrNeg = genomeHandler->readInt(0, 3);
+      posLevelOfFB.resize(nrPos);
+      negLevelOfFB.resize(nrNeg);
+      for (int i = 0; i < nrPos; i++)
+        posLevelOfFB[i] = genomeHandler->readDouble(0, 256);
+      for (int i = 0; i < nrNeg; i++)
+        negLevelOfFB[i] = genomeHandler->readDouble(0, 256);
+      if (genomeHandler->atEOC()) {
+        std::shared_ptr<DecomposableFeedbackGate> nullObj = nullptr;
+        return nullObj;
+      }
+      return std::make_shared<DecomposableFeedbackGate>(
+          addresses, rawTable, factorsList, posFBNode, negFBNode, nrPos, nrNeg,
+          posLevelOfFB, negLevelOfFB, gateID, PT_);
+    });
+  } 
+	 
+	  void Gate_Builder::constructFeedbackGates(int code,int bitsPerCodon){
+	  inUseGateNames.insert("Feedback");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = feedbackGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+      unsigned int posFBNode, negFBNode;
+      unsigned char nrPos, nrNeg;
+      std::vector<double> posLevelOfFB, negLevelOfFB;
+      std::string IO_Ranges = FeedbackGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_FEEDBACK");
       std::vector<std::vector<int>> rawTable = genomeHandler->readTable(
           {1 << addresses.first.size(), 1 << addresses.second.size()},
           {(int)pow(2, maxIn), (int)pow(2, maxOut)}, {0, 255},
           AbstractGate::DATA_CODE, gateID);
+      posFBNode = genomeHandler->readInt(
+          0, 255); // we will scale to, say, 256 and floor later.
+      negFBNode = genomeHandler->readInt(0, 255);
+      nrPos = genomeHandler->readInt(0, 3);
+      nrNeg = genomeHandler->readInt(0, 3);
+      posLevelOfFB.resize(nrPos);
+      negLevelOfFB.resize(nrNeg);
+      for (int i = 0; i < nrPos; i++)
+        posLevelOfFB[i] = genomeHandler->readDouble(0, 256);
+      for (int i = 0; i < nrNeg; i++)
+        negLevelOfFB[i] = genomeHandler->readDouble(0, 256);
       if (genomeHandler->atEOC()) {
-        std::shared_ptr<ProbabilisticGate> nullObj = nullptr;
+        std::shared_ptr<FeedbackGate> nullObj = nullptr;
         return nullObj;
       }
-      return std::make_shared<ProbabilisticGate>(addresses, rawTable, gateID, PT_);
+
+      return std::make_shared<FeedbackGate>(addresses, rawTable, posFBNode,
+                                       negFBNode, nrPos, nrNeg, posLevelOfFB,
+                                       negLevelOfFB, gateID, PT_);
+      // std::pair<vector<int>,vector<int>> thepair =
+      // std::make_pair(std::vector<int>(),std::vector<int>());
+      // std::vector<std::vector<int>> dvec;
+      // unsigned int uint = 0;
+      // unsigned char uchar = '\0';
+      // std::vector<double> vdouble;
+      // return
+      // make_shared<FeedbackGate>(thepair,dvec,uint,uint,uchar,uchar,vdouble,vdouble,gateID,
+      // PT_);
+    });
+	}
+
+	  void Gate_Builder::constructNeuronGates(int code,int bitsPerCodon){
+	  inUseGateNames.insert("Neuron");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = neuronGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+      int defaultNumInputsMin = NeuronGate::defaultNumInputsMinPL->get(PT_);
+      int defaultNumInputsMax = NeuronGate::defaultNumInputsMaxPL->get(PT_);
+      int numInputs =
+          genomeHandler->readInt(defaultNumInputsMin, defaultNumInputsMax,
+                                 AbstractGate::IN_COUNT_CODE, gateID);
+      std::vector<int> inputs;
+      inputs.resize(numInputs);
+
+      getSomeBrainAddresses(numInputs, defaultNumInputsMax, inputs,
+                            genomeHandler, AbstractGate::IN_ADDRESS_CODE,
+                            gateID, PT_);
+
+      int output =
+          genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
+                                 AbstractGate::OUT_ADDRESS_CODE, gateID);
+
+      int dischargeBehavior = NeuronGate::defaultDischargeBehaviorPL->get(PT_);
+      if (dischargeBehavior == -1) {
+        dischargeBehavior =
+            genomeHandler->readInt(0, 2, AbstractGate::DATA_CODE, gateID);
+      }
+
+      double defaultThresholdMin = NeuronGate::defaultThresholdMinPL->get(PT_);
+      double defaultThresholdMax = NeuronGate::defaultThresholdMaxPL->get(PT_);
+      double thresholdValue =
+          genomeHandler->readDouble(defaultThresholdMin, defaultThresholdMax,
+                                    AbstractGate::DATA_CODE, gateID);
+
+      bool thresholdActivates = 1;
+      bool defaultAllowRepression =
+          NeuronGate::defaultAllowRepressionPL->get(PT_);
+      if (defaultAllowRepression == 1) {
+        thresholdActivates =
+            genomeHandler->readInt(0, 1, AbstractGate::DATA_CODE, gateID);
+      }
+
+      double decayRate =
+          genomeHandler->readDouble(NeuronGate::defaultDecayRateMinPL->get(PT_),
+                                    NeuronGate::defaultDecayRateMaxPL->get(PT_),
+                                    AbstractGate::DATA_CODE, gateID);
+      double deliveryCharge = genomeHandler->readDouble(
+          NeuronGate::defaultDeliveryChargeMinPL->get(PT_),
+          NeuronGate::defaultDeliveryChargeMaxPL->get(PT_),
+          AbstractGate::DATA_CODE, gateID);
+      double deliveryError = NeuronGate::defaultDeliveryErrorPL->get(PT_);
+
+      int ThresholdFromNode = -1;
+      int DeliveryChargeFromNode = -1;
+      bool defaultThresholdFromNode =
+          NeuronGate::defaultThresholdFromNodePL->get(PT_);
+      if (defaultThresholdFromNode) {
+        ThresholdFromNode = genomeHandler->readInt(
+            0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
+            AbstractGate::IN_ADDRESS_CODE, gateID);
+      }
+      bool defaultDeliveryChargeFromNode =
+          NeuronGate::defaultDeliveryChargeFromNodePL->get(PT_);
+      if (defaultDeliveryChargeFromNode) {
+        DeliveryChargeFromNode = genomeHandler->readInt(
+            0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
+            AbstractGate::IN_ADDRESS_CODE, gateID);
+      }
+      if (genomeHandler->atEOC()) {
+        std::shared_ptr<NeuronGate> nullObj = nullptr;
+        ;
+        return nullObj;
+      }
+      return std::make_shared<NeuronGate>(
+          inputs, output, dischargeBehavior, thresholdValue, thresholdActivates,
+          decayRate, deliveryCharge, deliveryError, ThresholdFromNode,
+          DeliveryChargeFromNode, gateID, PT_);
+    });
+	  }
+	
+	  void Gate_Builder::constructTritDeterministicGates(int code,int bitsPerCodon){
+  	  inUseGateNames.insert("TritDeterministic");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = tritDeterministicGateInitialCountPL->get(PT);
+
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+      std::string IO_Ranges = TritDeterministicGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_TRIT");
+      std::vector<std::vector<int>> table =
+          genomeHandler->readTable({(int)pow(3, (int)addresses.first.size()),
+                                    (int)addresses.second.size()},
+                                   {(int)pow(3, maxIn), maxOut}, {-1, 1},
+                                   AbstractGate::DATA_CODE, gateID);
+      if (genomeHandler->atEOC()) {
+        std::shared_ptr<TritDeterministicGate> nullObj = nullptr;
+        ;
+        return nullObj;
+      }
+      return std::make_shared<TritDeterministicGate>(addresses, table, gateID, PT_);
     });
   }
-  if (usingDecoGatePL->get(PT)) {
+
+
+  void Gate_Builder::constructGPGates(int code,int bitsPerCodon){
+	  inUseGateNames.insert("GeneticPrograming");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = gPGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+      std::string IO_Ranges = GPGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_GENETICPROGRAMING");
+      int operation =
+          genomeHandler->readInt(0, 8, AbstractGate::DATA_CODE, gateID);
+      std::vector<double> constValues;
+      for (int i = 0; i < 4; i++) {
+        double constValueMin = GPGate::constValueMinPL->get(PT_);
+        double constValueMax = GPGate::constValueMaxPL->get(PT_);
+        constValues.push_back(genomeHandler->readDouble(
+            constValueMin, constValueMax, AbstractGate::DATA_CODE, gateID));
+      }
+      if (genomeHandler->atEOC()) {
+        std::shared_ptr<GPGate> nullObj = nullptr;
+        ;
+        return nullObj;
+      }
+      return std::make_shared<GPGate>(addresses, operation, constValues, gateID,
+                                 PT_);
+    });
+  }
+ 
+	  void Gate_Builder::constructVoidGates(int code,int bitsPerCodon){
+ inUseGateNames.insert("Void");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = voidGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+
+      std::string IO_Ranges = VoidGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_VOID");
+      std::vector<std::vector<int>> table = genomeHandler->readTable(
+          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
+          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
+          gateID);
+
+      double epsilon = VoidGate::voidGate_ProbabilityPL->get(PT_);
+
+      if (epsilon > 1) {
+        genomeHandler->advanceIndex((int)epsilon);
+        epsilon =
+            genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+      } else if (epsilon < 0) {
+        // if we are reading from head of genome, the we are not worried about
+        // EOC, so we get a new handler so as not to reset the EOC/EOG staus.
+        auto cleanGenomeHandler = genomeHandler->makeCopy();
+        cleanGenomeHandler->resetHandler();
+        cleanGenomeHandler->advanceIndex((int)abs(epsilon));
+        epsilon = cleanGenomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE,
+                                                 gateID);
+      }
+
+      return std::make_shared<VoidGate>(addresses, table, gateID, epsilon, PT_);
+    });
+	  }
+
+  void Gate_Builder::constructEpsilonGates(int code,int bitsPerCodon){
+  	  inUseGateNames.insert("Epsilon");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = epsiGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+
+      std::string IO_Ranges = EpsilonGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_EPSILON");
+      std::vector<std::vector<int>> table = genomeHandler->readTable(
+          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
+          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
+          gateID);
+
+      double epsilon = EpsilonGate::EpsilonSourcePL->get(PT_);
+
+      if (epsilon > 1) {
+        genomeHandler->advanceIndex((int)epsilon);
+        epsilon =
+            genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+      } else if (epsilon < 0) {
+        // if we are reading from head of genome, the we are not worried about
+        // EOC, so we get a new handler so as not to reset the EOC/EOG staus.
+        auto cleanGenomeHandler = genomeHandler->makeCopy();
+        cleanGenomeHandler->resetHandler();
+        cleanGenomeHandler->advanceIndex((int)abs(epsilon));
+        epsilon = cleanGenomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE,
+                                                 gateID);
+      }
+
+      return std::make_shared<EpsilonGate>(addresses, table, gateID, epsilon, PT_);
+    });
+  }
+
+
+  void Gate_Builder::constructDeterministicGates(int code,int bitsPerCodon){
+    inUseGateNames.insert("Deterministic");
+    int codonOne = code;
+    inUseGateTypes.insert(codonOne);
+    {
+      gateStartCodes[codonOne].push_back(codonOne);
+      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+    }
+    intialGateCounts[codonOne] = detGateInitialCountPL->get(PT);
+    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
+                         int gateID, std::shared_ptr<ParametersTable> PT_) {
+      std::string IO_Ranges = DeterministicGate::IO_RangesPL->get(PT_);
+      int maxIn, maxOut;
+      std::pair<std::vector<int>, std::vector<int>> addresses =
+          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
+                              PT_, "BRAIN_MARKOV_GATES_DETERMINISTIC");
+      std::vector<std::vector<int>> table = genomeHandler->readTable(
+          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
+          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
+          gateID);
+      if (genomeHandler->atEOC()) {
+        std::shared_ptr<DeterministicGate> nullObj = nullptr;
+        return nullObj;
+      }
+      return std::make_shared<DeterministicGate>(addresses, table, gateID, PT_);
+    });
+  }
+
+  void Gate_Builder::constructDecomposableGates(int code,int bitsPerCodon){
     inUseGateNames.insert("Decomposable");
-    int codonOne = DecomposableCode;
+    int codonOne = code;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -415,388 +749,96 @@ void Gate_Builder::setupGates() {
       }
       return std::make_shared<DecomposableGate>(addresses, rawTable, gateID, PT_);
     });
-  }
-  if (usingDetGatePL->get(PT)) {
-    inUseGateNames.insert("Deterministic");
-    int codonOne = DeterministicCode;
+}
+
+void Gate_Builder::constructProbabilisticGates(int code, int bitsPerCodon){
+    inUseGateNames.insert("Probabilistic");
+    int codonOne = code;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
       gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
     }
-    intialGateCounts[codonOne] = detGateInitialCountPL->get(PT);
+    intialGateCounts[codonOne] = probGateInitialCountPL->get(PT);
     AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
                          int gateID, std::shared_ptr<ParametersTable> PT_) {
-      std::string IO_Ranges = DeterministicGate::IO_RangesPL->get(PT_);
+      std::string IO_Ranges = ProbabilisticGate::IO_RangesPL->get(PT_);
       int maxIn, maxOut;
       std::pair<std::vector<int>, std::vector<int>> addresses =
           getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_DETERMINISTIC");
-      std::vector<std::vector<int>> table = genomeHandler->readTable(
-          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
-          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
-          gateID);
-      if (genomeHandler->atEOC()) {
-        std::shared_ptr<DeterministicGate> nullObj = nullptr;
-        return nullObj;
-      }
-      return std::make_shared<DeterministicGate>(addresses, table, gateID, PT_);
-    });
-  }
-  if (usingEpsiGatePL->get(PT)) {
-    inUseGateNames.insert("Epsilon");
-    int codonOne = EpsilonCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = epsiGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-
-      std::string IO_Ranges = EpsilonGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_EPSILON");
-      std::vector<std::vector<int>> table = genomeHandler->readTable(
-          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
-          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
-          gateID);
-
-      double epsilon = EpsilonGate::EpsilonSourcePL->get(PT_);
-
-      if (epsilon > 1) {
-        genomeHandler->advanceIndex((int)epsilon);
-        epsilon =
-            genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
-      } else if (epsilon < 0) {
-        // if we are reading from head of genome, the we are not worried about
-        // EOC, so we get a new handler so as not to reset the EOC/EOG staus.
-        auto cleanGenomeHandler = genomeHandler->makeCopy();
-        cleanGenomeHandler->resetHandler();
-        cleanGenomeHandler->advanceIndex((int)abs(epsilon));
-        epsilon = cleanGenomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE,
-                                                 gateID);
-      }
-
-      return std::make_shared<EpsilonGate>(addresses, table, gateID, epsilon, PT_);
-    });
-  }
-  if (usingVoidGatePL->get(PT)) {
-    inUseGateNames.insert("Void");
-    int codonOne = VoidCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = voidGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-
-      std::string IO_Ranges = VoidGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_VOID");
-      std::vector<std::vector<int>> table = genomeHandler->readTable(
-          {1 << (int)addresses.first.size(), (int)addresses.second.size()},
-          {(int)pow(2, maxIn), maxOut}, {0, 1}, AbstractGate::DATA_CODE,
-          gateID);
-
-      double epsilon = VoidGate::voidGate_ProbabilityPL->get(PT_);
-
-      if (epsilon > 1) {
-        genomeHandler->advanceIndex((int)epsilon);
-        epsilon =
-            genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
-      } else if (epsilon < 0) {
-        // if we are reading from head of genome, the we are not worried about
-        // EOC, so we get a new handler so as not to reset the EOC/EOG staus.
-        auto cleanGenomeHandler = genomeHandler->makeCopy();
-        cleanGenomeHandler->resetHandler();
-        cleanGenomeHandler->advanceIndex((int)abs(epsilon));
-        epsilon = cleanGenomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE,
-                                                 gateID);
-      }
-
-      return std::make_shared<VoidGate>(addresses, table, gateID, epsilon, PT_);
-    });
-  }
-  if (usingGPGatePL->get(PT)) {
-    inUseGateNames.insert("GeneticPrograming");
-    int codonOne = GPCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = gPGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-      std::string IO_Ranges = GPGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_GENETICPROGRAMING");
-      int operation =
-          genomeHandler->readInt(0, 8, AbstractGate::DATA_CODE, gateID);
-      std::vector<double> constValues;
-      for (int i = 0; i < 4; i++) {
-        double constValueMin = GPGate::constValueMinPL->get(PT_);
-        double constValueMax = GPGate::constValueMaxPL->get(PT_);
-        constValues.push_back(genomeHandler->readDouble(
-            constValueMin, constValueMax, AbstractGate::DATA_CODE, gateID));
-      }
-      if (genomeHandler->atEOC()) {
-        std::shared_ptr<GPGate> nullObj = nullptr;
-        ;
-        return nullObj;
-      }
-      return std::make_shared<GPGate>(addresses, operation, constValues, gateID,
-                                 PT_);
-    });
-  }
-  if (usingTritDeterministicGatePL->get(PT)) {
-    inUseGateNames.insert("TritDeterministic");
-    int codonOne = TritDeterministicCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = tritDeterministicGateInitialCountPL->get(PT);
-
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-      std::string IO_Ranges = TritDeterministicGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_TRIT");
-      std::vector<std::vector<int>> table =
-          genomeHandler->readTable({(int)pow(3, (int)addresses.first.size()),
-                                    (int)addresses.second.size()},
-                                   {(int)pow(3, maxIn), maxOut}, {-1, 1},
-                                   AbstractGate::DATA_CODE, gateID);
-      if (genomeHandler->atEOC()) {
-        std::shared_ptr<TritDeterministicGate> nullObj = nullptr;
-        ;
-        return nullObj;
-      }
-      return std::make_shared<TritDeterministicGate>(addresses, table, gateID, PT_);
-    });
-  }
-  if (usingNeuronGatePL->get(PT)) {
-    inUseGateNames.insert("Neuron");
-    int codonOne = NeuronCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = neuronGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-      int defaultNumInputsMin = NeuronGate::defaultNumInputsMinPL->get(PT_);
-      int defaultNumInputsMax = NeuronGate::defaultNumInputsMaxPL->get(PT_);
-      int numInputs =
-          genomeHandler->readInt(defaultNumInputsMin, defaultNumInputsMax,
-                                 AbstractGate::IN_COUNT_CODE, gateID);
-      std::vector<int> inputs;
-      inputs.resize(numInputs);
-
-      getSomeBrainAddresses(numInputs, defaultNumInputsMax, inputs,
-                            genomeHandler, AbstractGate::IN_ADDRESS_CODE,
-                            gateID, PT_);
-
-      int output =
-          genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
-                                 AbstractGate::OUT_ADDRESS_CODE, gateID);
-
-      int dischargeBehavior = NeuronGate::defaultDischargeBehaviorPL->get(PT_);
-      if (dischargeBehavior == -1) {
-        dischargeBehavior =
-            genomeHandler->readInt(0, 2, AbstractGate::DATA_CODE, gateID);
-      }
-
-      double defaultThresholdMin = NeuronGate::defaultThresholdMinPL->get(PT_);
-      double defaultThresholdMax = NeuronGate::defaultThresholdMaxPL->get(PT_);
-      double thresholdValue =
-          genomeHandler->readDouble(defaultThresholdMin, defaultThresholdMax,
-                                    AbstractGate::DATA_CODE, gateID);
-
-      bool thresholdActivates = 1;
-      bool defaultAllowRepression =
-          NeuronGate::defaultAllowRepressionPL->get(PT_);
-      if (defaultAllowRepression == 1) {
-        thresholdActivates =
-            genomeHandler->readInt(0, 1, AbstractGate::DATA_CODE, gateID);
-      }
-
-      double decayRate =
-          genomeHandler->readDouble(NeuronGate::defaultDecayRateMinPL->get(PT_),
-                                    NeuronGate::defaultDecayRateMaxPL->get(PT_),
-                                    AbstractGate::DATA_CODE, gateID);
-      double deliveryCharge = genomeHandler->readDouble(
-          NeuronGate::defaultDeliveryChargeMinPL->get(PT_),
-          NeuronGate::defaultDeliveryChargeMaxPL->get(PT_),
-          AbstractGate::DATA_CODE, gateID);
-      double deliveryError = NeuronGate::defaultDeliveryErrorPL->get(PT_);
-
-      int ThresholdFromNode = -1;
-      int DeliveryChargeFromNode = -1;
-      bool defaultThresholdFromNode =
-          NeuronGate::defaultThresholdFromNodePL->get(PT_);
-      if (defaultThresholdFromNode) {
-        ThresholdFromNode = genomeHandler->readInt(
-            0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
-            AbstractGate::IN_ADDRESS_CODE, gateID);
-      }
-      bool defaultDeliveryChargeFromNode =
-          NeuronGate::defaultDeliveryChargeFromNodePL->get(PT_);
-      if (defaultDeliveryChargeFromNode) {
-        DeliveryChargeFromNode = genomeHandler->readInt(
-            0, (1 << bitsPerBrainAddressPL->get(PT_)) - 1,
-            AbstractGate::IN_ADDRESS_CODE, gateID);
-      }
-      if (genomeHandler->atEOC()) {
-        std::shared_ptr<NeuronGate> nullObj = nullptr;
-        ;
-        return nullObj;
-      }
-      return std::make_shared<NeuronGate>(
-          inputs, output, dischargeBehavior, thresholdValue, thresholdActivates,
-          decayRate, deliveryCharge, deliveryError, ThresholdFromNode,
-          DeliveryChargeFromNode, gateID, PT_);
-    });
-  }
-  if (usingFeedbackGatePL->get(PT)) {
-    inUseGateNames.insert("Feedback");
-    int codonOne = FeedbackCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] = feedbackGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-      unsigned int posFBNode, negFBNode;
-      unsigned char nrPos, nrNeg;
-      std::vector<double> posLevelOfFB, negLevelOfFB;
-      std::string IO_Ranges = FeedbackGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_FEEDBACK");
+                              PT_, "BRAIN_MARKOV_GATES_PROBABILISTIC");
       std::vector<std::vector<int>> rawTable = genomeHandler->readTable(
           {1 << addresses.first.size(), 1 << addresses.second.size()},
           {(int)pow(2, maxIn), (int)pow(2, maxOut)}, {0, 255},
           AbstractGate::DATA_CODE, gateID);
-      posFBNode = genomeHandler->readInt(
-          0, 255); // we will scale to, say, 256 and floor later.
-      negFBNode = genomeHandler->readInt(0, 255);
-      nrPos = genomeHandler->readInt(0, 3);
-      nrNeg = genomeHandler->readInt(0, 3);
-      posLevelOfFB.resize(nrPos);
-      negLevelOfFB.resize(nrNeg);
-      for (int i = 0; i < nrPos; i++)
-        posLevelOfFB[i] = genomeHandler->readDouble(0, 256);
-      for (int i = 0; i < nrNeg; i++)
-        negLevelOfFB[i] = genomeHandler->readDouble(0, 256);
       if (genomeHandler->atEOC()) {
-        std::shared_ptr<FeedbackGate> nullObj = nullptr;
+        std::shared_ptr<ProbabilisticGate> nullObj = nullptr;
         return nullObj;
       }
-
-      return std::make_shared<FeedbackGate>(addresses, rawTable, posFBNode,
-                                       negFBNode, nrPos, nrNeg, posLevelOfFB,
-                                       negLevelOfFB, gateID, PT_);
-      // std::pair<vector<int>,vector<int>> thepair =
-      // std::make_pair(std::vector<int>(),std::vector<int>());
-      // std::vector<std::vector<int>> dvec;
-      // unsigned int uint = 0;
-      // unsigned char uchar = '\0';
-      // std::vector<double> vdouble;
-      // return
-      // make_shared<FeedbackGate>(thepair,dvec,uint,uint,uchar,uchar,vdouble,vdouble,gateID,
-      // PT_);
+      return std::make_shared<ProbabilisticGate>(addresses, rawTable, gateID, PT_);
     });
   }
+// setupGates() populates Gate::makeGate (a structure containing functions) with
+// the constructors for various types of gates.
+// there are 256 possible gates identified each by a pair of codons (n followed
+// by 256-n)
+// after initializing Gate::MakeGate, Gate::AddGate() adds values and the
+// associated constructor function to Gate::MakeGate
+void Gate_Builder::setupGates() {
+  // the following "Codes" are identifiers for different gate types. These
+  // number are used to look up constructors and also as the first 1/2 of the
+  // start codeon
+  // if codons are being used to generate gates.
+  // more may be added, but the numbers should not change (if they do, then
+  // genomes will generate different brains!)
+  int ProbabilisticCode = 42; // TODO these should be enums
+  int DeterministicCode = 43;
+  int EpsilonCode = 44;
+  int VoidCode = 45;
+  int GPCode = 46;
+  int TritDeterministicCode = 47;
+  int NeuronCode = 48;
+  int FeedbackCode = 49;
+  int DecomposableCode = 50;
+  int DecomposableFeedbackCode = 51;
+
+  int bitsPerCodon = bitsPerCodonPL->get(PT);
+  makeGate.resize(1 << bitsPerCodon);
+  for (int i = 0; i < (1 << bitsPerCodon); i++) {
+    AddGate(i, nullptr);
+  }
+  gateStartCodes.resize(1 << bitsPerCodon);
+
+  if (usingProbGatePL->get(PT)) {
+	  constructProbabilisticGates(ProbabilisticCode,bitsPerCodon);
+  }
+  if (usingDecoGatePL->get(PT)) {
+    constructDecomposableGates(DecomposableCode, bitsPerCodon);
+  }
+  if (usingDetGatePL->get(PT)) {
+	  constructDeterministicGates(DeterministicCode,bitsPerCodon);
+  }
+  if (usingEpsiGatePL->get(PT)) {
+	constructEpsilonGates(EpsilonCode,bitsPerCodon);
+  }
+  if (usingVoidGatePL->get(PT)) {
+    constructVoidGates(VoidCode, bitsPerCodon);
+  }
+  if (usingGPGatePL->get(PT)) {
+    constructGPGates(GPCode,bitsPerCodon);
+  }
+  if (usingTritDeterministicGatePL->get(PT)) {
+	constructTritDeterministicGates(TritDeterministicCode,bitsPerCodon);
+  }
+  if (usingNeuronGatePL->get(PT)) {
+  	constructNeuronGates(NeuronCode,bitsPerCodon);
+  }
+  if (usingFeedbackGatePL->get(PT)) {
+    constructFeedbackGates(FeedbackCode,bitsPerCodon);
+  }
   if (usingDecomposableFeedbackGatePL->get(PT)) {
-    inUseGateNames.insert("DecomposableFeedback");
-    int codonOne = DecomposableFeedbackCode;
-    inUseGateTypes.insert(codonOne);
-    {
-      gateStartCodes[codonOne].push_back(codonOne);
-      gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
-    }
-    intialGateCounts[codonOne] =
-        decomposableFeedbackGateInitialCountPL->get(PT);
-    AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler,
-                         int gateID, std::shared_ptr<ParametersTable> PT_) {
-      unsigned int posFBNode, negFBNode;
-      unsigned char nrPos, nrNeg;
-      std::vector<double> posLevelOfFB, negLevelOfFB;
-      std::string IO_Ranges = DecomposableFeedbackGate::IO_RangesPL->get(PT_);
-      int maxIn, maxOut;
-      std::pair<std::vector<int>, std::vector<int>> addresses =
-          getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID,
-                              PT_, "BRAIN_MARKOV_GATES_FEEDBACK");
-      // vector<vector<int>> rawTable = genomeHandler->readTable( {1 <<
-      // addresses.first.size(), 1 << addresses.second.size()},
-      // {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255},
-      // AbstractGate::DATA_CODE, gateID);
-      std::vector<std::vector<int>> rawTable(
-          1 << addresses.first.size(),
-          std::vector<int>(1 << addresses.second.size(),
-                      0)); /// correct size, and init to 0
-      /// read factors and generate table data from factors
-      std::vector<std::vector<double>> factorsList(1 << addresses.first.size());
-      for (std::vector<double> &factors : factorsList) {
-        factors.resize(addresses.second.size());
-        for (double &eachFactor : factors) {
-          eachFactor =
-              genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
-        }
-      }
-      std::bitset<32> bs(0); /// bitset
-      for (int rowi = 0; rowi < rawTable.size(); rowi++) {
-        for (int outputi = 0; outputi < rawTable[rowi].size(); outputi++) {
-          double p(1.0);
-          bs = outputi;
-          /// loop through bits in each output and multiply
-          /// the appropriate factors together in the right way (1-p) for bit=0
-          /// vs p for bit=1
-          for (int biti = 0; biti < addresses.second.size(); biti++) {
-            p *= (bs[biti] ? factorsList[rowi][biti]
-                           : 1 - factorsList[rowi][biti]);
-          }
-          rawTable[rowi][outputi] = int(255 * p);
-        }
-      }
-      posFBNode = genomeHandler->readInt(
-          0, 255); // we will scale to, say, 256 and floor later.
-      negFBNode = genomeHandler->readInt(0, 255);
-      nrPos = genomeHandler->readInt(0, 3);
-      nrNeg = genomeHandler->readInt(0, 3);
-      posLevelOfFB.resize(nrPos);
-      negLevelOfFB.resize(nrNeg);
-      for (int i = 0; i < nrPos; i++)
-        posLevelOfFB[i] = genomeHandler->readDouble(0, 256);
-      for (int i = 0; i < nrNeg; i++)
-        negLevelOfFB[i] = genomeHandler->readDouble(0, 256);
-      if (genomeHandler->atEOC()) {
-        std::shared_ptr<DecomposableFeedbackGate> nullObj = nullptr;
-        return nullObj;
-      }
-      return std::make_shared<DecomposableFeedbackGate>(
-          addresses, rawTable, factorsList, posFBNode, negFBNode, nrPos, nrNeg,
-          posLevelOfFB, negLevelOfFB, gateID, PT_);
-    });
+  
+	constructDecomposableFeedbackGates(DecomposableFeedbackCode,bitsPerCodon);
   }
 }
 

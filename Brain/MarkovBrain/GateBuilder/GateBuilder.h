@@ -68,6 +68,11 @@ public:
 
   const std::shared_ptr<ParametersTable> PT;
 
+  std::vector<std::function<std::shared_ptr<AbstractGate>(
+      std::shared_ptr<AbstractGenome::Handler>, int gateID,
+      std::shared_ptr<ParametersTable> gatePT)>> makeGate;
+
+
   // Gate_Builder() = default;
   Gate_Builder(std::shared_ptr<ParametersTable> PT_ = nullptr)
       : PT(PT_){
@@ -81,9 +86,6 @@ public:
                    std::shared_ptr<AbstractGenome::Handler>, int gateID,
                    std::shared_ptr<ParametersTable> gatePT)> theFunction);
   void setupGates();
-  std::vector<std::function<std::shared_ptr<AbstractGate>(
-      std::shared_ptr<AbstractGenome::Handler>, int gateID,
-      std::shared_ptr<ParametersTable> gatePT)>> makeGate;
 
   // int getIOAddress(shared_ptr<AbstractGenome::Handler> genomeHandler,
   // shared_ptr<AbstractGenome> genome, int gateID);  // extracts one brain
@@ -106,6 +108,16 @@ public:
                       int gateID, std::shared_ptr<ParametersTable> ,
                       const std::string featureName = "undefined");
 
+  void constructDecomposableFeedbackGates(int,int);
+  void constructFeedbackGates(int,int);
+  void constructNeuronGates(int,int);
+  void constructTritDeterministicGates(int,int);
+  void constructGPGates(int,int);
+  void constructVoidGates(int,int);
+  void constructEpsilonGates(int,int);
+  void constructDeterministicGates(int,int);
+  void constructDecomposableGates(int,int);
+  void constructProbabilisticGates(int,int);
   /* *** some c++ 11 magic to speed up translation from genome to gates *** */
   // function<shared_ptr<Gate>(shared_ptr<AbstractGenome::Handler>
   // genomeHandler, int gateID)> Gate_Builder::makeGate[256];
