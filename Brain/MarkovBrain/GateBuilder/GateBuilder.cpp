@@ -187,9 +187,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
                              genomeHandler, gateID, PT_);
 }
 
-  void Gate_Builder::constructDecomposableFeedbackGates(int code,int bitsPerCodon){
+  void Gate_Builder::constructDecomposableFeedbackGates(int bitsPerCodon){
   	inUseGateNames.insert("DecomposableFeedback");
-    int codonOne = code;
+    int codonOne = Codes::DecomposableFeedback;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -260,9 +260,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
   } 
 	 
-	  void Gate_Builder::constructFeedbackGates(int code,int bitsPerCodon){
+	  void Gate_Builder::constructFeedbackGates(int bitsPerCodon){
 	  inUseGateNames.insert("Feedback");
-    int codonOne = code;
+    int codonOne = Codes::Feedback;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -314,9 +314,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
 	}
 
-	  void Gate_Builder::constructNeuronGates(int code,int bitsPerCodon){
+	  void Gate_Builder::constructNeuronGates(int bitsPerCodon){
 	  inUseGateNames.insert("Neuron");
-    int codonOne = code;
+    int codonOne = Codes::Neuron;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -399,9 +399,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
 	  }
 	
-	  void Gate_Builder::constructTritDeterministicGates(int code,int bitsPerCodon){
+	  void Gate_Builder::constructTritDeterministicGates(int bitsPerCodon){
   	  inUseGateNames.insert("TritDeterministic");
-    int codonOne = code;
+    int codonOne = Codes::TritDeterministic;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -431,9 +431,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
   }
 
 
-  void Gate_Builder::constructGPGates(int code,int bitsPerCodon){
+  void Gate_Builder::constructGPGates(int bitsPerCodon){
 	  inUseGateNames.insert("GeneticPrograming");
-    int codonOne = code;
+    int codonOne = Codes::GP;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -466,9 +466,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
   }
  
-	  void Gate_Builder::constructVoidGates(int code,int bitsPerCodon){
+	  void Gate_Builder::constructVoidGates(int bitsPerCodon){
  inUseGateNames.insert("Void");
-    int codonOne = code;
+    int codonOne = Codes::Void;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -508,9 +508,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
 	  }
 
-  void Gate_Builder::constructEpsilonGates(int code,int bitsPerCodon){
+  void Gate_Builder::constructEpsilonGates(int bitsPerCodon){
   	  inUseGateNames.insert("Epsilon");
-    int codonOne = code;
+    int codonOne = Codes::Epsilon;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -551,9 +551,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
   }
 
 
-  void Gate_Builder::constructDeterministicGates(int code,int bitsPerCodon){
+  void Gate_Builder::constructDeterministicGates(int bitsPerCodon){
     inUseGateNames.insert("Deterministic");
-    int codonOne = code;
+    int codonOne = Codes::Deterministic;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -579,9 +579,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
   }
 
-  void Gate_Builder::constructDecomposableGates(int code,int bitsPerCodon){
+  void Gate_Builder::constructDecomposableGates(int bitsPerCodon){
     inUseGateNames.insert("Decomposable");
-    int codonOne = code;
+    int codonOne = Codes::Decomposable;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -751,9 +751,9 @@ std::pair<std::vector<int>, std::vector<int>> Gate_Builder::getInputsAndOutputs(
     });
 }
 
-void Gate_Builder::constructProbabilisticGates(int code, int bitsPerCodon){
+void Gate_Builder::constructProbabilisticGates( int bitsPerCodon){
     inUseGateNames.insert("Probabilistic");
-    int codonOne = code;
+    int codonOne = Codes::Probabilistic;
     inUseGateTypes.insert(codonOne);
     {
       gateStartCodes[codonOne].push_back(codonOne);
@@ -785,22 +785,6 @@ void Gate_Builder::constructProbabilisticGates(int code, int bitsPerCodon){
 // after initializing Gate::MakeGate, Gate::AddGate() adds values and the
 // associated constructor function to Gate::MakeGate
 void Gate_Builder::setupGates() {
-  // the following "Codes" are identifiers for different gate types. These
-  // number are used to look up constructors and also as the first 1/2 of the
-  // start codeon
-  // if codons are being used to generate gates.
-  // more may be added, but the numbers should not change (if they do, then
-  // genomes will generate different brains!)
-  int ProbabilisticCode = 42; // TODO these should be enums
-  int DeterministicCode = 43;
-  int EpsilonCode = 44;
-  int VoidCode = 45;
-  int GPCode = 46;
-  int TritDeterministicCode = 47;
-  int NeuronCode = 48;
-  int FeedbackCode = 49;
-  int DecomposableCode = 50;
-  int DecomposableFeedbackCode = 51;
 
   int bitsPerCodon = bitsPerCodonPL->get(PT);
   makeGate.resize(1 << bitsPerCodon);
@@ -810,35 +794,34 @@ void Gate_Builder::setupGates() {
   gateStartCodes.resize(1 << bitsPerCodon);
 
   if (usingProbGatePL->get(PT)) {
-	  constructProbabilisticGates(ProbabilisticCode,bitsPerCodon);
+	  constructProbabilisticGates(bitsPerCodon);
   }
   if (usingDecoGatePL->get(PT)) {
-    constructDecomposableGates(DecomposableCode, bitsPerCodon);
+    constructDecomposableGates( bitsPerCodon);
   }
   if (usingDetGatePL->get(PT)) {
-	  constructDeterministicGates(DeterministicCode,bitsPerCodon);
+	  constructDeterministicGates(bitsPerCodon);
   }
   if (usingEpsiGatePL->get(PT)) {
-	constructEpsilonGates(EpsilonCode,bitsPerCodon);
+	constructEpsilonGates(bitsPerCodon);
   }
   if (usingVoidGatePL->get(PT)) {
-    constructVoidGates(VoidCode, bitsPerCodon);
+    constructVoidGates( bitsPerCodon);
   }
   if (usingGPGatePL->get(PT)) {
-    constructGPGates(GPCode,bitsPerCodon);
+    constructGPGates(bitsPerCodon);
   }
   if (usingTritDeterministicGatePL->get(PT)) {
-	constructTritDeterministicGates(TritDeterministicCode,bitsPerCodon);
+	constructTritDeterministicGates(bitsPerCodon);
   }
   if (usingNeuronGatePL->get(PT)) {
-  	constructNeuronGates(NeuronCode,bitsPerCodon);
+  	constructNeuronGates(bitsPerCodon);
   }
   if (usingFeedbackGatePL->get(PT)) {
-    constructFeedbackGates(FeedbackCode,bitsPerCodon);
+    constructFeedbackGates(bitsPerCodon);
   }
   if (usingDecomposableFeedbackGatePL->get(PT)) {
-  
-	constructDecomposableFeedbackGates(DecomposableFeedbackCode,bitsPerCodon);
+	constructDecomposableFeedbackGates(bitsPerCodon);
   }
 }
 

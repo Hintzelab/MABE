@@ -72,6 +72,24 @@ public:
       std::shared_ptr<AbstractGenome::Handler>, int gateID,
       std::shared_ptr<ParametersTable> gatePT)>> makeGate;
 
+  // the following "Codes" are identifiers for different gate types. These
+  // numbers are used to look up constructors, and also as the first half of the
+  // start codon, if codons are being used to generate gates.
+  // More may be added, but the current numbers MUST not change (if they do,
+  // then
+  // genomes will generate different brains! and is not backward-compatible)
+  enum Codes {
+    Probabilistic = 42,
+    Deterministic = 43,
+    Epsilon = 44,
+    Void = 45,
+    GP = 46,
+    TritDeterministic = 47,
+    Neuron = 48,
+    Feedback = 49,
+    Decomposable = 50,
+    DecomposableFeedback = 51
+  };
 
   // Gate_Builder() = default;
   Gate_Builder(std::shared_ptr<ParametersTable> PT_ = nullptr)
@@ -108,16 +126,16 @@ public:
                       int gateID, std::shared_ptr<ParametersTable> ,
                       const std::string featureName = "undefined");
 
-  void constructDecomposableFeedbackGates(int,int);
-  void constructFeedbackGates(int,int);
-  void constructNeuronGates(int,int);
-  void constructTritDeterministicGates(int,int);
-  void constructGPGates(int,int);
-  void constructVoidGates(int,int);
-  void constructEpsilonGates(int,int);
-  void constructDeterministicGates(int,int);
-  void constructDecomposableGates(int,int);
-  void constructProbabilisticGates(int,int);
+  void constructDecomposableFeedbackGates(int);
+  void constructFeedbackGates(int);
+  void constructNeuronGates(int);
+  void constructTritDeterministicGates(int);
+  void constructGPGates(int);
+  void constructVoidGates(int);
+  void constructEpsilonGates(int);
+  void constructDeterministicGates(int);
+  void constructDecomposableGates(int);
+  void constructProbabilisticGates(int);
   /* *** some c++ 11 magic to speed up translation from genome to gates *** */
   // function<shared_ptr<Gate>(shared_ptr<AbstractGenome::Handler>
   // genomeHandler, int gateID)> Gate_Builder::makeGate[256];
