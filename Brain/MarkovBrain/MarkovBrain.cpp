@@ -134,6 +134,7 @@ void MarkovBrain::resetInputs() {
 }
 
 void MarkovBrain::resetOutputs() {
+  // note nrInputValues+i gets us the index for the node related to each output
   for (int i = 0; i < nrOutputValues; i++) 
     nodes[nrInputValues + i] = 0.0;
 }
@@ -150,25 +151,17 @@ void MarkovBrain::update() {
   if (randomizeUnconnectedOutputs) {
     switch (randomizeUnconnectedOutputsType) {
     case 0:
-      for (int i = 0; i < nrOutputValues; i++) {
-        // cout << i << " : " << nextNodesConnections[i] << endl;
-        if (nextNodesConnections[nrInputValues + i] ==
-            0) { // note nrInputValues+i gets us the index for the node related
-                 // to each output
-          // cout << ".";
+      for (int i = 0; i < nrOutputValues; i++) 
+        if (nextNodesConnections[nrInputValues + i] == 0) 
           nextNodes[nrInputValues + i] =
               Random::getInt((int)randomizeUnconnectedOutputsMin,
                              (int)randomizeUnconnectedOutputsMax);
-        }
-      }
       break;
     case 1:
-      for (int i = 0; i < nrOutputValues; i++) {
-        if (nextNodesConnections[nrInputValues + i] == 0) {
+      for (int i = 0; i < nrOutputValues; i++) 
+        if (nextNodesConnections[nrInputValues + i] == 0) 
           nextNodes[nrInputValues + i] = Random::getDouble(
               randomizeUnconnectedOutputsMin, randomizeUnconnectedOutputsMax);
-        }
-      }
       break;
     default:
       std::cout
@@ -202,12 +195,10 @@ void MarkovBrain::fillInConnectionsLists() {
   nextNodesConnections.resize(nrNodes);
   for (auto &g : gates) {
     auto gateConnections = g->getConnectionsLists();
-    for (auto c : gateConnections.first) {
+    for (auto c : gateConnections.first) 
       nodesConnections[c]++;
-    }
-    for (auto c : gateConnections.second) {
+    for (auto c : gateConnections.second) 
       nextNodesConnections[c]++;
-    }
   }
 }
 
@@ -284,9 +275,8 @@ void MarkovBrain::initializeGenomes(
   for (auto gateType : GLB->gateBuilder.inUseGateTypes) {
     for (int i = 0; i < GLB->gateBuilder.intialGateCounts[gateType]; i++) {
       genomeHandler->randomize();
-      for (auto value : GLB->gateBuilder.gateStartCodes[gateType]) {
+      for (auto value : GLB->gateBuilder.gateStartCodes[gateType]) 
         genomeHandler->writeInt(value, 0, codonMax);
-      }
     }
   }
 }
