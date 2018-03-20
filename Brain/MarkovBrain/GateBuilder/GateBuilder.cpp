@@ -531,9 +531,12 @@ void Gate_Builder::constructDeterministicGates(int bitsPerCodon) {
     auto addresses = getInputsAndOutputs(
         DeterministicGate::IO_RangesPL->get(PT_), maxIn, maxOut, genomeHandler,
         gateID, PT_, "BRAIN_MARKOV_GATES_DETERMINISTIC");
-    auto rawTable = genomeHandler->readTable(
+
+	auto xxx = std::pow(2,maxIn);// 1 << maxIn;
+	auto rawTable = genomeHandler->readTable(
         {1 << addresses.first.size(), addresses.second.size()},
-        {std::pow(2, maxIn), maxOut}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+       // {std::pow(2, maxIn), maxOut}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+        {xxx, maxOut}, {0, 255}, AbstractGate::DATA_CODE, gateID);
     return genomeHandler->atEOC() ? std::shared_ptr<DeterministicGate>()
                                   : std::make_shared<DeterministicGate>(
                                         addresses, rawTable, gateID, PT_);
