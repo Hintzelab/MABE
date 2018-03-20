@@ -88,7 +88,6 @@ public:
               "called!\n This has not been implemented yet the chromosome "
               "class you are using!\n";
       exit(1);
-      return 0.0;
     }
 
     virtual void writeInt(int value, int valueMin, int valueMax) = 0;
