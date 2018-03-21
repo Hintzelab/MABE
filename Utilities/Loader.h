@@ -79,6 +79,7 @@ private:
   std::vector<std::vector<long>> keywordLeast(size_t, std::string,
                                                std::string);
   std::vector<std::vector<long>> keywordAny(size_t, std::string);
+  std::vector<std::vector<long>> keywordDuplicate(size_t, std::string);
   std::vector<std::vector<long>> keywordMatch(std::string, std::string,
                                                std::string);
 
