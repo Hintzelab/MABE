@@ -71,8 +71,8 @@ shared_ptr<ParameterLink<string>> ExampleWorld::exampleMTreePL = Parameters::reg
 shared_ptr<ParameterLink<string>> ExampleWorld::groupNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-groupNameSpace", (string)"root::", "namespace of group to be evaluated");
 shared_ptr<ParameterLink<string>> ExampleWorld::brainNameSpacePL = Parameters::register_parameter("WORLD_TEMPLATE-brainNameSpace", (string)"root::", "namespace for parameters used to define brain");
 
-ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> _PT) :
-		AbstractWorld(_PT) {
+ExampleWorld::ExampleWorld(shared_ptr<ParametersTable> PT_) :
+		AbstractWorld(PT_) {
 	
 	// What is a PT?
 	// PT stands for ParametersTable. Parameters are collected in tables. There

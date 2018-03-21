@@ -12,28 +12,25 @@
 
 #include "AbstractGate.h"
 
-using namespace std;
-
-
-class DeterministicGate: public AbstractGate {
+class DeterministicGate : public AbstractGate {
 public:
-	
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	vector<vector<int>> table;
-	DeterministicGate() = delete;
-	DeterministicGate(shared_ptr<ParametersTable> _PT = nullptr) :
-		AbstractGate(_PT) {
-		table = {}; 
-	}
-	DeterministicGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
-	virtual ~DeterministicGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
-	//void setupForBits(int* Ins, int nrOfIns, int Out, int logic);
-	virtual string gateType() override{
-		return "Deterministic";
-	}
+  std::vector<std::vector<int>> table;
+  DeterministicGate() = delete;
+  DeterministicGate(std::shared_ptr<ParametersTable> PT_ = nullptr)
+      : AbstractGate(PT_) {
+    table = {};
+  }
+  DeterministicGate(std::pair<std::vector<int>, std::vector<int>> addresses,
+                    std::vector<std::vector<int>> _table, int ID_,
+                    std::shared_ptr<ParametersTable> PT_ = nullptr);
+  virtual ~DeterministicGate() = default;
+  virtual void update(std::vector<double> &states,
+                      std::vector<double> &nextStates) override;
+  virtual std::shared_ptr<AbstractGate>
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
+  // void setupForBits(int* Ins, int nrOfIns, int Out, int logic);
+  virtual std::string gateType() override { return "Deterministic"; }
 };
-
 

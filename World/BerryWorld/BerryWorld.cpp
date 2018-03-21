@@ -487,8 +487,8 @@ bool BerryWorld::WorldMap::loadMap(ifstream& FILE, const string _fileName) {
 	return goodRead;
 }
 
-BerryWorld::BerryWorld(shared_ptr<ParametersTable> _PT) :
-		AbstractWorld(_PT) {
+BerryWorld::BerryWorld(shared_ptr<ParametersTable> PT_) :
+		AbstractWorld(PT_) {
 
 	cout << "Berry world setup:" << endl;
 
