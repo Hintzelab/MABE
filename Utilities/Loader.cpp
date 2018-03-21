@@ -319,12 +319,38 @@ std::vector<std::vector<long>> Loader::parseCollection(std::string expr) {
       return keywordMatch(match[1].str(), match[2].str(), match[3].str());
   }
 
+  {
+    static const std::regex command_duplicate(
+        R"(^\s*(\d+)\s*\*\s*(\w+)\s*$)");
+    std::smatch match;
+    if (std::regex_match(expr, match, command_duplicate))
+      return keywordDuplicate(stoul(match[1].str()), match[2].str());
+  }
+
   // if no keyword matches
   std::cout << " error: syntax error while trying to resolve " << std::endl
             << expr << std::endl;
   exit(1);
 
 } // end Loader::parse_token
+
+std::vector<std::vector<long>> Loader::keywordDuplicate(
+                                                    size_t value,
+                                                    std::string resource) {
+
+  std::vector<std::vector<long>> coll;
+  if (collection_org_lists.find(resource) == collection_org_lists.end()) {
+    std::cout << "Unrecognised token " << resource << std::endl;
+    exit(1);
+  }
+
+  for (const auto &p : collection_org_lists[resource]) {
+	auto from_pop = p;
+	auto num = value;
+	while(num--) coll.push_back(from_pop);
+  }
+  return coll;
+}
 
 std::vector<std::vector<long>> Loader::keywordMatch(std::string attribute,
                                                     std::string value,
