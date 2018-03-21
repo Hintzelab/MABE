@@ -18,10 +18,10 @@ std::shared_ptr<ParameterLink<std::string>> DecomposableGate::IO_RangesPL =
 
 DecomposableGate::DecomposableGate(
     std::pair<std::vector<int>, std::vector<int>> addresses,
-    std::vector<std::vector<int>> rawTable, int _ID,
-    std::shared_ptr<ParametersTable> _PT)
-    : AbstractGate(_PT) {
-  ID = _ID;
+    std::vector<std::vector<int>> rawTable, int ID_,
+    std::shared_ptr<ParametersTable> PT_)
+    : AbstractGate(PT_) {
+  ID = ID_;
   int i, j;
   inputs = addresses.first;
   outputs = addresses.second;
@@ -81,11 +81,11 @@ void DecomposableGate::update(
 }
 
 std::shared_ptr<AbstractGate>
-DecomposableGate::makeCopy(std::shared_ptr<ParametersTable> _PT) {
-  if (_PT == nullptr) {
-    _PT = PT;
+DecomposableGate::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+  if (PT_ == nullptr) {
+    PT_ = PT;
   }
-  auto newGate = std::make_shared<DecomposableGate>(_PT);
+  auto newGate = std::make_shared<DecomposableGate>(PT_);
   newGate->table = table;
   newGate->ID = ID;
   newGate->inputs = inputs;

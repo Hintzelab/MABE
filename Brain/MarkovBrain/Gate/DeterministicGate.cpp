@@ -17,10 +17,10 @@ std::shared_ptr<ParameterLink<std::string>> DeterministicGate::IO_RangesPL =
         "outputs-max outputs)");
 
 DeterministicGate::DeterministicGate(std::pair<std::vector<int>, std::vector<int>> addresses,
-                                     std::vector<std::vector<int>> _table, int _ID,
-                                     std::shared_ptr<ParametersTable> _PT)
-    : AbstractGate(_PT) {
-  ID = _ID;
+                                     std::vector<std::vector<int>> _table, int ID_,
+                                     std::shared_ptr<ParametersTable> PT_)
+    : AbstractGate(PT_) {
+  ID = ID_;
   inputs = addresses.first;
   outputs = addresses.second;
   table = _table;
@@ -52,11 +52,11 @@ void DeterministicGate::update(std::vector<double> &nodes,
 }
 
 std::shared_ptr<AbstractGate>
-DeterministicGate::makeCopy(std::shared_ptr<ParametersTable> _PT) {
-  if (_PT == nullptr) {
-    _PT = PT;
+DeterministicGate::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+  if (PT_ == nullptr) {
+    PT_ = PT;
   }
-  auto newGate = std::make_shared<DeterministicGate>(_PT);
+  auto newGate = std::make_shared<DeterministicGate>(PT_);
   newGate->table = table;
   newGate->ID = ID;
   newGate->inputs = inputs;
