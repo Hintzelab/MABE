@@ -40,8 +40,8 @@ public:
 
   AbstractBrain() = delete;
 
-  AbstractBrain(int ins, int outs, std::shared_ptr<ParametersTable> _PT)
-      : PT(_PT) {
+  AbstractBrain(int ins, int outs, std::shared_ptr<ParametersTable> PT_)
+      : PT(PT_) {
     nrInputValues = ins;
     nrOutputValues = outs;
     recordActivity = false;

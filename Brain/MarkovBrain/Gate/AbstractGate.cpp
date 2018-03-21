@@ -25,7 +25,7 @@ void AbstractGate::applyNodeMap(std::vector<int> nodeMap, int maxNodes) {
 }
 
 std::shared_ptr<AbstractGate>
-AbstractGate::makeCopy(std::shared_ptr<ParametersTable> _PT) {
+AbstractGate::makeCopy(std::shared_ptr<ParametersTable> ) {
   std::cout
       << "ERROR IN AbstractGate::makeCopy() - You are using the abstract copy "
          "constructor for gates. You must define your own"

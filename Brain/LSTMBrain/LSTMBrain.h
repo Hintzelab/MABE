@@ -70,7 +70,7 @@ public:
     void vectorMathElementalMultiply(vector<double> &A,vector<double> &B,vector<double> &result);
     void showVector(vector<double> &V);
     
-    virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+    virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) override;
 
 	virtual unordered_set<string> requiredGenomes() override {
 		return { genomeNamePL->get(PT) };

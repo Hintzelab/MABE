@@ -333,7 +333,7 @@ public:
 	vector<int> configTriggerFoodLevels;
 	vector<string> configTriggerFoodEvents;
 
-	BerryWorld(shared_ptr<ParametersTable> _PT);
+	BerryWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~BerryWorld() = default;
 
 	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyse, int visualize, int debug) override;

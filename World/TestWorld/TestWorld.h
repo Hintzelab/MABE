@@ -35,7 +35,7 @@ public:
 	//string groupName;
 	//string brainName;
 
-	TestWorld(shared_ptr<ParametersTable> _PT = nullptr);
+	TestWorld(shared_ptr<ParametersTable> PT_ = nullptr);
 	virtual ~TestWorld() = default;
 
 

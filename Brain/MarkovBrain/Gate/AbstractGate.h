@@ -37,13 +37,13 @@ public:
   static const int DATA_CODE = 30;
 
   AbstractGate() = delete;
-  AbstractGate(std::shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT) {
+  AbstractGate(std::shared_ptr<ParametersTable> PT_ = nullptr) : PT(PT_) {
     ID = 0;
   }
   virtual ~AbstractGate() = default;
 
   virtual std::shared_ptr<AbstractGate>
-  makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr);
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr);
   std::vector<int> inputs;
   std::vector<int> outputs;
 

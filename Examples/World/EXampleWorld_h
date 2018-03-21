@@ -73,7 +73,7 @@ public:
 
 	
 	
-	ExampleWorld(shared_ptr<ParametersTable> _PT);
+	ExampleWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~ExampleWorld() = default;
 
 

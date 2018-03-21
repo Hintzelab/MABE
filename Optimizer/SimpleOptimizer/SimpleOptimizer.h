@@ -170,7 +170,7 @@ public:
   std::shared_ptr<Abstract_MTree> optimizeValueMT, surviveRateMT, selfRateMT,
       elitismCountMT, elitismRangeMT, nextPopSizeMT;
 
-  SimpleOptimizer(std::shared_ptr<ParametersTable> _PT = nullptr);
+  SimpleOptimizer(std::shared_ptr<ParametersTable> PT_ = nullptr);
 
   virtual void
   optimize(std::vector<std::shared_ptr<Organism>> &population) override;
