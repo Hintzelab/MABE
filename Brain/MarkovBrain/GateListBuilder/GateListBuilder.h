@@ -30,11 +30,6 @@ public:
   AbstractGateListBuilder(std::shared_ptr<ParametersTable> PT_ = nullptr)
       : PT(PT_), gateBuilder(PT) {}
 
-  //	AbstractGateListBuilder(shared_ptr<ParametersTable> _PT) : PT(_PT),
-  //AbstractGateListBuilder() {
-  //		gateBuilder.PT = PT;
-  //	}
-
   virtual ~AbstractGateListBuilder() = default;
   //	virtual vector<shared_ptr<Gate>>
   //buildGateList(shared_ptr<AbstractGenome> genome, int nrOfBrainStates,
