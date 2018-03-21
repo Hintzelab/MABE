@@ -10,32 +10,40 @@
 
 #include "TritDeterministicGate.h"
 
-shared_ptr<ParameterLink<string>> TritDeterministicGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_TRIT-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<std::string>> TritDeterministicGate::IO_RangesPL =
+    Parameters::register_parameter(
+        "BRAIN_MARKOV_GATES_TRIT-IO_Ranges", (std::string) "1-4,1-4",
+        "range of number of inputs and outputs (min inputs-max inputs,min "
+        "outputs-max outputs)");
 
-TritDeterministicGate::TritDeterministicGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, shared_ptr<ParametersTable> _PT) :
-	AbstractGate(_PT) {
-	ID = _ID;
-	inputs = addresses.first;
-	outputs = addresses.second;
-	table = _table;
+TritDeterministicGate::TritDeterministicGate(
+    std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<int>> _table,
+    int ID_, std::shared_ptr<ParametersTable> PT_)
+    : AbstractGate(PT_) {
+  ID = ID_;
+  inputs = addresses.first;
+  outputs = addresses.second;
+  table = _table;
 }
 
-void TritDeterministicGate::update(vector<double> & nodes, vector<double> & nextNodes) {
-	int input = vectorToTritToInt(nodes,inputs,true);  // converts the input values into an index
-	for (size_t i = 0; i < outputs.size(); i++) {
-		nextNodes[outputs[i]] += table[input][i];
-	}
+void TritDeterministicGate::update(std::vector<double> &nodes,
+                                   std::vector<double> &nextNodes) {
+  int input = vectorToTritToInt(
+      nodes, inputs, true); // converts the input values into an index
+  for (size_t i = 0; i < outputs.size(); i++) {
+    nextNodes[outputs[i]] += table[input][i];
+  }
 }
 
-shared_ptr<AbstractGate> TritDeterministicGate::makeCopy(shared_ptr<ParametersTable> _PT)
-{
-	if (_PT == nullptr) {
-		_PT = PT;
-	}
-	auto newGate = make_shared<TritDeterministicGate>(_PT);
-	newGate->table = table;
-	newGate->ID = ID;
-	newGate->inputs = inputs;
-	newGate->outputs = outputs;
-	return newGate;
+std::shared_ptr<AbstractGate>
+TritDeterministicGate::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+  if (PT_ == nullptr) {
+    PT_ = PT;
+  }
+  auto newGate = std::make_shared<TritDeterministicGate>(PT_);
+  newGate->table = table;
+  newGate->ID = ID;
+  newGate->inputs = inputs;
+  newGate->outputs = outputs;
+  return newGate;
 }

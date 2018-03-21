@@ -12,8 +12,8 @@
 
 shared_ptr<ParameterLink<string>> ExampleBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
-ExampleBrain::ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-	AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+ExampleBrain::ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+	AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 	// columns to be added to pop.csv file
 	popFileColumns.clear();
 }
@@ -64,11 +64,11 @@ void ExampleBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGe
 }
 
 
-shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
-	auto newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues, PT_);
 	return newBrain;
 }																																																					  //shared_ptr<ParameterLink<int>> AbstractBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN-hiddenNodes", 8, "number of hidden nodes, if brain type supports hiden nodes");  // string parameter for outputMethod;

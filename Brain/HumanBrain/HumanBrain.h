@@ -38,7 +38,7 @@ public:
 
 	HumanBrain() = delete;
 
-	HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = Parameters::root);
+	HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = Parameters::root);
 
 	virtual ~HumanBrain() = default;
 
