@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <set>
@@ -22,52 +22,54 @@
 
 #include "../AbstractBrain.h"
 
-
-using namespace std;
-
-class ConstantValuesBrain: public AbstractBrain {
+class ConstantValuesBrain : public AbstractBrain {
 public:
+  static std::shared_ptr<ParameterLink<double>> valueMinPL;
+  static std::shared_ptr<ParameterLink<double>> valueMaxPL;
+  static std::shared_ptr<ParameterLink<int>> valueTypePL;
+  static std::shared_ptr<ParameterLink<int>> samplesPerValuePL;
 
-	static shared_ptr<ParameterLink<double>> valueMinPL;
-	static shared_ptr<ParameterLink<double>> valueMaxPL;
-	static shared_ptr<ParameterLink<int>> valueTypePL;
-	static shared_ptr<ParameterLink<int>> samplesPerValuePL;
+  static std::shared_ptr<ParameterLink<bool>> initializeUniformPL;
+  static std::shared_ptr<ParameterLink<bool>> initializeConstantPL;
+  static std::shared_ptr<ParameterLink<double>> initializeConstantValuePL;
 
-	static shared_ptr<ParameterLink<bool>> initializeUniformPL;
-	static shared_ptr<ParameterLink<bool>> initializeConstantPL;
-	static shared_ptr<ParameterLink<double>> initializeConstantValuePL;
+  static std::shared_ptr<ParameterLink<std::string>> genomeNamePL;
 
-	static shared_ptr<ParameterLink<string>> genomeNamePL;
+  ConstantValuesBrain() = delete;
 
-	ConstantValuesBrain() = delete;
+  ConstantValuesBrain(int _nrInNodes, int _nrOutNodes,
+                      std::shared_ptr<ParametersTable> PT_ = nullptr);
 
-	ConstantValuesBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_ = nullptr);
+  virtual ~ConstantValuesBrain() = default;
 
-	virtual ~ConstantValuesBrain() = default;
+  virtual void update() override;
 
-	virtual void update() override;
+  virtual std::shared_ptr<AbstractBrain>
+  makeBrain(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+                &_genomes) override;
 
-	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+  virtual std::unordered_set<std::string> requiredGenomes() override {
+    return {genomeNamePL->get(PT)};
+  }
 
-	virtual unordered_set<string> requiredGenomes() override {
-		return { genomeNamePL->get(PT) };
-	}
+  virtual std::string description() override;
+  virtual DataMap getStats(std::string &prefix) override;
+  virtual std::string getType() override { return "ConstantValues"; }
 
-	virtual string description() override;
-	virtual DataMap getStats(string& prefix) override;
-	virtual string getType() override {
-		return "ConstantValues";
-	}
+  virtual void resetBrain() override;
+  virtual void resetOutputs() override;
 
-	virtual void resetBrain() override;
-	virtual void resetOutputs() override;
+  virtual std::shared_ptr<AbstractBrain>
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
 
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) override;
-
-	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
+  virtual void initializeGenomes(
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+          &_genomes);
 };
 
-inline shared_ptr<AbstractBrain> ConstantValuesBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
-	return make_shared<ConstantValuesBrain>(ins, outs, PT);
+inline std::shared_ptr<AbstractBrain>
+ConstantValuesBrain_brainFactory(int ins, int outs,
+                                 std::shared_ptr<ParametersTable> PT) {
+  return std::make_shared<ConstantValuesBrain>(ins, outs, PT);
 }
 
