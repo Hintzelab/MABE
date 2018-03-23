@@ -9,11 +9,10 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-
 #include <algorithm>
 #include <memory>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <vector>
 #include <regex>
 
@@ -28,19 +27,17 @@
 #include "Utilities/Data.h"
 #include "Utilities/Utilities.h"
 #include "Utilities/Loader.h"
-//#include "Utilities/WorldUtilities.h"
 #include "Utilities/MTree.h"
 
 #include "modules.h"
+
 #if defined(__MINGW32__)
 #include <windows.h> /// for getting PID, for proper RNG for MinGW
 #endif
 
-using namespace std;
-
 int main(int argc, const char *argv[]) {
 
-  const string logo =
+  const std::string logo =
       R"raw(
 
 
@@ -59,7 +56,7 @@ int main(int argc, const char *argv[]) {
 	for help run MABE with the "-h" flag (i.e. ./mabe -h).
 
 )raw";
-  cout << logo;
+  std::cout << logo;
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
   bool saveFiles =
@@ -77,7 +74,7 @@ int main(int argc, const char *argv[]) {
         {{"settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
          {"settings_world.cfg", {"WORLD*"}},
          {"settings.cfg", {""}}});
-    cout << "Saving settings files and exiting." << endl;
+    std::cout << "Saving settings files and exiting." << std::endl;
     exit(0);
   }
 
@@ -96,7 +93,7 @@ int main(int argc, const char *argv[]) {
 
   // set up random number generator
   if (Global::randomSeedPL->get() == -1) {
-    random_device rd;
+    std::random_device rd;
 /// random_device is not implemented for MinGW on windows (it's like the old
 /// rand())
 /// so we need to seed it with entropy
@@ -106,30 +103,30 @@ int main(int argc, const char *argv[]) {
     int temp = rd();
 #endif
     Random::getCommonGenerator().seed(temp);
-    cout << "Generating Random Seed\n  " << temp << endl;
+    std::cout << "Generating Random Seed\n  " << temp << "\n";
   } else {
     Random::getCommonGenerator().seed(Global::randomSeedPL->get());
-    cout << "Using Random Seed: " << Global::randomSeedPL->get() << endl;
+    std::cout << "Using Random Seed: " << Global::randomSeedPL->get() << "\n";
   }
 
   // make world uses WORLD-worldType to determine type of world
   auto world = makeWorld(Parameters::root);
-  map<string, shared_ptr<Group>> groups;
-  shared_ptr<ParametersTable> PT;
+  std::map<std::string, std::shared_ptr<Group>> groups;
+  std::shared_ptr<ParametersTable> PT;
 
-  cout << "\nRunning World " << world->worldTypePL->get() << "\n";
+  std::cout << "\nRunning World " << world->worldTypePL->get() << "\n";
 
   auto worldRequirements = world->requiredGroups();
   // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
   // is empty, create "default" group.
   for (auto const &groupInfo : worldRequirements) {
-    cout << endl;
+    std::cout << "\n";
     auto NS = groupInfo.first;
     PT = NS == "root::" ? Parameters::root : Parameters::root->getTable(NS);
     // create (or get a pointer to) a new
     // parameters table with this name
 
-    cout << "Building group with name space: " << groupInfo.first << endl;
+    std::cout << "Building group with name space: " << groupInfo.first << "\n";
 
     Global::update = -1; // before there was time, there was a progenitor - set
                          // time to -1 so progenitor (the root organism) will
@@ -138,18 +135,18 @@ int main(int argc, const char *argv[]) {
     // create an optimizer of type defined by OPTIMIZER-optimizer
     auto optimizer = makeOptimizer(PT);
 
-    unordered_set<string> brainNames;
+    std::unordered_set<std::string> brainNames;
 
-    unordered_map<string, shared_ptr<AbstractBrain>>
+    std::unordered_map<std::string, std::shared_ptr<AbstractBrain>>
         templateBrains; // templates for brains in organisms in this group
-    unordered_map<string, shared_ptr<AbstractGenome>>
+    std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
         templateGenomes; // templates for genomes in organisms in this group
 
-    unordered_set<string> strSet; // temporary holder
+    std::unordered_set<std::string> strSet; // temporary holder
     auto genomeNames =
         optimizer->requiredGenomes(); // get genome names from optimizer
-    map<string, int> brainIns;
-    map<string, int> brainOuts;
+    std::map<std::string, int> brainIns;
+    std::map<std::string, int> brainOuts;
 
     for (auto const &s : groupInfo.second) {
       // for each group required by world, determine the brains and genomes
@@ -163,12 +160,12 @@ int main(int argc, const char *argv[]) {
       // when the world looked up "bodyGenome" and when the brain looked up
       // "genome" they would be looking at the same object.
       if (s.size() <= 4) {
-        cout << "\n\nwhile converting world requirements in \"" + NS +
-                    "\" group, found requirement \"" + s +
-                    "\".\n requirements must start with B: (brain) or G: "
-                    "(genome), followed with a name and end with "
-                    "\"::\".\nexiting."
-             << endl;
+        std::cout << "\n\nwhile converting world requirements in \"" + NS +
+                         "\" group, found requirement \"" + s +
+                         "\".\n requirements must start with B: (brain) or G: "
+                         "(genome), followed with a name and end with "
+                         "\"::\".\nexiting."
+                  << std::endl;
         exit(1);
       }
       if (s[0] == 'G' && s[1] == ':') {
@@ -184,88 +181,98 @@ int main(int argc, const char *argv[]) {
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {
-        cout << "\n\nwhile converting world requirements in \"" + NS +
-                    "\" group, found requirement \"" + s +
-                    "\".\n requirements must start with B: (brain) or G: "
-                    "(genome)!\nexiting."
-             << endl;
+        std::cout << "\n\nwhile converting world requirements in \"" + NS +
+                         "\" group, found requirement \"" + s +
+                         "\".\n requirements must start with B: (brain) or G: "
+                         "(genome)!\nexiting."
+                  << std::endl;
         exit(1);
       }
     }
 
-    cout << endl << " building brains..." << endl;
+    std::cout << "\n"
+              << " building brains..."
+              << "\n";
 
-    for (auto const& brainName : brainNames) {
-      cout << "  found brain: " << brainName << endl;
-      shared_ptr<ParametersTable> This_PT;
+    for (auto const &brainName : brainNames) {
+      std::cout << "  found brain: " << brainName << "\n";
+      std::shared_ptr<ParametersTable> This_PT;
       if (brainName == "") {
-        cout << "\n\nfound empty brain name, this is not allowed. Exiting..."
-             << endl;
+        std::cout
+            << "\n\nfound empty brain name, this is not allowed. Exiting..."
+            << std::endl;
         exit(1);
       }
       This_PT = brainName == "root::" ? Parameters::root
                                       : Parameters::root->getTable(brainName);
 
-      cout << "    ... building a " << This_PT->lookupString("BRAIN-brainType")
-           << " brain using " << brainName << " name space." << endl;
+      std::cout << "    ... building a "
+                << This_PT->lookupString("BRAIN-brainType") << " brain using "
+                << brainName << " name space."
+                << "\n";
       templateBrains[brainName] =
           makeTemplateBrain(brainIns[brainName], brainOuts[brainName], This_PT);
       strSet = templateBrains[brainName]->requiredGenomes();
       if (strSet.size() > 0) {
-        cout << "    ..... this brain requires genomes: ";
+        std::cout << "    ..... this brain requires genomes: ";
         for (auto const &g : strSet) {
-          cout << g << "  ";
+          std::cout << g << "  ";
         }
-        cout << endl;
+        std::cout << "\n";
       }
       genomeNames.insert(
           strSet.begin(),
           strSet.end()); // add this brains required genomes to genome names
     }
 
-    cout << endl << " building genomes..." << endl;
+    std::cout << "\n"
+              << " building genomes..."
+              << "\n";
 
     for (auto const &genomeName : genomeNames) {
-      cout << "  found genome: " << genomeName << endl;
-      shared_ptr<ParametersTable> This_PT;
+      std::cout << "  found genome: " << genomeName << "\n";
+      std::shared_ptr<ParametersTable> This_PT;
       if (genomeName == "") {
-        cout << "\n\nfound empty genome name, this is not allowed. Exiting..."
-             << endl;
+        std::cout
+            << "\n\nfound empty genome name, this is not allowed. Exiting..."
+            << std::endl;
         exit(1);
       }
       This_PT = genomeName == "root::" ? Parameters::root
                                        : Parameters::root->getTable(genomeName);
-                                       // this genome is not at root
+      // this genome is not at root
 
-	  cout << "    ... building a "
-           << This_PT->lookupString("GENOME-genomeType") << " genome using "
-           << genomeName << " name space." << endl;
+      std::cout << "    ... building a "
+                << This_PT->lookupString("GENOME-genomeType")
+                << " genome using " << genomeName << " name space."
+                << "\n";
       templateGenomes[genomeName] = makeTemplateGenome(This_PT);
     }
 
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
     auto progenitor =
-        make_shared<Organism>(templateGenomes, templateBrains, PT);
+        std::make_shared<Organism>(templateGenomes, templateBrains, PT);
 
-
-    vector<shared_ptr<Organism>> population;
+    std::vector<std::shared_ptr<Organism>> population;
 
     auto file_to_load = Global::initPopPL->get(PT);
     Loader loader;
     auto orgs_to_load = loader.loadPopulation(file_to_load);
     int population_size = orgs_to_load.size();
-	
-	if (!population_size) {
-		std::cout << "error: MASTER must contain at least one organism" << std::endl;
-		exit(1);
-	}
+
+    if (!population_size) {
+      std::cout << "error: MASTER must contain at least one organism"
+                << std::endl;
+      exit(1);
+    }
     // add population_size organisms which look like progenitor but could be
     // loaded from file
     for (auto &org : orgs_to_load) {
       // make a new genome like the template genome
-      unordered_map<string, shared_ptr<AbstractGenome>> newGenomes;
-      unordered_map<string, shared_ptr<AbstractBrain>> newBrains;
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+          newGenomes;
+      std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> newBrains;
       for (auto const &genome : templateGenomes) {
         if (org.first < 0) {
           newGenomes[genome.first] = genome.second->makeLike();
@@ -282,17 +289,17 @@ int main(int argc, const char *argv[]) {
         newBrains[brain.first] = brain.second->makeBrain(newGenomes);
       }
       auto newOrg =
-          make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+          std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
 
       // add new organism to population
       population.push_back(newOrg);
     }
 
-	// popFileColumns holds a list of data titles which various modules indicate
+    // popFileColumns holds a list of data titles which various modules indicate
     // are interesting/should be tracked and which are averageable
     // ** popFileColumns define what will appear in the pop.csv file **
     // the following code asks world, genomes and brains for ave file columns
-    vector<string> popFileColumns;
+    std::vector<std::string> popFileColumns;
     popFileColumns.clear();
     popFileColumns.push_back("update");
     popFileColumns.insert(popFileColumns.end(), world->popFileColumns.begin(),
@@ -321,7 +328,7 @@ int main(int argc, const char *argv[]) {
     // create a new group with the new population, optimizer and archivist and
     // place this group in the map groups
     groups[groupInfo.first] =
-        make_shared<Group>(population, optimizer, archivist);
+        std::make_shared<Group>(population, optimizer, archivist);
 
     groups[groupInfo.first]->templateOrg = progenitor->makeCopy();
     // the progenitor has served it's purpose. Killing an organsim is important
@@ -329,13 +336,13 @@ int main(int argc, const char *argv[]) {
     progenitor->kill();
 
     // report on what was just built
-    cout << "\nFinished Building Group: " << groupInfo.first
-         << "   Group name space: " << NS
-         << "\n  population size: " << population_size
-         << "     Optimizer: " << PT->lookupString("OPTIMIZER-optimizer")
-         << "     Archivist: " << PT->lookupString("ARCHIVIST-outputMethod")
-         << endl
-         << endl;
+    std::cout << "\nFinished Building Group: " << groupInfo.first
+              << "   Group name space: " << NS
+              << "\n  population size: " << population_size
+              << "     Optimizer: " << PT->lookupString("OPTIMIZER-optimizer")
+              << "     Archivist: "
+              << PT->lookupString("ARCHIVIST-outputMethod") << "\n"
+              << "\n";
     // end of report
   }
 
@@ -349,14 +356,16 @@ int main(int argc, const char *argv[]) {
     ////////////////////////////////////////////////////////////////////////////////////
     // run mode - evolution loop
     ////////////////////////////////////////////////////////////////////////////////////
-    cout << "\n  You are running MABE in run mode." << endl << endl;
+    std::cout << "\n  You are running MABE in run mode."
+              << "\n"
+              << "\n";
 
     while (!done) { //! groups[defaultGroup]->archivist->finished) {
       world->evaluate(groups, false, false,
                       AbstractWorld::debugPL->get()); // evaluate each organism
                                                       // in the population using
                                                       // a World
-      cout << "update: " << Global::update << "   " << flush;
+      std::cout << "update: " << Global::update << "   " << std::flush;
       done = true; // until we find out otherwise, assume we are done.
       for (auto const &group : groups) {
         if (!group.second->archivist->finished_) {
@@ -370,7 +379,7 @@ int main(int argc, const char *argv[]) {
           group.second->optimizer->cleanup(group.second->population);
         }
       }
-      cout << endl;
+      std::cout << "\n";
       Global::update++; // advance time to create new population(s)
     }
 
@@ -380,21 +389,24 @@ int main(int argc, const char *argv[]) {
     }
   } else {
     if (Global::modePL->get() == "visualize") {
-    ////////////////////////////////////////////////////////////////////////////////////
-    // visualize mode
-    ////////////////////////////////////////////////////////////////////////////////////
-    cout << "\n  You are running MABE in visualize mode." << endl << endl;
+      ////////////////////////////////////////////////////////////////////////////////////
+      // visualize mode
+      ////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "\n  You are running MABE in visualize mode."
+                << "\n"
+                << "\n";
 
-    world->evaluate(groups, 0, 1, 0);
+      world->evaluate(groups, 0, 1, 0);
+    } else if (Global::modePL->get() == "analyze") {
+      ////////////////////////////////////////////////////////////////////////////////////
+      // analyze mode
+      ////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "\n  You are running MABE in analyze mode."
+                << "\n"
+                << "\n";
+
+      world->evaluate(groups, 1, 0, 0);
     }
-	else if (Global::modePL->get() == "analyze") {
-		////////////////////////////////////////////////////////////////////////////////////
-		// analyze mode
-		////////////////////////////////////////////////////////////////////////////////////
-		cout << "\n  You are running MABE in analyze mode." << endl << endl;
-
-		world->evaluate(groups, 1, 0, 0);
-	}
   }
   return 0;
 }

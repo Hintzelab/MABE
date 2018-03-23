@@ -144,17 +144,17 @@ for option in options["Archivist"]:
 # modules.h:makeWorld
 
 outFile.write('\n\n//create a world\n')
-outFile.write('shared_ptr<AbstractWorld> makeWorld(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractWorld> newWorld;\n')
+outFile.write('std::shared_ptr<AbstractWorld> makeWorld(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractWorld> newWorld;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string worldType = AbstractWorld::worldTypePL->get(PT);\n')
+outFile.write('  std::string worldType = AbstractWorld::worldTypePL->get(PT);\n')
 for option in options["World"]:
     outFile.write('  if (worldType == "'+option+'") {\n')
-    outFile.write('    newWorld = make_shared<'+option+'World>(PT);\n')
+    outFile.write('    newWorld = std::make_shared<'+option+'World>(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find WORLD-worldType \\"" << worldType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find WORLD-worldType \\"" << worldType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newWorld;\n')
@@ -163,17 +163,17 @@ outFile.write('}\n')
 # modules.h:makeOptimizer
 
 outFile.write('\n\n//create an optimizer\n')
-outFile.write('shared_ptr<AbstractOptimizer> makeOptimizer(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractOptimizer> newOptimizer;\n')
+outFile.write('std::shared_ptr<AbstractOptimizer> makeOptimizer(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractOptimizer> newOptimizer;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string optimizerType = AbstractOptimizer::Optimizer_MethodStrPL->get(PT);\n')
+outFile.write('  std::string optimizerType = AbstractOptimizer::Optimizer_MethodStrPL->get(PT);\n')
 for option in options["Optimizer"]:
     outFile.write('  if (optimizerType == "'+option+'") {\n')
-    outFile.write('    newOptimizer = make_shared<'+option+'Optimizer>(PT);\n')
+    outFile.write('    newOptimizer = std::make_shared<'+option+'Optimizer>(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find OPTIMIZER-optimizer \\"" << optimizerType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find OPTIMIZER-optimizer \\"" << optimizerType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newOptimizer;\n')
@@ -182,17 +182,17 @@ outFile.write('}\n')
 # modules.h:makeArchivist
 
 outFile.write('\n\n//create an archivist\n')
-outFile.write('shared_ptr<DefaultArchivist> makeArchivist(vector<string> popFileColumns, shared_ptr<Abstract_MTree> _maxFormula, shared_ptr<ParametersTable> PT, string groupPrefix = ""){\n')
-outFile.write('  shared_ptr<DefaultArchivist> newArchivist;\n')
+outFile.write('std::shared_ptr<DefaultArchivist> makeArchivist(std::vector<std::string> popFileColumns, std::shared_ptr<Abstract_MTree> _maxFormula, std::shared_ptr<ParametersTable> PT, std::string groupPrefix = ""){\n')
+outFile.write('  std::shared_ptr<DefaultArchivist> newArchivist;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);\n')
+outFile.write('  std::string archivistType = DefaultArchivist::Arch_outputMethodStrPL->get(PT);\n')
 for option in options["Archivist"]:
     outFile.write('  if (archivistType == "'+option+'") {\n')
-    outFile.write('    newArchivist = make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT, groupPrefix);\n')
+    outFile.write('    newArchivist = std::make_shared<'+option+'Archivist>(popFileColumns, _maxFormula, PT, groupPrefix);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (!found){\n')
-outFile.write('    cout << "  ERROR! could not find ARCHIVIST-outputMethod \\"" << archivistType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find ARCHIVIST-outputMethod \\"" << archivistType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newArchivist;\n')
@@ -201,17 +201,17 @@ outFile.write('}\n')
 # modules.h:makeTemplateGenome
 
 outFile.write('\n\n//create a template genome\n')
-outFile.write('shared_ptr<AbstractGenome> makeTemplateGenome(shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractGenome> newGenome;\n')
+outFile.write('std::shared_ptr<AbstractGenome> makeTemplateGenome(std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractGenome> newGenome;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string genomeType = AbstractGenome::genomeTypeStrPL->get(PT);\n')
+outFile.write('  std::string genomeType = AbstractGenome::genomeTypeStrPL->get(PT);\n')
 for option in options["Genome"]:
     outFile.write('  if (genomeType == "'+option+'") {\n')
     outFile.write('    newGenome = '+option+'Genome_genomeFactory(PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (found == false){\n')
-outFile.write('    cout << "  ERROR! could not find GENOME-genomeType \\"" << genomeType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find GENOME-genomeType \\"" << genomeType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newGenome;\n')
@@ -220,17 +220,17 @@ outFile.write('}\n')
 # modules.h:makeTemplateBrain
 
 outFile.write('\n\n//create a template brain\n')
-outFile.write('shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, shared_ptr<ParametersTable> PT){\n')
-outFile.write('  shared_ptr<AbstractBrain> newBrain;\n')
+outFile.write('std::shared_ptr<AbstractBrain> makeTemplateBrain(int inputs, int outputs, std::shared_ptr<ParametersTable> PT){\n')
+outFile.write('  std::shared_ptr<AbstractBrain> newBrain;\n')
 outFile.write('  bool found = false;\n')
-outFile.write('  string brainType = AbstractBrain::brainTypeStrPL->get(PT);\n')
+outFile.write('  std::string brainType = AbstractBrain::brainTypeStrPL->get(PT);\n')
 for option in options["Brain"]:
     outFile.write('  if (brainType == "'+option+'") {\n')
     outFile.write('    newBrain = '+option+'Brain_brainFactory(inputs, outputs, PT);\n')
     outFile.write('    found = true;\n')    
     outFile.write('    }\n')
 outFile.write('  if (found == false){\n')
-outFile.write('    cout << "  ERROR! could not find BRAIN-brainType \\"" << brainType << "\\".\\n  Exiting." << endl;\n')
+outFile.write('    std::cout << "  ERROR! could not find BRAIN-brainType \\"" << brainType << "\\".\\n  Exiting." << std::endl;\n')
 outFile.write('    exit(1);\n')
 outFile.write('    }\n')
 outFile.write('  return newBrain;\n')
@@ -242,35 +242,35 @@ outFile.write('\n\n//configure Defaults and Documentation\n')
 outFile.write('void configureDefaultsAndDocumentation(){\n')
 
 
-outFile.write('  Parameters::root->setParameter("BRAIN-brainType", (string)"' + options["Brain"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("BRAIN-brainType", (std::string)"' + options["Brain"][0] + '");\n')
 optionsList = ''
 for t in options["Brain"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("BRAIN-brainType", "brain to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("GENOME-genomeType", (string)"' + options["Genome"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("GENOME-genomeType", (std::string)"' + options["Genome"][0] + '");\n')
 optionsList = ''
 for t in options["Genome"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("GENOME-genomeType", "genome to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("ARCHIVIST-outputMethod", (string)"' + options["Archivist"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("ARCHIVIST-outputMethod", (std::string)"' + options["Archivist"][0] + '");\n')
 optionsList = ''
 for t in options["Archivist"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("ARCHIVIST-outputMethod", "output method, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("OPTIMIZER-optimizer", (string)"' + options["Optimizer"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("OPTIMIZER-optimizer", (std::string)"' + options["Optimizer"][0] + '");\n')
 optionsList = ''
 for t in options["Optimizer"]:
     optionsList += t + ', '
 optionsList = optionsList[:-2]
 outFile.write('  Parameters::root->setDocumentation("OPTIMIZER-optimizer", "optimizer to be used, [' + optionsList + ']");\n\n')
 
-outFile.write('  Parameters::root->setParameter("WORLD-worldType", (string)"' + options["World"][0] + '");\n')
+outFile.write('  Parameters::root->setParameter("WORLD-worldType", (std::string)"' + options["World"][0] + '");\n')
 optionsList = ''
 for t in options["World"]:
     optionsList += t + ', '

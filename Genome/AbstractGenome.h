@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 #include <fstream>
@@ -171,8 +171,6 @@ public:
     std::cout << "ERROR! In AbstractGenome::serialize(). This method has not been "
             "written for the type of genome use are using.\n  Exiting.";
     exit(1);
-    DataMap tempDataMap;
-    return tempDataMap;
   }
 
   // given a an unordered_map<string, string> and PT, load data into this genome
