@@ -36,6 +36,10 @@
 #include <windows.h> /// for getting PID, for proper RNG for MinGW
 #endif
 
+std::map<std::string, std::shared_ptr<Group>>
+constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+                       std::shared_ptr<ParametersTable> PT);
+
 int main(int argc, const char *argv[]) {
 
   const std::string logo =
@@ -116,14 +120,83 @@ int main(int argc, const char *argv[]) {
 
   // make world uses WORLD-worldType to determine type of world
   auto world = makeWorld(Parameters::root);
-  std::map<std::string, std::shared_ptr<Group>> groups;
-  std::shared_ptr<ParametersTable> PT;
 
   std::cout << "\nRunning World " << world->worldTypePL->get() << "\n";
 
+  std::shared_ptr<ParametersTable> PT;
+  auto groups = constructAllGroupsFrom(world, PT);
+  Global::update =
+      0; // the beginning of time - now we construct the first population
+
+  if (Global::modePL->get() == "run") {
+    ////////////////////////////////////////////////////////////////////////////////////
+    // run mode - evolution loop
+    ////////////////////////////////////////////////////////////////////////////////////
+    std::cout << "\n  You are running MABE in run mode."
+              << "\n"
+              << "\n";
+
+    // in run mode we evolve organsims
+    auto done = false;
+    while (!done) { //! groups[defaultGroup]->archivist->finished) {
+      world->evaluate(groups, false, false,
+                      AbstractWorld::debugPL->get()); // evaluate each organism
+                                                      // in the population using
+                                                      // a World
+      std::cout << "update: " << Global::update << "   " << std::flush;
+      done = true; // until we find out otherwise, assume we are done.
+      for (auto const &group : groups) {
+        if (!group.second->archivist->finished_) {
+          group.second->optimize(); // create the next updates population
+          group.second
+              ->archive(); // save data, update memory and delete unneeded data;
+          if (!group.second->archivist->finished_) {
+            done = false; // if any groups archivist says we are not done, then
+                          // we are not done
+          }
+          group.second->optimizer->cleanup(group.second->population);
+        }
+      }
+      std::cout << "\n";
+      Global::update++; // advance time to create new population(s)
+    }
+
+    // the run is finished... flush any data that has not been output yet
+    for (auto const &group : groups) {
+      group.second->archive(1);
+    }
+  } else {
+    if (Global::modePL->get() == "visualize") {
+      ////////////////////////////////////////////////////////////////////////////////////
+      // visualize mode
+      ////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "\n  You are running MABE in visualize mode."
+                << "\n"
+                << "\n";
+
+      world->evaluate(groups, 0, 1, 0);
+    } else if (Global::modePL->get() == "analyze") {
+      ////////////////////////////////////////////////////////////////////////////////////
+      // analyze mode
+      ////////////////////////////////////////////////////////////////////////////////////
+      std::cout << "\n  You are running MABE in analyze mode."
+                << "\n"
+                << "\n";
+
+      world->evaluate(groups, 1, 0, 0);
+    }
+  }
+  return 0;
+}
+
+// for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
+// is empty, create "default" group.
+std::map<std::string, std::shared_ptr<Group>>
+constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+                       std::shared_ptr<ParametersTable> PT) {
+
+  std::map<std::string, std::shared_ptr<Group>> groups;
   auto worldRequirements = world->requiredGroups();
-  // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
-  // is empty, create "default" group.
   for (auto const &groupInfo : worldRequirements) {
     std::cout << "\n";
     auto NS = groupInfo.first;
@@ -350,69 +423,5 @@ int main(int argc, const char *argv[]) {
               << "\n";
     // end of report
   }
-
-  Global::update =
-      0; // the beginning of time - now we construct the first population
-
-  // in run mode we evolve organsims
-  auto done = false;
-
-  if (Global::modePL->get() == "run") {
-    ////////////////////////////////////////////////////////////////////////////////////
-    // run mode - evolution loop
-    ////////////////////////////////////////////////////////////////////////////////////
-    std::cout << "\n  You are running MABE in run mode."
-              << "\n"
-              << "\n";
-
-    while (!done) { //! groups[defaultGroup]->archivist->finished) {
-      world->evaluate(groups, false, false,
-                      AbstractWorld::debugPL->get()); // evaluate each organism
-                                                      // in the population using
-                                                      // a World
-      std::cout << "update: " << Global::update << "   " << std::flush;
-      done = true; // until we find out otherwise, assume we are done.
-      for (auto const &group : groups) {
-        if (!group.second->archivist->finished_) {
-          group.second->optimize(); // create the next updates population
-          group.second
-              ->archive(); // save data, update memory and delete unneeded data;
-          if (!group.second->archivist->finished_) {
-            done = false; // if any groups archivist says we are not done, then
-                          // we are not done
-          }
-          group.second->optimizer->cleanup(group.second->population);
-        }
-      }
-      std::cout << "\n";
-      Global::update++; // advance time to create new population(s)
-    }
-
-    // the run is finished... flush any data that has not been output yet
-    for (auto const &group : groups) {
-      group.second->archive(1);
-    }
-  } else {
-    if (Global::modePL->get() == "visualize") {
-      ////////////////////////////////////////////////////////////////////////////////////
-      // visualize mode
-      ////////////////////////////////////////////////////////////////////////////////////
-      std::cout << "\n  You are running MABE in visualize mode."
-                << "\n"
-                << "\n";
-
-      world->evaluate(groups, 0, 1, 0);
-    } else if (Global::modePL->get() == "analyze") {
-      ////////////////////////////////////////////////////////////////////////////////////
-      // analyze mode
-      ////////////////////////////////////////////////////////////////////////////////////
-      std::cout << "\n  You are running MABE in analyze mode."
-                << "\n"
-                << "\n";
-
-      world->evaluate(groups, 1, 0, 0);
-    }
-  }
-  return 0;
+  return groups;
 }
-
