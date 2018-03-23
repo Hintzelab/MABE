@@ -14,7 +14,6 @@
 #include <iostream>
 #include "PointNd.h"
 
-using namespace std;
 // creates a look up table of directions related to directions. The default is 360 degrees
 // numDirections can be used to determine what value will be associated with 360 degrees
 // numSlices determines the resolution of the lookup table (i.e. directions will be rounded to the nearest slice value)
@@ -26,12 +25,12 @@ public:
 
 	double degPerSlice;
 
-	vector<Point2d> moveDeltas; // lookup table with offset values keyed by slice index
+	std::vector<Point2d> moveDeltas; // lookup table with offset values keyed by slice index
 
 	void show() {
-		cout << "showing values in TurnTable:" << endl;
+		std::cout << "showing values in TurnTable:" << "\n";
 		for (int i = 0; i < (int)numSlices; i++) {
-			cout << "slice: " << i << " direction: " << (i / numSlices) * numDirections << " degree: " << i * degPerSlice << "  -> ";
+			std::cout << "slice: " << i << " direction: " << (i / numSlices) * numDirections << " degree: " << i * degPerSlice << "  -> ";
 			moveDeltas[i].show();
 		}
 	}
