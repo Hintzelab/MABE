@@ -12,47 +12,48 @@
 
 #include "../AbstractWorld.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <thread>
 #include <vector>
-
-using namespace std;
 
 class TestWorld : public AbstractWorld {
 
 public:
+  static std::shared_ptr<ParameterLink<int>> modePL;
+  static std::shared_ptr<ParameterLink<int>> numberOfOutputsPL;
+  static std::shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
 
-	static shared_ptr<ParameterLink<int>> modePL;
-	static shared_ptr<ParameterLink<int>> numberOfOutputsPL;
-	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
+  // int mode;
+  // int numberOfOutputs;
+  // int evaluationsPerGeneration;
 
-	//int mode;
-	//int numberOfOutputs;
-	//int evaluationsPerGeneration;
+  static std::shared_ptr<ParameterLink<std::string>> groupNamePL;
+  static std::shared_ptr<ParameterLink<std::string>> brainNamePL;
+  // string groupName;
+  // string brainName;
 
-	static shared_ptr<ParameterLink<string>> groupNamePL;
-	static shared_ptr<ParameterLink<string>> brainNamePL;
-	//string groupName;
-	//string brainName;
+  TestWorld(std::shared_ptr<ParametersTable> PT_ = nullptr);
+  virtual ~TestWorld() = default;
 
-	TestWorld(shared_ptr<ParametersTable> PT_ = nullptr);
-	virtual ~TestWorld() = default;
+  virtual void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
+                            int visualize, int debug);
+  virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
+                        int analyze, int visualize, int debug) {
+    int popSize = groups[groupNamePL->get(PT)]->population.size();
+    for (int i = 0; i < popSize; i++) {
+      evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
+                   visualize, debug);
+    }
+  }
 
-
-	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug);
-	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
-		int popSize = groups[groupNamePL->get(PT)]->population.size();
-		for (int i = 0; i < popSize; i++) {
-			evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze, visualize, debug);
-		}
-	}
-
-	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ",1," + to_string(numberOfOutputsPL->get(PT)) } } };
-		// requires a root group and a brain (in root namespace) and no addtional genome,
-		// the brain must have 1 input, and the variable numberOfOutputs outputs
-	}
-
-
+  virtual std::unordered_map<std::string, std::unordered_set<std::string>>
+  requiredGroups() override {
+    return {{groupNamePL->get(PT),
+             {"B:" + brainNamePL->get(PT) + ",1," +
+              std::to_string(numberOfOutputsPL->get(PT))}}};
+    // requires a root group and a brain (in root namespace) and no addtional
+    // genome,
+    // the brain must have 1 input, and the variable numberOfOutputs outputs
+  }
 };
 
