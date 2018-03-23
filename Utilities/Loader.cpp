@@ -15,8 +15,6 @@
 #include "zupply.h" // for x-platform filesystem
 #include "Loader.h"
 
-using zz::fs::Directory; // filesystem crawling
-
 std::string Loader::loadFromFile(const std::string &loader_file_name) {
   std::ifstream flines(loader_file_name);
   if (!flines.is_open()) {
@@ -146,7 +144,7 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
     all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
   */
-  Directory mabeDir("./", true); // true=recursive
+  zz::fs::Directory mabeDir("./", true); // true=recursive
   for (auto p : mabeDir) {
     all_possible_file_names.push_back(p.relative_path());
   }

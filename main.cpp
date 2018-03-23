@@ -28,6 +28,7 @@
 #include "Utilities/Utilities.h"
 #include "Utilities/Loader.h"
 #include "Utilities/MTree.h"
+#include "Utilities/zupply.h" // for x-platform filesystem
 
 #include "modules.h"
 
@@ -87,9 +88,13 @@ int main(int argc, const char *argv[]) {
   ///
   ///////////////////////////////////////////////////////////////////////////
 
-  // outputDirectory must exist. If outputDirectory does not exist, no error
-  // will occur, but no data will be written. THIS SHOULD BE ADDRESSED ONE DAY!
   FileManager::outputDirectory = Global::outputDirectoryPL->get();
+  zz::fs::Path out(FileManager::outputDirectory);
+  if (!out.is_dir()) {
+    std::cout << "Error : outputDirectory \"" << FileManager::outputDirectory
+              << "\" does not exist\n";
+    exit(1);
+  }
 
   // set up random number generator
   if (Global::randomSeedPL->get() == -1) {
