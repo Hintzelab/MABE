@@ -144,9 +144,9 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
     all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
   */
-  zz::fs::Directory mabeDir("./", true); // true=recursive
-  for (auto p : mabeDir) {
-    all_possible_file_names.push_back(p.relative_path());
+  zz::fs::Directory mabe_dir("./", "*organisms*.csv", true); // true=recursive
+  for (auto p : mabe_dir) {
+  	  all_possible_file_names.push_back(p.relative_path());
   }
 
   std::map<std::string, std::vector<std::string>>

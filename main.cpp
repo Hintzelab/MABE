@@ -93,8 +93,7 @@ int main(int argc, const char *argv[]) {
   ///////////////////////////////////////////////////////////////////////////
 
   FileManager::outputDirectory = Global::outputDirectoryPL->get();
-  zz::fs::Path out(FileManager::outputDirectory);
-  if (!out.is_dir()) {
+  if (!zz::os::is_directory(FileManager::outputDirectory)) {
     std::cout << "Error : outputDirectory \"" << FileManager::outputDirectory
               << "\" does not exist\n";
     exit(1);
