@@ -12,35 +12,40 @@
 
 #include "../AbstractWorld.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <thread>
 #include <vector>
-
-using namespace std;
 
 class XorWorld : public AbstractWorld {
 
 public:
-	static shared_ptr<ParameterLink<string>> groupNamePL;
-	static shared_ptr<ParameterLink<string>> brainNamePL;
-	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
-	static shared_ptr<ParameterLink<int>> brainUpdatesPL;
-    int brainUpdates;
-	string groupName;
-	string brainName;
-	
-	XorWorld(shared_ptr<ParametersTable> PT_ = nullptr);
-	virtual ~XorWorld() = default;
-	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug) override;
-	virtual void evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) {
-		int popSize = groups[groupNamePL->get(PT)]->population.size();
-		for (int i = 0; i < popSize; i++) {
-			evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze, visualize, debug);
-		}
-	}
+  static std::shared_ptr<ParameterLink<std::string>> groupNamePL;
+  static std::shared_ptr<ParameterLink<std::string>> brainNamePL;
+  static std::shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
+  static std::shared_ptr<ParameterLink<int>> brainUpdatesPL;
+  int brainUpdates;
+  std::string groupName;
+  std::string brainName;
 
-	virtual unordered_map<string, unordered_set<string>> requiredGroups() override {
-		// agents in this world will need 2 inputs, and 1 output:
-		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ",2," + to_string(1) } } }; // default requires a root group and a brain (in root namespace) and no genome 
-	}
+  XorWorld(std::shared_ptr<ParametersTable> PT_ = nullptr);
+  virtual ~XorWorld() = default;
+  virtual void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
+                            int visualize, int debug) override;
+  virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
+                        int analyze, int visualize, int debug) {
+    int popSize = groups[groupNamePL->get(PT)]->population.size();
+    for (int i = 0; i < popSize; i++) {
+      evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
+                   visualize, debug);
+    }
+  }
+
+  virtual std::unordered_map<std::string, std::unordered_set<std::string>>
+  requiredGroups() override {
+    // agents in this world will need 2 inputs, and 1 output:
+    return {{groupNamePL->get(PT),
+             {"B:" + brainNamePL->get(PT) + ",2," +
+              std::to_string(1)}}}; // default requires a root group and a brain
+                                    // (in root namespace) and no genome
+  }
 };
