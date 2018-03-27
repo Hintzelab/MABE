@@ -357,7 +357,7 @@ public:
   virtual std::vector<double>
   eval(DataMap &dataMap, std::shared_ptr<ParametersTable> PT,
        const std::vector<std::vector<double>> &vectorData) override {
-    return {abs(branches[0]->eval(
+    return {std::abs(branches[0]->eval(
         dataMap, PT, vectorData)[0])}; // return vector with one element
   }
 
