@@ -10,6 +10,14 @@
 
 #include "MarkovBrain.h"
 
+std::shared_ptr<ParameterLink<bool>> MarkovBrain::recordIOMapPL=
+    Parameters::register_parameter(
+        "BRAIN_MARKOV_ADVANCED-recordIOMapPL", false,
+        "if true, all inoput output and hidden nodes will be recorderd on every brain update");
+std::shared_ptr<ParameterLink<std::string>> MarkovBrain::IOMapFileNamePL=
+    Parameters::register_parameter("BRAIN_MARKOV-IOMapFileName",
+                                   (std::string) "stt",
+                                   "Name of file where IO mappings are saved");
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::randomizeUnconnectedOutputsPL =
     Parameters::register_parameter(
         "BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputs", false,
@@ -139,12 +147,18 @@ void MarkovBrain::resetOutputs() {
     nodes[nrInputValues + i] = 0.0;
 }
 
+
 void MarkovBrain::update() {
   nextNodes.assign(nrNodes, 0.0);
+	DataMap IOMap;
 
-  for (int i = 0; i < nrInputValues; i++) 
+  for (int i = 0; i < nrInputValues; i++)  
     nodes[i] = inputValues[i];
   
+  if (recordIOMapPL->get())
+    for (int i = 0; i < nrInputValues; i++)
+     IOMap.append("input", Bit(nodes[i]));
+
   for (auto &g :gates) // update each gate
 	  g->update(nodes, nextNodes);
 
@@ -174,6 +188,16 @@ void MarkovBrain::update() {
   swap(nodes, nextNodes);
   for (int i = 0; i < nrOutputValues; i++) {
     outputValues[i] = nodes[nrInputValues + i];
+  }
+
+  if (recordIOMapPL->get()){
+   for (int i = 0; i < nrOutputValues; i++ )
+      IOMap.append("output", Bit(nodes[nrInputValues + i]));
+	
+   for (int i = nrInputValues + nrOutputValues ; i < nodes.size() ; i++) 
+	   IOMap.append("hidden", Bit(nodes[i]));
+   IOMap.writeToFile(IOMapFileNamePL->get());
+  IOMap.clearMap();
   }
 }
 
@@ -294,3 +318,21 @@ MarkovBrain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
       std::make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, PT_);
   return newBrain;
 }
+
+std::vector<std::shared_ptr<AbstractBrain>> MarkovBrain::getAllSingleGateKnockouts() {
+  std::vector<std::shared_ptr<AbstractBrain>> res;
+  auto numg = gates.size();
+  if (!numg) std::cout <<"No gates?" << std::endl;
+  for (int i = 0; i < numg; i++) {
+    std::vector<std::shared_ptr<AbstractGate>> gmut;
+    int c = 0;
+    for (auto g : gates)
+      if (c++ != i)
+        gmut.push_back(g->makeCopy());
+    auto bmut =
+        std::make_shared<MarkovBrain>(gmut, nrInputValues, nrOutputValues, PT);
+    res.push_back(bmut);
+  }
+  return res;
+}
+
