@@ -33,6 +33,8 @@ public:
   //	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
 
   static std::shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
+  static std::shared_ptr<ParameterLink<bool>> recordIOMapPL;
+  static std::shared_ptr<ParameterLink<std::string>> IOMapFileNamePL;
   static std::shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
   static std::shared_ptr<ParameterLink<double>>
       randomizeUnconnectedOutputsMinPL;
@@ -128,11 +130,16 @@ public:
   virtual std::unordered_set<std::string> requiredGenomes() override {
     return {genomeNamePL->get(PT)};
   }
+
+
+	std::vector<std::shared_ptr<AbstractBrain>> getAllSingleGateKnockouts(); 
+
 };
 
 inline std::shared_ptr<AbstractBrain>
 MarkovBrain_brainFactory(int ins, int outs, std::shared_ptr<ParametersTable> PT) {
   return std::make_shared<MarkovBrain>(std::make_shared<ClassicGateListBuilder>(PT), ins,
                                   outs, PT);
+
 }
 

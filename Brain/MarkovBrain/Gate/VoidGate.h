@@ -12,24 +12,27 @@
 
 #include "DeterministicGate.h"
 
-class VoidGate : public DeterministicGate {
-public:
-  static std::shared_ptr<ParameterLink<double>> voidGate_ProbabilityPL;
-  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
+using namespace std;
 
-  std::vector<int> defaultOutput;
-  double epsilon;
-  VoidGate() = delete;
-  VoidGate(std::shared_ptr<ParametersTable> PT_ = nullptr) : DeterministicGate(PT_) {
-    epsilon = 0;
-  }
-  VoidGate(std::pair<std::vector<int>, std::vector<int>> addresses,
-           std::vector<std::vector<int>> _table, int , double _epsilon,
-           std::shared_ptr<ParametersTable> = nullptr);
-  virtual ~VoidGate() = default;
-  virtual void update(std::vector<double> &states,
-                      std::vector<double> &nextStates) override;
-  virtual std::string gateType() override { return "Void"; }
-  virtual std::shared_ptr<AbstractGate>
-  makeCopy(std::shared_ptr<ParametersTable>  = nullptr) override;
+class VoidGate: public DeterministicGate {
+public:
+
+	static shared_ptr<ParameterLink<double>> voidGate_ProbabilityPL;
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
+	vector<int> defaultOutput;
+	double epsilon;
+	VoidGate() = delete;
+	VoidGate(shared_ptr<ParametersTable> _PT = nullptr) :
+		DeterministicGate(_PT) {
+		epsilon = 0; 
+	}
+	VoidGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, double _epsilon, shared_ptr<ParametersTable> _PT = nullptr);
+	virtual ~VoidGate() = default;
+	virtual void update(vector<double> & states, vector<double> & nextStates) override;
+	virtual string gateType() override{
+			return "Void";
+		}
+	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+
 };

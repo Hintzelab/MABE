@@ -12,25 +12,26 @@
 
 #include "AbstractGate.h"
 
-class DecomposableGate : public AbstractGate { // conventional probabilistic
-                                               // gate
-public:
-  static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
+using namespace std;
 
-  std::vector<std::vector<double>> table;
-  DecomposableGate() = delete;
-  DecomposableGate(std::shared_ptr<ParametersTable> PT_ = nullptr)
-      : AbstractGate(PT_) {
-    table = {};
-  }
-  DecomposableGate(std::pair<std::vector<int>, std::vector<int>> addresses,
-                   std::vector<std::vector<int>> _rawTable, int ID_,
-                   std::shared_ptr<ParametersTable> PT_ = nullptr);
-  virtual ~DecomposableGate() = default;
-  virtual void update(std::vector<double> &states,
-                      std::vector<double> &nextStates) override;
-  virtual std::string gateType() override { return "Decomposable"; }
-  virtual std::shared_ptr<AbstractGate>
-  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
+
+class DecomposableGate: public AbstractGate {  //conventional probabilistic gate
+public:
+
+	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+
+	vector<vector<double>> table;
+	DecomposableGate() = delete;
+	DecomposableGate(shared_ptr<ParametersTable> _PT = nullptr) :
+		AbstractGate(_PT) {
+		table = {};
+	}
+	DecomposableGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _rawTable, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
+	virtual ~DecomposableGate() = default;
+	virtual void update(vector<double> & states, vector<double> & nextStates) override;
+	virtual string gateType() override{
+		return "Decomposable";
+	}
+	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
 };
 
