@@ -5,21 +5,12 @@ import sys
 import platform ## system identification
 import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
-import imp # module dependency checking
+from utils import pyreq
 from subprocess import call
 
 
 if platform.system() == 'Windows':
-    requiredNonstandardModules = "winreg".split(',')
-    modulesAreMissing = False
-    for moduleName in requiredNonstandardModules:
-        try:
-            imp.find_module(moduleName)
-        except (ModuleNotFoundError,ImportError) as error:
-            modulesAreMissing = True
-    if modulesAreMissing:
-        print("Error: required 'winreg' module is missing. Try installing it, or install miniconda python3 for windows.")
-        sys.exit()
+    pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
     import winreg ## can now safely import
 
 parser = argparse.ArgumentParser()
