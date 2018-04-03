@@ -34,7 +34,7 @@ import re
 from utils import pyreq
 import subprocess # invoking command line module installation
 
-pyreq.require("colorama,psutil") # quites if not found, even after it installs. must run this script again
+pyreq.require("colorama,psutil") # quits if not found, even after it installs. must run this script again
 
 # colored warning and error printing
 import colorama
