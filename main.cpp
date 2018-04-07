@@ -16,6 +16,8 @@
 #include <vector>
 #include <regex>
 
+#include "Analyze/Analyzer.h"
+
 #include "Global.h"
 
 #include "Group/Group.h"
@@ -182,7 +184,8 @@ int main(int argc, const char *argv[]) {
                 << "\n"
                 << "\n";
 
-      world->evaluate(groups, 1, 0, 0);
+      Analyzer A;
+      A.analyze(world, groups);
     }
   }
   return 0;
@@ -368,6 +371,11 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       auto newOrg =
           std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
 
+      if (Global::modePL->get() == "analyze") {
+        newOrg->dataMap.set("Orig_ID", org.first < 0 ? "-1" : org.second["ID"]);
+        newOrg->dataMap.set("From_File",
+                            org.first < 0 ? "" : org.second["FromFile"]);
+      }
       // add new organism to population
       population.push_back(newOrg);
     }
