@@ -321,17 +321,16 @@ MarkovBrain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
 
 std::vector<std::shared_ptr<AbstractBrain>> MarkovBrain::getAllSingleGateKnockouts() {
   std::vector<std::shared_ptr<AbstractBrain>> res;
-  auto numg = gates.size();
-  if (!numg) std::cout <<"No gates?" << std::endl;
-  for (int i = 0; i < numg; i++) {
-    std::vector<std::shared_ptr<AbstractGate>> gmut;
-    int c = 0;
+  auto num_gates = gates.size();
+  for (int i = 0; i < num_gates; i++) {
+    std::vector<std::shared_ptr<AbstractGate>> mutated_gate_list;
+    int index_to_del = 0;
     for (auto g : gates)
-      if (c++ != i)
-        gmut.push_back(g->makeCopy());
-    auto bmut =
-        std::make_shared<MarkovBrain>(gmut, nrInputValues, nrOutputValues, PT);
-    res.push_back(bmut);
+      if (index_to_del ++ != i)
+        mutated_gate_list.push_back(g->makeCopy());
+    auto mutated_brain = std::make_shared<MarkovBrain>(
+        mutated_gate_list, nrInputValues, nrOutputValues, PT);
+    res.push_back(mutated_brain);
   }
   return res;
 }
