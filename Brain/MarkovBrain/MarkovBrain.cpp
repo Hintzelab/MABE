@@ -323,13 +323,13 @@ std::vector<std::shared_ptr<AbstractBrain>> MarkovBrain::getAllSingleGateKnockou
   std::vector<std::shared_ptr<AbstractBrain>> res;
   auto num_gates = gates.size();
   for (int i = 0; i < num_gates; i++) {
-    std::vector<std::shared_ptr<AbstractGate>> mutated_gate_list;
-    int index_to_del = 0;
+    std::vector<std::shared_ptr<AbstractGate>> mutated_gates;
+    int index_to_del  = 0;
     for (auto g : gates)
-      if (index_to_del ++ != i)
-        mutated_gate_list.push_back(g->makeCopy());
+      if (index_to_del++ != i)
+        mutated_gates.push_back(g->makeCopy());
     auto mutated_brain = std::make_shared<MarkovBrain>(
-        mutated_gate_list, nrInputValues, nrOutputValues, PT);
+        mutated_gates, nrInputValues, nrOutputValues, PT);
     res.push_back(mutated_brain);
   }
   return res;
