@@ -27,13 +27,13 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::surviveRatePL =
     Parameters::register_parameter("OPTIMIZER_SIMPLE-surviveRate",
                                    (std::string) "0",
                                    "value between 0 and 1, likelyhood that an "
-                                   "organism will self (ignored if "
-                                   "numberParents = 1) (MTree)");
+                                   "organism will survive (MTree)");
 std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::selfRatePL =
     Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate",
                                    (std::string) "0",
                                    "value between 0 and 1, likelyhood that an "
-                                   "organism will survive (MTree)");
+                                   "organism will self (ignored if "
+                                   "numberParents = 1) (MTree)");
 std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::elitismCountPL =
     Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount",
                                    (std::string) "1",
