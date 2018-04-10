@@ -8,6 +8,7 @@ compiler:
 
 branches:
   only:
+  - master
   - development
   - "/feature.*/"
   - "/hotfix.*/"
