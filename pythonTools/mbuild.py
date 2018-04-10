@@ -8,7 +8,6 @@ import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
 
-
 if platform.system() == 'Windows':
     pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
     import winreg ## can now safely import
