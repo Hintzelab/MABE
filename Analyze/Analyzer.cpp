@@ -1,10 +1,9 @@
 
 #include <iostream>
 #include <memory>
+#include <set>
 
 #include "Analyzer.h"
-//#include "../Group/Group.h"
-//#include "../modules.h"
 
 std::shared_ptr<ParameterLink<bool>> Analyzer::calculateKnockoutsPL =
     Parameters::register_parameter("ANALYZER-calculateKnockouts", false,
@@ -30,6 +29,14 @@ std::shared_ptr<ParameterLink<std::string>>
             "Prefix of dot file that stores State Transition results. "
             "Additionally, each dot file is tagged with the file the org was "
             "loaded from and it's ID in the original file");
+
+std::shared_ptr<ParameterLink<int>>
+    Analyzer::stateTransitionResolutionPL =
+        Parameters::register_parameter(
+            "ANALYZER-stateTransitionResolutionPL", 1,
+            "Number of times to run a world and record IOMaps. Higher "
+            "resolution will give increasingly accurate results. (note that "
+            "worlds that are constant deterministic only need to be run once");
 
 void Analyzer::analyze(std::shared_ptr<AbstractWorld> world,
                        std::map<std::string, std::shared_ptr<Group>> &groups) {
@@ -122,11 +129,11 @@ void Analyzer::knockoutExperiment(
   }
 }
 
-void
-Analyzer::  stateTransition(std::shared_ptr<AbstractWorld> world,
-                     std::map<std::string, std::shared_ptr<Group>> &groups){
+void Analyzer::stateTransition(
+    std::shared_ptr<AbstractWorld> world,
+    std::map<std::string, std::shared_ptr<Group>> &groups) {
 
-//  DayNightWorld::startWithDayPL->set(false);
+  std::map<std::string, std::shared_ptr<Group>> mutated_groups;
 
   auto population = groups["root::"]->population;
   for (auto org : population) {
@@ -134,24 +141,27 @@ Analyzer::  stateTransition(std::shared_ptr<AbstractWorld> world,
     auto mb =
         std::make_shared<MarkovBrain>(dynamic_cast<MarkovBrain &>(*org->brain));
 
-	// set up IO recording
-	mb->recordIOMapPL->set(true);
-   auto id = org->dataMap.getStringOfVector("orig_ID");
-	id =  id.substr(2,id.length()-4);
+    // set up IO recording
+    mb->recordIOMapPL->set(true);
+    auto id = org->dataMap.getStringOfVector("orig_ID");
+    id = id.substr(2, id.length() - 4);
 
-	auto mutant = org->makeCopy(Parameters::root);
-	  mutant->brain = mb;
+    auto mutant = org->makeCopy(Parameters::root);
+    mutant->brain = mb;
 
-	for (int i=0;i<100;i++) {
-         /*
-		   mb->IOMapFileNamePL->set("Night_" + id.substr(2, id.length() - 4) +
-                                   "_" + std::to_string(i) + "_" +
-                                   outputFileStateTransitionPL->get());
-          */
-                world->evaluateSolo(mutant, 0, 0, 0);
-                mb->IOMapFileNamePL->set(
-                    "Night_" + id + "_" + std::to_string(i) + "_" +
-                    outputDotFilePrefixForStateTransitionPL->get());
-  }
+    // wrap the organism in a population
+    std::vector<shared_ptr<Organism>> mutated_population = {mutant};
+
+    // wrap the population in a group
+    mutated_groups["root::"] =
+        std::make_shared<Group>(mutated_population, groups["root::"]->optimizer,
+                                groups["root::"]->archivist);
+
+    std::set<std::array<long, 5>> all_node_edges;
+    auto resolution = stateTransitionResolutionPL->get();
+    for (int i = 0; i < resolution; i++) {
+
+      world->evaluate(mutated_groups, 0, 0, 0);
+    }
   }
 }

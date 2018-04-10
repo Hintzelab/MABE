@@ -1,6 +1,5 @@
 /*
  * Analysis support
- * Takes a world (configurable)
  * Takes a population
  * For each org: Do Analysis as defined by org
  *
@@ -10,7 +9,8 @@
 #include <iostream>
 #include <memory>
 #include <map>
-//#include "../World/DayNightWorld/DayNightWorld.h"
+#include <array>
+#include <vector>
 #include "../World/AbstractWorld.h"
 #include "../Brain/MarkovBrain/MarkovBrain.h"
 
@@ -28,8 +28,12 @@ public:
       outputDotFilePrefixForStateTransitionPL;
   static std::shared_ptr<ParameterLink<bool>> calculateKnockoutsPL;
   static std::shared_ptr<ParameterLink<bool>> calculateStateTransitionsPL;
+  static std::shared_ptr<ParameterLink<int>> stateTransitionResolutionPL;
 
-Analyzer() = default;
+  // records entire history of hidden+output+input->hidden+output
+  std::vector<std::array<long,5>> io_map_history;
+  
+  Analyzer() = default;
   void analyze(std::shared_ptr<AbstractWorld> world,
                std::map<std::string, std::shared_ptr<Group>> &groups);
   void
