@@ -144,8 +144,13 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
     all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
   }
   */
-  zz::fs::Directory mabe_dir("./", "*organisms*.csv", true); // true=recursive
-  for (auto p : mabe_dir) {
+  zz::fs::Directory mabe_org_dir("./", "*organisms*.csv", true); // true=recursive
+  for (auto p : mabe_org_dir) {
+  	  all_possible_file_names.push_back(p.relative_path());
+  }
+  
+  zz::fs::Directory mabe_data_dir("./", "*data*.csv", true); // true=recursive
+  for (auto p : mabe_data_dir) {
   	  all_possible_file_names.push_back(p.relative_path());
   }
 
@@ -560,7 +565,6 @@ std::pair<long, long> Loader::generatePopulation(const std::string file_name) {
       */
     }
     org.attributes.insert(make_pair("ID", std::to_string(org.orig_ID)));
-    org.attributes.insert(make_pair("FromFile", org.from_file));
     all_organisms.push_back(org);
   }
 
