@@ -507,7 +507,7 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
 
   // add as much of the comment as possible to the line
   std::regex as_much_of_comment(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent) +
+      R"(.{1,)" + std::to_string(max_line_length - line.length()) +
       R"(}[^\s]*)");
   std::smatch a_m_c;
   std::regex_search(comment, a_m_c, as_much_of_comment);
