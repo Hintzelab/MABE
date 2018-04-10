@@ -505,23 +505,26 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
   auto comment = entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
 
   // add as much of the comment as possible to the line
-  auto next_newline = comment.find_first_of('\n');
-  auto comment_cut = std::min(  // yuck, must express more clearly
-      next_newline == std::string::npos ? max_line_length : int(next_newline),
-      max_line_length - std::max(comment_indent, int(line.length())));
-  line += comment.substr(0, comment_cut);
+  std::regex as_much_of_comment(
+      R"((.*\n|.{1,)" + std::to_string(max_line_length - comment_indent ) +
+      R"(}[^\s]*))");
+  std::smatch a_m_c; 
+  std::regex_search(comment,a_m_c,as_much_of_comment);
+
+  line += a_m_c.str();
   file << line << '\n';
- 
+
+  comment = a_m_c.suffix();
   // write rest of the comments right-aligned
-  comment = comment.substr(std::min(comment_cut , int(comment.length())));
-  std::regex aligned_comments(R"((.*\n|.{1,)" + std::to_string(max_line_length - comment_indent) +
-                              R"(}))");
+  std::regex aligned_comments(
+      R"((.*\n|.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
+      R"(}[^\s]*))");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m[1].str();
-    file << sub_line << "# " << comment_piece
+    file << sub_line << "  # " << comment_piece
          << (comment_piece.back() == '\n' ? "" : "\n");
   }
-  file << '\n';
+  //file << '\n';
 } // end  Parameters::printParameterWithWraparound
 
 
