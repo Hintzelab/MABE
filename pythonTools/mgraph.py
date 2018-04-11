@@ -5,6 +5,7 @@
 import argparse
 parser = argparse.ArgumentParser()
 
+pyreq.require("matplotlib,numpy,scipy,pandas")
 
 parser.add_argument('-path', type=str, metavar='PATH', default = '',  help='path to files - default : none (will read files in current directory)', required=False)
 parser.add_argument('-conditions', type=str, metavar=('CONDITION'), default = [''],  help='names of condition directories - default: none (will use files in path directly)',nargs='+', required=False)

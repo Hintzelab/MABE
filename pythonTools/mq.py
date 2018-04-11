@@ -31,66 +31,10 @@ import datetime
 import getpass  # for getuser() gets current username
 import itertools # for generating combinations of conditions
 import re
-import imp # module dependency checking
+from utils import pyreq
 import subprocess # invoking command line module installation
 
-suitableModuleInstallers = "conda,pip3,pip".split(',')
-requiredNonstandardModules = "colorama,psutil".split(',')
-installCMDString = ''
-modulesAreMissing = False
-def testForModuleAndBuildInstallString(moduleName):
-    global installCMDString, modulesAreMissing
-    try:
-        imp.find_module(moduleName)
-    except ImportError:
-        installCMDString += moduleName+' '
-        modulesAreMissing = True
-def executableExistsInPath(exename,separator):
-    foundPath = None
-    for extension in ['','.exe']:
-        if foundPath is not None:
-            break
-        for path in os.environ["PATH"].split(os.pathsep):
-            if foundPath is not None:
-                break
-            fp = os.path.join(path,exename).replace(os.pathsep,separator)
-            if os.path.isfile(fp): #and os.access(os.path.join(path,exename),os.X_OK):
-                foundPath = fp
-    return foundPath
-for moduleName in requiredNonstandardModules:
-    testForModuleAndBuildInstallString(moduleName)
-if modulesAreMissing:
-    print("Error: Required python modules are missing: {modules}".format(modules=', '.join(installCMDString.split())))
-    print()
-    response = 'NoInput'
-    while response not in ['','y','n','yes','no']:
-        response = input("Should I try to install them? [Y/n] (Enter defaults yes): ").lower()
-    if response in ['','y','yes']:
-        preferredInstaller = None
-        for eachInstaller in suitableModuleInstallers:
-            installerPath = executableExistsInPath(eachInstaller,'/') # handles *nix and *nix-on-win
-            if installerPath is not None:
-                preferredInstaller = eachInstaller
-                break
-            installerPath = executableExistsInPath(eachInstaller,'\\') # handles running on standard win
-            if installerPath is not None:
-                preferredInstaller = eachInstaller
-                break
-        if preferredInstaller is None:
-            print("Error: no suitable python installer found of either "+', '.join(suitableModuleInstallers))
-            print("       Please run the following command using your python module installer:")
-            print("       "+preferredInstaller + ' install '+installCMDString)
-            sys.exit(1)
-        print("Found module installer "+preferredInstaller)
-        try:
-            subprocess.run(preferredInstaller + ' install '+installCMDString, shell=True, check=True)
-        except subprocess.CalledProcessError:
-            print("Error: module installation using the following installation system failed:")
-            print("       "+preferredInstaller)
-            sys.exit(1)
-        print()
-        print("Installation success. Please try to run the script as you were again (press the up arrow on your keyboard to recall previous commands).")
-    sys.exit(0)
+pyreq.require("colorama,psutil") # quits if not found, even after it installs. must run this script again
 
 # colored warning and error printing
 import colorama
