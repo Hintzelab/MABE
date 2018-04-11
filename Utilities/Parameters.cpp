@@ -475,7 +475,6 @@ void Parameters::saveSettingsFile(const std::string &name_space,
 
 }  // end  Parameters::saveSettingsFile
 
-
 void Parameters::printParameterWithWraparound(std::stringstream &file,
                                               std::string current_indent,
                                               std::string entire_parameter,
@@ -489,41 +488,44 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
     exit(1); // which makes type conversion to int safe after this??
   }
   if (int(pos_of_comment) > max_line_length - 9) {
-    std::cout << " Warning: parameter name and value too large to fit on single "
-            "line. Ignoring column width for this line\n";
+    std::cout
+        << " Warning: parameter name and value too large to fit on single "
+           "line. Ignoring column width for this line\n";
   }
 
   std::string line;
   line += current_indent;
-  line += entire_parameter.substr(0, pos_of_comment);  // write name-value
+  line += entire_parameter.substr(0, pos_of_comment); // write name-value
 
   std::string sub_line(comment_indent, ' ');
   if (int(line.length()) < comment_indent)
     line +=
         sub_line.substr(0, comment_indent - line.length()); // pad with spaces
 
-  auto comment = entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
+  auto comment =
+      entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
 
   // add as much of the comment as possible to the line
-  auto next_newline = comment.find_first_of('\n');
-  auto comment_cut = std::min(  // yuck, must express more clearly
-      next_newline == std::string::npos ? max_line_length : int(next_newline),
-      max_line_length - std::max(comment_indent, int(line.length())));
-  line += comment.substr(0, comment_cut);
+  std::regex as_much_of_comment(
+      R"(.{1,)" + std::to_string(max_line_length - line.length()) +
+      R"(}[^\s]*)");
+  std::smatch a_m_c;
+  std::regex_search(comment, a_m_c, as_much_of_comment);
+
+  line += a_m_c.str();
   file << line << '\n';
- 
-  // write rest of the comments right-aligned
-  comment = comment.substr(std::min(comment_cut , int(comment.length())));
-  std::regex aligned_comments(R"((.*\n|.{1,)" + std::to_string(max_line_length - comment_indent) +
-                              R"(}))");
+
+  comment = a_m_c.suffix();
+  // write rest of the comments right-aligned with slight padding
+  std::regex aligned_comments(
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
+      R"(}[^\s]*)");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
-    auto comment_piece = m[1].str();
-    file << sub_line << "# " << comment_piece
+    auto comment_piece = m.str();
+    file << sub_line << "  # " << comment_piece
          << (comment_piece.back() == '\n' ? "" : "\n");
   }
-  file << '\n';
 } // end  Parameters::printParameterWithWraparound
-
 
 void Parameters::saveSettingsFiles(
     int max_line_length, int comment_indent,
