@@ -3,23 +3,15 @@ import os
 import posixpath
 import sys
 import platform ## system identification
+import re ## regular expressions
+import copy ## deepcopy
 import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
-import imp # module dependency checking
+from utils import pyreq
 from subprocess import call
 
-
 if platform.system() == 'Windows':
-    requiredNonstandardModules = "winreg".split(',')
-    modulesAreMissing = False
-    for moduleName in requiredNonstandardModules:
-        try:
-            imp.find_module(moduleName)
-        except (ModuleNotFoundError,ImportError) as error:
-            modulesAreMissing = True
-    if modulesAreMissing:
-        print("Error: required 'winreg' module is missing. Try installing it, or install miniconda python3 for windows.")
-        sys.exit()
+    pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
     import winreg ## can now safely import
 
 parser = argparse.ArgumentParser()
@@ -33,6 +25,7 @@ parser.add_argument('-nc','--noCompile', action='store_true', default = False, h
 parser.add_argument('-g','--generate', type=str, default = 'none', help='does not compile but generates a project files of type: '+SUPPORTED_PROJECT_FILES+' ('+SUPPORTED_PROJECT_NAMES+')', required=False)
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
+parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt', required=False)
 
 args = parser.parse_args()
 
@@ -45,6 +38,66 @@ compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
+
+options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
+currentOption = ""
+
+ptrnBuildOptions = re.compile(r'([+\-*%])\s*(\w+)') # ex: gets ["%","WORLD"] from " %  WORLD", gets ["*","BerryWorld"] from " * BerryWorld"
+if args.init:
+    ## fill options dict with the subdirs names {'World':['Berry','Xor']}
+    for eachTopDir in options.keys():
+        if os.path.isdir(eachTopDir):
+            for eachSubDir in os.listdir(eachTopDir):
+                if os.path.isdir(os.path.join(eachTopDir,eachSubDir)):
+                    options[eachTopDir].append(eachSubDir[0:-len(eachTopDir)])
+                elif eachSubDir.startswith("Default"):
+                    if "Default" not in options[eachTopDir]:
+                        options[eachTopDir].append("Default")
+    open("buildOptions.txt",'a').close() ## create buildOptions.txt if it doesn't exist
+    ## read current buildOptions.txt into a single string
+    f = open("buildOptions.txt",'r')
+    bopts = f.read().splitlines()
+    f.close()
+    ## create a data structure to store buildOptions sections, and include directives [+-*] and names ['Berry','Xor']
+    oldopts = dict()
+    for eachKey in options.keys():
+        oldopts[eachKey] = ([],[]) ## Structure: {'World':(['+','-'],['Berry','Xor']),...}
+    ## go through the old buildOptions, store into the new structure, and remove names from the discovered (options var) if already here
+    ## and also don't add to new structure if not in discovered (options var)
+    OPS,NAMES=0,1
+    currentSection=''
+    for line in bopts:
+        line = line.strip()
+        if len(line) == 0: continue
+        for a,b in ptrnBuildOptions.findall(line):
+            if a == '%': currentSection = b
+            else:
+                if b in options[currentSection]: ## if also in filesystem discovered (options var)
+                    oldopts[currentSection][OPS].append(a) ## add to new structure
+                    oldopts[currentSection][NAMES].append(b)
+                    options[currentSection].remove(b) ## remove from filesystem discovered
+    ## for all remaining items (meaning were discovered but not yet in the new structure) add them to new structure
+    for currentSection,names in options.items():
+        for name in names:
+            oldopts[currentSection][OPS].append('+')
+            oldopts[currentSection][NAMES].append(name)
+        if '*' not in oldopts[currentSection][OPS]:
+            oldopts[currentSection][OPS][-1] = '*'
+    ## write new buildOptions.txt using the new structure
+    with open("buildOptions.txt",'w') as newbopts:
+        for currentSection in oldopts.keys():
+            line = "% {section}\n".format(section=currentSection)
+            newbopts.write(line)
+            print(line,end='')
+            for op,name in zip(oldopts[currentSection][OPS],oldopts[currentSection][NAMES]):
+                line = "  {op} {name}\n".format(op=op,name=name)
+                newbopts.write(line)
+                print(line,end='')
+            newbopts.write("\n")
+            print()
+    print("buildOptions.txt created")
+    print()
+    sys.exit()
 
 args.generate=args.generate.lower()
 if args.generate=='none': # make is default generate option
@@ -59,9 +112,9 @@ else: # don't compile if generate option present
 
 if posixpath.exists(args.buildOptions) is False:
     print()
-    print('buildOptions file with name "'+args.buildOptions+'" does not exist. Please provide a diffrent filename.')
+    print('buildOptions file with name "'+args.buildOptions+'" does not exist. Please provide a diffrent filename, or use -i to initialize one.')
     print()
-    sys.exit();
+    sys.exit()
     
 # load all lines from buildOptions into lines, ignore blank lines
 file = open(args.buildOptions, 'r')
@@ -71,8 +124,6 @@ if pathToMABE == "":
 lines = [line.rstrip('\n').split() for line in file if line.rstrip('\n').split() not in [['EOF']] ]
 file.close()
 
-options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
-currentOption = ""
 
 unrecognizedLinesFound=False
 for linenum,line in enumerate(lines):
