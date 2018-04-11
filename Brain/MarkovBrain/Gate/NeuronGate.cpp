@@ -26,29 +26,20 @@ shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryErrorPL = Parameter
 shared_ptr<ParameterLink<bool>> NeuronGate::defaultThresholdFromNodePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdFromNode", false, "if true, gate will have additional input, which will be used as threshold");
 shared_ptr<ParameterLink<bool>> NeuronGate::defaultDeliveryChargeFromNodePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeFromNode", false, "if true, gate will have additional input, which will be used as deliveryCharge");
 
+
+std::shared_ptr<ParameterLink<bool>> NeuronGate::record_behaviorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-record_behavior", false, "if true, record neuron behavior (NOTE: this can generate a lot of data!)");
+std::shared_ptr<ParameterLink<std::string>> NeuronGate::record_behavior_file_namePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-record_behavior_fileName", (std::string) "neuron_behavior.txt","Name of file where neron behaviors are saved");
+
 void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
-	//cout << description() << endl;
 	bool fire = false;
-	// decay first
-	//cout << currentCharge;
 	currentCharge += -1 * Trit(currentCharge) * decayRate;
-	//cout << "->" << currentCharge << endl;
-	// add inputs to currCharge
-	//cout << currentCharge;
 	for (auto i : inputs) {
 		currentCharge += nodes[i];
 	}
-	//cout << "->" << currentCharge << endl;
-	// if currCharge is >= Th, fire
-	//   reduce currCharge
 
 	if (thresholdFromNode != -1) {
-		//cout << "threshold set from (" << thresholdFromNode << ") = ";
 		thresholdValue = nodes[thresholdFromNode];
-		// clip to [min,max]
 		thresholdValue = max(defaultThresholdMin,min(defaultThresholdMax,thresholdValue));
-
-		//cout << thresholdValue << endl;
 	}
 
 	if (thresholdActivates) {  // fire if currCharge is greater than a positive threshold or less than a negative threshold
@@ -61,7 +52,12 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 		}
 	}
 
-    if (0){//Global::modePL->lookup() == "visualize") {
+
+	record_behavior = record_behaviorPL->get(PT);
+	record_behavior_file_name;
+
+
+    if (record_behavior) {
             string stateNow = "";
             stateNow += to_string(ID);
             stateNow += "," + to_string(fire);
@@ -87,19 +83,15 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
             stateNow += "," + to_string(thresholdFromNode);
             stateNow += "," + to_string(deliveryChargeFromNode);
 
-            FileManager::writeToFile("neuron_data.txt", stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+            FileManager::writeToFile(record_behavior_file_name, stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header
     }
 
 	if (fire) {
-		//cout << "Fire!" <<  endl;
 		double localDeliveryCharge = 0;
 		if (deliveryChargeFromNode == -1) {
 			localDeliveryCharge += deliveryCharge;
 		} else {
-			//cout << "charge from (" << deliveryChargeFromNode << ") = " << nodes[deliveryChargeFromNode] << endl;
-			//cout << "  " << nextnodes[outputs[0]];
 			localDeliveryCharge += nodes[deliveryChargeFromNode];
-			//cout << "  " << nextnodes[outputs[0]] << endl;
 		}
 
 		// clip to [min,max]
