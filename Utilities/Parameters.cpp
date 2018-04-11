@@ -507,7 +507,7 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
 
   // add as much of the comment as possible to the line
   static const std::regex as_much_of_comment(
-      R"(.{1,)" + std::to_string(max_line_length - line.length()) +
+      R"(.{1,)" + std::to_string(max_line_length - line.length() - 3) +
       R"(}[^\s]*)");
   std::smatch a_m_c;
   std::regex_search(comment, a_m_c, as_much_of_comment);
@@ -518,7 +518,7 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
   comment = a_m_c.suffix();
   // write rest of the comments right-aligned with slight padding
   static const std::regex aligned_comments(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 5) +
       R"(}[^\s]*)");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
