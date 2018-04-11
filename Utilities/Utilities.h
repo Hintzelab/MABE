@@ -31,9 +31,10 @@ inline std::string get_var_typename(const int &) { return "int"; }
 
 inline std::string get_var_typename(const double &) { return "double"; }
 
+// not as efficient as it could be (should be an iterable range)
 template <typename Match = std::smatch>
 inline std::vector<Match> forEachRegexMatch(const std::string &s,
-                                            std::regex &r) {
+                                            const std::regex &r) {
   std::vector<Match> v;
   for (std::sregex_iterator end,
        i = std::sregex_iterator(s.begin(), s.end(), r);
