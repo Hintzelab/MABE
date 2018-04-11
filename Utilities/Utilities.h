@@ -46,7 +46,7 @@ inline std::vector<Match> forEachRegexMatch(const std::string &s,
 inline std::vector<std::string>
 nameSpaceToNameParts(const std::string &name_space) {
   std::vector<std::string> name_parts;
-  std::regex valid_name_space(R"(^(\w+::)*$)");
+  static const std::regex valid_name_space(R"(^(\w+::)*$)");
   if (!std::regex_match(name_space, valid_name_space)) {
     std::cout
         << "  Error::in nameSpaceToNameParts(const string& nameSpace). name "
@@ -55,7 +55,7 @@ nameSpaceToNameParts(const std::string &name_space) {
         << std::endl;
     exit(1);
   }
-  std::regex name_space_part(R"(\w+::)");
+  static const std::regex name_space_part(R"(\w+::)");
   for (auto &m : forEachRegexMatch(name_space, name_space_part))
     name_parts.push_back(m.str());
 
@@ -93,7 +93,7 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
   std::string s, se;
   s += separator;
   se += sep_except;
-  std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
+  static const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
   bool in_quotes = false;
   std::string quoted_string;
   for (auto &m : forEachRegexMatch(raw_line, piece)) {
@@ -213,8 +213,8 @@ inline void convertCSVListToVector(std::string string_data,
   return_data.clear();
   // check all uses of this function to see if leading and trailing quotes are
   // needed
-  std::regex stripoff_qoute(R"(^"(.*?)?"$)");
-  std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
+  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
+  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
   std::smatch m_quote;
   string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
                     ? m_quote[1].str()
@@ -322,9 +322,9 @@ inline std::vector<int> seq(const std::string sequence_string,
                             int default_max = -1, bool add_zero = false) {
   std::set<int> result;
   // as described above
-  std::regex commas(
+  static const std::regex commas(
       R"(([^,]+)(?:,|$))");
-  std::regex sub_seq( // needs to be documented somewhere
+  static const std::regex sub_seq( // needs to be documented somewhere
       R"((\d+)|(?:(?:(?:(\d+)-)?(\d+))?(?::(\d+))?))");
   for (auto & sub_seq_match : forEachRegexMatch(sequence_string, commas)) {
 	std::string sub = sub_seq_match[1].str();
