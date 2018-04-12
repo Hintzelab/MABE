@@ -26,12 +26,12 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::optimizeValuePL =
 std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::surviveRatePL =
     Parameters::register_parameter("OPTIMIZER_SIMPLE-surviveRate",
                                    (std::string) "0",
-                                   "value between 0 and 1, likelyhood that an "
+                                   "value between 0 and 1, probability that an "
                                    "organism will survive (MTree)");
 std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::selfRatePL =
     Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate",
                                    (std::string) "0",
-                                   "value between 0 and 1, likelyhood that an "
+                                   "value between 0 and 1, probability that an "
                                    "organism will self (ignored if "
                                    "numberParents = 1) (MTree)");
 std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::elitismCountPL =
@@ -54,7 +54,7 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::nextPopSizePL =
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullBelowPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullBelow", -1.0,
-	"cull organsims with score less then (((maxScore - minScore) * cullBelow) + minScore)\n  if -1, no culling. example, if .25, cull bottom 25%");
+	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\n  if -1, no culling. example, if .25, cull bottom 25%");
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullRemapPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
@@ -124,11 +124,11 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   double deltaScore; // maxScore - cullBelow
 
   double cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
-						 // culled orgs will not be automaticly not be allowed to survive
+						 // culled orgs will not be automatically not be allowed to survive
 						 // if -1 (default) then cullBelowScore = 0
   double cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
 							   // such that min score is the value
-							   // if -1, no normaization will occure
+							   // if -1, no normalization will occur
   double cullBelowScore;
 
   std::vector<std::shared_ptr<Organism>> populationAfterCull;
@@ -154,7 +154,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 
   auto checkScores = scores;
   
-  if (cullBelow >= 0 && minScore != maxScore){ // cull and nomalize scores if min == max then all scores are the same, do nothing!
+  if (cullBelow >= 0 && minScore != maxScore){ // cull and normalize scores if min == max then all scores are the same, do nothing!
 	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
 	std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	deltaScore = maxScore - cullBelowScore;
@@ -191,7 +191,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 	  culledMaxScore = maxScore;
   }
 
-  // figgure out if an orgs survive
+  // figure out if an orgs survive
   for (int i = 0; i < culledPopulationSize; i++) {
 	  if (Random::P(surviveRateMT->eval(populationAfterCull[i]->dataMap, PT)[0])) {
 		  surviveCount++;
