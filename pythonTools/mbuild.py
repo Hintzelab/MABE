@@ -9,6 +9,7 @@ import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
+import subprocess
 
 if platform.system() == 'Windows':
     pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
@@ -400,6 +401,16 @@ def getSourceFilesByBuildOptions(sep='/'):
     sortedunits=sorted(units, key=lambda x: x[f_folder])
     return sortedunits
 
+## create git version integration
+## Create an empty file if git is not available
+## Otherwise capture commit hash
+gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
+if gitExists:
+    with open(os.path.join("Utilities","gitversion.h"),'w') as file:
+        commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
+        file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
+else:
+    open(os.path.join("Utilities","gitversion.h"),'w').close()
 
 # Create a make file if requested (default)
 if args.generate == 'make': ## GENERATE make
