@@ -9,20 +9,18 @@ compiler:
 branches:
   only:
   - development
+  - master
   - "/feature.*/"
   - "/hotfix.*/"
 
 addons:
   apt:
     packages:
-      - python3
+      - python3.6
       - cmake
     sources: &sources
+      - deadsnakes
       - ubuntu-toolchain-r-test
-
-#before_install:
-#  # C++14
-#  - sudo apt-get update -qq
 
 install: 
   # C++14
@@ -32,7 +30,7 @@ install:
 script:
   - cp .travis.buildOptions.txt buildOptions.txt
   - ls
-  - python3 --version
+  - python3.6 --version
   - g++ --version
-  - python3 pythonTools/mbuild.py -g make
+  - python3.6 pythonTools/mbuild.py -g make
   - make -j4
