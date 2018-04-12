@@ -507,22 +507,22 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
 
   // add as much of the comment as possible to the line
   static const std::regex as_much_of_comment(
-      R"(.{1,)" + std::to_string(max_line_length - line.length() - 3) +
+      R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
       R"(}[^\s]*)");
   std::smatch a_m_c;
   std::regex_search(comment, a_m_c, as_much_of_comment);
-
-  line += a_m_c.str();
+  auto first_comment = a_m_c.str();
+  line += "#" + first_comment.substr(2);
   file << line << '\n';
 
   comment = a_m_c.suffix();
   // write rest of the comments right-aligned with slight padding
   static const std::regex aligned_comments(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 5) +
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 3) +
       R"(}[^\s]*)");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
-    file << sub_line << "  # " << comment_piece
+    file << sub_line << "# " << comment_piece
          << (comment_piece.back() == '\n' ? "" : "\n");
   }
 } // end  Parameters::printParameterWithWraparound
