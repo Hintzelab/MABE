@@ -40,12 +40,17 @@ public:
   static std::shared_ptr<ParameterLink<std::string>>
       nextPopSizePL; // number of genomes in the population
 
+
+  static std::shared_ptr<ParameterLink<double>> cullBelowPL;
+  static std::shared_ptr<ParameterLink<double>> cullRemapPL;
+
   std::string selectionMethod;
   int numberParents;
 
   ///
 
   int oldPopulationSize;
+  int culledPopulationSize;
   int nextPopulationTargetSize;
   int nextPopulationSize;
 
@@ -55,10 +60,13 @@ public:
 
   double aveScore;
   double maxScore;
+  double culledMaxScore;
   double minScore;
+  double culledMinScore;
 
   std::vector<int> elites;
   std::vector<double> scores;
+  std::vector<double> scoresAfterCull;
 
   ///
   class AbstractSelector {
@@ -93,13 +101,15 @@ public:
 
     virtual int select() override {
       int pick;
+	  //std::cout << SO->culledMaxScore << std::endl;
       do {
-        pick = Random::getIndex(SO->oldPopulationSize); // keep choosing a
+        pick = Random::getIndex(SO->culledPopulationSize); // keep choosing a
                                                         // random genome from
                                                         // population until we
                                                         // get one that's good
                                                         // enough
-      } while (Random::getDouble(1) > (SO->scores[pick] / SO->maxScore));
+		//std::cout << "  " << pick << " score() " << SO->scoresAfterCull[pick] << std::endl;
+	  } while (Random::getDouble(1) > (SO->scoresAfterCull[pick] / SO->culledMaxScore));
       return pick;
     }
 
@@ -119,10 +129,20 @@ public:
       while (getline(ss, tok, ',')) {
         arguments.push_back(tok);
       }
+	  if (arguments.size() == 0) {
+		  std::cout << "  in TournamentSelector constructor, did not find = in settings. Did you forget (size=n) ? "
+			  << "\n  exiting..." << std::endl;
+		  exit(1);
+	  }
       for (auto arg : arguments) {
         std::vector<std::string> parts;
         std::stringstream ss(arg);
-        std::string tok;
+		std::string tok;
+		if (ss.str().find('=') == std::string::npos) {
+			std::cout << "  in TournamentSelector constructor, did not find = in settings. Did you forget (size=n) ? "
+				<< "\n  exiting..." << std::endl;
+			exit(1);
+		}
         while (getline(ss, tok, '=')) {
           parts.push_back(tok);
         }
@@ -145,17 +165,17 @@ public:
 
     virtual int select() override {
       int winner, challanger;
-      winner = Random::getIndex(SO->oldPopulationSize);
+      winner = Random::getIndex(SO->culledPopulationSize);
       for (int i = 0; i < tournamentSize - 1; i++) {
-        challanger = Random::getIndex(SO->oldPopulationSize);
-        // cout << tournamentSize << " " <<i << "  " <<
-        // challanger<<"("<<SO.scores[challanger] << "),winner(" <<
-        // SO.scores[winner] << ")";
-        if (SO->scores[challanger] > SO->scores[winner]) {
-          // cout << " *";
+        challanger = Random::getIndex(SO->culledPopulationSize);
+		//std::cout << tournamentSize << " " << i << "  " <<
+         //challanger<<"("<<SO->scoresAfterCull[challanger] << "),winner(" <<
+         //SO->scoresAfterCull[winner] << ")";
+        if (SO->scoresAfterCull[challanger] > SO->scoresAfterCull[winner]) {
+			//std::cout << " *";
           winner = challanger;
         }
-        // cout << endl;
+         //std::cout << std::endl;
       }
       return winner;
     }
