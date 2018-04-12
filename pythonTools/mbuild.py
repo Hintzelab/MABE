@@ -405,12 +405,12 @@ def getSourceFilesByBuildOptions(sep='/'):
 ## Create an empty file if git is not available
 ## Otherwise capture commit hash
 gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
-if gitExists:
-    with open(os.path.join("Utilities","gitversion.h"),'w') as file:
+with open(os.path.join("Utilities","gitversion.h"),'w') as file:
+    if gitExists:
         commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
         file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
-else:
-    open(os.path.join("Utilities","gitversion.h"),'w').close()
+    else:
+        file.write('const char *gitversion = "";\n')
 
 # Create a make file if requested (default)
 if args.generate == 'make': ## GENERATE make
