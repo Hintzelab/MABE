@@ -50,7 +50,7 @@ Loader::loadPopulation(const std::string &loader_option) {
     exit(1);
   }
   if (collection_org_lists.at("MASTER").size() != 1) {
-    std::cout << "error: variable named MASTER must contain only one population"
+    std::cout << "error: variable named MASTER must contain exactly one population"
               << std::endl;
     exit(1);
   }
@@ -370,9 +370,9 @@ std::vector<std::vector<long>> Loader::keywordMatch(std::string attribute,
     for (const auto &o : from_pop)
       if (all_organisms.at(o).attributes.find(attribute) ==
           all_organisms.at(o).attributes.end()) {
-        std::cout << "error: " << resource
-                  << " contains organisms without attribute " << attribute
-                  << std::endl;
+        std::cout << "error: while trying to match " << value << "  "
+                  << resource << " contains organisms without attribute "
+                  << attribute << std::endl;
         exit(1);
       }
     std::vector<long> pop;
@@ -398,15 +398,17 @@ std::vector<std::vector<long>> Loader::keywordGreatest(size_t number,
   for (const auto &p : collection_org_lists.at(resource)) {
     const auto from_pop = p;
     if (from_pop.size() < number) {
-      std::cout << " Collection " << resource
-                << " contains a population that does not have " << number
+      std::cout << "error: trying to get greatest " << number
+                << " from collection, but  " << resource
+                << " contains a population that does not have sufficient "
                 << " organisms" << std::endl;
       exit(1);
     }
     for (const auto &o : from_pop)
       if (all_organisms.at(o).attributes.find(attribute) ==
           all_organisms.at(o).attributes.end()) {
-        std::cout << "error: " << resource
+        std::cout << "error:  trying to get greatest " << number
+                  << " from collection, but  " << resource
                   << " contains organisms without attribute " << attribute
                   << std::endl;
         exit(1);
@@ -435,16 +437,26 @@ std::vector<std::vector<long>> Loader::keywordLeast(size_t number,
   for (const auto &p : collection_org_lists.at(resource)) {
     const auto from_pop = p;
     if (from_pop.size() < number) {
-      std::cout << " Collection " << resource
-                << " contains a population that does not have " << number
+      std::cout << "error: trying to get least" << number
+                << " from collection, but  " << resource
+                << " contains a population that does not have sufficient "
                 << " organisms" << std::endl;
       exit(1);
     }
+    for (const auto &o : from_pop)
+      if (all_organisms.at(o).attributes.find(attribute) ==
+          all_organisms.at(o).attributes.end()) {
+        std::cout << "error:  trying to get least" << number
+                  << " from collection, but  " << resource
+                  << " contains organisms without attribute " << attribute
+                  << std::endl;
+        exit(1);
+      }
     std::vector<long> pop(number);
     std::partial_sort_copy(
         from_pop.begin(), from_pop.end(), pop.begin(), pop.end(),
         [&](long lhs, long rhs) {
-          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) >
+          return std::stod(all_organisms.at(lhs).attributes.at(attribute)) <
                  std::stod(all_organisms.at(rhs).attributes.at(attribute));
         });
     coll.push_back(pop);
@@ -463,11 +475,13 @@ std::vector<std::vector<long>> Loader::keywordAny(size_t number,
   for (const auto &p : collection_org_lists.at(resource)) {
     auto from_pop = p;
     if (from_pop.size() < number) {
-      std::cout << " Collection " << resource
-                << " contains a population that does not have " << number
+      std::cout << "error: trying to get any" << number
+                << " from collection, but  " << resource
+                << " contains a population that does not have sufficient "
                 << " organisms" << std::endl;
       exit(1);
     }
+	// Latent bug - not reproducible randomness :(
     std::shuffle(from_pop.begin(), from_pop.end(), std::random_device());
     std::vector<long> pop(from_pop.begin(), from_pop.begin() + number);
     coll.push_back(pop);

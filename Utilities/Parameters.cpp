@@ -64,7 +64,7 @@ void Parameters::parseFullParameterName(const std::string &full_name,
   // no need for error checking, since this is internal??
   // Then it should be a private member at least.
 
-  std::regex param(R"(^(.*::)?(\w+)-(\w+)$)");
+  static const std::regex param(R"(^(.*::)?(\w+)-(\w+)$)");
   std::smatch m;
   if (std::regex_match(full_name, m, param)) {
     name_space_name = m[1].str();
@@ -155,7 +155,7 @@ MASTER = default 100 # by default :)
   std::string arguments;
   for (int i = 1; i < argc; i++)
     arguments += argv[i], arguments += " ";
-  std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
+  static const std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
   for (auto &m : forEachRegexMatch(arguments, command_line_arguments)) {
     switch (m[1].str()[0]) {
     case 'h':
@@ -534,8 +534,8 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
       entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
 
   // add as much of the comment as possible to the line
-  std::regex as_much_of_comment(
-      R"(.{1,)" + std::to_string(max_line_length - line.length()) +
+  static const std::regex as_much_of_comment(
+      R"(.{1,)" + std::to_string(max_line_length - line.length() - 3) +
       R"(}[^\s]*)");
   std::smatch a_m_c;
   std::regex_search(comment, a_m_c, as_much_of_comment);
@@ -545,8 +545,8 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
 
   comment = a_m_c.suffix();
   // write rest of the comments right-aligned with slight padding
-  std::regex aligned_comments(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
+  static const std::regex aligned_comments(
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 5) +
       R"(}[^\s]*)");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
@@ -574,7 +574,7 @@ void Parameters::saveSettingsFiles(
         also_children = false;
       }
       // why bother at all?
-      std::regex colon(R"(::)");
+      static const std::regex colon(R"(::)");
       file_name = std::regex_replace(name_space, colon, "_");
       if (!file_name.empty()) {
         file_name.pop_back();

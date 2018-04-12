@@ -12,11 +12,11 @@
 
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::recordIOMapPL=
     Parameters::register_parameter(
-        "BRAIN_MARKOV_ADVANCED-recordIOMapPL", false,
+        "BRAIN_MARKOV_ADVANCED-recordIOMap", false,
         "if true, all inoput output and hidden nodes will be recorderd on every brain update");
 std::shared_ptr<ParameterLink<std::string>> MarkovBrain::IOMapFileNamePL=
-    Parameters::register_parameter("BRAIN_MARKOV-IOMapFileName",
-                                   (std::string) "stt",
+    Parameters::register_parameter("BRAIN_MARKOV_ADVANCED-recordIOMap_fileName",
+                                   (std::string) "markov_IO_map.csv",
                                    "Name of file where IO mappings are saved");
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::randomizeUnconnectedOutputsPL =
     Parameters::register_parameter(
@@ -176,13 +176,13 @@ void MarkovBrain::update() {
         if (nextNodesConnections[nrInputValues + i] == 0) 
           nextNodes[nrInputValues + i] = Random::getDouble(
               randomizeUnconnectedOutputsMin, randomizeUnconnectedOutputsMax);
-      break;
-    default:
-      std::cout
-          << "  ERROR! BRAIN_MARKOV_ADVANCED::randomizeUnconnectedOutputsType "
-             "is invalid. current value: "
-          << randomizeUnconnectedOutputsType << std::endl;
-      exit(1);
+      //break;
+    //default:
+      //std::cout
+      //    << "  ERROR! BRAIN_MARKOV_ADVANCED::randomizeUnconnectedOutputsType "
+      //       "is invalid. current value: "
+      //    << randomizeUnconnectedOutputsType << std::endl;
+      //exit(1);
     }
   }
   swap(nodes, nextNodes);
@@ -196,6 +196,9 @@ void MarkovBrain::update() {
 	
    for (int i = nrInputValues + nrOutputValues ; i < nodes.size() ; i++) 
 	   IOMap.append("hidden", Bit(nodes[i]));
+   IOMap.setOutputBehavior("input", DataMap::LIST);
+   IOMap.setOutputBehavior("output", DataMap::LIST);
+   IOMap.setOutputBehavior("hidden", DataMap::LIST);
    IOMap.writeToFile(IOMapFileNamePL->get());
   IOMap.clearMap();
   }
