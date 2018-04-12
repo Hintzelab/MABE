@@ -173,7 +173,7 @@ int main(int argc, const char *argv[]) {
                 << "\n"
                 << "\n";
 
-      world->evaluate(groups, 0, 1, 0);
+      world->evaluate(groups, 0, 1, AbstractWorld::debugPL->get());
     } else if (Global::modePL->get() == "analyze") {
       ////////////////////////////////////////////////////////////////////////////////////
       // analyze mode
@@ -326,6 +326,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       templateGenomes[genomeName] = makeTemplateGenome(This_PT);
     }
 
+	std::cout << std::flush;
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
     auto progenitor =
