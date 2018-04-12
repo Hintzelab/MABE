@@ -3,6 +3,7 @@
 #%matplotlib inline
 
 import argparse
+from utils import pyreq
 parser = argparse.ArgumentParser()
 
 pyreq.require("matplotlib,numpy,scipy,pandas")
