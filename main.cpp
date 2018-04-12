@@ -326,6 +326,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       templateGenomes[genomeName] = makeTemplateGenome(This_PT);
     }
 
+	std::cout << std::flush;
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
     auto progenitor =
