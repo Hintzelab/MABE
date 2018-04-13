@@ -35,6 +35,12 @@ if platform.system() == 'Windows':
 else:
     product = 'mabe'
 
+def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverflow.com/a/1160227
+    flags = os.O_CREAT | os.O_APPEND
+    with os.fdopen(os.open(fname, flags=flags, mode=mode, dir_fd=dir_fd)) as f:
+        os.utime(f.fileno() if os.utime in os.supports_fd else fname,
+            dir_fd=None if os.supports_fd else dir_fd, **kwargs)
+
 compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
 if (args.gprof):
@@ -411,6 +417,7 @@ with open(os.path.join("Utilities","gitversion.h"),'w') as file:
         file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
     else:
         file.write('const char *gitversion = "";\n')
+touch("main.cpp") ## IDE-independent signal to recompile main.o
 
 # Create a make file if requested (default)
 if args.generate == 'make': ## GENERATE make
