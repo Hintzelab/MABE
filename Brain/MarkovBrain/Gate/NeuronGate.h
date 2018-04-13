@@ -20,14 +20,14 @@ public:
 	static shared_ptr<ParameterLink<int>> defaultDischargeBehaviorPL;
 	static shared_ptr<ParameterLink<double>> defaultThresholdMinPL;
 	static shared_ptr<ParameterLink<double>> defaultThresholdMaxPL;
-	static shared_ptr<ParameterLink<bool>> defaultThresholdFromNodePL;
+	static shared_ptr<ParameterLink<int>> defaultThresholdFromNodePL;
 
 	static shared_ptr<ParameterLink<bool>> defaultAllowRepressionPL;
 	static shared_ptr<ParameterLink<double>> defaultDecayRateMinPL;
 	static shared_ptr<ParameterLink<double>> defaultDecayRateMaxPL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMinPL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMaxPL;
-	static shared_ptr<ParameterLink<bool>> defaultDeliveryChargeFromNodePL;
+	static shared_ptr<ParameterLink<int>> defaultDeliveryChargeFromNodePL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryErrorPL;
 
 	static shared_ptr<ParameterLink<bool>> record_behaviorPL;

@@ -29,7 +29,7 @@ shared_ptr<ParameterLink<bool>> Gate_Builder::usingTritDeterministicGatePL = Par
 shared_ptr<ParameterLink<int>> Gate_Builder::tritDeterministicGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_TRIT-initialCount", 3, "seed genome with this many start codons");
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingNeuronGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allow", false, "set to true to enable Neuron gates");
-shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 3, "seed genome with this many start codons");
+shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 20, "seed genome with this many start codons (neurons tend to work better in larger numbers)");
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-allow", false, "set to true to enable feedback gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::feedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
@@ -484,14 +484,27 @@ void Gate_Builder::setupGates() {
 			double deliveryCharge = genomeHandler->readDouble(NeuronGate::defaultDeliveryChargeMinPL->get(_PT), NeuronGate::defaultDeliveryChargeMaxPL->get(_PT), AbstractGate::DATA_CODE, gateID);
 			double deliveryError = NeuronGate::defaultDeliveryErrorPL->get(_PT);
 
+			// assume Threshold is not coming from a node
 			int ThresholdFromNode = -1;
-			int DeliveryChargeFromNode = -1;
-			bool defaultThresholdFromNode = NeuronGate::defaultThresholdFromNodePL->get(_PT);
-			if (defaultThresholdFromNode) {
+			int defaultThresholdFromNode = NeuronGate::defaultThresholdFromNodePL->get(_PT);
+			// if defaultThresholdFromNode == -1 then genome should decide
+			if (defaultThresholdFromNode == -1) {
+				defaultThresholdFromNode = genomeHandler->readInt(0, 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+			}
+			// if either user or genome sets defaultThresholdFromNode = 1 then Threshold value will come from node, get an address
+			if (defaultThresholdFromNode == 1) {
 				ThresholdFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
-			bool defaultDeliveryChargeFromNode = NeuronGate::defaultDeliveryChargeFromNodePL->get(_PT);
-			if (defaultDeliveryChargeFromNode) {
+
+			// assume DeliveryCharge is not coming from a node
+			int DeliveryChargeFromNode = -1;
+			int defaultDeliveryChargeFromNode = NeuronGate::defaultDeliveryChargeFromNodePL->get(_PT);
+			// if defaultDeliveryChargeFromNode == -1 then genome should decide
+			if (defaultDeliveryChargeFromNode == -1) {
+				defaultDeliveryChargeFromNode = genomeHandler->readInt(0, 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+			}
+			// if either user or genome sets defaultThresholdFromNode = 1 then DeliveryCharge value will come from node, get an address
+			if (defaultDeliveryChargeFromNode == 1) {
 				DeliveryChargeFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
 			if (genomeHandler->atEOC()) {
