@@ -505,6 +505,9 @@ void Parameters::printParameterWithWraparound(std::stringstream &file,
   auto comment =
       entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
 
+  std::regex new_line(R"(\n)");
+  comment = std::regex_replace(comment,new_line,"\n ");
+
   // add as much of the comment as possible to the line
   static const std::regex as_much_of_comment(
       R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
