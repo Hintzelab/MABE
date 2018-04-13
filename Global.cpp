@@ -31,10 +31,10 @@ std::shared_ptr<ParameterLink<std::string>> Global::modePL =
         "mode to run MABE in [run,visualize,analyze]");
 
 std::shared_ptr<ParameterLink<int>> Global::maxLineLengthPL =
-    Parameters::register_parameter("PARAMETER_FILES-maxLineLength", 160,
+    Parameters::register_parameter("PARAMETER_FILES-maxLineLength", 80,
                                    "maximum line length");
 std::shared_ptr<ParameterLink<int>> Global::commentIndentPL =
-    Parameters::register_parameter("PARAMETER_FILES-commentIndent", 45,
+    Parameters::register_parameter("PARAMETER_FILES-commentIndent", 30,
                                    "minimum space before comments");
 
 std::shared_ptr<ParameterLink<std::string>> Global::outputDirectoryPL =
