@@ -2,6 +2,9 @@
 #include <iostream>
 #include <memory>
 #include <set>
+#include <utility>
+#include <cmath>
+#include <array>
 
 #include "Analyzer.h"
 
@@ -23,10 +26,10 @@ std::shared_ptr<ParameterLink<std::string>> Analyzer::outputFileKnockoutNamePL =
         "Name of file to store results of Knockout Experiment");
 
 std::shared_ptr<ParameterLink<std::string>>
-    Analyzer::outputDotFilePrefixForStateTransitionPL =
+    Analyzer::outputDotFileDirectoryPL =
         Parameters::register_parameter(
-            "ANALYZER-outputDotFilePrefixForStateTransition", std::string("stt"),
-            "Prefix of dot file that stores State Transition results. "
+            "ANALYZER-outputDotFileDirectory", std::string("./"),
+            "Directory to place dot files that stores State Transition results. "
             "Additionally, each dot file is tagged with the file the org was "
             "loaded from and it's ID in the original file");
 
@@ -129,6 +132,63 @@ void Analyzer::knockoutExperiment(
   }
 }
 
+std::pair<std::array<long, 4>,long>
+Analyzer::parseMBnodeLayout(std::pair<std::vector<double>, std::vector<double>> state,
+                  int in, int out, int hid) {
+// this is where the assumptions are made to allow for brain State Transitions.
+// Nodes are laid out (0,in,out,hid). All values are Bit'ted. A unique label
+// is assigned by reading each component  as a binary-encoded little-endian
+// decimal number. Inputs are overwritten after every update. Since outputs may
+// or may not be overwritten they are considered at the end of the update.
+
+		auto current_in  = 0l;
+		for(int i=0;i<in;i++)
+			current_in += std::pow(i,2)*state.first[i];
+
+		auto current_out   = 0l;
+		for(int i=0;i<in;i++)
+			current_out += std::pow(i,2)*state.first[i+in];
+
+		auto current_hid  = 0l;
+		for(int i=0;i<in;i++)
+			current_hid += std::pow(i,2)*state.first[i+in+out];
+	
+		auto next_out = 0l;
+		for(int i=0;i<in;i++)
+			next_out += std::pow(i,2)*state.second[i+in];
+
+		auto next_hid = 0l;
+		for(int i=0;i<in;i++)
+			next_hid += std::pow(i,2)*state.second[i+in+out];
+
+		// and we ignore the next in
+		
+		return std::make_pair(std::array<long,4>{current_hid,current_out,next_hid,next_out},current_in);
+
+}
+
+void Analyzer::writeDotFile(
+    std::string file_name,
+    std::map<std::array<long, 4>, std::set<long>> &all_node_edges) {
+
+  std::ofstream dot_file(outputDotFileDirectoryPL->get() + "/" + file_name);
+  dot_file << "digraph {\n";
+  for (auto ne : all_node_edges) {
+    dot_file << "\""
+             << std::to_string(ne.first[0]) + "_" +
+                    std::to_string(ne.first[1]) + "\" -> \"" +
+                    std::to_string(ne.first[2]) + "_" +
+                    std::to_string(ne.first[3]) + "\"";
+    std::string label;
+    for (auto &e : ne.second)
+      label += std::to_string(e) + ",";
+    label.pop_back();
+    dot_file << "[label=" + label + "\n";
+  }
+  dot_file << "}";
+  dot_file.close();
+}
+
 void Analyzer::stateTransition(
     std::shared_ptr<AbstractWorld> world,
     std::map<std::string, std::shared_ptr<Group>> &groups) {
@@ -142,8 +202,9 @@ void Analyzer::stateTransition(
         std::make_shared<MarkovBrain>(dynamic_cast<MarkovBrain &>(*org->brain));
 
     // set up IO recording
-    mb->recordIOMapPL->set(true);
-    auto id = org->dataMap.getStringOfVector("orig_ID");
+    mb->record_update_history = true;
+	auto & loc_uh = mb->update_history;
+	auto id = org->dataMap.getStringOfVector("Orig_ID");
     id = id.substr(2, id.length() - 4);
 
     auto mutant = org->makeCopy(Parameters::root);
@@ -157,11 +218,31 @@ void Analyzer::stateTransition(
         std::make_shared<Group>(mutated_population, groups["root::"]->optimizer,
                                 groups["root::"]->archivist);
 
-    std::set<std::array<long, 5>> all_node_edges;
+    // records collated history of hidden_output->hidden_output on input
+    std::map<std::array<long, 4>, std::set<long>> all_node_edges;
     auto resolution = stateTransitionResolutionPL->get();
     for (int i = 0; i < resolution; i++) {
 
+	  std::cout  << "&" << loc_uh.size();
       world->evaluate(mutated_groups, 0, 0, 0);
+	  std::cout  << "&" << loc_uh.size();
+      auto mb_wh = std::make_shared<MarkovBrain>(dynamic_cast<MarkovBrain &>(
+          *mutated_groups["root::"]->population[0]->brain));
+
+      auto in = mb_wh->nrInputValues;
+      auto out = mb_wh->nrOutputValues;
+      auto hid = mb_wh->hiddenNodes;
+	  std::cout  << mb_wh->update_history.size();
+	  std::cout  << mb->update_history.size();
+
+      for (auto update_state : mb_wh->update_history) {
+        auto con_state = parseMBnodeLayout(update_state, in, out, hid);
+        all_node_edges[con_state.first].insert(con_state.second);
+      }
+	  mb_wh->update_history.clear();
     }
+
+    writeDotFile(id, all_node_edges);
   }
 }
+

@@ -10,14 +10,6 @@
 
 #include "MarkovBrain.h"
 
-std::shared_ptr<ParameterLink<bool>> MarkovBrain::recordIOMapPL=
-    Parameters::register_parameter(
-        "BRAIN_MARKOV_ADVANCED-recordIOMapPL", false,
-        "if true, all inoput output and hidden nodes will be recorderd on every brain update");
-std::shared_ptr<ParameterLink<std::string>> MarkovBrain::IOMapFileNamePL=
-    Parameters::register_parameter("BRAIN_MARKOV-IOMapFileName",
-                                   (std::string) "stt",
-                                   "Name of file where IO mappings are saved");
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::randomizeUnconnectedOutputsPL =
     Parameters::register_parameter(
         "BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputs", false,
@@ -150,14 +142,11 @@ void MarkovBrain::resetOutputs() {
 
 void MarkovBrain::update() {
   nextNodes.assign(nrNodes, 0.0);
-	DataMap IOMap;
 
   for (int i = 0; i < nrInputValues; i++)  
     nodes[i] = inputValues[i];
-  
-  if (recordIOMapPL->get())
-    for (int i = 0; i < nrInputValues; i++)
-     IOMap.append("input", Bit(nodes[i]));
+
+  auto temp_prev_nodes = nodes;
 
   for (auto &g :gates) // update each gate
 	  g->update(nodes, nextNodes);
@@ -190,15 +179,12 @@ void MarkovBrain::update() {
     outputValues[i] = nodes[nrInputValues + i];
   }
 
-  if (recordIOMapPL->get()){
-   for (int i = 0; i < nrOutputValues; i++ )
-      IOMap.append("output", Bit(nodes[nrInputValues + i]));
-	
-   for (int i = nrInputValues + nrOutputValues ; i < nodes.size() ; i++) 
-	   IOMap.append("hidden", Bit(nodes[i]));
-   IOMap.writeToFile(IOMapFileNamePL->get());
-  IOMap.clearMap();
+  if (record_update_history){
+//	  std::cout << "recording";
+    update_history.push_back(std::make_pair(temp_prev_nodes, nodes));
   }
+
+	  std::cout << update_history.size(); 
 }
 
 void MarkovBrain::inOutReMap() { // remaps genome site values to valid brain

@@ -33,8 +33,6 @@ public:
   //	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
 
   static std::shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
-  static std::shared_ptr<ParameterLink<bool>> recordIOMapPL;
-  static std::shared_ptr<ParameterLink<std::string>> IOMapFileNamePL;
   static std::shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
   static std::shared_ptr<ParameterLink<double>>
       randomizeUnconnectedOutputsMinPL;
@@ -58,6 +56,8 @@ public:
   std::shared_ptr<AbstractGateListBuilder> GLB;
   std::vector<int> nodesConnections, nextNodesConnections;
 
+  bool record_update_history;
+  std::vector<std::pair<std::vector<double>, std::vector<double>>> update_history;
   //	static bool& cacheResults;
   //	static int& cacheResultsCount;
 
