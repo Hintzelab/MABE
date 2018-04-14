@@ -66,6 +66,7 @@ def reportInstaller():
 
 def require(names): ## the only exported fn
     global installCMDString, modulesAreMissing, preferredInstaller, alternateInstaller, suitableModuleInstallers
+    userFlag = '--user '
     '''names = a comma separated string of module names, no spaces.
     Can handle packages where the install name is not the same as the import name
     "packagename,packagename,..."
@@ -107,14 +108,16 @@ def require(names): ## the only exported fn
                 print("       Please run the following command using your python module installer:")
                 print("       "+preferredInstaller + ' install '+installCMDString)
                 sys.exit(1)
+            if preferredInstaller == "conda":
+                userFlag = "" ## don't use '--user' if using conda
             print("Found module installer "+preferredInstaller)
             print("Found alternate installer "+alternateInstaller)
             try:
-                subprocess.run(preferredInstaller + ' install --user '+installCMDString, shell=True, check=True)
+                subprocess.run(preferredInstaller + ' install '+userFlag+installCMDString, shell=True, check=True)
             except subprocess.CalledProcessError:
                 print("Module not found using '"+preferredInstaller+"', trying '"+alternateInstaller+"'...")
                 try:
-                    subprocess.run(alternateInstaller + ' install --user '+installCMDString, shell=True, check=True)
+                    subprocess.run(alternateInstaller + ' install '+userFlag+installCMDString, shell=True, check=True)
                 except subprocess.CalledProcessError:
                     print("Error: module installation using the following installation system failed:")
                     print("       "+preferredInstaller)
