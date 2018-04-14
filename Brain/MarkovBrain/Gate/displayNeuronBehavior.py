@@ -12,7 +12,7 @@ parser.add_argument('-hideFire', action='store_true', default = False, help='if 
 parser.add_argument('-hideCurrentCharge', action='store_true', default = False, help='if true, CurrentCharge will be hidden - default (if not set) : False', required=False)
 parser.add_argument('-hideThreshold', action='store_true', default = False, help='if true, Threshold will be hidden - default (if not set) : False', required=False)
 parser.add_argument('-hideDeliveryCharge', action='store_true', default = False, help='if true, DeliveryCharge will be hidden - default (if not set) : False', required=False)
-parser.add_argument('-cullStatic', action='store_true', default = False, help='if set, neurons whos fire state does not change over pltRange will not be shown - default (if not set) : False', required=False)
+parser.add_argument('-cullStatic', action='store_true', default = False, help='if set, neurons whose fire state does not change over pltRange will not be shown - default (if not set) : False', required=False)
 parser.add_argument('-ticksSize', type=int, metavar='SIZE', default = '10', help='size of ticks - default : 10', required=False)
 parser.add_argument('-textSize', type=int, metavar='SIZE', default = '15', help='size of neuron label text - default : 15', required=False)
 parser.add_argument('-figSize', type=int, metavar=('X','Y'), default = [6,6],  help='size of plot - default: 6,6', nargs=2, required=False)
