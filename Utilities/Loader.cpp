@@ -542,7 +542,7 @@ std::pair<long, long> Loader::generatePopulation(const std::string file_name) {
 
   auto org_file_data = getAttributeMap(file_name);
   auto file_contents_pair =
-      std::make_pair(all_organisms.size(), org_file_data.size());
+      std::make_pair(long(all_organisms.size()), long(org_file_data.size()));
 
   static const std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
   std::smatch match_org;
