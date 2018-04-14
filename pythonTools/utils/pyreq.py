@@ -9,9 +9,6 @@ alternateInstaller='' ## probably pip
 installCMDString = ''
 modulesAreMissing = False
 
-## user flag for "pip install --user" empty if not needed. Mostly this is for HPCC installation after "module load Python/3.5.3"
-userFlag = "--user " if subprocess.run("sudo -v",shell=True,stderr=subprocess.PIPE,stdout=subprocess.PIPE).stderr.startswith(b"Sorry") else ""
-
 def testForModuleAndBuildInstallString(moduleName):
     global installCMDString, modulesAreMissing
     ## the split(':') allows there to exist
@@ -113,11 +110,11 @@ def require(names): ## the only exported fn
             print("Found module installer "+preferredInstaller)
             print("Found alternate installer "+alternateInstaller)
             try:
-                subprocess.run(preferredInstaller + ' install '+userFlag+installCMDString, shell=True, check=True)
+                subprocess.run(preferredInstaller + ' install --user '+installCMDString, shell=True, check=True)
             except subprocess.CalledProcessError:
                 print("Module not found using '"+preferredInstaller+"', trying '"+alternateInstaller+"'...")
                 try:
-                    subprocess.run(alternateInstaller + ' install '+userFlag+installCMDString, shell=True, check=True)
+                    subprocess.run(alternateInstaller + ' install --user '+installCMDString, shell=True, check=True)
                 except subprocess.CalledProcessError:
                     print("Error: module installation using the following installation system failed:")
                     print("       "+preferredInstaller)
