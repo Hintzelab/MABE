@@ -130,7 +130,7 @@ for nID in range(plotNeuronsCount):
         for val in fireLists[plotNeuronIDs[nID]]:
             this_fireList.append((lowBound - (deltaBound * .2)) + (val*(deltaBound + (deltaBound * .4))))
             this_fireList.append((lowBound - (deltaBound * .2)) + (val*(deltaBound + (deltaBound * .4))))
-        # for fireLists, this will create shaded areas of green (activating) or red (represive) when this gate is firing
+        # for fireLists, this will create shaded areas of green (activating) or red (repressive) when this gate is firing
         fireColor = (1,0,0)
         if (thresholdActivatesList[plotNeuronIDs[nID]]):
             fireColor = (0,1,0)
