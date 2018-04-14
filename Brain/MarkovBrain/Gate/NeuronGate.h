@@ -20,15 +20,21 @@ public:
 	static shared_ptr<ParameterLink<int>> defaultDischargeBehaviorPL;
 	static shared_ptr<ParameterLink<double>> defaultThresholdMinPL;
 	static shared_ptr<ParameterLink<double>> defaultThresholdMaxPL;
-	static shared_ptr<ParameterLink<bool>> defaultThresholdFromNodePL;
+	static shared_ptr<ParameterLink<int>> defaultThresholdFromNodePL;
 
 	static shared_ptr<ParameterLink<bool>> defaultAllowRepressionPL;
 	static shared_ptr<ParameterLink<double>> defaultDecayRateMinPL;
 	static shared_ptr<ParameterLink<double>> defaultDecayRateMaxPL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMinPL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMaxPL;
-	static shared_ptr<ParameterLink<bool>> defaultDeliveryChargeFromNodePL;
+	static shared_ptr<ParameterLink<int>> defaultDeliveryChargeFromNodePL;
 	static shared_ptr<ParameterLink<double>> defaultDeliveryErrorPL;
+
+	static shared_ptr<ParameterLink<bool>> record_behaviorPL;
+	static shared_ptr<ParameterLink<string>> record_behavior_file_namePL;
+
+	bool record_behavior;
+	string record_behavior_file_name;
 
 	int dischargeBehavior;  // what to do when the gate delivers a charge
 	double thresholdValue;  // threshold when this gate will fire (if negative, then fire when currentCharge < threshold)
@@ -66,6 +72,9 @@ public:
 		defaultThresholdMax = defaultThresholdMaxPL->get(PT);
 		defaultDeliveryChargeMin = defaultDeliveryChargeMinPL->get(PT);
 		defaultDeliveryChargeMax = defaultDeliveryChargeMaxPL->get(PT);
+
+		record_behavior = record_behaviorPL->get(PT);
+		record_behavior_file_name = record_behavior_file_namePL->get(PT);
 	}
 	NeuronGate(vector<int> ins, int out, int _dischargeBehavior, double _thresholdValue, bool _thresholdActivates, double _decayRate, double _deliveryCharge, double _deliveryError, int _thresholdFromNode, int _deliveryChargeFromNode, int _ID, shared_ptr<ParametersTable> _PT = nullptr) :
 		AbstractGate(_PT) {
@@ -83,6 +92,14 @@ public:
 
 		thresholdFromNode = _thresholdFromNode;
 		deliveryChargeFromNode = _deliveryChargeFromNode;
+
+		defaultThresholdMin = defaultThresholdMinPL->get(PT);
+		defaultThresholdMax = defaultThresholdMaxPL->get(PT);
+		defaultDeliveryChargeMin = defaultDeliveryChargeMinPL->get(PT);
+		defaultDeliveryChargeMax = defaultDeliveryChargeMaxPL->get(PT);
+
+		record_behavior = record_behaviorPL->get(PT);
+		record_behavior_file_name = record_behavior_file_namePL->get(PT);
 	}
 
 	virtual ~NeuronGate() = default;
