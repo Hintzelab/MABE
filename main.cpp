@@ -31,6 +31,7 @@
 #include "Utilities/zupply.h" // for x-platform filesystem
 
 #include "modules.h"
+#include "Utilities/gitversion.h"
 
 #if defined(__MINGW32__)
 #include <windows.h> /// for getting PID, for proper RNG for MinGW
@@ -61,13 +62,13 @@ int main(int argc, const char *argv[]) {
 	for help run MABE with the "-h" flag (i.e. ./mabe -h).
 
 )raw";
-  std::cout << logo;
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
   bool saveFiles =
       Parameters::initializeParameters(argc, argv); // loads command line and
                                                     // configFile values into
                                                     // registered parameters
+  std::cout << logo;
 
   // also writes out a settings files if requested
   if (saveFiles) { // if saveFiles (save settings files) is set

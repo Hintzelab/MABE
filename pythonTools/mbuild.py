@@ -9,6 +9,7 @@ import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
+import subprocess
 
 if platform.system() == 'Windows':
     pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
@@ -33,6 +34,12 @@ if platform.system() == 'Windows':
     product = 'mabe.exe'
 else:
     product = 'mabe'
+
+def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverflow.com/a/1160227
+    flags = os.O_CREAT | os.O_APPEND
+    with os.fdopen(os.open(fname, flags=flags, mode=mode, dir_fd=dir_fd)) as f:
+        os.utime(f.fileno() if os.utime in os.supports_fd else fname,
+            dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
 compiler='c++'
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
@@ -400,6 +407,17 @@ def getSourceFilesByBuildOptions(sep='/'):
     sortedunits=sorted(units, key=lambda x: x[f_folder])
     return sortedunits
 
+## create git version integration
+## Create an empty file if git is not available
+## Otherwise capture commit hash
+gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
+with open(os.path.join("Utilities","gitversion.h"),'w') as file:
+    if gitExists:
+        commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
+        file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
+    else:
+        file.write('const char *gitversion = "";\n')
+touch("main.cpp") ## IDE-independent signal to recompile main.o
 
 # Create a make file if requested (default)
 if args.generate == 'make': ## GENERATE make
