@@ -70,7 +70,7 @@ void XorWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
         brain->update();
       }
       answer = brain->readOutput(0);
-      if ((isnan(answer)) || (isinf(answer)))
+      if ((std::isnan(answer)) || (std::isinf(answer)))
         answer = -1.0;
 
       if (answer > 1.0)
