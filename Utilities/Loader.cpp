@@ -579,6 +579,7 @@ std::pair<long, long> Loader::generatePopulation(const std::string file_name) {
       */
     }
     org.attributes.insert(make_pair("ID", std::to_string(org.orig_ID)));
+    org.attributes.insert(make_pair("FromFile", org.from_file));
     all_organisms.push_back(org);
   }
 

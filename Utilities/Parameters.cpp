@@ -163,7 +163,8 @@ MASTER = default 100 # by default :)
       std::cout << "Usage: " << argv[0] << usage_message << std::endl;
       exit(1);
     case 'v':
-      std::cout << gitversion << std::endl;
+      //std::cout << gitversion << std::endl;
+      std::cout << "unknown" << std::endl;
       exit(0);
     case 'l': {
       std::ofstream plf_file("population_loader.plf");
