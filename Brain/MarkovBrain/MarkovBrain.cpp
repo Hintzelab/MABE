@@ -146,7 +146,7 @@ void MarkovBrain::update() {
   for (int i = 0; i < nrInputValues; i++)  
     nodes[i] = inputValues[i];
 
-  auto temp_prev_nodes = nodes;
+  auto temp_prev_nodes( nodes);
 
   for (auto &g :gates) // update each gate
 	  g->update(nodes, nextNodes);
@@ -180,11 +180,10 @@ void MarkovBrain::update() {
   }
 
   if (record_update_history){
-//	  std::cout << "recording";
     update_history.push_back(std::make_pair(temp_prev_nodes, nodes));
   }
 
-	  std::cout << update_history.size(); 
+//	  std::cout << update_history.size(); 
 }
 
 void MarkovBrain::inOutReMap() { // remaps genome site values to valid brain

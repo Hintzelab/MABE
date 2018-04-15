@@ -41,11 +41,11 @@ public:
                      std::map<std::string, std::shared_ptr<Group>> &groups);
 
   std::pair<std::array<long, 4>,long>
-  parseMBnodeLayout(std::pair<std::vector<double>, std::vector<double>> state,
+  parseMBnodeLayout(std::pair<std::vector<double>, std::vector<double>>& state,
                     int in, int out, int hid);
 
   void
   writeDotFile(std::string file_name,
-               std::map<std::array<long, 4>, std::set<long>> &all_node_edges);
+               std::map<std::array<long, 4>, std::map<long,long>> &all_node_edges);
 };
 

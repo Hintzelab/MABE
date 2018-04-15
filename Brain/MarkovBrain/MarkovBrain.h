@@ -56,7 +56,7 @@ public:
   std::shared_ptr<AbstractGateListBuilder> GLB;
   std::vector<int> nodesConnections, nextNodesConnections;
 
-  bool record_update_history;
+  bool record_update_history = false;
   std::vector<std::pair<std::vector<double>, std::vector<double>>> update_history;
   //	static bool& cacheResults;
   //	static int& cacheResultsCount;
