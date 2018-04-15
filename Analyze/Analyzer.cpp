@@ -248,7 +248,8 @@ void Analyzer::stateTransition(
     // This data structure assumes that the world RESETS ALL INPUTS on every
     // update and
     // does NOT RESET OUTPUTS on every update.
-	// Simply use another data structure if these constraints are violated or the
+    // Simply use another data structure if these constraints are violated or
+    // the
     // output is wanted in some other form. e.g. to just spew out the raw data
     // to file, there's no need for a data structure at all :)
     std::map<std::array<long, 4>, std::map<long, long>> all_node_edges;
@@ -261,24 +262,26 @@ void Analyzer::stateTransition(
       world->evaluate(mutated_groups, 0, 0, 0);
 
       // yank the brain out again to look at its update history
-      auto mb_wh = std::make_shared<MarkovBrain>(dynamic_cast<MarkovBrain &>(
-          *mutated_groups["root::"]->population[0]->brain));
+      // We don't need to wrap it up in a shared_ptr since we only want
+      // to look at it locally
+      auto mb_wh = dynamic_cast<MarkovBrain &>(
+          *mutated_groups["root::"]->population[0]->brain);
 
       // structure of nodes in a MarkovBrain
-      auto in = mb_wh->nrInputValues;   // from AbstractBrain
-      auto out = mb_wh->nrOutputValues; // from AbstractBrain
-      auto hid = mb_wh->hiddenNodes; // from MarkovBrain -- which is not ideal,
+      auto in = mb_wh.nrInputValues;   // from AbstractBrain
+      auto out = mb_wh.nrOutputValues; // from AbstractBrain
+      auto hid = mb_wh.hiddenNodes; // from MarkovBrain -- which is not ideal,
       // but brains might not store their hidden state as a vector of doubles
 
       // collate the update history
-      for (auto update_state : mb_wh->update_history) {
+      for (auto update_state : mb_wh.update_history) {
         // this function makes the same assumptions about the world-brain
         // interaction as mentioned above
         auto con_state = parseMBnodeLayout(update_state, in, out, hid);
         all_node_edges[con_state.first][con_state.second]++;
       }
       // important since we're evaluating the same brain again
-      mb_wh->update_history.clear();
+      mb_wh.update_history.clear();
     }
 
     // now we have the data, we can spew it out. This is a uniquely named dot
