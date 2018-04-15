@@ -8,6 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
+#include<limits>
 #include "DefaultArchivist.h"
 
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
@@ -201,7 +202,7 @@ void DefaultArchivist::writeRealTimeFiles(
   if (writeMaxFile && max_formula_ != nullptr) {
 
     std::shared_ptr<Organism> best_org;
-    auto score = -1.f;
+    auto score = std::numeric_limits<double>::lowest(); 
     for (auto org : population)
       if (org->timeOfBirth < Global::update || save_new_orgs_) {
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
@@ -211,7 +212,7 @@ void DefaultArchivist::writeRealTimeFiles(
         }
       }
 
-    if (score < 0) {
+    if (score == std::numeric_limits<double>::lowest()) {
       std::cout
           << " Error: could not find Max score organism to save to MaxFile"
           << std::endl;
@@ -256,7 +257,6 @@ void DefaultArchivist::saveSnapshotData(
   if (!save_new_orgs_)
     saveList.erase(std::remove_if(std::begin(saveList), std::end(saveList),
                                   [](std::shared_ptr<Organism> org) {
-
                                     return org->timeOfBirth >= Global::update;
                                   }),
                    std::end(saveList));
