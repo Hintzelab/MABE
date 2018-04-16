@@ -33,8 +33,8 @@ public:
   // after the delay we have the correct data for the given time. key is
   // 'update'. This possibly should be wrapped into Archivist.
 
-  std::shared_ptr<AbstractGenome> genome = nullptr;
-  std::shared_ptr<AbstractBrain> brain = nullptr;
+  //std::shared_ptr<AbstractGenome> genome = nullptr;
+  //std::shared_ptr<AbstractBrain> brain = nullptr;
   std::shared_ptr<ParametersTable> PT;
 
   std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> genomes;
@@ -111,8 +111,8 @@ public:
 
   virtual ~Organism();
 
-  bool hasGenome() { return genome != nullptr; }
-  bool hasBrain() { return brain != nullptr; }
+  //bool hasGenome() { return genome != nullptr; }
+  //bool hasBrain() { return brain != nullptr; }
 
   virtual void kill(); // sets alive = 0 (on org and in dataMap)
 

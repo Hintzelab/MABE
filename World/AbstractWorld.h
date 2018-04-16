@@ -50,10 +50,4 @@ public:
               << std::endl;
     exit(1);
   };
-  virtual void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
-                            int visualize, int debug) {
-    std::cout << "  chosen world does not define evaluateSolo()! Exiting."
-              << std::endl;
-    exit(1);
-  };
 };
