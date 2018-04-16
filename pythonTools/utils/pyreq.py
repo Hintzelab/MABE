@@ -9,9 +9,6 @@ alternateInstaller='' ## probably pip
 installCMDString = ''
 modulesAreMissing = False
 
-## user flag for "pip install --user" empty if not needed. Mostly this is for HPCC installation after "module load Python/3.5.3"
-userFlag = "--user " if subprocess.run("sudo -v",shell=True,stderr=subprocess.PIPE,stdout=subprocess.PIPE).stderr.startswith(b"Sorry") else ""
-
 def testForModuleAndBuildInstallString(moduleName):
     global installCMDString, modulesAreMissing
     ## the split(':') allows there to exist
@@ -69,6 +66,7 @@ def reportInstaller():
 
 def require(names): ## the only exported fn
     global installCMDString, modulesAreMissing, preferredInstaller, alternateInstaller, suitableModuleInstallers
+    userFlag = '--user '
     '''names = a comma separated string of module names, no spaces.
     Can handle packages where the install name is not the same as the import name
     "packagename,packagename,..."
@@ -110,6 +108,8 @@ def require(names): ## the only exported fn
                 print("       Please run the following command using your python module installer:")
                 print("       "+preferredInstaller + ' install '+installCMDString)
                 sys.exit(1)
+            if preferredInstaller == "conda":
+                userFlag = "" ## don't use '--user' if using conda
             print("Found module installer "+preferredInstaller)
             print("Found alternate installer "+alternateInstaller)
             try:
