@@ -105,7 +105,6 @@ public:
          << std::endl
          << "Exiting." << std::endl;
     exit(1);
-    return makeCopy();
   }
 
   // Make a brain like the brain that called this function, using genomes and
