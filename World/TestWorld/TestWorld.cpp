@@ -49,7 +49,7 @@ TestWorld::TestWorld(std::shared_ptr<ParametersTable> PT_)
 
 void TestWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
                              int visualize, int debug) {
-  auto brain = org->brains[brainNamePL->get(PT)];
+  auto brain = org->brain;
   for (int r = 0; r < evaluationsPerGenerationPL->get(PT); r++) {
     brain->resetBrain();
     brain->setInput(0, 1); // give the brain a constant 1 (for wire brain)
