@@ -54,11 +54,11 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::nextPopSizePL =
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullBelowPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullBelow", -1.0,
-	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\n  if -1, no culling. example, if .25, cull bottom 25%");
+	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\nif -1, no culling.");
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullRemapPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
-	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0\n  The effect will be that the lowest score after culling will have a cullRemap % chance to be selected in Roulette");
+	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
 SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
@@ -132,6 +132,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   double cullBelowScore;
 
   std::vector<std::shared_ptr<Organism>> populationAfterCull;
+  scoresAfterCull.clear();
 
   elites.clear();
   scores.clear();
@@ -151,37 +152,40 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 	  }
   }
   aveScore /= oldPopulationSize;
-
-  auto checkScores = scores;
   
   if (cullBelow >= 0 && minScore != maxScore){ // cull and normalize scores if min == max then all scores are the same, do nothing!
+	culledMinScore = maxScore;
+	culledMaxScore = maxScore;
 	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
-	std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
+	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	deltaScore = maxScore - cullBelowScore;
-	std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
+	//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
 	for (int i = 0; i < (int)population.size(); i++) {
-		std::cout << checkScores[i];
-		if (scores[i] >= cullBelowScore) { // if not culled, nomalize score and add to culledPopulation
+		//std::cout << scores[i];
+		if (scores[i] >= cullBelowScore) { // if not culled, add to culledPopulation
 			populationAfterCull.push_back(population[i]);
-			if (cullRemap == -1) { // no normaization
-				scoresAfterCull.push_back(scores[i]);
-				culledMinScore = minScore;
-				culledMaxScore = maxScore;
+			scoresAfterCull.push_back(scores[i]);
+			if (scores[i] < culledMinScore) {
+				culledMinScore = scores[i];
 			}
-			else {
-				scoresAfterCull.push_back((((scores[i] - cullBelowScore) / (deltaScore)) * (1.0 - cullRemap)) + cullRemap);
-				culledMaxScore = 1; // all scores will be between 0 and 1
-				culledMinScore = 0;
-			}
-			std::cout << " ->  " << scoresAfterCull[scoresAfterCull.size() - 1];
+			//std::cout << " ->  " << scoresAfterCull.back() << "   min: " << culledMinScore;
 		}
 		else { // if culled, add to kill list and DO NOT add to culled population
 			killList.insert(population[i]);
-			std::cout << " ->  culled";
+			//std::cout << " ->  culled";
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
 	culledPopulationSize = populationAfterCull.size();
+	if (cullRemap != -1 && culledMaxScore != culledMinScore) { // normaization
+		for (int i = 0; i < culledPopulationSize; i++) {
+			//std::cout << "  remap: " << scoresAfterCull[i] << " ";
+			scoresAfterCull[i] = (((scoresAfterCull[i] - culledMinScore) / (culledMaxScore - culledMinScore)) * (1.0 - cullRemap)) + cullRemap;
+			//std::cout << scoresAfterCull[i] << std::endl;
+		}
+		culledMaxScore = 1; // all scores will be between 0 and 1
+		culledMinScore = 0;
+	}
   }
   else { // if not culling, don't worry, we are using population and scores as is.
 	  populationAfterCull = population;
