@@ -222,12 +222,13 @@ void Analyzer::stateTransition(
   // for each brain(org) in the population
   for (auto org : population) {
 
-    // yank out the MarkovBrain
+    // set up IO recording
+    org->brain->setRecordActivity(true);
+
+	// yank out the MarkovBrain
     auto mb =
         std::make_shared<MarkovBrain>(dynamic_cast<MarkovBrain &>(*org->brain));
 
-    // set up IO recording
-    mb->record_update_history = true;
 
     // make a shell organism
     auto mutant = org->makeCopy(Parameters::root);
