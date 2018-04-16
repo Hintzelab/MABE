@@ -54,7 +54,8 @@ XorWorld::XorWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_) {
 // score 1.0 points accumulated per correct xor answer
 void XorWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
                             int visualize, int debug) {
-  auto brain = org->brains[brainName];
+  //auto brain = org->brains[brainName];
+  auto brain = org->brain;
   double score = 0.0000001;
   int questions[4][2] = {{0, 0}, {0, 1}, {1, 0}, {1, 1}};
   double answers[4] = {0.0, 1.0, 1.0, 0.0};
