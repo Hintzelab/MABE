@@ -179,7 +179,7 @@ void MarkovBrain::update() {
     outputValues[i] = nodes[nrInputValues + i];
   }
 
-  if (record_update_history){
+  if (recordActivity){
     update_history.push_back(std::make_pair(temp_prev_nodes, nodes));
   }
 
