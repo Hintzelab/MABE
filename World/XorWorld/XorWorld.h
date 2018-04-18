@@ -29,8 +29,8 @@ public:
 
   XorWorld(std::shared_ptr<ParametersTable> PT_ = nullptr);
   virtual ~XorWorld() = default;
-  virtual void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
-                            int visualize, int debug) override;
+  void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
+                            int visualize, int debug);
   virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
                         int analyze, int visualize, int debug) {
     int popSize = groups[groupNamePL->get(PT)]->population.size();
