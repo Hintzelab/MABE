@@ -103,9 +103,9 @@ SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
 }
 
 void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population) {
-  oldPopulationSize = (int)population.size();
+  oldPopulationSize = static_cast<int>(population.size());
   /////// MUST update to MTREE
-  nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
+  nextPopulationTargetSize = static_cast<int>(nextPopSizeMT->eval(PT)[0]);
 
   if (nextPopulationTargetSize == -1) {
     nextPopulationTargetSize = population.size();
@@ -121,6 +121,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   aveScore = 0;
   maxScore = optimizeValueMT->eval(population[0]->dataMap, PT)[0];
   minScore = maxScore;
+  auto scoresHaveDelta = false;
+
   double deltaScore; // maxScore - cullBelow
 
   double cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
@@ -139,34 +141,39 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   killList.clear();
 
   // get all scores
-  for (int i = 0; i < (int)population.size(); i++) {
+
+  for (size_t i = 0; i < population.size(); i++) {
 	  double opVal = optimizeValueMT->eval(population[i]->dataMap, PT)[0];
 	  scores.push_back(opVal);
 	  aveScore += opVal;
 	  population[i]->dataMap.set("optimizeValue", opVal);
 	  if (opVal > maxScore) {
 		  maxScore = opVal;
+		  scoresHaveDelta = true;
 	  }
 	  if (opVal < minScore) {
 		  minScore = opVal;
+		  scoresHaveDelta = true;
 	  }
   }
   aveScore /= oldPopulationSize;
   
-  if (cullBelow >= 0 && minScore != maxScore){ // cull and normalize scores if min == max then all scores are the same, do nothing!
+  if (cullBelow >= 0 && scoresHaveDelta){ // cull and normalize scores if min == max then all scores are the same, do nothing!
 	culledMinScore = maxScore;
 	culledMaxScore = maxScore;
+	auto culledScoresHaveDetla = false;
 	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
 	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	deltaScore = maxScore - cullBelowScore;
 	//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
-	for (int i = 0; i < (int)population.size(); i++) {
+	for (size_t i = 0; i < population.size(); i++) {
 		//std::cout << scores[i];
 		if (scores[i] >= cullBelowScore) { // if not culled, add to culledPopulation
 			populationAfterCull.push_back(population[i]);
 			scoresAfterCull.push_back(scores[i]);
 			if (scores[i] < culledMinScore) {
 				culledMinScore = scores[i];
+				culledScoresHaveDetla = true;
 			}
 			//std::cout << " ->  " << scoresAfterCull.back() << "   min: " << culledMinScore;
 		}
@@ -176,8 +183,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 		}
 		//std::cout << std::endl;
 	}
-	culledPopulationSize = populationAfterCull.size();
-	if (cullRemap != -1 && culledMaxScore != culledMinScore) { // normaization
+	culledPopulationSize = static_cast<int>(populationAfterCull.size());
+	if ((cullRemap != -1) && (culledScoresHaveDetla)) { // normaization
 		for (int i = 0; i < culledPopulationSize; i++) {
 			//std::cout << "  remap: " << scoresAfterCull[i] << " ";
 			scoresAfterCull[i] = (((scoresAfterCull[i] - culledMinScore) / (culledMaxScore - culledMinScore)) * (1.0 - cullRemap)) + cullRemap;
@@ -207,8 +214,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   }
 
   auto tempScores = scoresAfterCull;
-  int elitismRange = (int)elitismRangeMT->eval(PT)[0];
-  int elitismCount = (int)elitismCountMT->eval(PT)[0];
+  int elitismRange = static_cast<int>(elitismRangeMT->eval(PT)[0]);
+  int elitismCount = static_cast<int>(elitismCountMT->eval(PT)[0]);
   for (int i = 0; i < elitismRange; i++) { // get handles for elite orgs
     elites.push_back(findGreatestInVector(tempScores));
     tempScores[elites.back()] = culledMinScore;
@@ -258,7 +265,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
       if (Random::P(selfRateMT->eval(parents[0]->dataMap, PT)[0])) {
         population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0])); // push to population
       } else {
-        while ((int)parents.size() < numberParents) {
+        while (static_cast<int>(parents.size()) < numberParents) {
           parents.push_back(populationAfterCull[selector->select()]); // select from culled
         }
         population.push_back(parents[0]->makeMutatedOffspringFromMany(parents)); // push to population
