@@ -33,8 +33,6 @@ public:
   // after the delay we have the correct data for the given time. key is
   // 'update'. This possibly should be wrapped into Archivist.
 
-  std::shared_ptr<AbstractGenome> genome = nullptr;
-  std::shared_ptr<AbstractBrain> brain = nullptr;
   std::shared_ptr<ParametersTable> PT;
 
   std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> genomes;
@@ -46,9 +44,6 @@ public:
       parents; // parents are pointers to parents of
                // this organism. In asexual populations
                // this will have one element
-  // unordered_set<int> genomeAncestors;  // list of the IDs of organisms in the
-  // last genome file who are ancestors of this organism (genomes saved on
-  // genome interval)
   std::unordered_set<int>
       ancestors; // list of the IDs of organisms in the last data
                  // files who are ancestors of this organism
@@ -70,17 +65,6 @@ public:
   Organism() = delete;
   Organism(
       std::shared_ptr<ParametersTable> PT_ = nullptr); // make an empty organism
-  // Organism(shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain>
-  // _brain, shared_ptr<ParametersTable> PT_ = nullptr);  // make a parentless
-  // organism with a genome, and a brain
-  // Organism(shared_ptr<Organism> from, shared_ptr<AbstractGenome> _genome,
-  // shared_ptr<AbstractBrain> _brain, shared_ptr<ParametersTable> PT_ =
-  // nullptr);  // make an organism with one parent, a genome and a brain
-  // determined from the parents brain type.
-  // Organism(const vector<shared_ptr<Organism>> from,
-  // shared_ptr<AbstractGenome> _genome, shared_ptr<AbstractBrain> _brain,
-  // shared_ptr<ParametersTable> PT_ = nullptr);  // make a organism with many
-  // parents, a genome, and a brain determined from the parents brain type.
 
   Organism(
       std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
@@ -111,12 +95,8 @@ public:
 
   virtual ~Organism();
 
-  bool hasGenome() { return genome != nullptr; }
-  bool hasBrain() { return brain != nullptr; }
-
   virtual void kill(); // sets alive = 0 (on org and in dataMap)
 
-  // virtual vector<string> GetLODItem(string key, shared_ptr<Organism> org);
   virtual std::vector<std::shared_ptr<Organism>>
   getLOD(std::shared_ptr<Organism> org);
   virtual std::shared_ptr<Organism>

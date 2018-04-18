@@ -78,18 +78,6 @@ Organism::Organism(
     dataMap.merge(brain.second->getStats(prefix));
   }
 
-  if (genomes.count("root::") == 0) {
-    genome = nullptr;
-  } else {
-    genome = genomes["root::"];
-  }
-
-  if (brains.count("root::") == 0) {
-    brain = nullptr;
-  } else {
-    brain = brains["root::"];
-  }
-
   ancestors.insert(ID); // it is it's own Ancestor for data tracking purposes
   snapshotAncestors.insert(ID);
 }
@@ -121,18 +109,6 @@ Organism::Organism(
     std::string prefix;
     (brain.first == "root::") ? prefix = "" : prefix = brain.first;
     dataMap.merge(brain.second->getStats(prefix));
-  }
-
-  if (genomes.count("root::") == 0) {
-    genome = nullptr;
-  } else {
-    genome = genomes["root::"];
-  }
-
-  if (brains.count("root::") == 0) {
-    brain = nullptr;
-  } else {
-    brain = brains["root::"];
   }
 
   parents.push_back(from);
@@ -176,18 +152,6 @@ Organism::Organism(
     dataMap.merge(brain.second->getStats(prefix));
   }
 
-  if (genomes.count("root::") == 0) {
-    genome = nullptr;
-  } else {
-    genome = genomes["root::"];
-  }
-
-  if (brains.count("root::") == 0) {
-    brain = nullptr;
-  } else {
-    brain = brains["root::"];
-  }
-
   for (auto parent : from) {
     parents.push_back(parent); // add this parent to the parents set
     parent->offspringCount++;  // this parent has an(other) offspring
@@ -223,8 +187,6 @@ void Organism::kill() {
   timeOfDeath = Global::update;
   if (!trackOrganism) { // if the archivist is not tracking is organism, we can
                         // clear it's genomes and brains.
-    genome = nullptr;
-    brain = nullptr;
     genomes.clear();
     brains.clear();
   }
@@ -359,18 +321,6 @@ Organism::makeCopy(std::shared_ptr<ParametersTable> PT_) {
   }
   for (auto brain : brains) {
     newOrg->brains[brain.first] = brain.second->makeCopy(brain.second->PT);
-  }
-
-  if (newOrg->genomes.count("root::") == 0) {
-    newOrg->genome = nullptr;
-  } else {
-    newOrg->genome = newOrg->genomes["root::"];
-  }
-
-  if (newOrg->brains.count("root::") == 0) {
-    newOrg->brain = nullptr;
-  } else {
-    newOrg->brain = newOrg->brains["root::"];
   }
 
   newOrg->dataMap = dataMap;

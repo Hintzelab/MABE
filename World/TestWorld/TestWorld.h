@@ -35,7 +35,7 @@ public:
   TestWorld(std::shared_ptr<ParametersTable> PT_ = nullptr);
   virtual ~TestWorld() = default;
 
-  virtual void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
+  void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
                             int visualize, int debug);
   virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
                         int analyze, int visualize, int debug) {

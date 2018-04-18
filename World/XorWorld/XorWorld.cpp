@@ -16,16 +16,13 @@
 #include <cmath>
 
 std::shared_ptr<ParameterLink<std::string>> XorWorld::groupNamePL =
-    Parameters::register_parameter("WORLD_XOR_NAMES-groupName",
-                                   (std::string) "root::",
-                                   "name of group to be evaluated");
+    Parameters::register_parameter(
+		"WORLD_XOR_NAMES-groupName", (std::string) "root::",
+        "name of group to be evaluated");
 std::shared_ptr<ParameterLink<std::string>> XorWorld::brainNamePL =
     Parameters::register_parameter(
         "WORLD_XOR_NAMES-brainName", (std::string) "root::",
-        "name of brains used to control organisms\nroot = use empty name "
-        "space\nGROUP:: = use group name space\n\"name\" = use \"name\" "
-        "namespace at root level\nGroup::\"name\" = use GROUP::\"name\" name "
-        "space");
+        "namespace for parameters used to define brain");
 std::shared_ptr<ParameterLink<int>> XorWorld::evaluationsPerGenerationPL =
     Parameters::register_parameter("WORLD_XOR-evaluationsPerGeneration", 1,
                                    "Number of times to test each Genome per "
