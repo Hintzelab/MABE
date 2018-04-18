@@ -131,6 +131,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   double cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
 							   // such that min score is the value
 							   // if -1, no normalization will occur
+
+  
   double cullBelowScore;
 
   std::vector<std::shared_ptr<Organism>> populationAfterCull;
@@ -158,7 +160,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   }
   aveScore /= oldPopulationSize;
   
-  if (cullBelow >= 0 && scoresHaveDelta){ // cull and normalize scores if min == max then all scores are the same, do nothing!
+  if (cullBelow > -.5 && scoresHaveDelta){ // cull and normalize scores if min == max then all scores are the same, do nothing!
 	culledMinScore = maxScore;
 	culledMaxScore = maxScore;
 	auto culledScoresHaveDetla = false;
@@ -184,7 +186,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 		//std::cout << std::endl;
 	}
 	culledPopulationSize = static_cast<int>(populationAfterCull.size());
-	if ((cullRemap != -1) && (culledScoresHaveDetla)) { // normaization
+	if ((cullRemap > -.5) && (culledScoresHaveDetla)) { // normaization
 		for (int i = 0; i < culledPopulationSize; i++) {
 			//std::cout << "  remap: " << scoresAfterCull[i] << " ";
 			scoresAfterCull[i] = (((scoresAfterCull[i] - culledMinScore) / (culledMaxScore - culledMinScore)) * (1.0 - cullRemap)) + cullRemap;
