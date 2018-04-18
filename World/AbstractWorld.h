@@ -45,9 +45,5 @@ public:
   //}
 
   virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
-                        int analyze = 0, int visualize = 0, int debug = 0) {
-    std::cout << "  chosen world does not define evaluate()! Exiting."
-              << std::endl;
-    exit(1);
-  };
+	  int analyze = 0, int visualize = 0, int debug = 0) = 0;
 };
