@@ -165,26 +165,28 @@ int main(int argc, const char *argv[]) {
     for (auto const &group : groups) {
       group.second->archive(1);
     }
+  } else if (Global::modePL->get() == "visualize") {
+    ////////////////////////////////////////////////////////////////////////////////////
+    // visualize mode
+    ////////////////////////////////////////////////////////////////////////////////////
+    std::cout << "\n  You are running MABE in visualize mode."
+              << "\n"
+              << "\n";
+
+    world->evaluate(groups, 0, 1, AbstractWorld::debugPL->get());
+  } else if (Global::modePL->get() == "analyze") {
+    ////////////////////////////////////////////////////////////////////////////////////
+    // analyze mode
+    ////////////////////////////////////////////////////////////////////////////////////
+    std::cout << "\n  You are running MABE in analyze mode."
+              << "\n"
+              << "\n";
+
+    world->evaluate(groups, 1, 0, 0);
   } else {
-    if (Global::modePL->get() == "visualize") {
-      ////////////////////////////////////////////////////////////////////////////////////
-      // visualize mode
-      ////////////////////////////////////////////////////////////////////////////////////
-      std::cout << "\n  You are running MABE in visualize mode."
-                << "\n"
-                << "\n";
-
-      world->evaluate(groups, 0, 1, AbstractWorld::debugPL->get());
-    } else if (Global::modePL->get() == "analyze") {
-      ////////////////////////////////////////////////////////////////////////////////////
-      // analyze mode
-      ////////////////////////////////////////////////////////////////////////////////////
-      std::cout << "\n  You are running MABE in analyze mode."
-                << "\n"
-                << "\n";
-
-      world->evaluate(groups, 1, 0, 0);
-    }
+    std::cout << "error: unrecognized GLOBAL-mode " << Global::modePL->get()
+              << std::endl;
+    exit(1);
   }
   return 0;
 }
