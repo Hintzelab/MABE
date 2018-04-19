@@ -54,11 +54,11 @@ std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::nextPopSizePL =
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullBelowPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullBelow", -1.0,
-	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\n  if -1, no culling. example, if .25, cull bottom 25%");
+	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\nif -1, no culling.");
 std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullRemapPL =
 Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
-	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0\n  The effect will be that the lowest score after culling will have a cullRemap % chance to be selected in Roulette");
+	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
 SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
@@ -103,9 +103,9 @@ SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
 }
 
 void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population) {
-  oldPopulationSize = (int)population.size();
+  oldPopulationSize = static_cast<int>(population.size());
   /////// MUST update to MTREE
-  nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
+  nextPopulationTargetSize = static_cast<int>(nextPopSizeMT->eval(PT)[0]);
 
   if (nextPopulationTargetSize == -1) {
     nextPopulationTargetSize = population.size();
@@ -121,6 +121,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   aveScore = 0;
   maxScore = optimizeValueMT->eval(population[0]->dataMap, PT)[0];
   minScore = maxScore;
+  auto scoresHaveDelta = false;
+
   double deltaScore; // maxScore - cullBelow
 
   double cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
@@ -129,59 +131,70 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   double cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
 							   // such that min score is the value
 							   // if -1, no normalization will occur
+
+  
   double cullBelowScore;
 
   std::vector<std::shared_ptr<Organism>> populationAfterCull;
+  scoresAfterCull.clear();
 
   elites.clear();
   scores.clear();
   killList.clear();
 
   // get all scores
-  for (int i = 0; i < (int)population.size(); i++) {
+
+  for (size_t i = 0; i < population.size(); i++) {
 	  double opVal = optimizeValueMT->eval(population[i]->dataMap, PT)[0];
 	  scores.push_back(opVal);
 	  aveScore += opVal;
 	  population[i]->dataMap.set("optimizeValue", opVal);
 	  if (opVal > maxScore) {
 		  maxScore = opVal;
+		  scoresHaveDelta = true;
 	  }
 	  if (opVal < minScore) {
 		  minScore = opVal;
+		  scoresHaveDelta = true;
 	  }
   }
   aveScore /= oldPopulationSize;
-
-  auto checkScores = scores;
   
-  if (cullBelow >= 0 && minScore != maxScore){ // cull and normalize scores if min == max then all scores are the same, do nothing!
+  if (cullBelow > -.5 && scoresHaveDelta){ // cull and normalize scores if min == max then all scores are the same, do nothing!
+	culledMinScore = maxScore;
+	culledMaxScore = maxScore;
+	auto culledScoresHaveDetla = false;
 	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
-	std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
+	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	deltaScore = maxScore - cullBelowScore;
-	std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
-	for (int i = 0; i < (int)population.size(); i++) {
-		std::cout << checkScores[i];
-		if (scores[i] >= cullBelowScore) { // if not culled, nomalize score and add to culledPopulation
+	//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
+	for (size_t i = 0; i < population.size(); i++) {
+		//std::cout << scores[i];
+		if (scores[i] >= cullBelowScore) { // if not culled, add to culledPopulation
 			populationAfterCull.push_back(population[i]);
-			if (cullRemap == -1) { // no normaization
-				scoresAfterCull.push_back(scores[i]);
-				culledMinScore = minScore;
-				culledMaxScore = maxScore;
+			scoresAfterCull.push_back(scores[i]);
+			if (scores[i] < culledMinScore) {
+				culledMinScore = scores[i];
+				culledScoresHaveDetla = true;
 			}
-			else {
-				scoresAfterCull.push_back((((scores[i] - cullBelowScore) / (deltaScore)) * (1.0 - cullRemap)) + cullRemap);
-				culledMaxScore = 1; // all scores will be between 0 and 1
-				culledMinScore = 0;
-			}
-			std::cout << " ->  " << scoresAfterCull[scoresAfterCull.size() - 1];
+			//std::cout << " ->  " << scoresAfterCull.back() << "   min: " << culledMinScore;
 		}
 		else { // if culled, add to kill list and DO NOT add to culled population
 			killList.insert(population[i]);
-			std::cout << " ->  culled";
+			//std::cout << " ->  culled";
 		}
-		std::cout << std::endl;
+		//std::cout << std::endl;
 	}
-	culledPopulationSize = populationAfterCull.size();
+	culledPopulationSize = static_cast<int>(populationAfterCull.size());
+	if ((cullRemap > -.5) && (culledScoresHaveDetla)) { // normaization
+		for (int i = 0; i < culledPopulationSize; i++) {
+			//std::cout << "  remap: " << scoresAfterCull[i] << " ";
+			scoresAfterCull[i] = (((scoresAfterCull[i] - culledMinScore) / (culledMaxScore - culledMinScore)) * (1.0 - cullRemap)) + cullRemap;
+			//std::cout << scoresAfterCull[i] << std::endl;
+		}
+		culledMaxScore = 1; // all scores will be between 0 and 1
+		culledMinScore = 0;
+	}
   }
   else { // if not culling, don't worry, we are using population and scores as is.
 	  populationAfterCull = population;
@@ -203,8 +216,8 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   }
 
   auto tempScores = scoresAfterCull;
-  int elitismRange = (int)elitismRangeMT->eval(PT)[0];
-  int elitismCount = (int)elitismCountMT->eval(PT)[0];
+  int elitismRange = static_cast<int>(elitismRangeMT->eval(PT)[0]);
+  int elitismCount = static_cast<int>(elitismCountMT->eval(PT)[0]);
   for (int i = 0; i < elitismRange; i++) { // get handles for elite orgs
     elites.push_back(findGreatestInVector(tempScores));
     tempScores[elites.back()] = culledMinScore;
@@ -254,7 +267,7 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
       if (Random::P(selfRateMT->eval(parents[0]->dataMap, PT)[0])) {
         population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0])); // push to population
       } else {
-        while ((int)parents.size() < numberParents) {
+        while (static_cast<int>(parents.size()) < numberParents) {
           parents.push_back(populationAfterCull[selector->select()]); // select from culled
         }
         population.push_back(parents[0]->makeMutatedOffspringFromMany(parents)); // push to population
