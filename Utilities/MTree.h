@@ -20,7 +20,7 @@
 #include <unordered_set>
 #include <string>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <cstring>
 #include <string>
 #include <map>

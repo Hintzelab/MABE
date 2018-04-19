@@ -10,12 +10,10 @@
 
 #pragma once
 
-#include <algorithm>
-#include <cctype>
 #include <fstream>
+#include <algorithm>
 #include <iostream>
 #include <map>
-#include <unordered_map>
 #include <sstream>
 #include <set>
 #include <vector>
@@ -248,7 +246,7 @@ inline std::string to_string(std::string str) { return (str); }
  */
 template <typename Type>
 inline int findGreatestInVector(std::vector<Type> vec) {
-  return distance(vec.begin(), max_element(vec.begin(), vec.end()));
+  return std::distance(vec.begin(), std::max_element(vec.begin(), vec.end()));
 }
 
 // takes a vector of template values and a vector of indices.
