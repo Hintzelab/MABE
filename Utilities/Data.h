@@ -10,17 +10,11 @@
 
 #pragma once
 
-#include <cwctype>
 #include <fstream>
 #include <iostream>
-#include <iterator>
-#include <memory>
 #include <set>
-#include <unordered_set>
 #include <string>
 #include <sstream>
-#include <stdlib.h>
-#include <string>
 #include <map>
 #include <unordered_map>
 #include <vector>

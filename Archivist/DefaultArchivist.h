@@ -12,8 +12,8 @@
 
 #include <algorithm>
 #include <memory>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <string>
 #include <vector>
 
