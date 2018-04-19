@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 #include <unordered_set>
 
