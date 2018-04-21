@@ -102,7 +102,7 @@ int LODwAPArchivist::writeLODDataFile(
              effective_MRCA->timeOfBirth,
              Global::updatesPL->get())) { // if there is convergence before the
                                           // next data interval
-    auto current = LOD[next_data_write_ - last_prune_];
+    auto current = LOD[(next_data_write_ - last_prune_) - 1];
     current->dataMap.set("update", next_data_write_);
     current->dataMap.setOutputBehavior("update", DataMap::FIRST);
     time_to_coalescence =
@@ -131,7 +131,7 @@ void LODwAPArchivist::writeLODOrganismFile(
              Global::updatesPL->get())) { // if there is convergence before the
                                           // next data interval
 
-    auto current = LOD[next_organism_write_ - last_prune_];
+    auto current = LOD[(next_organism_write_ - last_prune_) - 1];
     DataMap OrgMap;
     OrgMap.set("ID", current->ID);
     OrgMap.set("update", next_organism_write_);
@@ -186,10 +186,12 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
   // get the MRCA
   auto some_org = population[0];
   auto LOD = some_org->getLOD(some_org); // get line of descent
+
   if (flush) // if flush then we don't care about coalescence
-    std::cout << "flushing LODwAP: using population[0] as Most Recent Common "
-                 "Ancestor (MRCA)"
-              << std::endl;
+    std::cout << "flushing LODwAP: organism with ID " << population[0]->ID <<
+      " has been selected to generate Line of Descent."
+      << std::endl;
+
   auto effective_MRCA =
       flush // this assumes that a population was created, but not tested at
           // the end of the evolution loop!
@@ -203,10 +205,17 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
   // Save Data
   if (writeDataFile) {
     auto time_to_coalescence = writeLODDataFile(LOD, real_MRCA, effective_MRCA);
-    if (flush)
-      std::cout << "Most Recent Common Ancestor/Time to Coalescence was "
-                << time_to_coalescence << " updates ago." << std::endl;
+    if (flush) {
+      if (real_MRCA->timeOfBirth != -2) {
+	std::cout << "Time to Coalescence for last saved organism on LOD is "
+	<< time_to_coalescence << " updates ago." << std::endl;
+      }
+      else {
+	std::cout << "This run has not coalesced. There no Most Recent Common Ancestor." << std::endl;
+      }
+    }
   }
+
 
   // Save Organisms
   if (writeOrganismFile)

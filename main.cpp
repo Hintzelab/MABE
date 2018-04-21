@@ -125,8 +125,9 @@ int main(int argc, const char *argv[]) {
 
   std::shared_ptr<ParametersTable> PT;
   auto groups = constructAllGroupsFrom(world, PT);
-  Global::update =
-      0; // the beginning of time - now we construct the first population
+
+  Global::update = 0;
+
 
   if (Global::modePL->get() == "run") {
     ////////////////////////////////////////////////////////////////////////////////////
@@ -207,10 +208,6 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
     // parameters table with this name
 
     std::cout << "Building group with name space: " << groupInfo.first << "\n";
-
-    Global::update = -1; // before there was time, there was a progenitor - set
-                         // time to -1 so progenitor (the root organism) will
-                         // have birth time -1
 
     // create an optimizer of type defined by OPTIMIZER-optimizer
     auto optimizer = makeOptimizer(PT);
@@ -332,8 +329,10 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
 	std::cout << std::flush;
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
-    auto progenitor =
+    Global::update = -2; // in the begining there was a projenitor
+      auto progenitor =
         std::make_shared<Organism>(templateGenomes, templateBrains, PT);
+    Global::update = -1; // then in the image of the projenitor the first generation was cafted
 
     std::vector<std::shared_ptr<Organism>> population;
 
