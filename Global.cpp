@@ -17,7 +17,7 @@ std::shared_ptr<ParameterLink<int>> Global::randomSeedPL =
                                    "random number generator will be seeded "
                                    "randomly");
 std::shared_ptr<ParameterLink<int>> Global::updatesPL =
-    Parameters::register_parameter("GLOBAL-updates", 50,
+    Parameters::register_parameter("GLOBAL-updates", 100,
                                    "how long the program will run");
 std::shared_ptr<ParameterLink<std::string>> Global::initPopPL =
     Parameters::register_parameter(
