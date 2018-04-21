@@ -24,7 +24,7 @@ public:
 	static std::shared_ptr<ParameterLink<double>> migrationRatePL;
 
 	std::vector <std::shared_ptr<AbstractOptimizer>> islandOptimizers;
-	int islands;
+	size_t islands;
 	double migrationRate;
 
 	/*

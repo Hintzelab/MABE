@@ -27,13 +27,13 @@ IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
 	std::vector<std::string> opNameSpaces;
 	convertCSVListToVector(IslandNameSpaceListPL->get(PT), opNameSpaces);
 
-	for (auto nameSpace : opNameSpaces) {
+	for (auto& nameSpace : opNameSpaces) {
 		islandOptimizers.push_back(std::make_shared<SimpleOptimizer>(nameSpace == "root::" ? Parameters::root : Parameters::root->getTable(nameSpace)));
 	}
-	islands = static_cast<int>(islandOptimizers.size());
+	islands = islandOptimizers.size();
 	migrationRate = migrationRatePL->get(PT);
 	std::cout << "  IslandOptimizer has " << islands << " islands with names ";
-	for (auto nameSpace : opNameSpaces) {
+	for (auto& nameSpace : opNameSpaces) {
 		std::cout << nameSpace << " ";
 	}
 	std::cout << std::endl;
@@ -60,7 +60,7 @@ void IslandsOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populati
 	population.clear();
 	killList.clear();
 	std::cout << "\n  optimizing...";
-	for (int island = 0; island < islands; island++){
+	for (size_t island = 0; island < islands; island++){
 		std::cout << "\n    island " << island << " : " << islandOptimizers[island]->PT->getTableNameSpace() << "   (" << islandPopulations[island].size() << ")  ";
 		islandOptimizers[island]->optimize(islandPopulations[island]);
 		for (auto org : islandPopulations[island]) {
@@ -70,7 +70,7 @@ void IslandsOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populati
 					org->dataMap.set("IsOp_island", Random::getIndex(islands));
 				}
 				else { // stay on your island
-					org->dataMap.set("IsOp_island", island);
+					org->dataMap.set("IsOp_island", static_cast<int>(island));
 				}
 			}
 		}
