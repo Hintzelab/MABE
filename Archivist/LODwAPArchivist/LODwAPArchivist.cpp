@@ -211,7 +211,7 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
 	<< time_to_coalescence << " updates ago." << std::endl;
       }
       else {
-	std::cout << "This run has not coalesced. There no Most Recent Common Ancestor." << std::endl;
+	std::cout << "This run has not coalesced. There is no Most Recent Common Ancestor." << std::endl;
       }
     }
   }
