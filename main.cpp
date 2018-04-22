@@ -329,10 +329,10 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
 	std::cout << std::flush;
     // make a organism with a templateGenomes and templateBrains - progenitor
     // serves as an ancestor to all and a template organism
-    Global::update = -2; // in the begining there was a projenitor
+    Global::update = -2; // in the begining there was a progenitor
       auto progenitor =
         std::make_shared<Organism>(templateGenomes, templateBrains, PT);
-    Global::update = -1; // then in the image of the projenitor the first generation was cafted
+    Global::update = -1; // then in the image of the progenitor the first generation was crafted
 
     std::vector<std::shared_ptr<Organism>> population;
 
