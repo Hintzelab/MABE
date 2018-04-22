@@ -62,7 +62,7 @@ public:
  
   std::string data_file_name_;          // name of the Data file
   std::string organism_file_name_;      // name of the Genome file (genomes on LOD)
-  int last_prune_ = 0; // last time Genome was Pruned
+  int last_prune_ = -1; // last time Genome was Pruned
 
   //// info about files under management
   int next_data_write_;     // next time data files will be written to disk
