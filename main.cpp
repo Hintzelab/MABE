@@ -40,8 +40,12 @@
 
 volatile sig_atomic_t userExitFlag = 0;
 void catchCtrlC(int signalID) {
+  if (userExitFlag==1) {
+      printf("Early termination requested. Results may be incomplete.\n");
+      raise(SIGTERM);
+      exit(signalID); // user force quit
+  }
   signal(SIGINT, catchCtrlC);
-  if (userExitFlag==1) exit(0); // user force quit
   userExitFlag = 1;
   printf("\nQuitting after current update. (ctrl-c again to force quit)\n");
 }
