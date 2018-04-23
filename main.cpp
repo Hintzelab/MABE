@@ -43,7 +43,6 @@ void catchCtrlC(int signalID) {
   if (userExitFlag==1) {
       printf("Early termination requested. Results may be incomplete.\n");
       raise(SIGTERM);
-      exit(signalID); // user force quit
   }
   signal(SIGINT, catchCtrlC);
   userExitFlag = 1;
