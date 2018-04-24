@@ -23,7 +23,7 @@ SUPPORTED_PROJECT_NAMES='Make, Visual Studio, XCode, [orwell] Dev-C++, CodeBlock
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt', required=False)
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building', required=False)
 parser.add_argument('-nc','--noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile', required=False)
-parser.add_argument('-g','--generate', default = 'none', help='does not compile but generates a project files of type: '+SUPPORTED_PROJECT_FILES+' ('+SUPPORTED_PROJECT_NAMES+')', required=False)
+parser.add_argument('-g','--generate', help='does not compile but generates project files', choices=SUPPORTED_PROJECT_FILES.split(','), required=False)
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
 parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt', required=False)
@@ -107,16 +107,10 @@ if args.init:
     print()
     sys.exit()
 
-args.generate=args.generate.lower()
-if args.generate=='none': # make is default generate option
-    args.generate='make'
-elif args.generate not in SUPPORTED_PROJECT_FILES.split(','):
-    print()
-    print("option '--generate' or '-g' was given an unsupported project file type. Valid types are: "+SUPPORTED_PROJECT_FILES)
-    print()
-    sys.exit()
-else: # don't compile if generate option present
+if args.generate:
     args.noCompile = True
+else:
+    args.generate = 'make'
 
 if posixpath.exists(args.buildOptions) is False:
     print()
