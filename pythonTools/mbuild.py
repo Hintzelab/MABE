@@ -27,6 +27,7 @@ parser.add_argument('-g','--generate', type=str, default = 'none', help='does no
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
 parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt', required=False)
+parser.add_argument('-C','--compiler', default = 'c++', help='select c++ compiler to build mabe - default : c++', required=False)
 
 args = parser.parse_args()
 
@@ -41,7 +42,7 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverfl
         os.utime(f.fileno() if os.utime in os.supports_fd else fname,
             dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
-compiler='c++'
+compiler = args.compiler
 compFlags='-Wno-c++98-compat -w -Wall -std=c++11 -O3 -lpthread -pthread'
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
