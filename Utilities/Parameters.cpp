@@ -205,6 +205,8 @@ MASTER = default 100 # by default :)
                          "line.\nExiting.\n";
             exit(1);
           }
+		  std::cout << "#" << param_name << "#" <<std::endl;
+		  std::cout << "#" <<param_value << "#" <<std::endl;
           param_name_values[param_name] = param_value;
         } else {
           std::cout << "  ERROR :: Parameter \"" << param_name
