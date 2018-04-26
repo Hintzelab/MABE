@@ -86,25 +86,6 @@ void Parameters::readCommandLine(
     std::unordered_map<std::string, std::string> &param_name_values, std::vector<std::string> &file_list,
     bool &save_files) {
 
-  const std::string logo =
-      R"raw(
-
-
-	MM   MM      A       BBBBBB    EEEEEE
-	MMM MMM     AAA      BB   BB   EE
-	MMMMMMM    AA AA     BBBBBB    EEEEEE
-	MM M MM   AAAAAAA    BB   BB   EE
-	MM   MM  AA     AA   BBBBBB    EEEEEE
-
-	Modular    Agent      Based    Evolver
-
-
-	https://github.com/HintzeLab/MABE
-
-
-	for help run MABE with the "-h" flag (i.e. ./mabe -h).
-
-)raw";
 
   std::string usage_message =
       R"( [-f <file1> <file2> ...] [-p <parameter name/value pairs>] [-s]
@@ -153,13 +134,15 @@ MASTER = default 100 # by default :)
 )";
 
   std::string arguments;
-  for (int i = 1; i < argc; i++)
+  for (int i = 1; i < argc; i++) {
+		  std::cout << argv[i] << std::endl;
     arguments += argv[i], arguments += " ";
+  }
   static const std::regex command_line_arguments(R"(-([a-z]) (.*?)(?=(?:(?:-[a-z] )|$)))");
   for (auto &m : forEachRegexMatch(arguments, command_line_arguments)) {
     switch (m[1].str()[0]) {
     case 'h':
-		std::cout << logo;
+      std::cout << MABE_pretty_logo;
       std::cout << "Usage: " << argv[0] << usage_message << std::endl;
       exit(1);
     case 'v':

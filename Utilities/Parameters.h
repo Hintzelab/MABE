@@ -54,6 +54,27 @@
 
 #include "Utilities.h"
 
+const std::string MABE_pretty_logo =
+    R"raw(
+
+
+	MM   MM      A       BBBBBB    EEEEEE
+	MMM MMM     AAA      BB   BB   EE
+	MMMMMMM    AA AA     BBBBBB    EEEEEE
+	MM M MM   AAAAAAA    BB   BB   EE
+	MM   MM  AA     AA   BBBBBB    EEEEEE
+
+	Modular    Agent      Based    Evolver
+
+
+	https://github.com/HintzeLab/MABE
+
+
+	for help run MABE with the "-h" flag (i.e. ./mabe -h).
+
+)raw";
+
+
 // template<class T1, class T2, class Pred = std::less<T2> >
 // struct sort_pair_first {
 //	bool operator()(const std::pair<T1, T2>&left, const std::pair<T1,
