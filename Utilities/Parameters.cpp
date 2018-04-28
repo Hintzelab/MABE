@@ -266,7 +266,7 @@ Parameters::readParametersFile(std::string file_name) {
 
     {
       std::regex name_space_close(R"(^\s*-\s*$)");
-      std::regex name_space_remove_last(R"(::\w+::)");
+      std::regex name_space_remove_last(R"(\w+::$)");
       std::smatch m;
       if (std::regex_match(line, m, name_space_close)) {
         if (name_space_name.empty()) {
@@ -276,7 +276,7 @@ Parameters::readParametersFile(std::string file_name) {
           exit(1);
         }
         name_space_name =
-            std::regex_replace(name_space_name, name_space_remove_last, "::");
+            std::regex_replace(name_space_name, name_space_remove_last, "");
         continue;
       }
 	}
@@ -296,11 +296,12 @@ Parameters::readParametersFile(std::string file_name) {
       }
     }
 
-    std::cout
-        << " Error: unrecognised line " << std::endl
-        << dirty_line << " in file " << file_name << std::endl
-        << R"(See https://github.com/Hintzelab/MABE/wiki/Parameters-Name-Space  for correct usage.)"
-        << std::endl;
+    std::cout << " Error: unrecognised line\n" << dirty_line << " in file "
+              << file_name << "\nSee "
+                              "https://github.com/Hintzelab/MABE/wiki/"
+                              "Parameters-Name-Space  for correct usage."
+              << std::endl;
+        exit(1);
   }
 
   return config_file_list;
