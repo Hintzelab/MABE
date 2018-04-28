@@ -44,7 +44,6 @@ void catchCtrlC(int signalID) {
       printf("Early termination requested. Results may be incomplete.\n");
       raise(SIGTERM);
   }
-  signal(SIGINT, catchCtrlC);
   userExitFlag = 1;
   printf("\nQuitting after current update. (ctrl-c again to force quit)\n");
 }
