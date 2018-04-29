@@ -282,10 +282,12 @@ Parameters::readParametersFile(std::string file_name) {
 	}
 
     {
-      std::regex name_value_pair(R"(^\s*(\w+)\s*=\s*(\S?.*\S)\s*$)");
+      std::regex name_value_pair(R"(^\s*([-\w]+)\s*=\s*(\S?.*\S)\s*$)");
       std::smatch m;
       if (std::regex_match(line, m, name_value_pair)) {
-        auto name = name_space_name + category_name + "-" + m[1].str();
+        auto name = name_space_name +
+                    (category_name.empty() ? "" : (category_name + "-")) +
+                    m[1].str();
         if (config_file_list.find(name) != config_file_list.end()) {
           std::cout << "  Error: \"" << name << "\" is defined more then once in file: \""
                << file_name << "\".\n exiting.\n";
