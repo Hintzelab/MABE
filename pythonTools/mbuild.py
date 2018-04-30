@@ -17,8 +17,7 @@ if platform.system() == 'Windows':
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='make,vs,xcode,devcpp,cb'
-SUPPORTED_PROJECT_NAMES='Make, Visual Studio, XCode, [orwell] Dev-C++, CodeBlocks'
+SUPPORTED_PROJECT_FILES='make,visual_studio,x_code,dev_cpp,code_blocks'
 
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt', required=False)
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building', required=False)
