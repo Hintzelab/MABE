@@ -88,9 +88,7 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
                                              const char separator = ',',
                                              const char sep_except = '"') {
   std::vector<std::string> data_line;
-  std::string s, se;
-  s = separator;
-  se = sep_except;
+  std::string s(1,separator), se(1,sep_except);
   const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
   bool in_quotes = false;
   std::string quoted_string;
