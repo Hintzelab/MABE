@@ -17,16 +17,16 @@ if platform.system() == 'Windows':
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='make,vs,xcode,devcpp,cb'
-SUPPORTED_PROJECT_NAMES='Make, Visual Studio, XCode, [orwell] Dev-C++, CodeBlocks'
+SUPPORTED_PROJECT_FILES='mk,make,vs,visual_studio,xc,x_code,dc,dev_cpp,cb,code_blocks'
 
-parser.add_argument('-b','--buildOptions', type=str, metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt', required=False)
-parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building', required=False)
-parser.add_argument('-nc','--noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile', required=False)
-parser.add_argument('-g','--generate', type=str, default = 'none', help='does not compile but generates a project files of type: '+SUPPORTED_PROJECT_FILES+' ('+SUPPORTED_PROJECT_NAMES+')', required=False)
-parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)', required=False)
-parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6', required=False)
-parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt', required=False)
+parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt')
+parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building')
+parser.add_argument('-nc','--noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile')
+parser.add_argument('-g','--generate', help='does not compile but generates project files (2 letter abbreviations are the same as expanded form)', choices=SUPPORTED_PROJECT_FILES.split(','))
+parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)')
+parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6')
+parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt')
+parser.add_argument('-C','--compiler', default = 'c++', help='select c++ compiler to build mabe - default : c++')
 
 args = parser.parse_args()
 
@@ -41,8 +41,9 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverfl
         os.utime(f.fileno() if os.utime in os.supports_fd else fname,
             dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
-compiler='c++'
+compiler = args.compiler
 compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread'
+
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
 
@@ -106,16 +107,10 @@ if args.init:
     print()
     sys.exit()
 
-args.generate=args.generate.lower()
-if args.generate=='none': # make is default generate option
-    args.generate='make'
-elif args.generate not in SUPPORTED_PROJECT_FILES.split(','):
-    print()
-    print("option '--generate' or '-g' was given an unsupported project file type. Valid types are: "+SUPPORTED_PROJECT_FILES)
-    print()
-    sys.exit()
-else: # don't compile if generate option present
+if args.generate:
     args.noCompile = True
+else:
+    args.generate = 'make'
 
 if posixpath.exists(args.buildOptions) is False:
     print()
@@ -420,7 +415,7 @@ with open(os.path.join("Utilities","gitversion.h"),'w') as file:
 touch("main.cpp") ## IDE-independent signal to recompile main.o
 
 # Create a make file if requested (default)
-if args.generate == 'make': ## GENERATE make
+if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
     if not posixpath.exists('objectFiles'):
         os.makedirs('objectFiles')
 
@@ -467,7 +462,8 @@ if args.generate == 'make': ## GENERATE make
     outFile.write('\trm -r objectFiles/*\n')
 
     outFile.close()
-elif args.generate == 'devcpp': ## GENERATE devcpp
+
+elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
     units=getSourceFilesByBuildOptions(sep='\\')
     folders=[]
     for eachunit in units:
@@ -553,7 +549,7 @@ BuildCmd={8}
 
     with open('MABE.dev','w') as outfile:
         outfile.write(outString)
-elif args.generate == 'vs': ## GENERATE vs
+elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
     units=getSourceFilesByBuildOptions(sep='\\') ## build source files list, using proper windows path separator
 
     outString = ''
@@ -697,7 +693,7 @@ elif args.generate == 'vs': ## GENERATE vs
 """
     with open('MABE.vcxproj','w') as outfile:
         outfile.write(outString)
-elif args.generate == 'xcode':
+elif args.generate == 'xcode' or args.generate == 'xc':
     def newXcodeUUID():
         return ''.join(str(uuid.uuid4()).upper().split('-')[1:])
     units=getSourceFilesByBuildOptions(sep='/')
@@ -1062,7 +1058,7 @@ elif args.generate == 'xcode':
         os.mkdir('MABE.xcodeproj')
     with open('MABE.xcodeproj/project.pbxproj','w') as outfile:
         outfile.write(outString)
-if args.generate == 'cb':
+if  args.generate == 'code_blocks' or args.generate == 'cb':
     targets='''
 			<Option target="Release x64" />
 			<Option target="Debug Win32" />
