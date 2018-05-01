@@ -17,6 +17,7 @@
 	
 % Optimizer
   * Simple
+  + Islands
 
 % Archivist
   + Default

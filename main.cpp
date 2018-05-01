@@ -43,32 +43,13 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
 
 int main(int argc, const char *argv[]) {
 
-  const std::string logo =
-      R"raw(
-
-
-	MM   MM      A       BBBBBB    EEEEEE
-	MMM MMM     AAA      BB   BB   EE
-	MMMMMMM    AA AA     BBBBBB    EEEEEE
-	MM M MM   AAAAAAA    BB   BB   EE
-	MM   MM  AA     AA   BBBBBB    EEEEEE
-
-	Modular    Agent      Based    Evolver
-
-
-	https://github.com/HintzeLab/MABE
-
-
-	for help run MABE with the "-h" flag (i.e. ./mabe -h).
-
-)raw";
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
   bool saveFiles =
       Parameters::initializeParameters(argc, argv); // loads command line and
                                                     // configFile values into
                                                     // registered parameters
-  std::cout << logo;
+  std::cout << MABE_pretty_logo;
 
   // also writes out a settings files if requested
   if (saveFiles) { // if saveFiles (save settings files) is set
