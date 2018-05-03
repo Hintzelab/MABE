@@ -15,6 +15,7 @@
 #include <cstdlib>
 #include <vector>
 #include <regex>
+#include <csignal> // sigint
 
 #include "Global.h"
 
@@ -37,11 +38,22 @@
 #include <windows.h> /// for getting PID, for proper RNG for MinGW
 #endif
 
+volatile sig_atomic_t userExitFlag = 0;
+void catchCtrlC(int signalID) {
+  if (userExitFlag==1) {
+      printf("Early termination requested. Results may be incomplete.\n");
+      raise(SIGTERM);
+  }
+  userExitFlag = 1;
+  printf("\nQuitting after current update. (ctrl-c again to force quit)\n");
+}
+
 std::map<std::string, std::shared_ptr<Group>>
 constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
                        std::shared_ptr<ParametersTable> PT);
 
 int main(int argc, const char *argv[]) {
+  signal(SIGINT, catchCtrlC);
 
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
@@ -120,7 +132,7 @@ int main(int argc, const char *argv[]) {
 
     // in run mode we evolve organsims
     auto done = false;
-    while (!done) { //! groups[defaultGroup]->archivist->finished) {
+    while ((!done) && (!userExitFlag)) { //! groups[defaultGroup]->archivist->finished) {
       world->evaluate(groups, false, false,
                       AbstractWorld::debugPL->get()); // evaluate each organism
                                                       // in the population using
