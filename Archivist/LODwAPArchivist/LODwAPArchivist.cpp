@@ -218,7 +218,8 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
 		  }
 		  else {
 			  std::cout << "The last organism written to LOD_data.csv had a negitive time to coalescence.\n" <<
-				  "This is an error! Please make a bug report." << std::endl;
+				  "This is an error and may indicate the LOD tracking has failed! Please make a bug report." << std::endl;
+			  exit(1);
 		  }
 	  }
   }
