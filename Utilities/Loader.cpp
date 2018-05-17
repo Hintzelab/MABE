@@ -213,8 +213,7 @@ std::vector<std::vector<long>> Loader::parseExpression(std::string expr) {
   while (std::regex_search(expr, m, braces)) { // resolve braced by ...
     std::string new_tk =
         tk_name + std::to_string(tk_counter++); // creating new token
-    local_tk_stack.push_back(
-        {new_tk, m[1].str()}); // adding token to local stack of tokens
+    local_tk_stack.emplace_back(new_tk, m[1].str()); // adding token to local stack of tokens
     expr = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
     // replacing brace sub-expr with token
   } // repeat for all braces ..
