@@ -445,7 +445,7 @@ public:
     local = false;
   }
 
-  std::string getTypeName() { return get_var_typename(*valuePtr); }
+  std::string getTypeName() override { return get_var_typename(*valuePtr); }
 
   // return a pair of string with <value,type>
   std::pair<std::string, std::string> getStringValuePair() override {
