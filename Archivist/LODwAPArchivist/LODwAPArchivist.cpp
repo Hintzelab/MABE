@@ -74,8 +74,8 @@ LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
   dataSequence = seq(LODwAP_Arch_dataSequencePL->get(PT), Global::updatesPL->get(), true);
   organismSequence = seq(LODwAP_Arch_organismSequencePL->get(PT), Global::updatesPL->get(), true);
 
-  dataSequence.push_back(Global::updatesPL->get() + terminateAfter + 1);
-  organismSequence.push_back(Global::updatesPL->get() + terminateAfter + 1);
+  dataSequence.push_back(Global::updatesPL->get() + terminateAfter + 2);
+  organismSequence.push_back(Global::updatesPL->get() + terminateAfter + 2);
 
   next_data_write_ = dataSequence[data_seq_index];
   next_organism_write_ = organismSequence[organism_seq_index];
@@ -91,12 +91,11 @@ void LODwAPArchivist::constructLODFiles(std::shared_ptr<Organism> org) {
   }
 }
 
-int LODwAPArchivist::writeLODDataFile(
+void LODwAPArchivist::writeLODDataFile(
     std::vector<std::shared_ptr<Organism>> &LOD,
     std::shared_ptr<Organism> real_MRCA,
     std::shared_ptr<Organism> effective_MRCA) {
 
-  int time_to_coalescence;
   while (next_data_write_ <=
          std::min(
              effective_MRCA->timeOfBirth,
@@ -117,7 +116,6 @@ int LODwAPArchivist::writeLODDataFile(
 
 	next_data_write_ = dataSequence[++data_seq_index];
   }
-  return time_to_coalescence;
 }
 
 
@@ -204,16 +202,26 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
 
   // Save Data
   if (writeDataFile) {
-    auto time_to_coalescence = writeLODDataFile(LOD, real_MRCA, effective_MRCA);
-    if (flush) {
-      if (real_MRCA->timeOfBirth != -2) {
-	std::cout << "Time to Coalescence for last saved organism on LOD is "
-	<< time_to_coalescence << " updates ago." << std::endl;
-      }
-      else {
-	std::cout << "This run has not coalesced. There is no Most Recent Common Ancestor." << std::endl;
-      }
-    }
+	  writeLODDataFile(LOD, real_MRCA, effective_MRCA);
+	  if (flush) {
+		  if (real_MRCA->timeOfBirth == -2) {
+			  std::cout << "This run has not coalesced. There is no Most Recent Common Ancestor.\n" <<
+				  "None of the organisms in LOD_data.csv are guaranteed to be on LOD." << std::endl;
+		  }
+		  else if (time_to_coalescence > 0) {
+			  std::cout << "Time to Coalescence for the last organism written to LOD_data.csv (at time " << dataSequence[data_seq_index - 1] << ") is "
+				  << time_to_coalescence << "." << std::endl;
+		  }
+		  else if (time_to_coalescence == 0) {
+			  std::cout << "The last organism written to LOD_data.csv (at time " << dataSequence[data_seq_index - 1] << ") had a time to coalescence of 0.\n" <<
+				  "Rejoice! This organism is on LOD!" << std::endl;
+		  }
+		  else {
+			  std::cout << "The last organism written to LOD_data.csv had a negitive time to coalescence.\n" <<
+				  "This is an error and may indicate the LOD tracking has failed! Please make a bug report." << std::endl;
+			  exit(1);
+		  }
+	  }
   }
 
 

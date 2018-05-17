@@ -41,7 +41,7 @@ public:
 
   void constructLODFiles(std::shared_ptr<Organism> /*org*/);
 
-  int writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+  void writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
                         std::shared_ptr<Organism> /*real_MRCA*/,
                         std::shared_ptr<Organism> /*effective_MRCA*/);
 
@@ -63,6 +63,7 @@ public:
   std::string data_file_name_;          // name of the Data file
   std::string organism_file_name_;      // name of the Genome file (genomes on LOD)
   int last_prune_ = -1; // last time Genome was Pruned
+  int time_to_coalescence = -1;
 
   //// info about files under management
   int next_data_write_;     // next time data files will be written to disk
