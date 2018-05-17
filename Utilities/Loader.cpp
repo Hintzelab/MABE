@@ -1,19 +1,21 @@
 // author : cgnitash
 // Loader.cpp contains implementation of population loading scripting language
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <unordered_map>
-#include <vector>
-#include <sstream>
+#include "Loader.h"
+
+#include "zupply.h" // for x-platform filesystem
+
 #include <fstream>
-#include <regex>
+#include <iostream>
+#include <map>
 #include <numeric>
 #include <random>
+#include <regex>
+#include <sstream>
+#include <string>
+#include <unordered_map>
+#include <vector>
 //#include <experimental/filesystem>
-#include "zupply.h" // for x-platform filesystem
-#include "Loader.h"
 
 std::string Loader::loadFromFile(const std::string &loader_file_name) {
   std::ifstream flines(loader_file_name);

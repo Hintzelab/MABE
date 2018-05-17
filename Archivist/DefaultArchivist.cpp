@@ -8,8 +8,9 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include<limits>
 #include "DefaultArchivist.h"
+
+#include<limits>
 
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 std::shared_ptr<ParameterLink<std::string>>

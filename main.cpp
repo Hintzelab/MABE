@@ -9,30 +9,27 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include <algorithm>
-#include <memory>
-#include <cstdio>
-#include <cstdlib>
-#include <vector>
-#include <regex>
-#include <csignal> // sigint
-
+#include "modules.h"
 #include "Global.h"
-
 #include "Group/Group.h"
-
 #include "Organism/Organism.h"
-
-#include "Utilities/Parameters.h"
-#include "Utilities/Random.h"
 #include "Utilities/Data.h"
-#include "Utilities/Utilities.h"
 #include "Utilities/Loader.h"
 #include "Utilities/MTree.h"
+#include "Utilities/Parameters.h"
+#include "Utilities/Random.h"
+#include "Utilities/Utilities.h"
+#include "Utilities/gitversion.h"
 #include "Utilities/zupply.h" // for x-platform filesystem
 
-#include "modules.h"
-#include "Utilities/gitversion.h"
+#include <algorithm>
+#include <csignal> // sigint
+#include <cstdio>
+#include <cstdlib>
+#include <memory>
+#include <regex>
+#include <vector>
+
 
 #if defined(__MINGW32__)
 #include <windows.h> /// for getting PID, for proper RNG for MinGW

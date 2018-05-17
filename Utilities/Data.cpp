@@ -8,14 +8,14 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include <cstring>
-#include <memory>
-#include <iostream>
-
-#include <fstream>
-#include <map>
-
 #include "Data.h"
+
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
+
 
 // global variables that should be accessible to all
 // set<string> FileManager::dataFilesCreated;
