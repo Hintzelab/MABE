@@ -349,9 +349,10 @@ Loader::keywordDuplicate(size_t value, const std::string &resource) {
   }
 
   for (const auto &p : collection_org_lists[resource]) {
-	auto from_pop = p;
-	auto num = value;
-	while(num--) coll.push_back(from_pop);
+    const auto &from_pop = p;
+    auto num = value;
+    while (num--)
+      coll.push_back(from_pop);
   }
   return coll;
 }
