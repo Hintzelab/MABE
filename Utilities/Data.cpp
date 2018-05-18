@@ -80,7 +80,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
   headerStr = ""; // make sure the strings are clean
   dataStr = "";
   dataMapType typeOfKey;
-  int OB; // holds output behavior so it can be over ridden for ave file output!
+  unsigned int OB; // holds output behavior so it can be over ridden for ave file output!
   if (!keys.empty()) { // if keys is not empty
     for (auto const &i : keys) {
       typeOfKey = findKeyInData(i);
@@ -121,7 +121,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       }
 
       if (aveOnly) {
-        OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries
+        OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
                                  // that have been set for AVE
       }
 
