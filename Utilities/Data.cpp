@@ -127,13 +127,12 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
 
       if (OB & FIRST) { // save first (only?) element in vector with key as
                         // column name
-        headerStr = headerStr + FileManager::separator + i;
+        headerStr += FileManager::separator + i;
         if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
           if (!getBoolVector(i).empty()) {
-            dataStr = dataStr + FileManager::separator +
-                      to_string(getBoolVector(i)[0]);
+            dataStr += FileManager::separator + to_string(getBoolVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -141,10 +140,10 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
         if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
           if (!getDoubleVector(i).empty()) {
-            dataStr = dataStr + FileManager::separator +
-                      std::to_string(getDoubleVector(i)[0]);
+            dataStr +=
+                FileManager::separator + std::to_string(getDoubleVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -152,10 +151,10 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
         if (typeOfKey == INT || typeOfKey == INTSOLO) {
           if (!getIntVector(i).empty()) {
-            dataStr = dataStr + FileManager::separator +
-                      std::to_string(getIntVector(i)[0]);
+            dataStr +=
+                FileManager::separator + std::to_string(getIntVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -163,9 +162,9 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
         if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
           if (!getStringVector(i).empty()) {
-            dataStr = dataStr + FileManager::separator + getStringVector(i)[0];
+            dataStr += FileManager::separator + getStringVector(i)[0];
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -173,17 +172,17 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
       }
       if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
-        headerStr = headerStr + FileManager::separator + i + "_AVE";
-        dataStr = dataStr + FileManager::separator + std::to_string(getAverage(i));
+        headerStr += FileManager::separator + i + "_AVE";
+        dataStr += FileManager::separator + std::to_string(getAverage(i));
       }
       if (OB &
           VAR) { // key_VAR = variance of vector (will error if of type string!)
-        headerStr = headerStr + FileManager::separator + i + "_VAR";
-        dataStr = dataStr + FileManager::separator + std::to_string(getVariance(i));
+        headerStr += FileManager::separator + i + "_VAR";
+        dataStr += FileManager::separator + std::to_string(getVariance(i));
       }
       if (OB & SUM) { // key_SUM = sum of vector
-        headerStr = headerStr + FileManager::separator + i + "_SUM";
-        dataStr = dataStr + FileManager::separator + std::to_string(getSum(i));
+        headerStr += FileManager::separator + i + "_SUM";
+        dataStr += FileManager::separator + std::to_string(getSum(i));
       }
       if (OB & PROD) { // key_PROD = product of vector
         std::cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!"
@@ -195,8 +194,8 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       }
       if (OB &
           LIST) { // key_LIST = save all elements in vector in csv list format
-        headerStr = headerStr + FileManager::separator + i + "_LIST";
-        dataStr = dataStr + FileManager::separator + getStringOfVector(i);
+        headerStr += FileManager::separator + i + "_LIST";
+        dataStr += FileManager::separator + getStringOfVector(i);
       }
     }
     headerStr.erase(headerStr.begin()); // clip off the leading separator

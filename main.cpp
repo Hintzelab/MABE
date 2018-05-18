@@ -227,11 +227,11 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       // when the world looked up "bodyGenome" and when the brain looked up
       // "genome" they would be looking at the same object.
       if (s.size() <= 4) {
-        std::cout << "\n\nwhile converting world requirements in \"" + NS +
-                         "\" group, found requirement \"" + s +
-                         "\".\n requirements must start with B: (brain) or G: "
-                         "(genome), followed with a name and end with "
-                         "\"::\".\nexiting."
+        std::cout << "\n\nwhile converting world requirements in \"" << NS
+                  << "\" group, found requirement \"" << s
+                  << "\".\n requirements must start with B: (brain) or G: "
+                     "(genome), followed with a name and end with "
+                     "\"::\".\nexiting."
                   << std::endl;
         exit(1);
       }
@@ -248,10 +248,10 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {
-        std::cout << "\n\nwhile converting world requirements in \"" + NS +
-                         "\" group, found requirement \"" + s +
-                         "\".\n requirements must start with B: (brain) or G: "
-                         "(genome)!\nexiting."
+        std::cout << "\n\nwhile converting world requirements in \"" << NS
+                  << "\" group, found requirement \"" << s
+                  << "\".\n requirements must start with B: (brain) or G: "
+                     "(genome)!\nexiting."
                   << std::endl;
         exit(1);
       }
