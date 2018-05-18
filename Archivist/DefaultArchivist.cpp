@@ -82,7 +82,7 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
   writeMaxFile = Arch_writeMaxFilePL->get(PT);
 
   PopFileName =
-      (group_prefix_ == "")
+      (group_prefix_.empty())
           ? "pop.csv"
           : group_prefix_.substr(0, group_prefix_.size() - 2) + "__pop.csv";
   PopFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
@@ -90,7 +90,7 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
                     : Arch_FilePrefixPL->get(PT) + PopFileName;
 
   MaxFileName =
-      (group_prefix_ == "")
+      (group_prefix_.empty())
           ? "max.csv"
           : group_prefix_.substr(0, group_prefix_.size() - 2) + "__max.csv";
   MaxFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
@@ -99,15 +99,15 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
 
   PopFileColumnNames = Arch_DefaultPopFileColumnNamesPL->get(PT);
 
-  DataFilePrefix = (group_prefix_ == "")
+  DataFilePrefix = (group_prefix_.empty())
                        ? "snapshot_data"
-                       : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" +
-                             "snapshot_data";
+                       : group_prefix_.substr(0, group_prefix_.size() - 2) +
+                             "__" + "snapshot_data";
   DataFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE")
                        ? DataFilePrefix
                        : Arch_FilePrefixPL->get(PT) + DataFilePrefix;
 
-  OrganismFilePrefix = (group_prefix_ == "")
+  OrganismFilePrefix = (group_prefix_.empty())
                            ? "snapshot_organisms"
                            : group_prefix_.substr(0, group_prefix_.size() - 2) +
                                  "__" + "snapshot_organisms";

@@ -264,7 +264,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
     for (auto const &brainName : brainNames) {
       std::cout << "  found brain: " << brainName << "\n";
       std::shared_ptr<ParametersTable> This_PT;
-      if (brainName == "") {
+      if (brainName.empty()) {
         std::cout
             << "\n\nfound empty brain name, this is not allowed. Exiting..."
             << std::endl;
@@ -280,7 +280,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       templateBrains[brainName] =
           makeTemplateBrain(brainIns[brainName], brainOuts[brainName], This_PT);
       strSet = templateBrains[brainName]->requiredGenomes();
-      if (strSet.size() > 0) {
+      if (!strSet.empty()) {
         std::cout << "    ..... this brain requires genomes: ";
         for (auto const &g : strSet) {
           std::cout << g << "  ";
@@ -299,7 +299,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
     for (auto const &genomeName : genomeNames) {
       std::cout << "  found genome: " << genomeName << "\n";
       std::shared_ptr<ParametersTable> This_PT;
-      if (genomeName == "") {
+      if (genomeName.empty()) {
         std::cout
             << "\n\nfound empty genome name, this is not allowed. Exiting..."
             << std::endl;

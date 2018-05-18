@@ -49,8 +49,8 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
         std::string(outputDirectory) + std::string("/") +
         fileName);               // clear file contents and open in write mode
     fileStates[fileName] = true; // this file is now open
-    if (header !=
-        "") { // if there is a header string, write this to the new file
+    if (!header.empty()) { // if there is a header string, write this to the new
+                           // file
       files[fileName] << header << "\n";
     }
   }
@@ -81,7 +81,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
   dataStr = "";
   dataMapType typeOfKey;
   int OB; // holds output behavior so it can be over ridden for ave file output!
-  if (keys.size() > 0) { // if keys is not empty
+  if (!keys.empty()) { // if keys is not empty
     for (auto i : keys) {
       typeOfKey = findKeyInData(i);
       if (typeOfKey == NONE) {
@@ -129,7 +129,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
                         // column name
         headerStr = headerStr + FileManager::separator + i;
         if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
-          if (getBoolVector(i).size() > 0) {
+          if (!getBoolVector(i).empty()) {
             dataStr = dataStr + FileManager::separator +
                       to_string(getBoolVector(i)[0]);
           } else {
@@ -140,7 +140,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
           }
         }
         if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
-          if (getDoubleVector(i).size() > 0) {
+          if (!getDoubleVector(i).empty()) {
             dataStr = dataStr + FileManager::separator +
                       std::to_string(getDoubleVector(i)[0]);
           } else {
@@ -151,7 +151,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
           }
         }
         if (typeOfKey == INT || typeOfKey == INTSOLO) {
-          if (getIntVector(i).size() > 0) {
+          if (!getIntVector(i).empty()) {
             dataStr = dataStr + FileManager::separator +
                       std::to_string(getIntVector(i)[0]);
           } else {
@@ -162,7 +162,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
           }
         }
         if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-          if (getStringVector(i).size() > 0) {
+          if (!getStringVector(i).empty()) {
             dataStr = dataStr + FileManager::separator + getStringVector(i)[0];
           } else {
             dataStr = dataStr + '0';

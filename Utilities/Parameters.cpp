@@ -403,7 +403,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
         }
       }
    */
-  if (category_list.size() > 0 && category_list[0] == "-") {
+  if (!category_list.empty()  && category_list[0] == "-") {
     if (sortedParameters.find("GLOBAL") != sortedParameters.end() &&
         !(find(category_list.begin(), category_list.end(), "GLOBAL") !=
           category_list.end())) {
@@ -436,7 +436,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
 
   for (auto group : sortedParameters) {
     bool saveThis = false;
-    if (category_list.size() > 0 && category_list[0] != "-") {
+    if (!category_list.empty()  && category_list[0] != "-") {
       for (auto cat : category_list) {
         if (static_cast<int>(group.first.size()) >=
             (static_cast<int>(cat.size())) - 1) {
@@ -596,7 +596,7 @@ void Parameters::saveSettingsFiles(
       }
 
       std::stringstream ss;
-      if (clist.second.size() == 1 && clist.second[0] == "") {
+      if (clist.second.size() == 1 && clist.second[0].empty()) {
         other_category_list.insert(other_category_list.begin(), "-");
         saveSettingsFile(name_space, ss, other_category_list, max_line_length,
                          comment_indent, also_children);

@@ -58,14 +58,14 @@ LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
   data_file_name_ = (LODwAP_Arch_FilePrefixPL->get(PT) == "NONE"
                       ? ""
                       : LODwAP_Arch_FilePrefixPL->get(PT)) +
-                 (group_prefix_ == ""
+                 (group_prefix_.empty()
                        ? "LOD_data.csv"
                        : group_prefix_.substr(0, group_prefix_.size() - 2) +
                              "__" + "LOD_data.csv");
   organism_file_name_ = (LODwAP_Arch_FilePrefixPL->get(PT) == "NONE"
                           ? ""
                           : LODwAP_Arch_FilePrefixPL->get(PT)) +
-                     (group_prefix_ == ""
+                     (group_prefix_.empty()
                            ? "LOD_organisms.csv"
                            : group_prefix_.substr(0, group_prefix_.size() - 2) +
                                  "__" + "LOD_organisms.csv");
