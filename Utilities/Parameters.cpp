@@ -385,7 +385,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
   std::map<std::string, std::vector<std::string>> sortedParameters;
   root->lookupTable(name_space)->parametersToSortedList(sortedParameters);
 
-  std::string current_indent = "";
+  std::string current_indent;
 
   /*   *** Will uncomment and fix when namespaces are actually needed
       auto name_space_parts = nameSpaceToNameParts(name_space);

@@ -640,7 +640,7 @@ Loader::getAttributeMap(const std::string &file_name) {
     std::map<std::string, std::string> temp_result;
     long k = 0;
     auto in_quotes = false;
-    std::string quote_str = "";
+    std::string quote_str;
     for (std::sregex_iterator end,
          i = std::sregex_iterator(org_details.begin(), org_details.end(),
                                   mabe_csv_regex);
