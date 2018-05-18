@@ -261,7 +261,7 @@ bool Loader::balancedBraces(std::string s) {
         return false;
       break;
     }
-  return k ? false : true;
+  return k == 0;
 }
 
 std::vector<std::vector<long>> Loader::parseCollection(std::string expr) {
@@ -646,7 +646,7 @@ Loader::getAttributeMap(const std::string &file_name) {
       std::smatch m = *i;
 
       if (m[1].length())
-        if (in_quotes == false)
+        if (!in_quotes)
           temp_result[attribute_names.at(k++)] = m[2].str();
         else
           quote_str += m[1].str();

@@ -615,7 +615,7 @@ void Parameters::saveSettingsFiles(
         if (c == 10) {
           lastCharEnter = true;
         } else {
-          if (lastCharEnter == true) {
+          if (lastCharEnter) {
             if (!(c == '+' || c == '-' || c == 10)) {
               fileEmpty = false;
             }

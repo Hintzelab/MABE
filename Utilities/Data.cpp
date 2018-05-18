@@ -54,7 +54,7 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
       files[fileName] << header << "\n";
     }
   }
-  if (fileStates[fileName] == false) { // if file is closed ...
+  if (!fileStates[fileName]) { // if file is closed ...
     files[fileName].open(
         std::string(outputDirectory) + std::string("/") + fileName,
         std::ios::out | std::ios::app); // open file in append mode
