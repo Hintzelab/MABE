@@ -23,7 +23,7 @@ std::shared_ptr<ParameterLink<bool>> AbstractWorld::debugPL =
 
 ////// WORLD-worldType is actually set by Modules.h //////
 std::shared_ptr<ParameterLink<std::string>> AbstractWorld::worldTypePL =
-    Parameters::register_parameter("WORLD-worldType",
-                                   (std::string) "This_string_is_set_by_modules.h",
-                                   "This_string_is_set_by_modules.h");
+    Parameters::register_parameter(
+        "WORLD-worldType", std::string("This_string_is_set_by_modules.h"),
+        "This_string_is_set_by_modules.h");
 ////// WORLD-worldType is actually set by Modules.h //////

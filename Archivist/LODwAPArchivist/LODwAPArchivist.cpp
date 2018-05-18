@@ -10,16 +10,16 @@
 
 #include "LODwAPArchivist.h"
 
-std::shared_ptr<ParameterLink<std::string>> LODwAPArchivist::LODwAP_Arch_dataSequencePL =
-    Parameters::register_parameter(
-        "ARCHIVIST_LODWAP-dataSequence", (std::string) ":100",
+std::shared_ptr<ParameterLink<std::string>> LODwAPArchivist::
+    LODwAP_Arch_dataSequencePL = Parameters::register_parameter(
+        "ARCHIVIST_LODWAP-dataSequence", std::string(":100"),
         "How often to write to data file. (format: x = single value, x-y = x "
         "to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = from x "
         "to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 std::shared_ptr<ParameterLink<std::string>>
     LODwAPArchivist::LODwAP_Arch_organismSequencePL =
         Parameters::register_parameter(
-            "ARCHIVIST_LODWAP-organismsSequence", (std::string) ":1000",
+            "ARCHIVIST_LODWAP-organismsSequence", std::string(":1000"),
             "How often to write genome file. (format: x = single value, x-y = "
             "x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = "
             "from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
@@ -39,11 +39,13 @@ std::shared_ptr<ParameterLink<bool>>
         Parameters::register_parameter(
             "ARCHIVIST_LODWAP-writeOrganismsFile", true,
             "if true, an organisms file will be written");
-std::shared_ptr<ParameterLink<std::string>> LODwAPArchivist::LODwAP_Arch_FilePrefixPL =
-    Parameters::register_parameter("ARCHIVIST_LODWAP-filePrefix",
-                                   (std::string) "NONE", "prefix for files saved by "
-                                                    "this archivst. \"NONE\" "
-                                                    "indicates no prefix.");
+std::shared_ptr<ParameterLink<std::string>>
+    LODwAPArchivist::LODwAP_Arch_FilePrefixPL =
+        Parameters::register_parameter("ARCHIVIST_LODWAP-filePrefix",
+                                       std::string("NONE"),
+                                       "prefix for files saved by "
+                                       "this archivst. \"NONE\" "
+                                       "indicates no prefix.");
 
 LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
                                  std::shared_ptr<Abstract_MTree> _maxFormula,

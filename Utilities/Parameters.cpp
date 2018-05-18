@@ -144,8 +144,8 @@ MASTER = default 100 # by default :)
     std::smatch m;
     std::string argument(argv[i]);
     if (!std::regex_match(argument, m, command_line_argument_flag)) {
-      std::cout << "Error : out of context argument \"" << argument << "\" on command line"
-                << std::endl;
+      std::cout << "Error : out of context argument \"" << argument
+                << "\" on command line" << std::endl;
       exit(1);
     }
     switch (m[1].str()[0]) {
@@ -438,11 +438,13 @@ void Parameters::saveSettingsFile(const std::string &name_space,
     bool saveThis = false;
     if (category_list.size() > 0 && category_list[0] != "-") {
       for (auto cat : category_list) {
-        if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+        if (static_cast<int>(group.first.size()) >=
+            (static_cast<int>(cat.size())) - 1) {
           if (group.first == cat) {
             saveThis = true;
           } else {
-            if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+            if (static_cast<int>(cat.size()) > 0 &&
+                cat[(static_cast<int>(cat.size())) - 1] == '*') {
               if (group.first.substr(0, cat.size() - 1) ==
                   cat.substr(0, cat.size() - 1)) {
                 saveThis = true;
@@ -454,11 +456,13 @@ void Parameters::saveSettingsFile(const std::string &name_space,
     } else {
       saveThis = true;
       for (auto cat : category_list) {
-        if ((int)group.first.size() >= ((int)cat.size()) - 1) {
+        if (static_cast<int>(group.first.size()) >=
+            (static_cast<int>(cat.size())) - 1) {
           if (group.first == cat) {
             saveThis = false;
           } else {
-            if ((int)cat.size() > 0 && cat[((int)cat.size()) - 1] == '*') {
+            if (static_cast<int>(cat.size()) > 0 &&
+                cat[(static_cast<int>(cat.size())) - 1] == '*') {
               if (group.first.substr(0, cat.size() - 1) ==
                   cat.substr(0, cat.size() - 1)) {
                 saveThis = false;

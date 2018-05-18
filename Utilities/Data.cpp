@@ -46,7 +46,7 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
                                                     // new file and place in
                                                     // FileManager::files
     files[fileName].open(
-        (std::string)outputDirectory + (std::string) "/" +
+        std::string(outputDirectory) + std::string("/") +
         fileName);               // clear file contents and open in write mode
     fileStates[fileName] = true; // this file is now open
     if (header !=
@@ -55,8 +55,9 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
     }
   }
   if (fileStates[fileName] == false) { // if file is closed ...
-    files[fileName].open((std::string)outputDirectory + (std::string) "/" + fileName,
-                         std::ios::out | std::ios::app); // open file in append mode
+    files[fileName].open(
+        std::string(outputDirectory) + std::string("/") + fileName,
+        std::ios::out | std::ios::app); // open file in append mode
   }
 }
 

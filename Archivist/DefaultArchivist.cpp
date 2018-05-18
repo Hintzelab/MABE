@@ -16,27 +16,26 @@
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter(
         "ARCHIVIST-outputMethod",
-        (std::string) "This_string_is_set_by_modules.h",
+        std::string("This_string_is_set_by_modules.h"),
         "This_string_is_set_by_modules.h"); // string parameter for
                                             // outputMethod;
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-realtimeSequence", (std::string) ":10",
+        "ARCHIVIST_DEFAULT-realtimeSequence", std::string(":10"),
         "How often to write to realtime data files. (format: x = single value, "
         "x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = "
         "from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-snapshotDataSequence", (std::string) ":100",
+        "ARCHIVIST_DEFAULT-snapshotDataSequence", std::string(":100"),
         "How often to save a realtime snapshot data file. (format: x = single "
         "value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on "
         "z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-std::shared_ptr<
-    ParameterLink<std::string>> DefaultArchivist::SS_Arch_organismSequencePL =
-    Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-snapshotOrganismsSequence", (std::string) ":1000",
+std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::
+    SS_Arch_organismSequencePL = Parameters::register_parameter(
+        "ARCHIVIST_DEFAULT-snapshotOrganismsSequence", std::string(":1000"),
         "How often to save a realtime snapshot genome file. (format: x = "
         "single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to "
         "updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, "
@@ -51,14 +50,14 @@ std::shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL =
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_DefaultPopFileColumnNamesPL =
         Parameters::register_parameter(
-            "ARCHIVIST_DEFAULT-popFileColumns", (std::string) "[]",
+            "ARCHIVIST_DEFAULT-popFileColumns", std::string("[]"),
             "data to be saved into average file (must be values that can "
             "generate an average). If empty, MABE will try to figure it out");
 
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_FilePrefixPL =
         Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix",
-                                       (std::string) "NONE",
+                                       std::string("NONE"),
                                        "prefix for files saved by "
                                        "this archivst. \"NONE\" "
                                        "indicates no prefix.");
