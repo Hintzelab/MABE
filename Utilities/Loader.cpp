@@ -147,12 +147,12 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
   }
   */
   zz::fs::Directory mabe_org_dir("./", "*organisms*.csv", true); // true=recursive
-  for (auto p : mabe_org_dir) {
+  for (auto const &p : mabe_org_dir) {
   	  all_possible_file_names.push_back(p.relative_path());
   }
   
   zz::fs::Directory mabe_data_dir("./", "*data*.csv", true); // true=recursive
-  for (auto p : mabe_data_dir) {
+  for (auto const &p : mabe_data_dir) {
   	  all_possible_file_names.push_back(p.relative_path());
   }
 

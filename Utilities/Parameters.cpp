@@ -409,7 +409,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
           category_list.end())) {
       file << current_indent << "% GLOBAL"
            << "\n";
-      for (auto parameter : sortedParameters["GLOBAL"]) {
+      for (auto const &parameter : sortedParameters["GLOBAL"]) {
         printParameterWithWraparound(file, current_indent + "  ", parameter,
                                      max_line_length, comment_indent);
         //					file <<
@@ -423,7 +423,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
             category_list.end()) {
       file << current_indent << "% GLOBAL"
            << "\n";
-      for (auto parameter : sortedParameters["GLOBAL"]) {
+      for (auto const &parameter : sortedParameters["GLOBAL"]) {
         printParameterWithWraparound(file, current_indent + "  ", parameter,
                                      max_line_length, comment_indent);
         //					file <<
@@ -474,7 +474,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
     }
     if (saveThis) {
       file << current_indent << "% " << group.first << "\n";
-      for (auto parameter : group.second) {
+      for (auto const &parameter : group.second) {
         printParameterWithWraparound(file, current_indent + "  ", parameter,
                                      max_line_length, comment_indent);
         //					file << currentIndent << "  " <<
@@ -489,7 +489,7 @@ void Parameters::saveSettingsFile(const std::string &name_space,
     std::vector<std::shared_ptr<ParametersTable>> checklist =
         root->lookupTable(name_space)->getChildren();
     sort(checklist.begin(), checklist.end());
-    for (auto c : checklist) {
+    for (auto const &c : checklist) {
       saveSettingsFile(c->getTableNameSpace(), file, category_list,
                        max_line_length, comment_indent, true, name_space_level);
     }

@@ -152,7 +152,7 @@ Organism::Organism(
     dataMap.merge(brain.second->getStats(prefix));
   }
 
-  for (auto parent : from) {
+  for (auto const &parent : from) {
     parents.push_back(parent); // add this parent to the parents set
     parent->offspringCount++;  // this parent has an(other) offspring
     for (auto ancestorID : parent->ancestors) {
@@ -173,7 +173,7 @@ int Organism::registerOrganism() {
 }
 
 Organism::~Organism() {
-  for (auto parent : parents) {
+  for (auto const &parent : parents) {
     parent->offspringCount--; // this parent has one less child in memory
   }
   parents.clear();
@@ -221,7 +221,7 @@ std::shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(
   for (auto genome : from[0]->genomes) {
     std::vector<std::shared_ptr<AbstractGenome>>
         parentGenomes; // make a list of parents genomes
-    for (auto p : from) {
+    for (auto const &p : from) {
       parentGenomes.push_back(p->genomes[genome.first]);
     }
     newGenomes[genome.first] =
@@ -231,7 +231,7 @@ std::shared_ptr<Organism> Organism::makeMutatedOffspringFromMany(
   for (auto brain : from[0]->brains) {
     std::vector<std::shared_ptr<AbstractBrain>>
         parentBrains; // make a list of parents genomes
-    for (auto p : from) {
+    for (auto const &p : from) {
       parentBrains.push_back(p->brains[brain.first]);
     }
 
@@ -327,7 +327,7 @@ Organism::makeCopy(std::shared_ptr<ParametersTable> PT_) {
   newOrg->snapShotDataMaps = snapShotDataMaps;
   newOrg->offspringCount = offspringCount;
   newOrg->parents = parents;
-  for (auto parent : parents) {
+  for (auto const &parent : parents) {
     parent->offspringCount++;
   }
   newOrg->ancestors = ancestors;

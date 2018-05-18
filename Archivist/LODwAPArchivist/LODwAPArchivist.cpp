@@ -172,7 +172,7 @@ bool LODwAPArchivist::archive(std::vector<std::shared_ptr<Organism>> &population
   if (writeOrganismFile &&
       std::find(organismSequence.begin(), organismSequence.end(),
                 Global::update) != organismSequence.end())
-    for (auto org : population) // if this update is in the genome sequence,
+    for (auto const &org : population) // if this update is in the genome sequence,
                                 // turn on genome tracking.
       org->trackOrganism = true;
 

@@ -82,7 +82,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
   dataMapType typeOfKey;
   int OB; // holds output behavior so it can be over ridden for ave file output!
   if (!keys.empty()) { // if keys is not empty
-    for (auto i : keys) {
+    for (auto const &i : keys) {
       typeOfKey = findKeyInData(i);
       if (typeOfKey == NONE) {
         std::cout << "  in DataMap::writeToFile() - key \"" << i

@@ -187,7 +187,7 @@ void DefaultArchivist::writeRealTimeFiles(
     DataMap PopMap;
     for (auto &kv : unique_column_name_to_output_behaviors_) {
       if (kv.first != "update")
-        for (auto org : population)
+        for (auto const &org : population)
           if (org->timeOfBirth < Global::update || save_new_orgs_)
             PopMap.append(kv.first, org->dataMap.getAverage(kv.first));
 
@@ -202,8 +202,8 @@ void DefaultArchivist::writeRealTimeFiles(
   if (writeMaxFile && max_formula_ != nullptr) {
 
     std::shared_ptr<Organism> best_org;
-    auto score = std::numeric_limits<double>::lowest(); 
-    for (auto org : population)
+    auto score = std::numeric_limits<double>::lowest();
+    for (auto const &org : population)
       if (org->timeOfBirth < Global::update || save_new_orgs_) {
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
         if (sc > score) {
@@ -262,7 +262,7 @@ void DefaultArchivist::saveSnapshotData(
                    std::end(saveList));
 
   // now for each org, update ancestors and save if in saveList
-  for (auto org : population) {
+  for (auto const &org : population) {
 
     if (org->snapshotAncestors.size() != 1 ||
         org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
@@ -377,7 +377,7 @@ void DefaultArchivist::resolveAncestors(
 
 	// this parent not old enough (see if above), add this
     // parents parents to check list (we need to keep looking)
-    for (auto p : parent->parents) {
+    for (auto const &p : parent->parents) {
       parent_check_list.push_back(p);
     }
   }
@@ -389,7 +389,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
   std::string organismFileName =
       OrganismFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
-  for (auto org : population) {
+  for (auto const &org : population) {
     if (org->timeOfBirth < Global::update || save_new_orgs_) {
       DataMap OrgMap;
       OrgMap.set("ID", org->ID);
@@ -456,7 +456,7 @@ bool DefaultArchivist::archive(
   if (!writeSnapshotDataFiles) {
     // we don't need to worry about tracking parents or
     // lineage, so we clear out this data every generation.
-    for (auto org : population)
+    for (auto const &org : population)
       org->parents.clear();
   } else {
 	cleanUpParents(population);
@@ -473,7 +473,7 @@ void DefaultArchivist::cleanUpParents(
   auto need_to_clean = population;
   need_to_clean.clear(); // we haven't cleaned anything yet
 
-  for (auto org : population)
+  for (auto const &org : population)
     if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
       // if ancestors contains self, then this org has been saved
       // and it's ancestor list has been collapsed
@@ -499,7 +499,7 @@ void DefaultArchivist::cleanUpParents(
       // no living org can be this orgs ancestor
       org->parents.clear(); // so we can safely release parents
     else
-      for (auto parent : org->parents) // we need to check parents (if any)
+      for (auto const &parent : org->parents) // we need to check parents (if any)
         if (std::find(std::begin(logged), std::end(logged), parent) ==
             logged.end()) { // if parent is not already in
                             // logged list (i.e. either
