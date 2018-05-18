@@ -648,7 +648,7 @@ Loader::getAttributeMap(const std::string &file_name) {
       std::smatch m = *i;
 
       if (m[1].length())
-        if (!in_quotes)
+        if (in_quotes == false)
           temp_result[attribute_names.at(k++)] = m[2].str();
         else
           quote_str += m[1].str();
