@@ -46,7 +46,7 @@ void catchCtrlC(int signalID) {
 }
 
 std::map<std::string, std::shared_ptr<Group>>
-constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
                        std::shared_ptr<ParametersTable> PT);
 
 int main(int argc, const char *argv[]) {
@@ -185,7 +185,7 @@ int main(int argc, const char *argv[]) {
 // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
 // is empty, create "default" group.
 std::map<std::string, std::shared_ptr<Group>>
-constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
                        std::shared_ptr<ParametersTable> PT) {
 
   std::map<std::string, std::shared_ptr<Group>> groups;

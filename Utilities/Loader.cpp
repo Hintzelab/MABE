@@ -264,7 +264,8 @@ bool Loader::balancedBraces(std::string s) {
   return k == 0;
 }
 
-std::vector<std::vector<long>> Loader::parseCollection(std::string expr) {
+std::vector<std::vector<long>>
+Loader::parseCollection(const std::string &expr) {
   // semantics of collection choosing
 
   //	cout << expr << endl;
@@ -338,9 +339,8 @@ std::vector<std::vector<long>> Loader::parseCollection(std::string expr) {
 
 } // end Loader::parse_token
 
-std::vector<std::vector<long>> Loader::keywordDuplicate(
-                                                    size_t value,
-                                                    std::string resource) {
+std::vector<std::vector<long>>
+Loader::keywordDuplicate(size_t value, const std::string &resource) {
 
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
@@ -358,7 +358,7 @@ std::vector<std::vector<long>> Loader::keywordDuplicate(
 
 std::vector<std::vector<long>> Loader::keywordMatch(std::string attribute,
                                                     std::string value,
-                                                    std::string resource) {
+                                                    const std::string &resource) {
 
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
@@ -387,9 +387,9 @@ std::vector<std::vector<long>> Loader::keywordMatch(std::string attribute,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keywordGreatest(size_t number,
-                                                       std::string attribute,
-                                                       std::string resource) {
+std::vector<std::vector<long>>
+Loader::keywordGreatest(size_t number, std::string attribute,
+                        const std::string &resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
     std::cout << "Unrecognised token " << resource << std::endl;
@@ -426,9 +426,9 @@ std::vector<std::vector<long>> Loader::keywordGreatest(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keywordLeast(size_t number,
-                                                    std::string attribute,
-                                                    std::string resource) {
+std::vector<std::vector<long>>
+Loader::keywordLeast(size_t number, std::string attribute,
+                     const std::string &resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
     std::cout << "Unrecognised token " << resource << std::endl;
@@ -466,7 +466,7 @@ std::vector<std::vector<long>> Loader::keywordLeast(size_t number,
 }
 
 std::vector<std::vector<long>> Loader::keywordAny(size_t number,
-                                                  std::string resource) {
+                                                  const std::string &resource) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(resource) == collection_org_lists.end()) {
     std::cout << "Unrecognised token " << resource << std::endl;
@@ -490,7 +490,8 @@ std::vector<std::vector<long>> Loader::keywordAny(size_t number,
   return coll;
 }
 
-std::vector<std::vector<long>> Loader::keywordCollapse(std::string name) {
+std::vector<std::vector<long>>
+Loader::keywordCollapse(const std::string &name) {
   std::vector<std::vector<long>> coll;
   if (collection_org_lists.find(name) == collection_org_lists.end()) {
     std::cout << "Unrecognised token " << name << std::endl;
@@ -518,7 +519,7 @@ std::vector<std::vector<long>> Loader::keywordDefault(long number) {
   return coll;
 }
 
-std::vector<std::string> Loader::expandFiles(const std::string f) {
+std::vector<std::string> Loader::expandFiles(const std::string &f) {
 
   std::vector<std::string> result;
   static const std::regex wildcard(R"(\*)");
@@ -539,7 +540,7 @@ std::vector<std::string> Loader::expandFiles(const std::string f) {
   return result;
 } // end Loader::expandFiles
 
-std::pair<long, long> Loader::generatePopulation(const std::string file_name) {
+std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
 
   auto org_file_data = getAttributeMap(file_name);
   auto file_contents_pair =

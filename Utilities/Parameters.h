@@ -1420,7 +1420,7 @@ public:
       std::unordered_map<std::string, std::string> &comand_line_list,
       std::vector<std::string> &fileList, bool &saveFiles);
   static std::unordered_map<std::string, std::string>
-  readParametersFile(std::string fileName);
+  readParametersFile(const std::string &fileName);
   static bool initializeParameters(int argc, const char *argv[]);
   static void saveSettingsFile(const std::string &nameSpace,
                                std::stringstream &FILE,
@@ -1434,8 +1434,8 @@ public:
       std::vector<std::pair<std::string, std::vector<std::string>>>
           categoryLists = {{"settings.cfg", {""}}});
   static void printParameterWithWraparound(std::stringstream &FILE,
-                                           std::string _currentIndent,
-                                           std::string _parameter,
+                                           const std::string &_currentIndent,
+                                           const std::string &_parameter,
                                            int _maxLineLength,
                                            int _commentIndent);
 };

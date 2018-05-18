@@ -50,8 +50,9 @@ std::shared_ptr<ParameterLink<std::string>>
 LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
                                  std::shared_ptr<Abstract_MTree> _maxFormula,
                                  std::shared_ptr<ParametersTable> PT_,
-                                 std::string group_prefix)
-    : DefaultArchivist(popFileColumns, _maxFormula, PT_, group_prefix) {
+                                 const std::string &group_prefix)
+    : DefaultArchivist(popFileColumns, std::move(_maxFormula), std::move(PT_),
+                       group_prefix) {
 
   pruneInterval = LODwAP_Arch_pruneIntervalPL->get(PT);
   terminateAfter = LODwAP_Arch_terminateAfterPL->get(PT);
@@ -83,7 +84,7 @@ LODwAPArchivist::LODwAPArchivist(std::vector<std::string> popFileColumns,
   next_organism_write_ = organismSequence[organism_seq_index];
 }
 
-void LODwAPArchivist::constructLODFiles(std::shared_ptr<Organism> org) {
+void LODwAPArchivist::constructLODFiles(const std::shared_ptr<Organism> &org) {
   files_[data_file_name_].push_back("update");
   files_[data_file_name_].push_back("timeToCoalescence");
   auto all_keys = org->dataMap.getKeys();
@@ -95,8 +96,8 @@ void LODwAPArchivist::constructLODFiles(std::shared_ptr<Organism> org) {
 
 void LODwAPArchivist::writeLODDataFile(
     std::vector<std::shared_ptr<Organism>> &LOD,
-    std::shared_ptr<Organism> real_MRCA,
-    std::shared_ptr<Organism> effective_MRCA) {
+    const std::shared_ptr<Organism> &real_MRCA,
+    const std::shared_ptr<Organism> &effective_MRCA) {
 
   while (next_data_write_ <=
          std::min(
@@ -123,7 +124,7 @@ void LODwAPArchivist::writeLODDataFile(
 
 void LODwAPArchivist::writeLODOrganismFile(
     std::vector<std::shared_ptr<Organism>> &LOD,
-    std::shared_ptr<Organism> effective_MRCA) {
+    const std::shared_ptr<Organism> &effective_MRCA) {
 
   while (next_organism_write_ <=
          std::min(

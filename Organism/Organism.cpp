@@ -27,7 +27,7 @@ int Organism::organismIDCounter = -1; // every organism will get a unique ID
 // this is used to hold the most recent common ancestor
 
 void Organism::initOrganism(std::shared_ptr<ParametersTable> PT_) {
-  PT = PT_;
+  PT = std::move(PT_);
   ID = registerOrganism();
   alive = true;
   offspringCount = 0;           // because it's alive;
@@ -43,7 +43,7 @@ void Organism::initOrganism(std::shared_ptr<ParametersTable> PT_) {
  * parents is left empty (this is organism has no parents!)
  */
 Organism::Organism(std::shared_ptr<ParametersTable> PT_) {
-  initOrganism(PT_);
+  initOrganism(std::move(PT_));
   ancestors.insert(ID); // it is it's own Ancestor for data tracking purposes
   snapshotAncestors.insert(ID);
 }
@@ -60,7 +60,7 @@ Organism::Organism(
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
     std::shared_ptr<ParametersTable> PT_) {
-  initOrganism(PT_);
+  initOrganism(std::move(PT_));
 
   genomes = _genomes;
 
@@ -89,11 +89,11 @@ Organism::Organism(
 * template), or the brains have already been built elsewhere
 */
 Organism::Organism(
-    std::shared_ptr<Organism> from,
+    const std::shared_ptr<Organism> &from,
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
     std::shared_ptr<ParametersTable> PT_) {
-  initOrganism(PT_);
+  initOrganism(std::move(PT_));
 
   genomes = _genomes;
 
@@ -134,7 +134,7 @@ Organism::Organism(
     std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
     std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,
     std::shared_ptr<ParametersTable> PT_) {
-  initOrganism(PT_);
+  initOrganism(std::move(PT_));
 
   genomes = _genomes;
 

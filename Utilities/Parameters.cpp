@@ -219,7 +219,7 @@ MASTER = default 100 # by default :)
 } // end Parameters::readCommandLine()
 
 std::unordered_map<std::string, std::string>
-Parameters::readParametersFile(std::string file_name) {
+Parameters::readParametersFile(const std::string &file_name) {
 
   std::unordered_map<std::string, std::string> config_file_list;
 
@@ -513,11 +513,10 @@ void Parameters::saveSettingsFile(const std::string &name_space,
 
 } // end  Parameters::saveSettingsFile
 
-void Parameters::printParameterWithWraparound(std::stringstream &file,
-                                              std::string current_indent,
-                                              std::string entire_parameter,
-                                              int max_line_length,
-                                              int comment_indent) {
+void Parameters::printParameterWithWraparound(
+    std::stringstream &file, const std::string &current_indent,
+    const std::string &entire_parameter, int max_line_length,
+    int comment_indent) {
 
   auto pos_of_comment =
       entire_parameter.find_first_of("@@@#"); // must be cleaned

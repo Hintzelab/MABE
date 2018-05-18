@@ -76,7 +76,7 @@ std::shared_ptr<ParameterLink<bool>>
 
 DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
                                    const std::string & group_prefix)
-    : PT(PT_), group_prefix_(group_prefix) {
+    : PT(std::move(PT_)), group_prefix_(group_prefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
   writeMaxFile = Arch_writeMaxFilePL->get(PT);
@@ -147,10 +147,10 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
                                    std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
                                    const std::string & group_prefix)
-    : DefaultArchivist(PT_,group_prefix) {
+    : DefaultArchivist(std::move(PT_),group_prefix) {
 
   convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
-  max_formula_ = max_formula;
+  max_formula_ = std::move(max_formula);
 
   if (default_pop_file_columns_.empty())
     default_pop_file_columns_ = popFileColumns;
@@ -298,7 +298,7 @@ void DefaultArchivist::saveSnapshotData(
                                         // be writting to this file again.
 }
 
-void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
+void DefaultArchivist::saveOrgToFile(const std::shared_ptr<Organism> &org,
                                      const std::string &data_file_name) {
 
   // std::cout << "  is being saved" << std::endl;
@@ -324,7 +324,7 @@ void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
 
 
 void DefaultArchivist::resolveAncestors(
-    std::shared_ptr<Organism> org,
+    const std::shared_ptr<Organism> &org,
     std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
       // if this org does not only contain only itself in snapshotAncestors then
       // it has not been saved before.

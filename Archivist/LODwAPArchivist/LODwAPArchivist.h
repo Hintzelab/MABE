@@ -39,20 +39,21 @@ public:
   bool writeDataFile;           // if true, write data file
   bool writeOrganismFile;       // if true, write genome file
 
-  void constructLODFiles(std::shared_ptr<Organism> /*org*/);
+  void constructLODFiles(const std::shared_ptr<Organism> &/*org*/);
 
   void writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
-                        std::shared_ptr<Organism> /*real_MRCA*/,
-                        std::shared_ptr<Organism> /*effective_MRCA*/);
+                        const std::shared_ptr<Organism> &/*real_MRCA*/,
+                        const std::shared_ptr<Organism> &/*effective_MRCA*/);
 
-  void writeLODOrganismFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
-                        std::shared_ptr<Organism> /*effective_MRCA*/);
+  void
+  writeLODOrganismFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+                       const std::shared_ptr<Organism> & /*effective_MRCA*/);
 
   LODwAPArchivist() = delete;
   LODwAPArchivist(std::vector<std::string> popFileColumns = {},
                   std::shared_ptr<Abstract_MTree> _maxFormula = nullptr,
                   std::shared_ptr<ParametersTable> PT_ = nullptr,
-                  std::string _groupPrefix = "");
+                  const std::string &_groupPrefix = "");
 
   virtual ~LODwAPArchivist() = default;
 
