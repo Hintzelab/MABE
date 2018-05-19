@@ -19,9 +19,9 @@
 */
 
 ////// OPTIMIZER-optimizer is actually set by Modules.h //////
-std::shared_ptr<ParameterLink<std::string>> AbstractOptimizer::Optimizer_MethodStrPL =
-    Parameters::register_parameter(
-        "OPTIMIZER-optimizer", (std::string) "This_string_is_set_by_modules.h",
+std::shared_ptr<ParameterLink<std::string>>
+    AbstractOptimizer::Optimizer_MethodStrPL = Parameters::register_parameter(
+        "OPTIMIZER-optimizer", std::string("This_string_is_set_by_modules.h"),
         "This_string_is_set_by_modules.h"); // string parameter for
                                             // outputMethod;
 ////// OPTIMIZER-optimizer is actually set by Modules.h //////

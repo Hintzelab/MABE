@@ -73,7 +73,7 @@ public:
       std::shared_ptr<ParametersTable> PT_ =
           nullptr); // make a parentless organism with a genome, and a brain
   Organism(
-      std::shared_ptr<Organism> from,
+      const std::shared_ptr<Organism> &from,
       std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
           &_genomes,
       std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> &_brains,

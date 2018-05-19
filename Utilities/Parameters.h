@@ -445,7 +445,7 @@ public:
     local = false;
   }
 
-  std::string getTypeName() { return get_var_typename(*valuePtr); }
+  std::string getTypeName() override { return get_var_typename(*valuePtr); }
 
   // return a pair of string with <value,type>
   std::pair<std::string, std::string> getStringValuePair() override {
@@ -1403,11 +1403,10 @@ public:
   static std::shared_ptr<ParameterLink<double>>
   getDoubleLink(const std::string &name,
                 std::shared_ptr<ParametersTable> table);
-
-  static void parseFullParameterName(const std::string &fullName,
-                                     std::string &nameSpace,
-                                     std::string &category,
-                                     std::string &parameterName);
+  static void parseFullParameterName(const std::string &full_name,
+                                     std::string &name_space_name,
+                                     std::string &category_name,
+                                     std::string &parameter_name);
   static void readCommandLine(
       int argc, const char **argv,
       std::unordered_map<std::string, std::string> &comand_line_list,
@@ -1417,25 +1416,25 @@ public:
   }
   static void readCommandLine(
       int argc, const char **argv,
-      std::unordered_map<std::string, std::string> &comand_line_list,
-      std::vector<std::string> &fileList, bool &saveFiles);
+      std::unordered_map<std::string, std::string> &param_name_values,
+      std::vector<std::string> &file_list, bool &save_files);
   static std::unordered_map<std::string, std::string>
-  readParametersFile(std::string fileName);
+  readParametersFile(const std::string &file_name);
   static bool initializeParameters(int argc, const char *argv[]);
-  static void saveSettingsFile(const std::string &nameSpace,
-                               std::stringstream &FILE,
-                               std::vector<std::string> categoryList,
-                               int _maxLineLength, int _commentIndent,
-                               bool alsoChildren = false,
-                               int nameSpaceLevel = 0);
+  static void saveSettingsFile(const std::string &name_space,
+                               std::stringstream &file,
+                               std::vector<std::string> category_list,
+                               int max_line_length, int comment_indent,
+                               bool also_children = false,
+                               int name_space_level = 0);
   static void saveSettingsFiles(
-      int _maxLineLength, int _commentIndent,
-      std::vector<std::string> nameSpaceList = {"*"},
+      int max_line_length, int comment_indent,
+      std::vector<std::string> name_space_list = {"*"},
       std::vector<std::pair<std::string, std::vector<std::string>>>
-          categoryLists = {{"settings.cfg", {""}}});
+          category_lists = {{"settings.cfg", {""}}});
   static void printParameterWithWraparound(std::stringstream &FILE,
-                                           std::string _currentIndent,
-                                           std::string _parameter,
+                                           const std::string &_currentIndent,
+                                           const std::string &_parameter,
                                            int _maxLineLength,
                                            int _commentIndent);
 };

@@ -13,7 +13,7 @@
 ////// BRAIN-brainType is actually set by Modules.h //////
 std::shared_ptr<ParameterLink<std::string>> AbstractBrain::brainTypeStrPL =
     Parameters::register_parameter(
-        "BRAIN-brainType", (std::string) "This_string_is_set_by_modules.h",
+        "BRAIN-brainType", std::string("This_string_is_set_by_modules.h"),
         "This_string_is_set_by_modules.h"); // string parameter for
                                             // outputMethod;
 ////// BRAIN-brainType is actually set by Modules.h //////

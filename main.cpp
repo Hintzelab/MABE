@@ -9,30 +9,27 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include <algorithm>
-#include <memory>
-#include <cstdio>
-#include <cstdlib>
-#include <vector>
-#include <regex>
-#include <csignal> // sigint
-
+#include "modules.h"
 #include "Global.h"
-
 #include "Group/Group.h"
-
 #include "Organism/Organism.h"
-
-#include "Utilities/Parameters.h"
-#include "Utilities/Random.h"
 #include "Utilities/Data.h"
-#include "Utilities/Utilities.h"
 #include "Utilities/Loader.h"
 #include "Utilities/MTree.h"
+#include "Utilities/Parameters.h"
+#include "Utilities/Random.h"
+#include "Utilities/Utilities.h"
+#include "Utilities/gitversion.h"
 #include "Utilities/zupply.h" // for x-platform filesystem
 
-#include "modules.h"
-#include "Utilities/gitversion.h"
+#include <algorithm>
+#include <csignal> // sigint
+#include <cstdio>
+#include <cstdlib>
+#include <memory>
+#include <regex>
+#include <vector>
+
 
 #if defined(__MINGW32__)
 #include <windows.h> /// for getting PID, for proper RNG for MinGW
@@ -49,7 +46,7 @@ void catchCtrlC(int signalID) {
 }
 
 std::map<std::string, std::shared_ptr<Group>>
-constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
                        std::shared_ptr<ParametersTable> PT);
 
 int main(int argc, const char *argv[]) {
@@ -188,7 +185,7 @@ int main(int argc, const char *argv[]) {
 // for each name space in the GLOBAL-groups create a group. if GLOBAL-groups
 // is empty, create "default" group.
 std::map<std::string, std::shared_ptr<Group>>
-constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
+constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
                        std::shared_ptr<ParametersTable> PT) {
 
   std::map<std::string, std::shared_ptr<Group>> groups;
@@ -230,11 +227,11 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       // when the world looked up "bodyGenome" and when the brain looked up
       // "genome" they would be looking at the same object.
       if (s.size() <= 4) {
-        std::cout << "\n\nwhile converting world requirements in \"" + NS +
-                         "\" group, found requirement \"" + s +
-                         "\".\n requirements must start with B: (brain) or G: "
-                         "(genome), followed with a name and end with "
-                         "\"::\".\nexiting."
+        std::cout << "\n\nwhile converting world requirements in \"" << NS
+                  << "\" group, found requirement \"" << s
+                  << "\".\n requirements must start with B: (brain) or G: "
+                     "(genome), followed with a name and end with "
+                     "\"::\".\nexiting."
                   << std::endl;
         exit(1);
       }
@@ -251,10 +248,10 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {
-        std::cout << "\n\nwhile converting world requirements in \"" + NS +
-                         "\" group, found requirement \"" + s +
-                         "\".\n requirements must start with B: (brain) or G: "
-                         "(genome)!\nexiting."
+        std::cout << "\n\nwhile converting world requirements in \"" << NS
+                  << "\" group, found requirement \"" << s
+                  << "\".\n requirements must start with B: (brain) or G: "
+                     "(genome)!\nexiting."
                   << std::endl;
         exit(1);
       }
@@ -267,7 +264,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
     for (auto const &brainName : brainNames) {
       std::cout << "  found brain: " << brainName << "\n";
       std::shared_ptr<ParametersTable> This_PT;
-      if (brainName == "") {
+      if (brainName.empty()) {
         std::cout
             << "\n\nfound empty brain name, this is not allowed. Exiting..."
             << std::endl;
@@ -283,7 +280,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
       templateBrains[brainName] =
           makeTemplateBrain(brainIns[brainName], brainOuts[brainName], This_PT);
       strSet = templateBrains[brainName]->requiredGenomes();
-      if (strSet.size() > 0) {
+      if (!strSet.empty()) {
         std::cout << "    ..... this brain requires genomes: ";
         for (auto const &g : strSet) {
           std::cout << g << "  ";
@@ -302,7 +299,7 @@ constructAllGroupsFrom(std::shared_ptr<AbstractWorld> world,
     for (auto const &genomeName : genomeNames) {
       std::cout << "  found genome: " << genomeName << "\n";
       std::shared_ptr<ParametersTable> This_PT;
-      if (genomeName == "") {
+      if (genomeName.empty()) {
         std::cout
             << "\n\nfound empty genome name, this is not allowed. Exiting..."
             << std::endl;

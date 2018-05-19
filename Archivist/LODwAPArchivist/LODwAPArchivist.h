@@ -39,20 +39,21 @@ public:
   bool writeDataFile;           // if true, write data file
   bool writeOrganismFile;       // if true, write genome file
 
-  void constructLODFiles(std::shared_ptr<Organism> /*org*/);
+  void constructLODFiles(const std::shared_ptr<Organism> &/*org*/);
 
-  int writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
-                        std::shared_ptr<Organism> /*real_MRCA*/,
-                        std::shared_ptr<Organism> /*effective_MRCA*/);
+  void writeLODDataFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+                        const std::shared_ptr<Organism> &/*real_MRCA*/,
+                        const std::shared_ptr<Organism> &/*effective_MRCA*/);
 
-  void writeLODOrganismFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
-                        std::shared_ptr<Organism> /*effective_MRCA*/);
+  void
+  writeLODOrganismFile(std::vector<std::shared_ptr<Organism>> & /*LOD*/,
+                       const std::shared_ptr<Organism> & /*effective_MRCA*/);
 
   LODwAPArchivist() = delete;
   LODwAPArchivist(std::vector<std::string> popFileColumns = {},
                   std::shared_ptr<Abstract_MTree> _maxFormula = nullptr,
                   std::shared_ptr<ParametersTable> PT_ = nullptr,
-                  std::string _groupPrefix = "");
+                  const std::string &_groupPrefix = "");
 
   virtual ~LODwAPArchivist() = default;
 
@@ -63,6 +64,7 @@ public:
   std::string data_file_name_;          // name of the Data file
   std::string organism_file_name_;      // name of the Genome file (genomes on LOD)
   int last_prune_ = -1; // last time Genome was Pruned
+  int time_to_coalescence = -1;
 
   //// info about files under management
   int next_data_write_;     // next time data files will be written to disk

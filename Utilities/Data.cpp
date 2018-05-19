@@ -8,14 +8,14 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include <cstring>
-#include <memory>
-#include <iostream>
-
-#include <fstream>
-#include <map>
-
 #include "Data.h"
+
+#include <cstring>
+#include <fstream>
+#include <iostream>
+#include <map>
+#include <memory>
+
 
 // global variables that should be accessible to all
 // set<string> FileManager::dataFilesCreated;
@@ -46,17 +46,18 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
                                                     // new file and place in
                                                     // FileManager::files
     files[fileName].open(
-        (std::string)outputDirectory + (std::string) "/" +
+        std::string(outputDirectory) + std::string("/") +
         fileName);               // clear file contents and open in write mode
     fileStates[fileName] = true; // this file is now open
-    if (header !=
-        "") { // if there is a header string, write this to the new file
+    if (!header.empty()) { // if there is a header string, write this to the new
+                           // file
       files[fileName] << header << "\n";
     }
   }
   if (fileStates[fileName] == false) { // if file is closed ...
-    files[fileName].open((std::string)outputDirectory + (std::string) "/" + fileName,
-                         std::ios::out | std::ios::app); // open file in append mode
+    files[fileName].open(
+        std::string(outputDirectory) + std::string("/") + fileName,
+        std::ios::out | std::ios::app); // open file in append mode
   }
 }
 
@@ -79,10 +80,9 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
   headerStr = ""; // make sure the strings are clean
   dataStr = "";
   dataMapType typeOfKey;
-  int OB; // holds output behavior so it can be over ridden for ave file output!
-  if (keys.size() > 0) { // if keys is not empty
-    for (int n = 0; n < int(keys.size()); n++) {
-      std::string i = keys[n];
+  unsigned int OB; // holds output behavior so it can be over ridden for ave file output!
+  if (!keys.empty()) { // if keys is not empty
+    for (auto const &i : keys) {
       typeOfKey = findKeyInData(i);
       if (typeOfKey == NONE) {
         std::cout << "  in DataMap::writeToFile() - key \"" << i
@@ -121,51 +121,50 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       }
 
       if (aveOnly) {
-        OB = OB & (AVE | FIRST); // if aveOnly, only output AVE on the entries
+        OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
                                  // that have been set for AVE
       }
 
       if (OB & FIRST) { // save first (only?) element in vector with key as
                         // column name
-        headerStr = headerStr + FileManager::separator + i;
+        headerStr += FileManager::separator + i;
         if (typeOfKey == BOOL || typeOfKey == BOOLSOLO) {
-          if (getBoolVector(i).size() > 0) {
-            dataStr = dataStr + FileManager::separator +
-                      to_string(getBoolVector(i)[0]);
+          if (!getBoolVector(i).empty()) {
+            dataStr += FileManager::separator + to_string(getBoolVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
           }
         }
         if (typeOfKey == DOUBLE || typeOfKey == DOUBLESOLO) {
-          if (getDoubleVector(i).size() > 0) {
-            dataStr = dataStr + FileManager::separator +
-                      std::to_string(getDoubleVector(i)[0]);
+          if (!getDoubleVector(i).empty()) {
+            dataStr +=
+                FileManager::separator + std::to_string(getDoubleVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
           }
         }
         if (typeOfKey == INT || typeOfKey == INTSOLO) {
-          if (getIntVector(i).size() > 0) {
-            dataStr = dataStr + FileManager::separator +
-                      std::to_string(getIntVector(i)[0]);
+          if (!getIntVector(i).empty()) {
+            dataStr +=
+                FileManager::separator + std::to_string(getIntVector(i)[0]);
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
           }
         }
         if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-          if (getStringVector(i).size() > 0) {
-            dataStr = dataStr + FileManager::separator + getStringVector(i)[0];
+          if (!getStringVector(i).empty()) {
+            dataStr += FileManager::separator + getStringVector(i)[0];
           } else {
-            dataStr = dataStr + '0';
+            dataStr += '0';
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -173,17 +172,17 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
       }
       if (OB & AVE) { // key_AVE = ave of vector (will error if of type string!)
-        headerStr = headerStr + FileManager::separator + i + "_AVE";
-        dataStr = dataStr + FileManager::separator + std::to_string(getAverage(i));
+        headerStr += FileManager::separator + i + "_AVE";
+        dataStr += FileManager::separator + std::to_string(getAverage(i));
       }
       if (OB &
           VAR) { // key_VAR = variance of vector (will error if of type string!)
-        headerStr = headerStr + FileManager::separator + i + "_VAR";
-        dataStr = dataStr + FileManager::separator + std::to_string(getVariance(i));
+        headerStr += FileManager::separator + i + "_VAR";
+        dataStr += FileManager::separator + std::to_string(getVariance(i));
       }
       if (OB & SUM) { // key_SUM = sum of vector
-        headerStr = headerStr + FileManager::separator + i + "_SUM";
-        dataStr = dataStr + FileManager::separator + std::to_string(getSum(i));
+        headerStr += FileManager::separator + i + "_SUM";
+        dataStr += FileManager::separator + std::to_string(getSum(i));
       }
       if (OB & PROD) { // key_PROD = product of vector
         std::cout << "  WARNING OUTPUT METHOD PROD IS HAS YET TO BE WRITTEN!"
@@ -195,8 +194,8 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       }
       if (OB &
           LIST) { // key_LIST = save all elements in vector in csv list format
-        headerStr = headerStr + FileManager::separator + i + "_LIST";
-        dataStr = dataStr + FileManager::separator + getStringOfVector(i);
+        headerStr += FileManager::separator + i + "_LIST";
+        dataStr += FileManager::separator + getStringOfVector(i);
       }
     }
     headerStr.erase(headerStr.begin()); // clip off the leading separator
