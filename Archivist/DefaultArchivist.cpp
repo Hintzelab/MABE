@@ -8,34 +8,34 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include<limits>
 #include "DefaultArchivist.h"
+
+#include<limits>
 
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_outputMethodStrPL = Parameters::register_parameter(
         "ARCHIVIST-outputMethod",
-        (std::string) "This_string_is_set_by_modules.h",
+        std::string("This_string_is_set_by_modules.h"),
         "This_string_is_set_by_modules.h"); // string parameter for
                                             // outputMethod;
 ////// ARCHIVIST-outputMethod is actually set by Modules.h //////
 
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_realtimeSequencePL = Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-realtimeSequence", (std::string) ":10",
+        "ARCHIVIST_DEFAULT-realtimeSequence", std::string(":10"),
         "How often to write to realtime data files. (format: x = single value, "
         "x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on z, x:z = "
         "from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::SS_Arch_dataSequencePL = Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-snapshotDataSequence", (std::string) ":100",
+        "ARCHIVIST_DEFAULT-snapshotDataSequence", std::string(":100"),
         "How often to save a realtime snapshot data file. (format: x = single "
         "value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to updates on "
         "z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, 300:100'");
-std::shared_ptr<
-    ParameterLink<std::string>> DefaultArchivist::SS_Arch_organismSequencePL =
-    Parameters::register_parameter(
-        "ARCHIVIST_DEFAULT-snapshotOrganismsSequence", (std::string) ":1000",
+std::shared_ptr<ParameterLink<std::string>> DefaultArchivist::
+    SS_Arch_organismSequencePL = Parameters::register_parameter(
+        "ARCHIVIST_DEFAULT-snapshotOrganismsSequence", std::string(":1000"),
         "How often to save a realtime snapshot genome file. (format: x = "
         "single value, x-y = x to y, x-y:z = x to y on x, :z = from 0 to "
         "updates on z, x:z = from x to 'updates' on z) e.g. '1-100:10, 200, "
@@ -50,14 +50,14 @@ std::shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL =
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_DefaultPopFileColumnNamesPL =
         Parameters::register_parameter(
-            "ARCHIVIST_DEFAULT-popFileColumns", (std::string) "[]",
+            "ARCHIVIST_DEFAULT-popFileColumns", std::string("[]"),
             "data to be saved into average file (must be values that can "
             "generate an average). If empty, MABE will try to figure it out");
 
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_FilePrefixPL =
         Parameters::register_parameter("ARCHIVIST_DEFAULT-filePrefix",
-                                       (std::string) "NONE",
+                                       std::string("NONE"),
                                        "prefix for files saved by "
                                        "this archivst. \"NONE\" "
                                        "indicates no prefix.");
@@ -76,13 +76,13 @@ std::shared_ptr<ParameterLink<bool>>
 
 DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
                                    const std::string & group_prefix)
-    : PT(PT_), group_prefix_(group_prefix) {
+    : PT(std::move(PT_)), group_prefix_(group_prefix) {
 
   writePopFile = Arch_writePopFilePL->get(PT);
   writeMaxFile = Arch_writeMaxFilePL->get(PT);
 
   PopFileName =
-      (group_prefix_ == "")
+      (group_prefix_.empty())
           ? "pop.csv"
           : group_prefix_.substr(0, group_prefix_.size() - 2) + "__pop.csv";
   PopFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
@@ -90,7 +90,7 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
                     : Arch_FilePrefixPL->get(PT) + PopFileName;
 
   MaxFileName =
-      (group_prefix_ == "")
+      (group_prefix_.empty())
           ? "max.csv"
           : group_prefix_.substr(0, group_prefix_.size() - 2) + "__max.csv";
   MaxFileName = (Arch_FilePrefixPL->get(PT) == "NONE")
@@ -99,15 +99,15 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
 
   PopFileColumnNames = Arch_DefaultPopFileColumnNamesPL->get(PT);
 
-  DataFilePrefix = (group_prefix_ == "")
+  DataFilePrefix = (group_prefix_.empty())
                        ? "snapshot_data"
-                       : group_prefix_.substr(0, group_prefix_.size() - 2) + "__" +
-                             "snapshot_data";
+                       : group_prefix_.substr(0, group_prefix_.size() - 2) +
+                             "__" + "snapshot_data";
   DataFilePrefix = (Arch_FilePrefixPL->get(PT) == "NONE")
                        ? DataFilePrefix
                        : Arch_FilePrefixPL->get(PT) + DataFilePrefix;
 
-  OrganismFilePrefix = (group_prefix_ == "")
+  OrganismFilePrefix = (group_prefix_.empty())
                            ? "snapshot_organisms"
                            : group_prefix_.substr(0, group_prefix_.size() - 2) +
                                  "__" + "snapshot_organisms";
@@ -147,10 +147,10 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
                                    std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
                                    const std::string & group_prefix)
-    : DefaultArchivist(PT_,group_prefix) {
+    : DefaultArchivist(std::move(PT_),group_prefix) {
 
   convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
-  max_formula_ = max_formula;
+  max_formula_ = std::move(max_formula);
 
   if (default_pop_file_columns_.empty())
     default_pop_file_columns_ = popFileColumns;
@@ -187,7 +187,7 @@ void DefaultArchivist::writeRealTimeFiles(
     DataMap PopMap;
     for (auto &kv : unique_column_name_to_output_behaviors_) {
       if (kv.first != "update")
-        for (auto org : population)
+        for (auto const &org : population)
           if (org->timeOfBirth < Global::update || save_new_orgs_)
             PopMap.append(kv.first, org->dataMap.getAverage(kv.first));
 
@@ -202,8 +202,8 @@ void DefaultArchivist::writeRealTimeFiles(
   if (writeMaxFile && max_formula_ != nullptr) {
 
     std::shared_ptr<Organism> best_org;
-    auto score = std::numeric_limits<double>::lowest(); 
-    for (auto org : population)
+    auto score = std::numeric_limits<double>::lowest();
+    for (auto const &org : population)
       if (org->timeOfBirth < Global::update || save_new_orgs_) {
         auto sc = max_formula_->eval(org->dataMap, org->PT)[0];
         if (sc > score) {
@@ -262,7 +262,7 @@ void DefaultArchivist::saveSnapshotData(
                    std::end(saveList));
 
   // now for each org, update ancestors and save if in saveList
-  for (auto org : population) {
+  for (auto const &org : population) {
 
     if (org->snapshotAncestors.size() != 1 ||
         org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
@@ -298,7 +298,7 @@ void DefaultArchivist::saveSnapshotData(
                                         // be writting to this file again.
 }
 
-void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
+void DefaultArchivist::saveOrgToFile(const std::shared_ptr<Organism> &org,
                                      const std::string &data_file_name) {
 
   // std::cout << "  is being saved" << std::endl;
@@ -324,7 +324,7 @@ void DefaultArchivist::saveOrgToFile(std::shared_ptr<Organism> org,
 
 
 void DefaultArchivist::resolveAncestors(
-    std::shared_ptr<Organism> org,
+    const std::shared_ptr<Organism> &org,
     std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
       // if this org does not only contain only itself in snapshotAncestors then
       // it has not been saved before.
@@ -377,7 +377,7 @@ void DefaultArchivist::resolveAncestors(
 
 	// this parent not old enough (see if above), add this
     // parents parents to check list (we need to keep looking)
-    for (auto p : parent->parents) {
+    for (auto const &p : parent->parents) {
       parent_check_list.push_back(p);
     }
   }
@@ -389,7 +389,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
   std::string organismFileName =
       OrganismFilePrefix + "_" + std::to_string(Global::update) + ".csv";
 
-  for (auto org : population) {
+  for (auto const &org : population) {
     if (org->timeOfBirth < Global::update || save_new_orgs_) {
       DataMap OrgMap;
       OrgMap.set("ID", org->ID);
@@ -456,7 +456,7 @@ bool DefaultArchivist::archive(
   if (!writeSnapshotDataFiles) {
     // we don't need to worry about tracking parents or
     // lineage, so we clear out this data every generation.
-    for (auto org : population)
+    for (auto const &org : population)
       org->parents.clear();
   } else {
 	cleanUpParents(population);
@@ -473,7 +473,7 @@ void DefaultArchivist::cleanUpParents(
   auto need_to_clean = population;
   need_to_clean.clear(); // we haven't cleaned anything yet
 
-  for (auto org : population)
+  for (auto const &org : population)
     if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
       // if ancestors contains self, then this org has been saved
       // and it's ancestor list has been collapsed
@@ -499,7 +499,7 @@ void DefaultArchivist::cleanUpParents(
       // no living org can be this orgs ancestor
       org->parents.clear(); // so we can safely release parents
     else
-      for (auto parent : org->parents) // we need to check parents (if any)
+      for (auto const &parent : org->parents) // we need to check parents (if any)
         if (std::find(std::begin(logged), std::end(logged), parent) ==
             logged.end()) { // if parent is not already in
                             // logged list (i.e. either

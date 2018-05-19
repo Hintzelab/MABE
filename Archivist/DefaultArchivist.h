@@ -83,12 +83,12 @@ public:
   void saveSnapshotOrganisms(
       std::vector<std::shared_ptr<Organism>> & /*population*/);
 
-  void saveOrgToFile(std::shared_ptr<Organism> /*org*/,
+  void saveOrgToFile(const std::shared_ptr<Organism> &/*org*/,
                      const std::string & /*data_file_name*/);
 
   void cleanUpParents(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
-  void resolveAncestors(std::shared_ptr<Organism> /*org*/,
+  void resolveAncestors(const std::shared_ptr<Organism> &/*org*/,
                         std::vector<std::shared_ptr<Organism>> & /*save_file*/,
                         int /*min_birth_time*/);
 

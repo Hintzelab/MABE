@@ -44,9 +44,9 @@ private:
   std::string loadFromFile(const std::string &);
   
   std::vector<std::string>
-      expandFiles(std::string);// for user inputted wildcards
+      expandFiles(const std::string &);// for user inputted wildcards
   std::pair<long, long>
-      generatePopulation(std::string);
+      generatePopulation(const std::string &);
   // read MABE generated files and constructs organsims 
   // redundant function from MABE - should be cleaned
   //
@@ -59,7 +59,7 @@ private:
   std::vector<std::vector<long>> parseExpression(
       std::string); // unpack and parse entire user-defined expression
   std::vector<std::vector<long>>
-      parseCollection(std::string); // parse single user defined collection
+      parseCollection(const std::string &); // parse single user defined collection
 
   std::string
   cleanLines(std::ifstream &); // clean comments and check for invalid syntax
@@ -71,17 +71,17 @@ private:
   void showFinalPopulation(std::vector<long>);
 
   // methods for all keywords
-  std::vector<std::vector<long>> keywordCollapse(std::string);
+  std::vector<std::vector<long>> keywordCollapse(const std::string &);
   std::vector<std::vector<long>> keywordRandom(long number);
   std::vector<std::vector<long>> keywordDefault(long number);
   std::vector<std::vector<long>> keywordGreatest(size_t, std::string,
-                                                  std::string);
+                                                 const  std::string &);
   std::vector<std::vector<long>> keywordLeast(size_t, std::string,
-                                               std::string);
-  std::vector<std::vector<long>> keywordAny(size_t, std::string);
-  std::vector<std::vector<long>> keywordDuplicate(size_t, std::string);
+                                              const std::string &);
+  std::vector<std::vector<long>> keywordAny(size_t, const std::string &);
+  std::vector<std::vector<long>> keywordDuplicate(size_t, const std::string &);
   std::vector<std::vector<long>> keywordMatch(std::string, std::string,
-                                               std::string);
+                                              const std::string &);
 
   void printOrganism(long); // strictly to debug all_organisms entries
 };

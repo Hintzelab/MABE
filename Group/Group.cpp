@@ -16,9 +16,9 @@ Group::Group() { // create an empty Group
 Group::Group(std::vector<std::shared_ptr<Organism>> _population,
              std::shared_ptr<AbstractOptimizer> _optimizer,
              std::shared_ptr<DefaultArchivist> _archivist) {
-  population = _population;
-  optimizer = _optimizer;
-  archivist = _archivist;
+  population = std::move(_population);
+  optimizer = std::move(_optimizer);
+  archivist = std::move(_archivist);
 }
 
 Group::~Group() {}
