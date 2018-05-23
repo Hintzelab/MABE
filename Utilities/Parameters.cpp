@@ -329,7 +329,7 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
       parseFullParameterName(file.first, workingNameSpace, workingCategory,
                              workingParameterName);
       if (!root->getParameterTypeAndSetParameter(
-              workingCategory.append("-").append(workingParameterName),
+              workingCategory + "-" + workingParameterName,
               file.second, workingNameSpace, true)) {
         std::cout << (saveFiles ? "   WARNING" : "  ERROR")
                   << " :: while reading file \"" << fileName << "\" found \""
@@ -352,7 +352,7 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
     parseFullParameterName(command.first, workingNameSpace, workingCategory,
                            workingParameterName);
     if (!root->getParameterTypeAndSetParameter(
-            workingCategory.append("-").append(workingParameterName),
+            workingCategory + "-" + workingParameterName,
             command.second, workingNameSpace, true)) {
       std::cout << (saveFiles ? "   WARNING" : "  ERROR")
                 << " :: while reading command line found \"" << workingNameSpace
