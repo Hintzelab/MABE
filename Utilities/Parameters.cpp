@@ -545,7 +545,8 @@ void Parameters::printParameterWithWraparound(
   comment = std::regex_replace(comment, new_line, "\n ");
 
   // add as much of the comment as possible to the line
-  static const std::regex as_much_of_comment(
+  std::cout << line.length() <<  line << std::endl;
+  const std::regex as_much_of_comment(
       R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
       R"(}[^\s]*)");
   std::smatch a_m_c;
@@ -556,7 +557,7 @@ void Parameters::printParameterWithWraparound(
 
   comment = a_m_c.suffix();
   // write rest of the comments right-aligned with slight padding
-  static const std::regex aligned_comments(
+  const std::regex aligned_comments(
       R"(.{1,)" + std::to_string(max_line_length - comment_indent - 3) +
       R"(}[^\s]*)");
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
