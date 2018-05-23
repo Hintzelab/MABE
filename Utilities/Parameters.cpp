@@ -175,10 +175,9 @@ MASTER = default 100 # by default :)
       save_files = true;
       break;
     case 'f':
-      for (i++; i < argc; i++) {
-        std::string filename(argv[i]);
+      for (; i < argc - 1; i++) {
+        std::string filename(argv[i+1]);
         if (std::regex_match(filename, command_line_argument_flag)) {
-          i--;
           break;
         }
         file_list.push_back(filename);
@@ -186,10 +185,9 @@ MASTER = default 100 # by default :)
       break;
 
     case 'p':
-      for (i++; i < argc - 1; i += 2) {
-        std::string param_name(argv[i]), param_value(argv[i + 1]);
+      for (; i < argc - 2; i += 2) {
+        std::string param_name(argv[i+1]), param_value(argv[i + 2]);
         if (std::regex_match(param_name, command_line_argument_flag)) {
-          i--;
           break;
         }
         if (param_name_values.find(param_name) != param_name_values.end()) {
