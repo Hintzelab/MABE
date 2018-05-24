@@ -1245,7 +1245,7 @@ public:
         build_string << std::fixed << workingParameterName << " = "
                      << workingValue.first;
 
-        build_string << " @@@#(" << workingValue.second << ") "
+        build_string << " @@@# (" << workingValue.second << ") "
                      << (*parameterDocumentation)[p.first];
         sorted_parameters[workingCategory].push_back(build_string.str());
       }
