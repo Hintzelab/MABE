@@ -281,10 +281,9 @@ Parameters::readParametersFile(const std::string &file_name) {
       std::regex name_value_pair(R"(^\s*([\S]+)\s*=\s*(\S?.*\S)\s*$)");
       std::smatch m;
       if (std::regex_match(line, m, name_value_pair)) {
-        auto name =
-            name_space_name
-                .append((category_name.empty() ? "" : (category_name + "-")))
-                .append(m[1].str());
+        auto name = name_space_name;
+        name.append((category_name.empty() ? "" : (category_name + "-")))
+            .append(m[1].str());
         if (config_file_list.find(name) != config_file_list.end()) {
           std::cout << "  Error: \"" << name
                     << "\" is defined more then once in file: \"" << file_name
@@ -330,7 +329,7 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
       parseFullParameterName(file.first, workingNameSpace, workingCategory,
                              workingParameterName);
       if (!root->getParameterTypeAndSetParameter(
-              workingCategory.append("-").append(workingParameterName),
+              workingCategory + "-" + workingParameterName,
               file.second, workingNameSpace, true)) {
         std::cout << (saveFiles ? "   WARNING" : "  ERROR")
                   << " :: while reading file \"" << fileName << "\" found \""
@@ -353,7 +352,7 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
     parseFullParameterName(command.first, workingNameSpace, workingCategory,
                            workingParameterName);
     if (!root->getParameterTypeAndSetParameter(
-            workingCategory.append("-").append(workingParameterName),
+            workingCategory + "-" + workingParameterName,
             command.second, workingNameSpace, true)) {
       std::cout << (saveFiles ? "   WARNING" : "  ERROR")
                 << " :: while reading command line found \"" << workingNameSpace
