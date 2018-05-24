@@ -539,24 +539,31 @@ void Parameters::printParameterWithWraparound(
   static const std::regex new_line(R"(\n)");
   comment = std::regex_replace(comment, new_line, "\n ");
 
-  // add as much of the comment as possible to the first line
+  const std::regex aligned_comments(
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
+      R"(}[^\s]*)");
+
+  // extract as much of the comment as possible 
+  std::smatch sub_comment;
   if (max_line_length > line.length() + 2) {
-    const std::regex as_much_of_comment(
+    const std::regex first_line_comment(
         R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
         R"(}[^\s]*)");
-    std::smatch a_m_c;
-    std::regex_search(comment, a_m_c, as_much_of_comment);
-    line += "#" + a_m_c.str();
-    comment = a_m_c.suffix();
+    std::regex_search(comment, sub_comment, first_line_comment);
+  } else {
+    // wrap to the second line
+    std::regex_search(comment, sub_comment, aligned_comments);
+    line += "\n" + std::string(comment_indent, ' ');
   }
+
+  // add as much of the comment as possible to the first line
+  line += "#" + sub_comment.str();
 
   //write the first line
   file << line << '\n';
 
   // write remaining part of the comment right-aligned with slight padding
-  const std::regex aligned_comments(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
-      R"(}[^\s]*)");
+  comment = sub_comment.suffix();
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
     file << std::string(comment_indent, ' ') << "#  " << comment_piece
