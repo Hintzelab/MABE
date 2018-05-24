@@ -533,7 +533,7 @@ void Parameters::printParameterWithWraparound(
 
   // extract comment
   auto comment =
-      entire_parameter.substr(pos_of_comment + 4); // + 3 must be cleaned
+      entire_parameter.substr(pos_of_comment + 5); // + 3 must be cleaned
 
   // preserve user-defined \n newlines
   static const std::regex new_line(R"(\n)");
