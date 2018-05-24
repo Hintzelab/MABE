@@ -566,7 +566,7 @@ void Parameters::printParameterWithWraparound(
   comment = sub_comment.suffix();
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
-    file << std::string(comment_indent, ' ') << "#  " << comment_piece
+    file << std::string(comment_indent, ' ') << "# " << comment_piece
          << (comment_piece.back() == '\n' ? "" : "\n");
   }
 } // end  Parameters::printParameterWithWraparound
