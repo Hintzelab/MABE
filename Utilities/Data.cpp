@@ -20,7 +20,7 @@
 // global variables that should be accessible to all
 // set<string> FileManager::dataFilesCreated;
 
-std::string FileManager::outputDirectory = "./";
+std::string FileManager::outputDirectory;
 std::map<std::string, std::vector<std::string>> FileManager::fileColumns;
 std::map<std::string, std::ofstream>
     FileManager::files; // list of files (NAME,ofstream)
@@ -46,7 +46,7 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
                                                     // new file and place in
                                                     // FileManager::files
     files[fileName].open(
-        std::string(outputDirectory) + std::string("/") +
+        std::string(outputDirectory) +
         fileName);               // clear file contents and open in write mode
     fileStates[fileName] = true; // this file is now open
     if (!header.empty()) { // if there is a header string, write this to the new
@@ -55,9 +55,9 @@ void FileManager::openFile(const std::string &fileName, const std::string &heade
     }
   }
   if (fileStates[fileName] == false) { // if file is closed ...
-    files[fileName].open(
-        std::string(outputDirectory) + std::string("/") + fileName,
-        std::ios::out | std::ios::app); // open file in append mode
+    files[fileName].open(std::string(outputDirectory) + fileName,
+                         std::ios::out |
+                             std::ios::app); // open file in append mode
   }
 }
 

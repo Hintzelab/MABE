@@ -83,12 +83,14 @@ int main(int argc, const char *argv[]) {
   ///
   ///////////////////////////////////////////////////////////////////////////
 
-  FileManager::outputDirectory = Global::outputDirectoryPL->get();
-  if (!zz::os::is_directory(FileManager::outputDirectory)) {
-    std::cout << "Error : outputDirectory \"" << FileManager::outputDirectory
+  auto output_prefix = "./" + Global::outputDirectoryPL->get();
+  auto output_dir = output_prefix.substr(0, output_prefix.find_last_of('/'));
+  if (!zz::os::is_directory(output_dir)) {
+    std::cout << "Error : outputDirectory \"" <<output_dir
               << "\" does not exist\n";
     exit(1);
   }
+  FileManager::outputDirectory = output_prefix;
 
   // set up random number generator
   if (Global::randomSeedPL->get() == -1) {
