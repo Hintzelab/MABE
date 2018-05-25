@@ -65,13 +65,28 @@ int main(int argc, const char *argv[]) {
     int maxLineLength = Global::maxLineLengthPL->get();
     int commentIndent = Global::commentIndentPL->get();
 
+    auto prefix = saveFiles.second;
+    auto dir_part = prefix.substr(0, prefix.find_last_of('/'));
+
+    if (!zz::os::is_directory(dir_part)) {
+      std::cout << "Error : Directory \"" << dir_part
+                << "\"/ does not exist. Settings Files will not be saved.\n";
+      exit(1);
+    }
+
+    std::cout << "Saving settings files ..." << std::flush;
+
     Parameters::saveSettingsFiles(
         maxLineLength, commentIndent, {"*"},
-        {{saveFiles.second + "settings_organism.cfg",
-          {"GATE*", "GENOME*", "BRAIN*"}},
-         {saveFiles.second + "settings_world.cfg", {"WORLD*"}},
-         {saveFiles.second + "settings.cfg", {""}}});
-    std::cout << "Saving settings files and exiting." << std::endl;
+        {{prefix + "settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
+         {prefix + "settings_world.cfg", {"WORLD*"}},
+         {prefix + "settings.cfg", {""}}});
+
+    std::cout << std::endl
+              << "Settings files saved in Directory \"" << dir_part
+              << "\" with prefix \""
+              << prefix.substr(prefix.find_last_of('/') + 1) << "\""
+              << std::endl;
     exit(0);
   }
 

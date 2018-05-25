@@ -140,7 +140,7 @@ MASTER = default 100 # by default :)
 
   static const std::regex command_line_argument_flag(R"(-([a-z]))");
   bool dont_run = false;
-  std::string save_file_dir ;	  
+  std::string save_file_prefix = "./";	  
   for (int i = 1; i < argc; i++) {
     std::smatch m;
     std::string argument(argv[i]);
@@ -175,10 +175,10 @@ MASTER = default 100 # by default :)
     case 's': 
       save_files = true;
       if (i < argc - 1) {
-        std::string save_dir_name(argv[i + 1]);
-        if (!std::regex_match(save_dir_name, command_line_argument_flag)) {
+        std::string prefix(argv[i + 1]);
+        if (!std::regex_match(prefix, command_line_argument_flag)) {
           i++;
-          save_file_dir = save_dir_name + "/";
+          save_file_prefix += prefix;
         }
       }
       break;
@@ -223,7 +223,7 @@ MASTER = default 100 # by default :)
   if (dont_run)
     exit(0);
 
-  return save_file_dir;
+  return save_file_prefix;
 } // end Parameters::readCommandLine()
 
 std::unordered_map<std::string, std::string>
