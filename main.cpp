@@ -54,23 +54,22 @@ int main(int argc, const char *argv[]) {
 
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
-  auto saveFiles =
-      Parameters::initializeParameters(argc, argv); // loads command line and
-                                                    // configFile values into
-                                                    // registered parameters
+  Parameters::initializeParameters(argc, argv); // loads command line and
+                                                // configFile values into
+                                                // registered parameters
   std::cout << MABE_pretty_logo;
 
   // also writes out a settings files if requested
-  if (saveFiles.first) { // if saveFiles (save settings files) is set
+  if (Parameters::save_files) { // if saveFiles (save settings files) is set
     int maxLineLength = Global::maxLineLengthPL->get();
     int commentIndent = Global::commentIndentPL->get();
 
-    auto prefix = saveFiles.second;
+    auto prefix = Parameters::save_file_prefix;
     auto dir_part = prefix.substr(0, prefix.find_last_of('/'));
 
     if (!zz::os::is_directory(dir_part)) {
       std::cout << "Error : Directory \"" << dir_part
-                << "\"/ does not exist. Settings Files will not be saved.\n";
+                << "/\" does not exist. Settings Files will not be saved.\n";
       exit(1);
     }
 

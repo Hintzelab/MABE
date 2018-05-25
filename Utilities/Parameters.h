@@ -1353,6 +1353,8 @@ public:
 class Parameters {
 public:
   static std::shared_ptr<ParametersTable> root;
+  static bool save_files;
+  static std::string save_file_prefix;
 
   template <typename T>
   static std::shared_ptr<ParameterLink<T>>
@@ -1380,6 +1382,7 @@ public:
                                      std::string &name_space_name,
                                      std::string &category_name,
                                      std::string &parameter_name);
+/*
   static void readCommandLine(
       int argc, const char **argv,
       std::unordered_map<std::string, std::string> &comand_line_list,
@@ -1387,14 +1390,14 @@ public:
     bool temp = false;
     readCommandLine(argc, argv, comand_line_list, fileList, temp);
   }
-  static std::string readCommandLine(
+*/
+  static void readCommandLine(
       int argc, const char **argv,
       std::unordered_map<std::string, std::string> &param_name_values,
-      std::vector<std::string> &file_list, bool &save_files);
+      std::vector<std::string> &file_list);
   static std::unordered_map<std::string, std::string>
   readParametersFile(const std::string &file_name);
-  static std::pair<bool, std::string> initializeParameters(int argc,
-                                                           const char *argv[]);
+  static void initializeParameters(int argc, const char *argv[]);
   static void saveSettingsFile(const std::string &name_space,
                                std::stringstream &file,
                                std::vector<std::string> category_list,
