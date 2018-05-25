@@ -521,45 +521,50 @@ void Parameters::printParameterWithWraparound(
     std::cout << " Error : parameter has no comment";
     exit(1); // which makes type conversion to int safe after this??
   }
-  if (int(pos_of_comment) > max_line_length - 9) {
-    std::cout
-        << " Warning: parameter name and value too large to fit on single "
-           "line. Ignoring column width for this line\n";
-  }
 
-  std::string line;
-  line += current_indent;
-  line += entire_parameter.substr(0, pos_of_comment); // write name-value
+  // first line has namespace indent and name-value pair
+  auto line = current_indent + entire_parameter.substr(0, pos_of_comment);
 
-  std::string sub_line(comment_indent, ' ');
-  if (int(line.length()) < comment_indent)
-    line +=
-        sub_line.substr(0, comment_indent - line.length()); // pad with spaces
+  // pad with spaces if necessary
+  if (comment_indent > line.length())
+    line += std::string(comment_indent - line.length(), ' ');
 
+  // extract comment
   auto comment =
-      entire_parameter.substr(pos_of_comment + 3); // + 3 must be cleaned
+      entire_parameter.substr(pos_of_comment + 5); // + 3 must be cleaned
 
-  std::regex new_line(R"(\n)");
+  // preserve user-defined \n newlines
+  static const std::regex new_line(R"(\n)");
   comment = std::regex_replace(comment, new_line, "\n ");
 
-  // add as much of the comment as possible to the line
-  static const std::regex as_much_of_comment(
-      R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
+  const std::regex aligned_comments(
+      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 2) +
       R"(}[^\s]*)");
-  std::smatch a_m_c;
-  std::regex_search(comment, a_m_c, as_much_of_comment);
-  auto first_comment = a_m_c.str();
-  line += "#" + first_comment.substr(2);
+
+  // extract as much of the comment as possible 
+  std::smatch sub_comment;
+  if (max_line_length > line.length() + 2) {
+    const std::regex first_line_comment(
+        R"(.{1,)" + std::to_string(max_line_length - line.length() - 2) +
+        R"(}[^\s]*)");
+    std::regex_search(comment, sub_comment, first_line_comment);
+  } else {
+    // wrap to the second line
+    std::regex_search(comment, sub_comment, aligned_comments);
+    line += "\n" + std::string(comment_indent, ' ');
+  }
+
+  // add as much of the comment as possible to the first line
+  line += "#" + sub_comment.str();
+
+  //write the first line
   file << line << '\n';
 
-  comment = a_m_c.suffix();
-  // write rest of the comments right-aligned with slight padding
-  static const std::regex aligned_comments(
-      R"(.{1,)" + std::to_string(max_line_length - comment_indent - 3) +
-      R"(}[^\s]*)");
+  // write remaining part of the comment right-aligned with slight padding
+  comment = sub_comment.suffix();
   for (auto &m : forEachRegexMatch(comment, aligned_comments)) {
     auto comment_piece = m.str();
-    file << sub_line << "# " << comment_piece
+    file << std::string(comment_indent, ' ') << "# " << comment_piece
          << (comment_piece.back() == '\n' ? "" : "\n");
   }
 } // end  Parameters::printParameterWithWraparound
