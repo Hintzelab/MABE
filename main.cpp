@@ -54,22 +54,23 @@ int main(int argc, const char *argv[]) {
 
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
-  bool saveFiles =
+  auto saveFiles =
       Parameters::initializeParameters(argc, argv); // loads command line and
                                                     // configFile values into
                                                     // registered parameters
   std::cout << MABE_pretty_logo;
 
   // also writes out a settings files if requested
-  if (saveFiles) { // if saveFiles (save settings files) is set
+  if (saveFiles.first) { // if saveFiles (save settings files) is set
     int maxLineLength = Global::maxLineLengthPL->get();
     int commentIndent = Global::commentIndentPL->get();
 
     Parameters::saveSettingsFiles(
         maxLineLength, commentIndent, {"*"},
-        {{"settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
-         {"settings_world.cfg", {"WORLD*"}},
-         {"settings.cfg", {""}}});
+        {{saveFiles.second + "settings_organism.cfg",
+          {"GATE*", "GENOME*", "BRAIN*"}},
+         {saveFiles.second + "settings_world.cfg", {"WORLD*"}},
+         {saveFiles.second + "settings.cfg", {""}}});
     std::cout << "Saving settings files and exiting." << std::endl;
     exit(0);
   }

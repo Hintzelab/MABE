@@ -87,7 +87,7 @@ void Parameters::parseFullParameterName(const std::string &full_name,
   }
 }
 
-void Parameters::readCommandLine(
+std::string Parameters::readCommandLine(
     int argc, const char **argv,
     std::unordered_map<std::string, std::string> &param_name_values,
     std::vector<std::string> &file_list, bool &save_files) {
@@ -140,6 +140,7 @@ MASTER = default 100 # by default :)
 
   static const std::regex command_line_argument_flag(R"(-([a-z]))");
   bool dont_run = false;
+  std::string save_file_dir ;	  
   for (int i = 1; i < argc; i++) {
     std::smatch m;
     std::string argument(argv[i]);
@@ -171,8 +172,15 @@ MASTER = default 100 # by default :)
       dont_run = true;
       break;
     }
-    case 's':
+    case 's': 
       save_files = true;
+      if (i < argc - 1) {
+        std::string save_dir_name(argv[i + 1]);
+        if (!std::regex_match(save_dir_name, command_line_argument_flag)) {
+          i++;
+          save_file_dir = save_dir_name + "/";
+        }
+      }
       break;
     case 'f':
       for (; i < argc - 1; i++) {
@@ -214,6 +222,8 @@ MASTER = default 100 # by default :)
   }
   if (dont_run)
     exit(0);
+
+  return save_file_dir;
 } // end Parameters::readCommandLine()
 
 std::unordered_map<std::string, std::string>
@@ -304,7 +314,8 @@ Parameters::readParametersFile(const std::string &file_name) {
   return config_file_list;
 } // end Parameters::readParametersFile
 
-bool Parameters::initializeParameters(int argc, const char *argv[]) {
+std::pair<bool, std::string>
+Parameters::initializeParameters(int argc, const char *argv[]) {
 
   if (root == nullptr) {
     root = ParametersTable::makeTable();
@@ -314,8 +325,8 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
   std::vector<std::string> fileList;
 
   bool saveFiles = false;
-  Parameters::readCommandLine(argc, argv, command_line_list, fileList,
-                              saveFiles);
+  auto save_file_dir = Parameters::readCommandLine(
+      argc, argv, command_line_list, fileList, saveFiles);
 
   std::string workingNameSpace, workingCategory, workingParameterName;
 
@@ -367,7 +378,7 @@ bool Parameters::initializeParameters(int argc, const char *argv[]) {
       }
     }
   }
-  return saveFiles;
+  return {saveFiles,save_file_dir};
 } // end  Parameters::initializeParameters
 
 void Parameters::saveSettingsFile(const std::string &name_space,

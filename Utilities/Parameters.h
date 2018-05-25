@@ -1414,13 +1414,14 @@ public:
     bool temp = false;
     readCommandLine(argc, argv, comand_line_list, fileList, temp);
   }
-  static void readCommandLine(
+  static std::string readCommandLine(
       int argc, const char **argv,
       std::unordered_map<std::string, std::string> &param_name_values,
       std::vector<std::string> &file_list, bool &save_files);
   static std::unordered_map<std::string, std::string>
   readParametersFile(const std::string &file_name);
-  static bool initializeParameters(int argc, const char *argv[]);
+  static std::pair<bool, std::string> initializeParameters(int argc,
+                                                           const char *argv[]);
   static void saveSettingsFile(const std::string &name_space,
                                std::stringstream &file,
                                std::vector<std::string> category_list,
