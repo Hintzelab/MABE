@@ -10,33 +10,6 @@
 
 #pragma once
 
-///********* 				Synctatic sugar for Paramter Link
-///registration
-///********/
-//#define _DECL_PARAM_(Type,Name) Type Name; static
-// shared_ptr<ParameterLink<Type>> Name##PL;
-//#define _REG_PARAM_(World,Type,Name,DefaultVal,Message)
-// shared_ptr<ParameterLink<Type>> World::Name##PL =
-// Parameters::register_parameter( "WORLD_"#World"-"#Name , DefaultVal , Message
-//);
-//#define _INIT_PARAM_(World,Type,Name) Name = (PT == nullptr) ?
-// Name##PL->lookup(): PT->lookup##Type( "WORLD_"#World"-"#Name );
-///*Then in ExampleWorld.h  what used to be int exampleVariable; static
-/// shared_ptr<ParameterLink<int>> exampleVariablePL; now becomes simply
-///_DECL_PARAM_(int,exampleVariable)
-// And in ExampleWorld.cpp, instead of globally registering the parameter as
-// shared_ptr<ParameterLink<int>> ExampleWorld::exampleVariablePL =
-// Parameters::register_parameter("WORLD_ExampleWorld-exampleVariable",  42,
-// "Example messagge for this variable"); we now simply say
-// _REG_PARAM_(ExampleWorld, int, exampleVariable, 42, ""Example messagge for
-// this variable")
-// And in the ExampleWorld constructor, instead of looking it up like
-// exampleVariable = (PT == nullptr) ? exampleVariablePL->lookup():
-// PT->lookupInt("WORLD_ExampleWorld-exampleVariable"); we can say
-// _INIT_PARAM_(ExampleWorldWorld, Int, exameVariable)
-//*/
-///********* 	End of 			Synctatic sugar for Paramter Link
-/// registration  ********/
 
 //#include "AssertWithMessage.h"
 #include <type_traits>
