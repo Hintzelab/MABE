@@ -85,6 +85,17 @@ int main(int argc, const char *argv[]) {
 
   auto output_prefix = "./" + Global::outputDirectoryPL->get();
   auto output_dir = output_prefix.substr(0, output_prefix.find_last_of('/'));
+
+  if (output_prefix.back() != '/' && zz::os::is_directory(output_prefix)) {
+    std::cout << "Warning: Output files will be saved in Directory \""
+              << output_dir << "\" with the prefix \""
+              << output_prefix.substr(output_prefix.find_last_of('/') + 1)
+              << "\"\n         If you mean to save outputFiles to the Directory \""
+              << output_prefix << "/\", please end outputPrefix with /\nExiting"
+              << std::endl;
+    exit(1);
+  }
+
   if (!zz::os::is_directory(output_dir)) {
     std::cout << "Error : outputDirectory \"" <<output_dir
               << "\" does not exist\n";
