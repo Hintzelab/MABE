@@ -60,6 +60,13 @@ Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
 	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
+std::shared_ptr<ParameterLink<bool>> SimpleOptimizer::cullByRangePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-cullRangeByRange", false,
+	"if true cull will be relative to min and max score"
+	"\n  i.e. cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)"
+	"\nif false, cull will be relative to organism ranks"
+	"\n  i.e. find score of cullBelow*populaiton size best, and discard all orgs with lower score.");
+
 SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
@@ -73,6 +80,14 @@ SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
   elitismRangeMT = stringToMTree(elitismRangePL->get(PT));
   nextPopSizeMT = stringToMTree(nextPopSizePL->get(PT));
 
+  cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
+									// culled orgs will not be automatically not be allowed to survive
+									// if -1 (default) then cullBelowScore = 0
+  cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
+									// such that min score is the value
+									// if -1, no normalization will occur
+  cullByRange = cullByRangePL->get(PT);;
+  
   optimizeFormula = optimizeValueMT;
 
   std::vector<std::string> selectorArgs;
@@ -124,14 +139,6 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   auto scoresHaveDelta = false;
 
   double deltaScore; // maxScore - cullBelow
-
-  double cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
-						 // culled orgs will not be automatically not be allowed to survive
-						 // if -1 (default) then cullBelowScore = 0
-  double cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
-							   // such that min score is the value
-							   // if -1, no normalization will occur
-
   
   double cullBelowScore;
 
@@ -164,9 +171,24 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 	culledMinScore = maxScore;
 	culledMaxScore = maxScore;
 	auto culledScoresHaveDetla = false;
-	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
-	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
+	if (cullByRange) {
+		cullBelowScore = minScore + ((maxScore - minScore) * cullBelow);
+	} else { // cull not by range, but by rank position
+		auto sortedScores = scores;
+		std::sort(sortedScores.begin(), sortedScores.end());
+		cullBelowScore = sortedScores[sortedScores.size()
+			- static_cast<int>(((static_cast<double>(sortedScores.size())) * (1.0 - cullBelow)) + 1)];
+		
+		/* uncomment to see all scores
+		for (auto ss : sortedScores) {
+			std::cout << ss << " ";
+		}
+		std::cout << std::endl;
+		*/
+
+	}
 	deltaScore = maxScore - cullBelowScore;
+	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
 	for (size_t i = 0; i < population.size(); i++) {
 		//std::cout << scores[i];
