@@ -83,7 +83,7 @@ int main(int argc, const char *argv[]) {
   ///
   ///////////////////////////////////////////////////////////////////////////
 
-  auto output_prefix = "./" + Global::outputDirectoryPL->get();
+  auto output_prefix = "./" + Global::outputPrefixPL->get();
   auto output_dir = output_prefix.substr(0, output_prefix.find_last_of('/'));
 
   if (output_prefix.back() != '/' && zz::os::is_directory(output_prefix)) {
