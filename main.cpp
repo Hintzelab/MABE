@@ -101,7 +101,7 @@ int main(int argc, const char *argv[]) {
               << "\" does not exist\n";
     exit(1);
   }
-  FileManager::outputDirectory = output_prefix;
+  FileManager::outputPrefix = output_prefix;
 
   // set up random number generator
   if (Global::randomSeedPL->get() == -1) {
