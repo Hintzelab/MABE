@@ -105,7 +105,9 @@ void Parameters::readCommandLine(
         run for 100 updates with a population size of 200. Parameters set 
         on the command line overwrite parameters from files.
 
-  -s : "save" - save settings files.
+  -s : "save" - save settings files. An optional argument can be passed 
+        specifying the path to save the settings files. The path can 
+        contain a prefix to prepend to the settings files. 
 
   -l : "create population loading script"
         This creates a default file "population_loader.plf" that contains 
