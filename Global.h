@@ -32,7 +32,7 @@ public:
   static std::shared_ptr<ParameterLink<std::string>>
       initPopPL; // number of genomes in the population
   static std::shared_ptr<ParameterLink<std::string>>
-      modePL; // run, visulaize, etc
+      modePL; // run, visualize, etc
 
   static std::shared_ptr<ParameterLink<int>>
       maxLineLengthPL; // max length of lines in the parameters files
