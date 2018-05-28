@@ -23,28 +23,21 @@
 class Global {
 public:
   // parameters
-  static std::shared_ptr<ParameterLink<int>> randomSeedPL; // seed for random
-                                                           // number generator,
-                                                           // if -1 random
-                                                           // number generator
-                                                           // will be seeded
-                                                           // randomly
+  static std::shared_ptr<ParameterLink<int>> randomSeedPL;
+  // seed for random number generator if -1 random number generator will be
+  // seeded randomly
+  
   static std::shared_ptr<ParameterLink<int>>
       updatesPL; // run until there is a MCRA at this time
-  // static shared_ptr<ParameterLink<int>> popSizePL;  // number of genomes in
-  // the population
   static std::shared_ptr<ParameterLink<std::string>>
       initPopPL; // number of genomes in the population
   static std::shared_ptr<ParameterLink<std::string>>
-      modePL; // number of genomes in the population
+      modePL; // run, visulaize, etc
 
   static std::shared_ptr<ParameterLink<int>>
       maxLineLengthPL; // max length of lines in the parameters files
   static std::shared_ptr<ParameterLink<int>>
       commentIndentPL; // minimum number of characters before comments
-
-  static std::shared_ptr<ParameterLink<std::string>> visualizePopulationFilePL;
-  static std::shared_ptr<ParameterLink<std::string>> visualizeOrgIDPL;
 
   static std::shared_ptr<ParameterLink<std::string>>
       outputDirectoryPL; // where files will be written
