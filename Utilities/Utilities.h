@@ -21,13 +21,13 @@
 #include <cmath>
 #include <numeric>
 
-inline std::string get_var_typename(const bool &) { return "bool"; }
+inline auto get_var_typename(const bool &) { return "bool"; }
 
-inline std::string get_var_typename(const std::string &) { return "string"; }
+inline auto get_var_typename(const std::string &) { return "string"; }
 
-inline std::string get_var_typename(const int &) { return "int"; }
+inline auto get_var_typename(const int &) { return "int"; }
 
-inline std::string get_var_typename(const double &) { return "double"; }
+inline auto get_var_typename(const double &) { return "double"; }
 
 // not as efficient as it could be (should be an iterable range)
 template <typename Match = std::smatch>
@@ -41,7 +41,7 @@ inline std::vector<Match> forEachRegexMatch(const std::string &s,
   return v;
 }
 
-inline std::vector<std::string>
+inline auto 
 nameSpaceToNameParts(const std::string &name_space) {
   std::vector<std::string> name_parts;
   static const std::regex valid_name_space(R"(^(\w+::)*$)");
@@ -83,10 +83,8 @@ template <typename Type> inline int Bit(Type d) { return d > 0.0; }
 //        -1 if "d" is less than 0
 template <typename Type> inline int Trit(Type d) { return d < 0 ? -1 : d > 0; }
 
-
-inline std::vector<std::string> parseCSVLine(std::string raw_line,
-                                             const char separator = ',',
-                                             const char sep_except = '"') {
+inline auto parseCSVLine(std::string raw_line, const char separator = ',',
+                         const char sep_except = '"') {
   std::vector<std::string> data_line;
   std::string s(1,separator), se(1,sep_except);
   const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
@@ -116,8 +114,7 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
   return data_line;
 }
 
-
-inline std::map<std::string, std::vector<std::string>>
+inline auto
 readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
                        const char sep_except = '"') {
   std::map<std::string, std::vector<std::string>> data; // the final map
@@ -145,7 +142,7 @@ readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same
 // index
-inline std::string
+inline auto 
 CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
           const std::string &lookup_key, const std::string &lookup_value,
           const std::string &return_key) {
@@ -314,8 +311,8 @@ inline int vectorToTritToInt(const std::vector<Type> &nodes,
 // 4,10-15,30:2 ((with defaultMax = 40)   /
 // 4,10,11,12,13,14,15,30,32,34,36,38,40
 
-inline std::vector<int> seq(const std::string sequence_string,
-                            int default_max = -1, bool add_zero = false) {
+inline auto seq(const std::string sequence_string, int default_max = -1,
+                bool add_zero = false) {
   std::set<int> result;
   // as described above
   static const std::regex commas(
@@ -375,9 +372,7 @@ inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
   return file.eof();
 }
 
-
-inline std::map<long, std::map<std::string, std::string>>
-getAttributeMapByID(const std::string &file_name) {
+inline auto getAttributeMapByID(const std::string &file_name) {
 
   std::map<long, std::map<std::string, std::string>> result;
 
