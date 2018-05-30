@@ -1375,7 +1375,7 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
                             perfectDetectsOther + perfectDetectsWalls);
   requiredInputs +=
       useDownSensorPL->get(PT) * foodTypes; // down sensor (just food)
-  std::cout << "  HarvestWorld (with current settings) requires organisms with "
+  std::cout << "  BerryWorld (with current settings) requires organisms with "
                "a brain ("
             << brainNameSpacePL->get(PT) << ") with " << requiredInputs
             << " inputs and " << requiredOutputs << " outputs.\n";
