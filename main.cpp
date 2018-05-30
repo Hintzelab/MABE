@@ -91,9 +91,8 @@ int main(int argc, const char *argv[]) {
               << output_dir << "\" with the prefix \""
               << output_prefix.substr(output_prefix.find_last_of('/') + 1)
               << "\"\n         If you mean to save outputFiles to the Directory \""
-              << output_prefix << "/\", please end outputPrefix with /\nExiting"
+              << output_prefix << "/\", please end outputPrefix with /\n"
               << std::endl;
-    exit(1);
   }
 
   if (!zz::os::is_directory(output_dir)) {
