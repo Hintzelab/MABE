@@ -86,6 +86,18 @@ SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
   cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
 									// such that min score is the value
 									// if -1, no normalization will occur
+
+  if (cullBelow != -1 && !(cullBelow >= 0 && cullBelow <= 1.0)) {
+	  std::cout << "  in SimpleOptimizer constructor, found cullBelow value "
+		  << cullBelow << " but cullBelow must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+	  exit(1);
+  }
+  if (cullRemap != -1 && !(cullRemap >= 0 && cullRemap <= 1.0)) {
+	  std::cout << "  in SimpleOptimizer constructor, found cullRemap value "
+		  << cullRemap << " but cullRemap must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+	  exit(1);
+  }
+
   cullByRange = cullByRangePL->get(PT);;
   
   optimizeFormula = optimizeValueMT;
