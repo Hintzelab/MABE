@@ -54,23 +54,38 @@ int main(int argc, const char *argv[]) {
 
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
-  bool saveFiles =
-      Parameters::initializeParameters(argc, argv); // loads command line and
-                                                    // configFile values into
-                                                    // registered parameters
+  Parameters::initializeParameters(argc, argv); // loads command line and
+                                                // configFile values into
+                                                // registered parameters
   std::cout << MABE_pretty_logo;
 
   // also writes out a settings files if requested
-  if (saveFiles) { // if saveFiles (save settings files) is set
+  if (Parameters::save_files) { // if saveFiles (save settings files) is set
     int maxLineLength = Global::maxLineLengthPL->get();
     int commentIndent = Global::commentIndentPL->get();
 
+    auto prefix = Parameters::save_file_prefix;
+    auto dir_part = prefix.substr(0, prefix.find_last_of('/'));
+
+    if (!zz::os::is_directory(dir_part)) {
+      std::cout << "Error : Directory \"" << dir_part
+                << "/\" does not exist. Settings Files will not be saved.\n";
+      exit(1);
+    }
+
+    std::cout << "Saving settings files ..." << std::flush;
+
     Parameters::saveSettingsFiles(
         maxLineLength, commentIndent, {"*"},
-        {{"settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
-         {"settings_world.cfg", {"WORLD*"}},
-         {"settings.cfg", {""}}});
-    std::cout << "Saving settings files and exiting." << std::endl;
+        {{prefix + "settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
+         {prefix + "settings_world.cfg", {"WORLD*"}},
+         {prefix + "settings.cfg", {""}}});
+
+    std::cout << std::endl
+              << "Settings files saved in Directory \"" << dir_part
+              << "\" with prefix \""
+              << prefix.substr(prefix.find_last_of('/') + 1) << "\""
+              << std::endl;
     exit(0);
   }
 
