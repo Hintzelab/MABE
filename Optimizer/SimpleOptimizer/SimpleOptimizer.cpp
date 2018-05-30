@@ -187,9 +187,11 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 		cullBelowScore = minScore + ((maxScore - minScore) * cullBelow);
 	} else { // cull not by range, but by rank position
 		auto sortedScores = scores;
-		std::sort(sortedScores.begin(), sortedScores.end());
-		cullBelowScore = sortedScores[sortedScores.size()
-			- static_cast<int>(((static_cast<double>(sortedScores.size())) * (1.0 - cullBelow)) + 1)];
+        auto cull_index = cullBelow * sortedScores.size() - 1;
+        std::nth_element(std::begin(sortedScores),
+                       std::begin(sortedScores) + cull_index,
+                       std::end(sortedScores));
+        cullBelowScore = sortedScores[cull_index];
 		
 		/* uncomment to see all scores
 		for (auto ss : sortedScores) {
