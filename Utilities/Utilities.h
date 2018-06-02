@@ -375,7 +375,7 @@ inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
   return file.eof();
 }
 
-
+/*
 inline std::map<long, std::map<std::string, std::string>>
 getAttributeMapByID(const std::string &file_name) {
 
@@ -409,4 +409,4 @@ getAttributeMapByID(const std::string &file_name) {
 
   return result;
 }
-
+*/
