@@ -14,6 +14,7 @@
 #include <cmath>
 #include <numeric>
 
+
 // converts a vector of string to a vector of type of returnData
 template <class T>
 inline void CSVListToVector(std::string string_data,
@@ -46,6 +47,8 @@ inline void CSVListToVector(std::string string_data,
     return_data.push_back(temp);
   }
 }
+
+
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same
 // index
@@ -85,33 +88,9 @@ CSV::CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
 
   return csv_table[return_key][pos];
 }
-std::map<std::string, std::vector<std::string>>
-CSV::readColumnsFromCSVFile(const std::string &file_name, const char separator , 
-                       const char sep_except ) {
-  std::map<std::string, std::vector<std::string>> data; // the final map
-  std::ifstream file(file_name);
-  if (!file.is_open()) {
-    std::cout << " Error: readColumnsFromCSVFile cannot open file " << file_name
-              << std::endl;
-    exit(1);
-  }
 
-  std::string raw_line;
-  getline(file, raw_line);
-  auto attribute_names = parseCSVLine(raw_line, separator, sep_except);
-
-  while (getline(file, raw_line)) {
-    auto data_line = parseCSVLine(raw_line, separator, sep_except);
-    for (auto i = 0u; i < data_line.size(); i++)
-      data[attribute_names.at(i)].push_back(data_line.at(i));
-  }
-
-  return data;
-}
-
-std::vector<std::string> CSV::parseCSVLine(std::string raw_line,
-                                             const char separator,
-                                             const char sep_except) {
+auto  CSV::parseCSVLine(std::string raw_line, char separator,
+                                           char sep_except) {
   std::vector<std::string> data_line;
   std::string s(1,separator), se(1,sep_except);
   const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
@@ -139,4 +118,63 @@ std::vector<std::string> CSV::parseCSVLine(std::string raw_line,
                                  [](std::string s) { return s == ""; }),
                   data_line.end());
   return data_line;
+}
+
+CSV::CSV(std::string file_name, char s, char se)
+    : from_file_(file_name), separator_(s), sep_expect_(se) {
+
+  std::ifstream file(from_file_);
+  if (!file.is_open()) {
+    std::cout << " Error: readColumnsFromCSVFile cannot open file " << file_name
+              << std::endl;
+    exit(1);
+  }
+
+  std::string raw_line;
+  getline(file, raw_line);
+  headers_ = parseCSVLine(raw_line, separator_, sep_expect_);
+
+  while (getline(file, raw_line)) {
+    auto data_line = parseCSVLine(raw_line, separator_, sep_expect_);
+    if (headers_.size() != data_line.size()) {
+      std::cout << " Error: incorrect number of columns in CSV file "
+                << file_name << std::endl;
+      exit(1);
+    }
+    data_.push_back(data_line);
+  }
+}
+
+std::map<long, std::map<std::string, std::string>>
+CSV::getAttributeMapByID(const std::string &file_name) {
+
+  std::map<long, std::map<std::string, std::string>> result;
+
+  std::ifstream file(file_name);
+  if (!file.is_open()) {
+    std::cout << " Error: in getAttributeMapByID unable to open " << file_name
+              << std::endl;
+    exit(1);
+  }
+
+  std::string raw_line;
+  getline(file, raw_line);
+  auto attribute_names = parseCSVLine(raw_line);
+
+  if (std::find(attribute_names.begin(), attribute_names.end(), "ID") ==
+      attribute_names.end()) {
+    std::cout << " Error: in getAttributeMapByID no ID column in file "
+              << file_name << std::endl;
+    exit(1);
+  }
+
+  while (getline(file, raw_line)) {
+    auto data_line = parseCSVLine(raw_line);
+    std::map<std::string, std::string> data;
+    for (auto i = 0u; i < data_line.size(); i++)
+      data[attribute_names.at(i)] = data_line.at(i);
+    result[std::stol(data.at("ID"))] = data;
+  }
+
+  return result;
 }
