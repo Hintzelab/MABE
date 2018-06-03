@@ -375,38 +375,4 @@ inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
   return file.eof();
 }
 
-/*
-inline std::map<long, std::map<std::string, std::string>>
-getAttributeMapByID(const std::string &file_name) {
 
-  std::map<long, std::map<std::string, std::string>> result;
-
-  std::ifstream file(file_name);
-  if (!file.is_open()) {
-    std::cout << " Error: in getAttributeMapByID unable to open " << file_name
-              << std::endl;
-    exit(1);
-  }
-
-  std::string raw_line;
-  getline(file, raw_line);
-  auto attribute_names = parseCSVLine(raw_line);
-
-  if (std::find(attribute_names.begin(), attribute_names.end(), "ID") ==
-      attribute_names.end()) {
-    std::cout << " Error: in getAttributeMapByID no ID column in file "
-              << file_name << std::endl;
-    exit(1);
-  }
-
-  while (getline(file, raw_line)) {
-    auto data_line = parseCSVLine(raw_line);
-    std::map<std::string, std::string> data;
-    for (auto i = 0u; i < data_line.size(); i++)
-      data[attribute_names.at(i)] = data_line.at(i);
-    result[std::stol(data.at("ID"))] = data;
-  }
-
-  return result;
-}
-*/
