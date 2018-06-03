@@ -199,6 +199,17 @@ inline static bool stringToValue(const std::string &source, T &target) {
   return ss >> target ? !(ss >> remaining) : false;
 }
 
+template <class T> inline static T stringTo(std::string source) {
+  std::stringstream ss(source);
+  std::string remaining;
+  T target;
+  ss >> target;
+  if (ss >> remaining) {
+	std::cout << "error: cannot convert from string to type " << typeid(T).name() << std::endl;
+	exit(1);
+  }
+  return target;
+}
 
 // converts a vector of string to a vector of type of returnData
 template <class T>

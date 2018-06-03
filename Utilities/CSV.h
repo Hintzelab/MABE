@@ -1,144 +1,129 @@
 
-#pragma once 
+#pragma once
 
 #include "Utilities.h"
 
-#include <fstream>
 #include <algorithm>
+#include <cmath>
+#include <fstream>
 #include <iostream>
 #include <map>
-#include <sstream>
-#include <set>
-#include <vector>
-#include <regex>
-#include <cmath>
 #include <numeric>
+#include <regex>
+#include <set>
+#include <sstream>
+#include <vector>
 
+// can parse a csv string into a vector of strings
+// The delimiter and quotation character can be spedified:
+// by default  , and "
+// csv lines can also be directly converted to a vector of a
+// templated type. Note: Behaviour is uspecified if all values
+// in the csv string cannot be converted to the templated type
 class CSVReader {
 
-  std::string separator_, sep_except_;	
+  std::string delimiter_, quotation_;
   std::regex item_;
 
-	public:
-  CSVReader() : CSVReader(',','"') {}
+public:
+  CSVReader() : CSVReader(',', '"') {}
   CSVReader(char s, char se)
-      : separator_(1, s), sep_except_(1, se),
-        item_(R"((.*?)()" + separator_ + "|" + sep_except_ + R"(|$))") {}
+      : delimiter_(1, s), quotation_(1, se),
+        item_(R"((.*?)()" + delimiter_ + "|" + quotation_ + R"(|$))") {}
 
   template <typename T = std::string>
   auto parseLine(std::string &raw_line) const;
 };
 
+// parses a csv file and stores in memory.
+// the first line of the file is treated as the column headers
+// The delimiter and quotation character can be spedified:
+// by default  , and "
 class CSV {
 
+  // to do the reading
   CSVReader reader_;
-  std::vector<std::vector<std::string>> rows_;
+  // the 1st row; column headers
   std::vector<std::string> columns_;
+  // remaning rows of the file
+  std::vector<std::vector<std::string>> rows_;
+
   std::string file_name_;
 
 public:
-
   CSV(std::string fn, char s, char se);
   CSV(std::string fn) : CSV(fn, ',', '"') {}
 
-  auto  lookUp(std::string lookup_column, std::string value,
-                     std::string return_column)const;
+  // look up a value in a colmn and return the value in the corresponding row of
+  // the other column
+  auto lookUp(std::string lookup_column, std::string value,
+              std::string return_column) const;
 
-  auto row_count() const{ return rows_.size(); }
+  // number of rows in the file
+  auto row_count() const { return rows_.size(); }
 
-  auto columns() const{ return columns_; }
- 
+  // number of columns in the file
+  auto columns() const { return columns_; }
+
+  // return all values corresponding to a single column
   auto singleColumn(std::string);
 
-  auto rows() const{ return rows_; }
+  // return all rows in the file
+  auto rows() const { return rows_; }
 
+  // merges another csv file. Only extra columns are updated. All values in the
+  // specified column must also exist in the same column in the other file.
+  // only rows in the other file that have matching values in this
+  // file are merged
   void merge(CSV csv, std::string column);
 
-  auto fileName() const{ return file_name_; }
+  // return csv file name
+  auto fileName() const { return file_name_; }
 
+  // check existence of a column
   bool hasColumn(std::string name) const {
     return std::find(std::begin(columns_), std::end(columns_), name) !=
            std::end(columns_);
   }
 };
 
+// parse a csv line into a vector<T>
 template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
-  std::vector<T> data_line;
-  T value;
-  bool in_quotes = false;
-  std::string quoted_string;
+  std::vector<T> data;
+  auto current = 0u;
 
-  auto current_sep = 0u;
   while (true) {
-    auto next_sep = raw_line.find_first_of(separator_, current_sep + 1);
-   //   std::cout << " next_sep:" << next_sep;
-	if (next_sep == std::string::npos) {
-          stringToValue(raw_line.substr(current_sep), value);
-       //   std::cout << value << std::endl;
-      data_line.push_back(value);
-	  break;
-	}	
-	auto next_sep_exp = raw_line.find_first_of(sep_except_, current_sep );
-    //  std::cout << " next_sep_exp:" << next_sep_exp;
-    if (next_sep < next_sep_exp) {
-      stringToValue(raw_line.substr(current_sep, next_sep - current_sep),
-                    value);
-	  //std::cout << value << std::endl;
-      data_line.push_back(value);
-      current_sep = next_sep+1;
-    } else {
-      auto next_next_sep_exp =
-          raw_line.find_first_of(sep_except_, next_sep_exp + 1);
-  //    std::cout << " next_next_sep_exp:" << next_next_sep_exp;
-      auto next_next_sep =
-          raw_line.find_first_of(sep_except_, next_next_sep_exp );
-//	  std::cout << " next_next_sep:" << next_next_sep ;
-      stringToValue(raw_line.substr(current_sep, next_next_sep - current_sep +1),
-                    value);
-	 // std::cout << value << std::endl;
-      data_line.push_back(value);
-      current_sep = next_next_sep+2;
+    // find next delimiter
+    auto delim = raw_line.find_first_of(delimiter_, current + 1);
+    // if line is completely parsed
+    if (delim == std::string::npos) {
+      data.push_back(stringTo<T>(raw_line.substr(current)));
+      break;
     }
-//	std::cout << " value: " << value << std::endl;
-  }
-  
-  /*
-  for (auto &m : forEachRegexMatch(raw_line, item_)) {
-		std::cout << quoted_string  << "#" << in_quotes<< std::endl;
-    if (m[2].str() == sep_except_) {
-      if (!in_quotes) {
-        stringToValue(m[1].str(), value);
-        data_line.push_back(value);
-        in_quotes = true;
-      } else {
-        quoted_string += m[1].str();
-        stringToValue(quoted_string, value);
-        data_line.push_back("\"" + value + "\"");
-        quoted_string.clear();
-        in_quotes = false;
-      }
+    // find next quotation
+    auto quote = raw_line.find_first_of(quotation_, current);
+    // if quotation is not in the way
+    if (delim < quote) {
+      data.push_back(stringTo<T>(raw_line.substr(current, delim - current)));
+      current = delim + 1;
     } else {
-      if (!in_quotes) {
-        stringToValue(m[1].str(), value);
-        data_line.push_back(value);
-      } else {
-        quoted_string += m[0].str();
-      }
+      // if quotation is in the way, find next quote
+      auto nested_quote = raw_line.find_first_of(quotation_, quote + 1);
+      // find first delimiter after that; ignore delimiter inside of quotation
+      auto nested_delim = raw_line.find_first_of(quotation_, nested_quote);
+      data.push_back(
+          stringTo<T>(raw_line.substr(current, nested_delim - current + 1)));
+      current = nested_delim + 2;
     }
   }
-  */
- /*
-  data_line.erase(std::remove_if(std::begin(data_line), std::end(data_line),
-                                 [](std::string s) { return s.empty(); }),
-                  std::end(data_line));
-*/
-  return data_line;
+
+  return data;
 }
 
 auto CSV::singleColumn(std::string column) {
   if (!hasColumn(column)) {
     std::cout << " Error : could not find column " << column
-              << " to merge from file " << file_name_<< std::endl;
+              << " to merge from file " << file_name_ << std::endl;
     exit(1);
   }
 
@@ -147,15 +132,14 @@ auto CSV::singleColumn(std::string column) {
       std::begin(columns_);
 
   std::vector<std::string> values;
-  std::transform(std::begin(rows_), std::end(rows_),
-                 std::back_inserter(values),
+  std::transform(std::begin(rows_), std::end(rows_), std::back_inserter(values),
                  [column_pos](auto const &row) { return row[column_pos]; });
 
   return values;
 }
 
 auto CSV::lookUp(std::string lookup_column, std::string value,
-                 std::string return_column)const {
+                 std::string return_column) const {
 
   if (!hasColumn(lookup_column)) {
     std::cout << " Error : could not find column " << lookup_column
@@ -218,10 +202,12 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
   }
 
   std::string raw_line;
+
+  // read header line
   getline(file, raw_line);
   columns_ = reader_.parseLine(raw_line);
-  //for (auto &i:columns_) std::cout << i << "#";
-//	std::cout << columns_.size() << std::endl;
+
+  // ensure column names are unique
   std::set<std::string> uniq_headers(std::begin(columns_), std::end(columns_));
   if (uniq_headers.size() != columns_.size()) {
     std::cout << "Error: CSV file " << file_name_
@@ -229,11 +215,11 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
     exit(1);
   }
 
+  // read remaining rows
   while (getline(file, raw_line)) {
     auto data_line = reader_.parseLine(raw_line);
- // for (auto &i:data_line) std::cout << i << "#"; 
-//	std::cout << data_line.size() << std::endl;
-  	if (columns_.size() != data_line.size()) {
+    // ensure all rows have correct number of columns
+    if (columns_.size() != data_line.size()) {
       std::cout << " Error: incorrect number of columns in CSV file "
                 << file_name_ << std::endl;
       exit(1);
@@ -256,29 +242,47 @@ void CSV::merge(CSV merge_csv, std::string column) {
     exit(1);
   }
 
-  auto const column_pos =
-      std::find(std::begin(columns_), std::end(columns_), column) -
-      std::begin(columns_);
-
-  std::set<std::string> uniq_values;
-  std::transform(std::begin(rows_), std::end(rows_),
-                 std::inserter(uniq_values, std::begin(uniq_values)),
-                 [column_pos](auto const &row) { return row[column_pos]; });
-
-  if (uniq_values.size() != rows_.size()) {
+  // ensure lookup column has distinct values
+  auto lookop_column = singleColumn(column);
+  std::set<std::string> lookup_values(std::begin(lookop_column),
+                                      std::end(lookop_column));
+  if (lookup_values.size() != rows_.size()) {
     std::cout << "Error: CSV file " << file_name_
               << " does not have unique values in column " << column
               << std::endl;
     exit(1);
   }
 
+  // ensure column in second file has matching values for all values in this
+  // file
+  auto merge_column = merge_csv.singleColumn(column);
+  std::set<std::string> merge_values(std::begin(merge_column),
+                                     std::end(merge_column));
+  if (!std::includes(std::begin(merge_values), std::end(merge_values),
+                     std::begin(lookup_values), std::end(lookup_values))) {
+    std::cout << "Error: CSV file " << merge_csv.fileName()
+              << " does not have some matching values for column " << column
+              << std::endl;
+    exit(1);
+  }
+
+  // find position of lookup column
+  auto const column_pos =
+      std::find(std::begin(columns_), std::end(columns_), column) -
+      std::begin(columns_);
+
+  // merge columns from second file
   for (auto const &merge_column : merge_csv.columns()) {
+    // only add additional columns
     if (std::find(std::begin(columns_), std::end(columns_), merge_column) !=
         std::end(columns_)) {
       columns_.push_back(merge_column);
+      // for each column add value to every row
       for (auto &row : rows_)
         row.push_back(merge_csv.lookUp(column, row[column_pos], merge_column));
     }
   }
 }
+
+
 
