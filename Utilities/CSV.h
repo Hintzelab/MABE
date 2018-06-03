@@ -67,7 +67,44 @@ template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
   T value;
   bool in_quotes = false;
   std::string quoted_string;
+
+  auto current_sep = 0u;
+  while (true) {
+    auto next_sep = raw_line.find_first_of(separator_, current_sep + 1);
+   //   std::cout << " next_sep:" << next_sep;
+	if (next_sep == std::string::npos) {
+          stringToValue(raw_line.substr(current_sep), value);
+       //   std::cout << value << std::endl;
+      data_line.push_back(value);
+	  break;
+	}	
+	auto next_sep_exp = raw_line.find_first_of(sep_except_, current_sep );
+    //  std::cout << " next_sep_exp:" << next_sep_exp;
+    if (next_sep < next_sep_exp) {
+      stringToValue(raw_line.substr(current_sep, next_sep - current_sep),
+                    value);
+	  //std::cout << value << std::endl;
+      data_line.push_back(value);
+      current_sep = next_sep+1;
+    } else {
+      auto next_next_sep_exp =
+          raw_line.find_first_of(sep_except_, next_sep_exp + 1);
+  //    std::cout << " next_next_sep_exp:" << next_next_sep_exp;
+      auto next_next_sep =
+          raw_line.find_first_of(sep_except_, next_next_sep_exp );
+//	  std::cout << " next_next_sep:" << next_next_sep ;
+      stringToValue(raw_line.substr(current_sep, next_next_sep - current_sep +1),
+                    value);
+	 // std::cout << value << std::endl;
+      data_line.push_back(value);
+      current_sep = next_next_sep+2;
+    }
+//	std::cout << " value: " << value << std::endl;
+  }
+  
+  /*
   for (auto &m : forEachRegexMatch(raw_line, item_)) {
+		std::cout << quoted_string  << "#" << in_quotes<< std::endl;
     if (m[2].str() == sep_except_) {
       if (!in_quotes) {
         stringToValue(m[1].str(), value);
@@ -76,8 +113,8 @@ template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
       } else {
         quoted_string += m[1].str();
         stringToValue(quoted_string, value);
-        data_line.push_back(value);
-        quoted_string = "";
+        data_line.push_back("\"" + value + "\"");
+        quoted_string.clear();
         in_quotes = false;
       }
     } else {
@@ -89,10 +126,12 @@ template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
       }
     }
   }
-  data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
-                                 [](std::string s) { return s == ""; }),
-                  data_line.end());
-
+  */
+ /*
+  data_line.erase(std::remove_if(std::begin(data_line), std::end(data_line),
+                                 [](std::string s) { return s.empty(); }),
+                  std::end(data_line));
+*/
   return data_line;
 }
 
@@ -181,7 +220,8 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
   std::string raw_line;
   getline(file, raw_line);
   columns_ = reader_.parseLine(raw_line);
-
+  //for (auto &i:columns_) std::cout << i << "#";
+//	std::cout << columns_.size() << std::endl;
   std::set<std::string> uniq_headers(std::begin(columns_), std::end(columns_));
   if (uniq_headers.size() != columns_.size()) {
     std::cout << "Error: CSV file " << file_name_
@@ -191,7 +231,9 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
 
   while (getline(file, raw_line)) {
     auto data_line = reader_.parseLine(raw_line);
-    if (columns_.size() != data_line.size()) {
+ // for (auto &i:data_line) std::cout << i << "#"; 
+//	std::cout << data_line.size() << std::endl;
+  	if (columns_.size() != data_line.size()) {
       std::cout << " Error: incorrect number of columns in CSV file "
                 << file_name_ << std::endl;
       exit(1);
