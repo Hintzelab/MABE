@@ -25,6 +25,7 @@ class CSVReader {
       : separator_(1, s), sep_except_(1, se),
         item_(R"((.*?)()" + separator_ + "|" + sep_except_ + R"(|$))") {}
 
+  template <typename T = std::string>
   auto parseLine(std::string &raw_line) const;
 };
 
@@ -61,32 +62,37 @@ public:
   }
 };
 
-
-auto CSVReader::parseLine(std::string &raw_line) const {
-  	std::vector<std::string> data_line;
+template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
+  std::vector<T> data_line;
+  T value;
   bool in_quotes = false;
   std::string quoted_string;
   for (auto &m : forEachRegexMatch(raw_line, item_)) {
     if (m[2].str() == sep_except_) {
       if (!in_quotes) {
-        data_line.push_back(m[1].str());
+        stringToValue(m[1].str(), value);
+        data_line.push_back(value);
         in_quotes = true;
       } else {
         quoted_string += m[1].str();
-        data_line.push_back(quoted_string);
+        stringToValue(quoted_string, value);
+        data_line.push_back(value);
         quoted_string = "";
         in_quotes = false;
       }
     } else {
-      if (!in_quotes)
-        data_line.push_back(m[1].str());
-      else
+      if (!in_quotes) {
+        stringToValue(m[1].str(), value);
+        data_line.push_back(value);
+      } else {
         quoted_string += m[0].str();
+      }
     }
   }
   data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
                                  [](std::string s) { return s == ""; }),
                   data_line.end());
+
   return data_line;
 }
 
