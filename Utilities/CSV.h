@@ -274,7 +274,7 @@ void CSV::merge(CSV merge_csv, std::string column) {
   // merge columns from second file
   for (auto const &merge_column : merge_csv.columns()) {
     // only add additional columns
-    if (std::find(std::begin(columns_), std::end(columns_), merge_column) !=
+    if (std::find(std::begin(columns_), std::end(columns_), merge_column) ==
         std::end(columns_)) {
       columns_.push_back(merge_column);
       // for each column add value to every row
