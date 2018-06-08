@@ -31,13 +31,47 @@ public:
       : delimiter_(1, s), quotation_(1, se),
         item_(R"((.*?)()" + delimiter_ + "|" + quotation_ + R"(|$))") {}
 
+  // parse a csv line into a vector<T>
   template <typename T = std::string>
   auto parseLine(std::string &raw_line) const;
 };
 
+template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
+  std::vector<T> data;
+  auto current = 0u;
+
+  while (true) {
+    // find next delimiter
+    auto delim = raw_line.find_first_of(delimiter_, current);
+    // find next quotation
+    auto quote = raw_line.find_first_of(quotation_, current);
+    // if the next quotation comes before the next delimiter
+    if (quote < delim) {
+      //  find next quotation
+      auto nested_quote = raw_line.find_first_of(quotation_, quote + 1);
+      // find first delimiter after that; ignoring delimiter inside of quotation
+      // warning: assumes that quotes come in pairs
+   	  delim = raw_line.find_first_of(delimiter_, nested_quote);
+    }
+    // if line is completely parsed
+    if (delim == std::string::npos) {
+      break;
+    }
+	// add the next field
+    data.push_back(stringTo<T>(raw_line.substr(current, delim - current)));
+    // search for the next field
+	current = delim + 1;
+  }
+  
+  //add the last field
+  data.push_back(stringTo<T>(raw_line.substr(current)));
+
+  return data;
+}
+
 // parses a csv file and stores in memory.
 // the first line of the file is treated as the column headers
-// The delimiter and quotation character can be spedified:
+// The delimiter and quotation character can be specified:
 // by default  , and "
 class CSV {
 
@@ -66,7 +100,7 @@ public:
   auto columns() const { return columns_; }
 
   // return all values corresponding to a single column
-  auto singleColumn(std::string);
+  auto singleColumn (std::string column);
 
   // return all rows in the file
   auto rows() const { return rows_; }
@@ -87,38 +121,6 @@ public:
   }
 };
 
-// parse a csv line into a vector<T>
-template <typename T> auto CSVReader::parseLine(std::string &raw_line) const {
-  std::vector<T> data;
-  auto current = 0u;
-
-  while (true) {
-    // find next delimiter
-    auto delim = raw_line.find_first_of(delimiter_, current + 1);
-    // if line is completely parsed
-    if (delim == std::string::npos) {
-      data.push_back(stringTo<T>(raw_line.substr(current)));
-      break;
-    }
-    // find next quotation
-    auto quote = raw_line.find_first_of(quotation_, current);
-    // if quotation is not in the way
-    if (delim < quote) {
-      data.push_back(stringTo<T>(raw_line.substr(current, delim - current)));
-      current = delim + 1;
-    } else {
-      // if quotation is in the way, find next quote
-      auto nested_quote = raw_line.find_first_of(quotation_, quote + 1);
-      // find first delimiter after that; ignore delimiter inside of quotation
-      auto nested_delim = raw_line.find_first_of(quotation_, nested_quote);
-      data.push_back(
-          stringTo<T>(raw_line.substr(current, nested_delim - current + 1)));
-      current = nested_delim + 2;
-    }
-  }
-
-  return data;
-}
 
 auto CSV::singleColumn(std::string column) {
   if (!hasColumn(column)) {
