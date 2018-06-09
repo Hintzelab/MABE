@@ -392,6 +392,100 @@ std::shared_ptr<ParameterLink<std::string>> BerryWorld::triggerFoodEventsPL =
         "use random in world range or food range\nQ = stop running this "
         "evaluation\nrules may be combined with + (i.e. S10+Q)");
 
+inline std::vector<std::string> parseCSVLine(std::string raw_line,
+                                             const char separator = ',',
+                                             const char sep_except = '"') {
+  std::vector<std::string> data_line;
+  std::string s(1,separator), se(1,sep_except);
+  const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
+  bool in_quotes = false;
+  std::string quoted_string;
+  for (auto &m : forEachRegexMatch(raw_line, piece)) {
+    if (m[2].str() == se) {
+      if (!in_quotes) {
+        data_line.push_back(m[1].str());
+        in_quotes = true;
+      } else {
+        quoted_string += m[1].str();
+        data_line.push_back(quoted_string);
+        quoted_string = "";
+        in_quotes = false;
+      }
+    } else {
+      if (!in_quotes)
+        data_line.push_back(m[1].str());
+      else
+        quoted_string += m[0].str();
+    }
+  }
+  data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
+                                 [](std::string s) { return s == ""; }),
+                  data_line.end());
+  return data_line;
+}
+
+// converts a vector of string to a vector of type of returnData
+template <class T>
+inline void convertCSVListToVector(std::string string_data,
+                                   std::vector<T> &return_data,
+                                   const char separator = ',',
+                                   const char sep_except = '"') {
+  return_data.clear();
+  // check all uses of this function to see if leading and trailing quotes are
+  // needed
+  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
+  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
+  std::smatch m_quote;
+  string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
+                    ? m_quote[1].str()
+                    : string_data;
+  std::smatch m_square;
+  string_data = std::regex_match(string_data, m_square, stripoff_square_brackets)
+                    ? m_square[1].str()
+                    : string_data;
+
+  T temp; // immediately assign from stringToValue
+  for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
+    if (!stringToValue(s, temp)) {
+      std::cout << " --- while parsing: " << string_data << " .... "
+                << std::endl;
+      std::cout << " In convertCSVListToVector() attempt to convert string "
+                << s << " to  value failed\n " << std::endl;
+      exit(1);
+    }
+    return_data.push_back(temp);
+  }
+}
+
+// load a line from FILE. IF the line is empty or a comment (starts with #),
+// skip line.
+// if the line is not empty/comment, clean ss and load line.
+// rawLine is the string version of the same data as ss
+inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
+                         std::stringstream &ss) {
+  rawLine.resize(0);
+  if (file.is_open() && !file.eof()) {
+    while ((rawLine.size() == 0 || rawLine[0] == '#') && !file.eof()) {
+      getline(file, rawLine);
+    }
+    ss.clear();
+    ss.str(std::string());
+    ss << rawLine;
+  } else if (!file.eof()) {
+    std::cout << "in loadSS, file is not open!\n  Exiting." << std::endl;
+    exit(1);
+  }
+  // cout << "from file:  " << rawLine << endl;
+  return file.eof();
+}
+
+template <class T>
+inline static bool load_value(const std::string &value, T &target) {
+  std::stringstream ss(value);
+  std::string remaining;
+  return ss >> target ? !(ss >> remaining) : false;
+}
+
 std::vector<int> pickUnique(int numAvalible, int numPicks) {
   std::vector<int> picks;
   for (int i = 0; i < numAvalible; ++i) {

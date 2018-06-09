@@ -9,6 +9,7 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 #include "DefaultArchivist.h"
+#include "../Utilities/CSV.h"
 
 #include<limits>
 
@@ -143,13 +144,16 @@ DefaultArchivist::DefaultArchivist(std::shared_ptr<ParametersTable> PT_,
 
 }
 
-DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
+DefaultArchivist::DefaultArchivist(std::vector<std::string> &popFileColumns,
                                    std::shared_ptr<Abstract_MTree> max_formula,
                                    std::shared_ptr<ParametersTable> PT_,
-                                   const std::string & group_prefix)
-    : DefaultArchivist(std::move(PT_),group_prefix) {
+                                   const std::string &group_prefix)
+    : DefaultArchivist(std::move(PT_), group_prefix) {
 
-  convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
+  CSVReader reader;
+
+  default_pop_file_columns_ = reader.parseLine(
+      PopFileColumnNames.substr(1, PopFileColumnNames.size() - 2));
   max_formula_ = std::move(max_formula);
 
   if (default_pop_file_columns_.empty())
@@ -161,17 +165,20 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
       continue;
     }
 
-    // Now check to see if key ends in an '_' and a known output method (from
-    // DataMap i.e. AVE, PROD, etc.)
+    // Now check to see if key ends in an '_' and a known output
+    // method (from DataMap i.e. AVE, PROD, etc.)
     auto seperatorCharPos = key.find_last_of('_');
     if (seperatorCharPos != std::string::npos &&
         DataMap::knownOutputBehaviors.find(key.substr(seperatorCharPos + 1)) !=
             DataMap::knownOutputBehaviors.end())
-      // if it does end in a known output method then add this method to the
-      // uiqueColumnNameToOutputBehaviors map for that key
-      unique_column_name_to_output_behaviors_[key.substr(0, seperatorCharPos)] |=
+      // if it does end in a known output method then add this
+      // method to the uiqueColumnNameToOutputBehaviors map for
+      // that key
+      unique_column_name_to_output_behaviors_[key.substr(0,
+                                                         seperatorCharPos)] |=
           DataMap::knownOutputBehaviors[key.substr(seperatorCharPos + 1)];
-    else // add key normally, because it has no special flags specified
+    else // add key normally, because it has no special flags
+         // specified
       unique_column_name_to_output_behaviors_[key] |= DataMap::AVE;
   }
 }

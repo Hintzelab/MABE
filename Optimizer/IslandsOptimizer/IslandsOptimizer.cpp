@@ -9,8 +9,9 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 
-#include "IslandsOptimizer.h"
 #include "../SimpleOptimizer/SimpleOptimizer.h"
+#include "IslandsOptimizer.h"
+#include "../../Utilities/CSV.h"
 
 std::shared_ptr<ParameterLink<std::string>> IslandsOptimizer::IslandNameSpaceListPL =
 Parameters::register_parameter(
@@ -24,11 +25,15 @@ Parameters::register_parameter(
 IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
-	std::vector<std::string> opNameSpaces;
-	convertCSVListToVector(IslandNameSpaceListPL->get(PT), opNameSpaces);
+    CSVReader reader;
+    auto island_ns_list = IslandNameSpaceListPL->get(PT);
+    auto opNameSpaces =
+        reader.parseLine(island_ns_list.substr(1, island_ns_list.size() - 2));
 
-	for (auto& nameSpace : opNameSpaces) {
-		islandOptimizers.push_back(std::make_shared<SimpleOptimizer>(nameSpace == "root::" ? Parameters::root : Parameters::root->getTable(nameSpace)));
+    for (auto &nameSpace : opNameSpaces) {
+      islandOptimizers.push_back(std::make_shared<SimpleOptimizer>(
+          nameSpace == "root::" ? Parameters::root
+                                : Parameters::root->getTable(nameSpace)));
 	}
 	islands = islandOptimizers.size();
 	migrationRate = migrationRatePL->get(PT);
