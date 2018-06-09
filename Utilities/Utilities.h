@@ -74,7 +74,6 @@ inline double loopModDouble(const double numerator, const double denominator) {
                    denominator);
 }
 
-
 // returns 1 if "d" is greater than 0, else return 0
 template <typename Type> inline int Bit(Type d) { return d > 0.0; }
 
@@ -83,115 +82,7 @@ template <typename Type> inline int Bit(Type d) { return d > 0.0; }
 //        -1 if "d" is less than 0
 template <typename Type> inline int Trit(Type d) { return d < 0 ? -1 : d > 0; }
 
-
-inline std::vector<std::string> parseCSVLine(std::string raw_line,
-                                             const char separator = ',',
-                                             const char sep_except = '"') {
-  std::vector<std::string> data_line;
-  std::string s(1,separator), se(1,sep_except);
-  const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
-  bool in_quotes = false;
-  std::string quoted_string;
-  for (auto &m : forEachRegexMatch(raw_line, piece)) {
-    if (m[2].str() == se) {
-      if (!in_quotes) {
-        data_line.push_back(m[1].str());
-        in_quotes = true;
-      } else {
-        quoted_string += m[1].str();
-        data_line.push_back(quoted_string);
-        quoted_string = "";
-        in_quotes = false;
-      }
-    } else {
-      if (!in_quotes)
-        data_line.push_back(m[1].str());
-      else
-        quoted_string += m[0].str();
-    }
-  }
-  data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
-                                 [](std::string s) { return s == ""; }),
-                  data_line.end());
-  return data_line;
-}
-
-
-inline std::map<std::string, std::vector<std::string>>
-readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
-                       const char sep_except = '"') {
-  std::map<std::string, std::vector<std::string>> data; // the final map
-  std::ifstream file(file_name);
-  if (!file.is_open()) {
-    std::cout << " Error: readColumnsFromCSVFile cannot open file " << file_name
-              << std::endl;
-    exit(1);
-  }
-
-  std::string raw_line;
-  getline(file, raw_line);
-  auto attribute_names = parseCSVLine(raw_line, separator, sep_except);
-
-  while (getline(file, raw_line)) {
-    auto data_line = parseCSVLine(raw_line, separator, sep_except);
-    for (auto i = 0u; i < data_line.size(); i++)
-      data[attribute_names.at(i)].push_back(data_line.at(i));
-  }
-
-  return data;
-}
-
-
-// extract a value from a map<string,vector<string>>
-// given a value from one vector, return the value in another vector at the same
-// index
-inline std::string
-CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
-          const std::string &lookup_key, const std::string &lookup_value,
-          const std::string &return_key) {
-
-  if (csv_table.find(lookup_key) == csv_table.end()) {
-    std::cout << " Error : CSVLookup could not find requested lookup key"
-              << std::endl;
-    exit(1);
-  }
-
-  if (csv_table.find(return_key) == csv_table.end()) {
-    std::cout << "Error : CSVLookup could not find requested return key "
-              << std::endl;
-    exit(1);
-  }
-
-  auto iter = std::find(csv_table[lookup_key].begin(),
-                        csv_table[lookup_key].end(), lookup_value);
-  if (iter == csv_table[lookup_key].end()) {
-    std::cout << "Error : CSVLookup could not find requested lookup value"
-              << std::endl;
-    exit(1);
-  }
-
-  size_t pos = std::distance(csv_table[lookup_key].begin(), iter);
-  if (csv_table[return_key].size() <= pos) {
-    std::cout
-        << "Error : CSVLookup could not find extract lookup value index from "
-           "return_key"
-        << std::endl;
-    exit(1);
-  }
-
-  return csv_table[return_key][pos];
-}
-
-
-template <class T>
-inline static bool load_value(const std::string &value, T &target) {
-  std::stringstream ss(value);
-  std::string remaining;
-  return ss >> target ? !(ss >> remaining) : false;
-}
-
 // Put an arbitrary value to the target variable, return false on conversion
-// failure (COPIES FUNCTION OF load_value()!)
 template <class T>
 inline static bool stringToValue(const std::string &source, T &target) {
   std::stringstream ss(source);
@@ -199,62 +90,13 @@ inline static bool stringToValue(const std::string &source, T &target) {
   return ss >> target ? !(ss >> remaining) : false;
 }
 
-template <class T> inline static T stringTo(std::string source) {
-  std::stringstream ss(source);
-  std::string remaining;
-  T target;
-  ss >> target;
-  if (ss >> remaining) {
-	std::cout << "error: cannot convert from string to type " << typeid(T).name() << std::endl;
-	exit(1);
-  }
-  return target;
-}
-
-// converts a vector of string to a vector of type of returnData
-template <class T>
-inline void convertCSVListToVector(std::string string_data,
-                                   std::vector<T> &return_data,
-                                   const char separator = ',',
-                                   const char sep_except = '"') {
-  return_data.clear();
-  // check all uses of this function to see if leading and trailing quotes are
-  // needed
-  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
-  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
-  std::smatch m_quote;
-  string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
-                    ? m_quote[1].str()
-                    : string_data;
-  std::smatch m_square;
-  string_data = std::regex_match(string_data, m_square, stripoff_square_brackets)
-                    ? m_square[1].str()
-                    : string_data;
-
-  T temp; // immediately assign from stringToValue
-  for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
-    if (!stringToValue(s, temp)) {
-      std::cout << " --- while parsing: " << string_data << " .... "
-                << std::endl;
-      std::cout << " In convertCSVListToVector() attempt to convert string "
-                << s << " to  value failed\n " << std::endl;
-      exit(1);
-    }
-    return_data.push_back(temp);
-  }
-}
 
 // this is here so we can use to string and it will work even if we give it a
 // string as input
 inline std::string to_string(std::string str) { return (str); }
 
-/*
- * getBestInVector(vector<T> vec)
- * given W (a list of scores), return the index of the highest score
- * if more then one genome has max score, return the first one.
- */
-template <typename Type>
-inline int findGreatestInVector(std::vector<Type> vec) {
+// return the index of max_element in vector<T>
+template <typename T> inline int findGreatestInVector(std::vector<T> vec) {
   return std::distance(vec.begin(), std::max_element(vec.begin(), vec.end()));
 }
 
@@ -324,7 +166,6 @@ inline int vectorToTritToInt(const std::vector<Type> &nodes,
 // :3 (with defaultMax = 20)              /   0,3,6,9,12,15,18
 // 4,10-15,30:2 ((with defaultMax = 40)   /
 // 4,10,11,12,13,14,15,30,32,34,36,38,40
-
 inline std::vector<int> seq(const std::string sequence_string,
                             int default_max = -1, bool add_zero = false) {
   std::set<int> result;
@@ -364,26 +205,5 @@ inline std::vector<int> seq(const std::string sequence_string,
   return v;
 }
 
-// load a line from FILE. IF the line is empty or a comment (starts with #),
-// skip line.
-// if the line is not empty/comment, clean ss and load line.
-// rawLine is the string version of the same data as ss
-inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
-                         std::stringstream &ss) {
-  rawLine.resize(0);
-  if (file.is_open() && !file.eof()) {
-    while ((rawLine.size() == 0 || rawLine[0] == '#') && !file.eof()) {
-      getline(file, rawLine);
-    }
-    ss.clear();
-    ss.str(std::string());
-    ss << rawLine;
-  } else if (!file.eof()) {
-    std::cout << "in loadSS, file is not open!\n  Exiting." << std::endl;
-    exit(1);
-  }
-  // cout << "from file:  " << rawLine << endl;
-  return file.eof();
-}
 
 
