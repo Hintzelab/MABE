@@ -85,9 +85,9 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, exe
                       #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
                       'export PBS_JOBSCRIPT="$0"\n' +
                       '\n' +
-                      'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+                      'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     else:
-        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     outFile.write('ret=$?\n\n' +
                   'qstat -f ${PBS_JOBID}\n' +
                   '\n' +
@@ -457,14 +457,14 @@ for i in range(len(combinations)):
             else:
                 conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + stripIllegalDirnameChars(conditions[i][1:-1])
             print("running:")
-            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + replacedConstantDefs)
+            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputPrefix " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + replacedConstantDefs)
             # make rep directory (this will also make the condition directory if it's not here already)
             call(["mkdir","-p", conditionDirectoryName + "/" + str(rep).zfill(padSizeReps)])
             if not args.runNo:
                 sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
-                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
+                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputPrefix" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
         if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)

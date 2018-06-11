@@ -40,7 +40,7 @@ public:
       commentIndentPL; // minimum number of characters before comments
 
   static std::shared_ptr<ParameterLink<std::string>>
-      outputDirectoryPL; // where files will be written
+      outputPrefixPL; // where files will be written
 
   // static shared_ptr<ParameterLink<string>> groupNameSpacesPL;
 
