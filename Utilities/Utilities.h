@@ -21,17 +21,17 @@
 #include <cmath>
 #include <numeric>
 
-inline std::string get_var_typename(const bool &) { return "bool"; }
+inline auto get_var_typename(const bool &) { return "bool"; }
 
-inline std::string get_var_typename(const std::string &) { return "string"; }
+inline auto  get_var_typename(const std::string &) { return "string"; }
 
-inline std::string get_var_typename(const int &) { return "int"; }
+inline auto  get_var_typename(const int &) { return "int"; }
 
-inline std::string get_var_typename(const double &) { return "double"; }
+inline auto  get_var_typename(const double &) { return "double"; }
 
 // not as efficient as it could be (should be an iterable range)
 template <typename Match = std::smatch>
-inline std::vector<Match> forEachRegexMatch(const std::string &s,
+inline auto forEachRegexMatch(const std::string &s,
                                             const std::regex &r) {
   std::vector<Match> v;
   for (std::sregex_iterator end,
@@ -41,8 +41,7 @@ inline std::vector<Match> forEachRegexMatch(const std::string &s,
   return v;
 }
 
-inline std::vector<std::string>
-nameSpaceToNameParts(const std::string &name_space) {
+inline auto nameSpaceToNameParts(const std::string &name_space) {
   std::vector<std::string> name_parts;
   static const std::regex valid_name_space(R"(^(\w+::)*$)");
   if (!std::regex_match(name_space, valid_name_space)) {
@@ -93,10 +92,10 @@ inline static bool stringToValue(const std::string &source, T &target) {
 
 // this is here so we can use to string and it will work even if we give it a
 // string as input
-inline std::string to_string(std::string str) { return (str); }
+inline std::string to_string(std::string str) { return str; }
 
 // return the index of max_element in vector<T>
-template <typename T> inline int findGreatestInVector(std::vector<T> vec) {
+template <typename T> inline auto findGreatestInVector(std::vector<T> vec) {
   return std::distance(vec.begin(), std::max_element(vec.begin(), vec.end()));
 }
 
@@ -166,8 +165,8 @@ inline int vectorToTritToInt(const std::vector<Type> &nodes,
 // :3 (with defaultMax = 20)              /   0,3,6,9,12,15,18
 // 4,10-15,30:2 ((with defaultMax = 40)   /
 // 4,10,11,12,13,14,15,30,32,34,36,38,40
-inline std::vector<int> seq(const std::string sequence_string,
-                            int default_max = -1, bool add_zero = false) {
+inline auto seq(const std::string sequence_string, int default_max = -1,
+                bool add_zero = false) {
   std::set<int> result;
   // as described above
   static const std::regex commas(
@@ -204,6 +203,4 @@ inline std::vector<int> seq(const std::string sequence_string,
   std::vector<int> v(result.begin(), result.end());
   return v;
 }
-
-
 
