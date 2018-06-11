@@ -61,7 +61,7 @@ Parameters::register_parameter(
 	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
 std::shared_ptr<ParameterLink<bool>> SimpleOptimizer::cullByRangePL =
-Parameters::register_parameter("OPTIMIZER_SIMPLE-cullRangeByRange", false,
+Parameters::register_parameter("OPTIMIZER_SIMPLE-cullByRange", false,
 	"if true cull will be relative to min and max score"
 	"\n  i.e. cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)"
 	"\nif false, cull will be relative to organism ranks"
@@ -185,19 +185,26 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 	auto culledScoresHaveDetla = false;
 	if (cullByRange) {
 		cullBelowScore = minScore + ((maxScore - minScore) * cullBelow);
+		
+		// uncomment to see all scores
+		//for (auto s : scores) {
+		//	std::cout << s << " ";
+		//}
+		//std::cout << "\ncullBelowScore: " << cullBelowScore << std::endl;
+
 	} else { // cull not by range, but by rank position
 		auto sortedScores = scores;
-		std::sort(sortedScores.begin(), sortedScores.end());
-		cullBelowScore = sortedScores[sortedScores.size()
-			- static_cast<int>(((static_cast<double>(sortedScores.size())) * (1.0 - cullBelow)) + 1)];
-		
-		/* uncomment to see all scores
-		for (auto ss : sortedScores) {
-			std::cout << ss << " ";
-		}
-		std::cout << std::endl;
-		*/
+		auto cull_index = std::ceil(std::max(((cullBelow * sortedScores.size()) - 1.0),0.0));
+		std::nth_element(std::begin(sortedScores),
+			std::begin(sortedScores) + cull_index,
+			std::end(sortedScores));
+		cullBelowScore = sortedScores[cull_index];
 
+		// uncomment to see all scores
+		//for (auto ss : sortedScores) {
+		//	std::cout << ss << " ";
+		//}
+		//std::cout << "\ncull_index: " << cull_index << " cullBelowScore: " << cullBelowScore << std::endl;
 	}
 	deltaScore = maxScore - cullBelowScore;
 	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
