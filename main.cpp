@@ -54,23 +54,38 @@ int main(int argc, const char *argv[]) {
 
 
   configureDefaultsAndDocumentation(); // sets up values from modules.h
-  bool saveFiles =
-      Parameters::initializeParameters(argc, argv); // loads command line and
-                                                    // configFile values into
-                                                    // registered parameters
+  Parameters::initializeParameters(argc, argv); // loads command line and
+                                                // configFile values into
+                                                // registered parameters
   std::cout << MABE_pretty_logo;
 
   // also writes out a settings files if requested
-  if (saveFiles) { // if saveFiles (save settings files) is set
+  if (Parameters::save_files) { // if saveFiles (save settings files) is set
     int maxLineLength = Global::maxLineLengthPL->get();
     int commentIndent = Global::commentIndentPL->get();
 
+    auto prefix = Parameters::save_file_prefix;
+    auto dir_part = prefix.substr(0, prefix.find_last_of('/'));
+
+    if (!zz::os::is_directory(dir_part)) {
+      std::cout << "Error : Directory \"" << dir_part
+                << "/\" does not exist. Settings Files will not be saved.\n";
+      exit(1);
+    }
+
+    std::cout << "Saving settings files ..." << std::flush;
+
     Parameters::saveSettingsFiles(
         maxLineLength, commentIndent, {"*"},
-        {{"settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
-         {"settings_world.cfg", {"WORLD*"}},
-         {"settings.cfg", {""}}});
-    std::cout << "Saving settings files and exiting." << std::endl;
+        {{prefix + "settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
+         {prefix + "settings_world.cfg", {"WORLD*"}},
+         {prefix + "settings.cfg", {""}}});
+
+    std::cout << std::endl
+              << "Settings files saved in Directory \"" << dir_part
+              << "\" with prefix \""
+              << prefix.substr(prefix.find_last_of('/') + 1) << "\""
+              << std::endl;
     exit(0);
   }
 
@@ -83,12 +98,24 @@ int main(int argc, const char *argv[]) {
   ///
   ///////////////////////////////////////////////////////////////////////////
 
-  FileManager::outputDirectory = Global::outputDirectoryPL->get();
-  if (!zz::os::is_directory(FileManager::outputDirectory)) {
-    std::cout << "Error : outputDirectory \"" << FileManager::outputDirectory
+  auto output_prefix = "./" + Global::outputPrefixPL->get();
+  auto output_dir = output_prefix.substr(0, output_prefix.find_last_of('/'));
+
+  if (output_prefix.back() != '/' && zz::os::is_directory(output_prefix)) {
+    std::cout << "Warning: Output files will be saved in Directory \""
+              << output_dir << "\" with the prefix \""
+              << output_prefix.substr(output_prefix.find_last_of('/') + 1)
+              << "\"\n         If you mean to save outputFiles to the Directory \""
+              << output_prefix << "/\", please end outputPrefix with /\n"
+              << std::endl;
+  }
+
+  if (!zz::os::is_directory(output_dir)) {
+    std::cout << "Error : outputDirectory \"" <<output_dir
               << "\" does not exist\n";
     exit(1);
   }
+  FileManager::outputPrefix = output_prefix;
 
   // set up random number generator
   if (Global::randomSeedPL->get() == -1) {

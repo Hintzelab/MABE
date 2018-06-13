@@ -37,9 +37,10 @@ std::shared_ptr<ParameterLink<int>> Global::commentIndentPL =
     Parameters::register_parameter("PARAMETER_FILES-commentIndent", 45,
                                    "minimum space before comments");
 
-std::shared_ptr<ParameterLink<std::string>> Global::outputDirectoryPL =
-    Parameters::register_parameter("GLOBAL-outputDirectory", std::string("./"),
-                                   "where files will be written");
+std::shared_ptr<ParameterLink<std::string>> Global::outputPrefixPL =
+    Parameters::register_parameter(
+        "GLOBAL-outputPrefix", std::string("./"),
+        "Directory and prefix specifying where data files will be written");
 
 // shared_ptr<ParameterLink<string>> Global::groupNameSpacesPL =
 // Parameters::register_parameter("GLOBAL-groups", (string) "[]", "name spaces

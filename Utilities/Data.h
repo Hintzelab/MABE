@@ -29,7 +29,7 @@ public:
   static std::map<std::string, std::ofstream> files;  // list of files (NAME,ofstream)
   static std::map<std::string, bool> fileStates; // list of files states (NAME,open?)
 
-  static std::string outputDirectory;
+  static std::string outputPrefix;
 
   static const char separator = ',';
 
