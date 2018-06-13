@@ -179,14 +179,13 @@ void LexicaseOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populat
 	scoresHaveDelta = false; // if all scores are the same, then random selection will result
 
 	// get all scores and record to dataMap
-	    //scores.clear();
+
 	// reset scores each update (population size may have changed...
 	scores = std::vector<std::vector<double>>(population.size(), std::vector<double>(optimizeFormulasMTs.size(), 0));
 
 	for (size_t i = 0; i < population.size(); i++) {
 		// for each org in population
 		killList.insert(population[i]); // add to kill list so that they are deleted in cleanup step
-		//scores.push_back({});
 		for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
 			scores[i][fIndex] = optimizeFormulasMTs[fIndex]->eval(population[i]->dataMap, PT)[0];
 			aveScores[fIndex] += scores[i][fIndex];
