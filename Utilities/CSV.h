@@ -22,7 +22,7 @@
 
 class CSVReader {
 
-  std::string delimiter_, quotation_;
+  std::string delimiter_, open_quotation_, close_quotation_;
   std::regex item_;
   
   // try and convert a std::string to a particular type
@@ -35,10 +35,11 @@ class CSVReader {
   }
 
 public:
+  CSVReader(char d, char oq) : CSVReader(d,oq,oq) {}
   CSVReader() : CSVReader(',', '"') {}
-  CSVReader(char s, char se)
-      : delimiter_(1, s), quotation_(1, se),
-        item_(R"((.*?)(\)" + delimiter_ + "|\\" + quotation_ + R"(|$))") {}
+  CSVReader(char d, char oq, char cq)
+      : delimiter_(1, d), open_quotation_(1, oq), close_quotation_(1, cq),
+        item_(R"((.*?)(\)" + delimiter_ + "|\\" + open_quotation_ + R"(|$))") {}
 
   // template <class T> auto  stringTo(std::string source);
   // parse a csv line into a vector<T>
@@ -54,15 +55,16 @@ public:
     while (true) {
       // find next delimiter
       auto delim = raw_line.find_first_of(delimiter_, current);
-      // find next quotation
-      auto quote = raw_line.find_first_of(quotation_, current);
-      // if the next quotation comes before the next delimiter
-      if (quote < delim) {
-        //  find next quotation
-        auto nested_quote = raw_line.find_first_of(quotation_, quote + 1);
+      // find next open quotation
+      auto open_quote = raw_line.find_first_of(open_quotation_, current);
+      // if the next open quotation comes before the next delimiter
+      if (open_quote < delim) {
+        //  find close quotation
+        auto close_quote =
+            raw_line.find_first_of(close_quotation_, open_quote + 1);
         // find first delimiter after that; ignoring delimiter inside of
-        // quotation warning: assumes that quotes come in pairs
-        delim = raw_line.find_first_of(delimiter_, nested_quote);
+        // quotation >> warning: assumes that quotes come in pairs
+        delim = raw_line.find_first_of(delimiter_, close_quote);
       }
       // if line is completely parsed
       if (delim == std::string::npos) {
