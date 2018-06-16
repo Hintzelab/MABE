@@ -167,11 +167,13 @@ void LexicaseOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populat
 
     std::vector<double> aveScores;
     std::vector<double> maxScores;
-	std::vector<double> minScores;
+    std::vector<double> minScores;
 
 	// add population to kill list so that they are deleted in cleanup step
     killList.clear();
     killList.insert(std::begin(population),std::end(population));  
+	
+	scoresHaveDelta = false; 
 
 	scores.clear();
 	for (auto & opt_formula : optimizeFormulasMTs) {
