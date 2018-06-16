@@ -38,9 +38,9 @@ public:
   CSVReader() : CSVReader(',', '"') {}
   CSVReader(char s, char se)
       : delimiter_(1, s), quotation_(1, se),
-        item_(R"((.*?)()" + delimiter_ + "|" + quotation_ + R"(|$))") {}
+        item_(R"((.*?)(\)" + delimiter_ + "|\\" + quotation_ + R"(|$))") {}
 
- // template <class T> auto  stringTo(std::string source);
+  // template <class T> auto  stringTo(std::string source);
   // parse a csv line into a vector<T>
   template <typename T = std::string>
   std::vector<T> parseLine(std::string raw_line) {
@@ -48,20 +48,8 @@ public:
 
 	if (raw_line.empty())
 		return data;
-/*
-    static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
-    static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
-    std::smatch m_quote;
-    raw_line = std::regex_match(raw_line, m_quote, stripoff_qoute)
-                   ? m_quote[1].str()
-                   : raw_line;
-    std::smatch m_square;
-    raw_line = std::regex_match(raw_line, m_square, stripoff_square_brackets)
-                   ? m_square[1].str()
-                   : raw_line;
-*/
-
-    auto current = 0u;
+    
+	auto current = 0u;
 
     while (true) {
       // find next delimiter

@@ -14,53 +14,6 @@
 #include <sstream>
 #include <vector>
 
-/*
-// if line is enclosed by "[...]", the quotes and brackets are stripped off
-template <typename T>
-std::vector<T> CSVReader::parseLine(std::string raw_line) {
-  std::vector<T> data;
-
-  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
-  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
-  std::smatch m_quote;
-  raw_line= std::regex_match(raw_line, m_quote, stripoff_qoute)
-                    ? m_quote[1].str()
-                    : raw_line;
-  std::smatch m_square;
-  raw_line= std::regex_match(raw_line, m_square, stripoff_square_brackets)
-                    ? m_square[1].str()
-                    :raw_line ;
-  auto current = 0u;
-
-  while (true) {
-    // find next delimiter
-    auto delim = raw_line.find_first_of(delimiter_, current);
-    // find next quotation
-    auto quote = raw_line.find_first_of(quotation_, current);
-    // if the next quotation comes before the next delimiter
-    if (quote < delim) {
-      //  find next quotation
-      auto nested_quote = raw_line.find_first_of(quotation_, quote + 1);
-      // find first delimiter after that; ignoring delimiter inside of quotation
-      // warning: assumes that quotes come in pairs
-   	  delim = raw_line.find_first_of(delimiter_, nested_quote);
-    }
-    // if line is completely parsed
-    if (delim == std::string::npos) {
-      break;
-    }
-	// add the next field
-    data.push_back(stringTo<T>(raw_line.substr(current, delim - current)));
-    // search for the next field
-	current = delim + 1;
-  }
-  
-  //add the last field
-  data.push_back(stringTo<T>(raw_line.substr(current)));
-
-  return data;
-}
-*/
 
 std::vector<std::string> CSV::singleColumn(std::string column) {
   if (!hasColumn(column)) {
