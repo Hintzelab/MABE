@@ -114,11 +114,11 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 
 		if (epsilonByRange) {
 			// get the range of scores
-			double maxScoreHere = scores[keepers[0]][formulaIndex];
+			double maxScoreHere = scores[formulaIndex][keepers[0]];
 			double minScoreHere = maxScoreHere;
 			for (size_t i = 0; i < keepers.size(); i++) {
-				maxScoreHere = std::max(scores[keepers[i]][formulaIndex], maxScoreHere);
-				minScoreHere = std::min(scores[keepers[i]][formulaIndex], minScoreHere);
+				maxScoreHere = std::max(scores[formulaIndex][keepers[i]], maxScoreHere);
+				minScoreHere = std::min(scores[formulaIndex][keepers[i]], minScoreHere);
 			}
 			// get scoreCutoff relivite to min and max
 			scoreCutoff = (maxScoreHere - ((maxScoreHere - minScoreHere) * epsilon));
@@ -127,7 +127,7 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 			// create a vector of remaning scores and sort them
 			std::vector<double> keeperScores;
 			for (size_t i = 0; i < keepers.size(); i++) {
-				keeperScores.push_back(scores[keepers[i]][formulaIndex]);
+				keeperScores.push_back(scores[formulaIndex][keepers[i]]);
 			}
 			
 			auto cull_index = std::ceil(std::max((((1.0 - epsilon) * keeperScores.size()) - 1.0), 0.0));
@@ -142,7 +142,7 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 		}
 		// for each keeper, see if there are still a keeper, i.e. they have score >= scoreCutoff
 		for (size_t i = 0; i < keepers.size();) {
-			if (scores[keepers[i]][formulaIndex] >= scoreCutoff) {
+			if (scores[formulaIndex][keepers[i]] >= scoreCutoff) {
 				i++; // this is a keeper
 			}
 			else {
@@ -165,49 +165,42 @@ void LexicaseOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populat
 
 	int nextPopulationSize = 0;
 
-	// initialize ave,max and, min vectors
-	std::vector<double> aveScores(optimizeFormulasMTs.size());
-	std::vector<double> maxScores(optimizeFormulasMTs.size());
-	std::vector<double> minScores(optimizeFormulasMTs.size());
-	for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
-		aveScores[fIndex] = 0;
-		maxScores[fIndex] = optimizeFormulasMTs[fIndex]->eval(population[0]->dataMap, PT)[0];
-		minScores[fIndex] = maxScores.back();
+    std::vector<double> aveScores;
+    std::vector<double> maxScores;
+	std::vector<double> minScores;
+
+	// add population to kill list so that they are deleted in cleanup step
+    killList.clear();
+    killList.insert(std::begin(population),std::end(population));  
+
+	scores.clear();
+	for (auto & opt_formula : optimizeFormulasMTs) {
+
+	  std::vector<double>pop_scores ;
+	  for(auto & org:population)
+		 pop_scores.push_back(opt_formula->eval(org->dataMap,PT)[0]);
+
+	  scores.push_back(pop_scores);
+
+      aveScores.push_back(
+             std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0) /
+    		 oldPopulationSize);
+    
+	  auto const minmax = std::minmax_element(std::begin(pop_scores),
+	                                          std::end(pop_scores));
+
+	  scoresHaveDelta |= *minmax.first < *minmax.second; 
+
+	  minScores.push_back(*minmax.first);
+	  maxScores.push_back(*minmax.second);
 	}
 
-	killList.clear(); // will hold orgs which will be cleaned up after archive
-	scoresHaveDelta = false; // if all scores are the same, then random selection will result
-
-	// get all scores and record to dataMap
-
-	// reset scores each update (population size may have changed...
-	scores = std::vector<std::vector<double>>(population.size(), std::vector<double>(optimizeFormulasMTs.size(), 0));
-
-	for (size_t i = 0; i < population.size(); i++) {
-		// for each org in population
-		killList.insert(population[i]); // add to kill list so that they are deleted in cleanup step
-		for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
-			scores[i][fIndex] = optimizeFormulasMTs[fIndex]->eval(population[i]->dataMap, PT)[0];
-			aveScores[fIndex] += scores[i][fIndex];
-			if (recordOptimizeValues){
-				population[i]->dataMap.set(scoreNames[fIndex], scores.back().back());
-			}
-			if (scores[i][fIndex] > maxScores[fIndex]) {
-				maxScores[fIndex] = scores[i][fIndex];
-				scoresHaveDelta = true;
-			}
-			if (scores[i][fIndex] < minScores[fIndex]) {
-				minScores[fIndex] = scores[i][fIndex];
-				scoresHaveDelta = true;
-			}
-		}
-	}
-
-	for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
-		aveScores[fIndex] /= oldPopulationSize;
-	}
-	
-	// hold newly generated orgs - do not add to population until all have been selected
+    if (recordOptimizeValues)
+      for (size_t i = 0; i < population.size(); i++)
+         for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) 
+              population[i]->dataMap.set(scoreNames[fIndex], scores[fIndex][i]);
+            
+        // hold newly generated orgs - do not add to population until all have been selected
 	std::vector<std::shared_ptr<Organism>> newPopulation;
 
 	// temp vector used to pass tournamentSize randomly selected orgs to lexicase algorithm
