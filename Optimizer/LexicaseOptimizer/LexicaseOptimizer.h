@@ -23,7 +23,7 @@ public:
 	static std::shared_ptr<ParameterLink<std::string>> optimizeFormulaNamesPL;
 	static std::shared_ptr<ParameterLink<double>> epsilonPL;
 	static std::shared_ptr<ParameterLink<bool>> epsilonByRangePL;
-	static std::shared_ptr<ParameterLink<int>> tournamentSizePL;
+	static std::shared_ptr<ParameterLink<int>> poolSizePL;
 	static std::shared_ptr<ParameterLink<std::string>> nextPopSizePL;
 	static std::shared_ptr<ParameterLink<int>> numberParentsPL;
 	static std::shared_ptr<ParameterLink<bool>> recordOptimizeValuesPL;
@@ -33,7 +33,7 @@ public:
 	bool scoresHaveDelta = false;
 	double epsilon;
 	bool epsilonByRange;
-	int tournamentSize;
+	int poolSize;
 
 	std::shared_ptr<Abstract_MTree> nextPopSizeFormula;
 	int numberParents;

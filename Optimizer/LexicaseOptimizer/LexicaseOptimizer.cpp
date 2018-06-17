@@ -47,8 +47,8 @@ Parameters::register_parameter("OPTIMIZER_LEXICASE-epsilonByRange", false,
 	"\nif false, epsilon will be relative to organism ranks"
 	"\n  i.e. keep (best current keepers * epsilon) organisms");
 
-std::shared_ptr<ParameterLink<int>> LexicaseOptimizer::tournamentSizePL = 
-Parameters::register_parameter("OPTIMIZER_LEXICASE-tournamentSize", -1,
+std::shared_ptr<ParameterLink<int>> LexicaseOptimizer::poolSizePL = 
+Parameters::register_parameter("OPTIMIZER_LEXICASE-poolSize", -1,
 	"number of organisms used when selecting parent(s) in the lexicase algorithm, -1 indicates to use entire population");
 
 std::shared_ptr<ParameterLink<bool>> LexicaseOptimizer::recordOptimizeValuesPL = 
@@ -81,7 +81,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 
 	epsilon = epsilonPL->get(PT);
 	epsilonByRange = epsilonByRangePL->get(PT);
-	tournamentSize = tournamentSizePL->get(PT);
+	poolSize = poolSizePL->get(PT);
 	nextPopSizeFormula = stringToMTree(nextPopSizePL->get(PT));
 	numberParents = numberParentsPL->get(PT);
 	recordOptimizeValues = recordOptimizeValuesPL->get(PT);
@@ -218,7 +218,7 @@ void LexicaseOptimizer::optimize(
       for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++)
         population[i]->dataMap.set(scoreNames[fIndex], scores[fIndex][i]);
 
-  tournamentSize = tournamentSize == -1 ? population.size() : tournamentSize;
+  poolSize = poolSize == -1 ? population.size() : poolSize;
 
 
   auto nextPopulationTargetSize = nextPopSizeFormula->eval(PT)[0];
@@ -237,7 +237,7 @@ void LexicaseOptimizer::optimize(
         std::vector<std::shared_ptr<Organism>> parents;
         std::generate_n(std::back_inserter(parents), numberParents, [&] {
           return population[lexiSelect(
-              random_iota(tournamentSize, population.size()))];
+              random_iota(poolSize, population.size()))];
         });
         return parents[0]->makeMutatedOffspringFromMany(parents);
       });
