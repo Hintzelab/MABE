@@ -80,7 +80,6 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 		convertCSVListToVector(optimizeFormulaNamesPL->get(PT), scoreNames);
 	}
 
-
 	epsilon = epsilonPL->get(PT);
 	if (epsilonRelativeToPL->get(PT) == "score") {
 		epsilonRelativeTo = true;
@@ -94,6 +93,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 			"\n  exiting.";
 		exit(1);
 	}
+      
 	poolSize = poolSizePL->get(PT);
 	nextPopSizeFormula = stringToMTree(nextPopSizePL->get(PT));
 	numberParents = numberParentsPL->get(PT);
@@ -249,7 +249,8 @@ void LexicaseOptimizer::optimize(
       std::back_inserter(newPopulation), nextPopulationTargetSize, [&] {
         std::vector<std::shared_ptr<Organism>> parents;
         std::generate_n(std::back_inserter(parents), numberParents, [&] {
-          return population[lexiSelect( random_iota(poolSize, population.size()))];
+          return population[lexiSelect(
+              random_iota(poolSize, population.size()))];
         });
         return parents[0]->makeMutatedOffspringFromMany(parents);
       });
