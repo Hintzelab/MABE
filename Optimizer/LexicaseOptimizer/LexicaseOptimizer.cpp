@@ -161,8 +161,8 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &orgIndexList) {
 				std::end(keeperScores));
 			scoreCutoff = keeperScores[cull_index];
 
-			std::cout << "cull_index: " << cull_index << "  keeperScores.size(): " << keeperScores.size() << std::endl;
-			std::cout << "scoreCutoff: " << scoreCutoff << std::endl;
+			//std::cout << "cull_index: " << cull_index << "  keeperScores.size(): " << keeperScores.size() << std::endl;
+			//std::cout << "scoreCutoff: " << scoreCutoff << std::endl;
 		}
 		// for each keeper, see if there are still a keeper, i.e. they have score >= scoreCutoff
 		for (size_t i = 0; i < keepers.size();) {
