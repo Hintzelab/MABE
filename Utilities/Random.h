@@ -16,6 +16,7 @@
 #pragma once
 
 #include <random>
+#include <algorithm>
 
 namespace Random {
 
@@ -85,5 +86,15 @@ inline bool P(const double probability, Generator &gen = getCommonGenerator()) {
 inline double getNormal(const double mu, const double sigma,
                         Generator &gen = getCommonGenerator()) {
   return std::normal_distribution<>(mu, sigma)(gen);
+}
+
+// returns a random subset of ints of size m, from an iota of size n
+inline std::vector<int> randomIota(int m, int n) {
+  std::vector<int> v(n);
+  std::iota(std::begin(v), std::end(v), 0);
+  std::shuffle(std::begin(v), std::end(v), Random::getCommonGenerator());
+  std::vector<int> r;
+  std::copy_n(std::begin(v), n, std::back_inserter(r));
+  return r;
 }
 }
