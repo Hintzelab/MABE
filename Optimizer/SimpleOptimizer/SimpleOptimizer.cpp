@@ -60,6 +60,13 @@ Parameters::register_parameter(
 	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
 	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
+std::shared_ptr<ParameterLink<bool>> SimpleOptimizer::cullByRangePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-cullByRange", false,
+	"if true cull will be relative to min and max score"
+	"\n  i.e. cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)"
+	"\nif false, cull will be relative to organism ranks"
+	"\n  i.e. find score of cullBelow*populaiton size best, and discard all orgs with lower score.");
+
 SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
@@ -73,6 +80,26 @@ SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
   elitismRangeMT = stringToMTree(elitismRangePL->get(PT));
   nextPopSizeMT = stringToMTree(nextPopSizePL->get(PT));
 
+  cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
+									// culled orgs will not be automatically not be allowed to survive
+									// if -1 (default) then cullBelowScore = 0
+  cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
+									// such that min score is the value
+									// if -1, no normalization will occur
+
+  if (cullBelow != -1 && !(cullBelow >= 0 && cullBelow <= 1.0)) {
+	  std::cout << "  in SimpleOptimizer constructor, found cullBelow value "
+		  << cullBelow << " but cullBelow must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+	  exit(1);
+  }
+  if (cullRemap != -1 && !(cullRemap >= 0 && cullRemap <= 1.0)) {
+	  std::cout << "  in SimpleOptimizer constructor, found cullRemap value "
+		  << cullRemap << " but cullRemap must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+	  exit(1);
+  }
+
+  cullByRange = cullByRangePL->get(PT);;
+  
   optimizeFormula = optimizeValueMT;
 
   std::vector<std::string> selectorArgs;
@@ -124,14 +151,6 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
   auto scoresHaveDelta = false;
 
   double deltaScore; // maxScore - cullBelow
-
-  double cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
-						 // culled orgs will not be automatically not be allowed to survive
-						 // if -1 (default) then cullBelowScore = 0
-  double cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
-							   // such that min score is the value
-							   // if -1, no normalization will occur
-
   
   double cullBelowScore;
 
@@ -164,9 +183,31 @@ void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &populatio
 	culledMinScore = maxScore;
 	culledMaxScore = maxScore;
 	auto culledScoresHaveDetla = false;
-	cullBelowScore = minScore + ((maxScore-minScore) * cullBelow);
-	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
+	if (cullByRange) {
+		cullBelowScore = minScore + ((maxScore - minScore) * cullBelow);
+		
+		// uncomment to see all scores
+		//for (auto s : scores) {
+		//	std::cout << s << " ";
+		//}
+		//std::cout << "\ncullBelowScore: " << cullBelowScore << std::endl;
+
+	} else { // cull not by range, but by rank position
+		auto sortedScores = scores;
+		auto cull_index = std::ceil(std::max(((cullBelow * sortedScores.size()) - 1.0),0.0));
+		std::nth_element(std::begin(sortedScores),
+			std::begin(sortedScores) + cull_index,
+			std::end(sortedScores));
+		cullBelowScore = sortedScores[cull_index];
+
+		// uncomment to see all scores
+		//for (auto ss : sortedScores) {
+		//	std::cout << ss << " ";
+		//}
+		//std::cout << "\ncull_index: " << cull_index << " cullBelowScore: " << cullBelowScore << std::endl;
+	}
 	deltaScore = maxScore - cullBelowScore;
+	//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
 	//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
 	for (size_t i = 0; i < population.size(); i++) {
 		//std::cout << scores[i];
