@@ -12,7 +12,10 @@
 #include "../../Utilities/MTree.h"
 
 #include <iostream>
-#include <sstream>
+#include <numeric>
+#include <algorithm>
+#include <vector>
+#include <memory>
 
 class LexicaseOptimizer : public AbstractOptimizer {
 public:

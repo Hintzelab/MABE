@@ -9,6 +9,12 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 #include "LexicaseOptimizer.h"
+#include <iostream>
+#include <numeric>
+#include <algorithm>
+#include <vector>
+#include <memory>
+
 
 std::shared_ptr<ParameterLink<std::string>> LexicaseOptimizer::optimizeFormulasPL =
     Parameters::register_parameter("OPTIMIZER_LEXICASE-optimizeFormulas",
@@ -42,7 +48,7 @@ Parameters::register_parameter("OPTIMIZER_LEXICASE-epsilonByRange", false,
 	"\n  i.e. keep (best current keepers * epsilon) organisms");
 
 std::shared_ptr<ParameterLink<int>> LexicaseOptimizer::tournamentSizePL = 
-Parameters::register_parameter("OPTIMIZER_LEXICASE-poolSize", -1,
+Parameters::register_parameter("OPTIMIZER_LEXICASE-tournamentSize", -1,
 	"number of organisms used when selecting parent(s) in the lexicase algorithm, -1 indicates to use entire population");
 
 std::shared_ptr<ParameterLink<bool>> LexicaseOptimizer::recordOptimizeValuesPL = 
@@ -90,6 +96,16 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 		}
 	}
 }
+
+auto random_iota = [](auto const m, auto const n) {
+  std::vector<int> v(n);
+  std::iota(std::begin(v), std::end(v), 0);
+  std::shuffle(std::begin(v), std::end(v), Random::getCommonGenerator());
+  std::vector<int> r;
+  std::copy_n(std::begin(v), n, std::back_inserter(r));
+  return r;
+};
+
 
 int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 	if (!scoresHaveDelta) { // if all scores are the same! pick random
@@ -156,107 +172,85 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 	return keepers[pickHere];
 }
 
-void LexicaseOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population) {
-	int oldPopulationSize = static_cast<int>(population.size());
-	int nextPopulationTargetSize = nextPopSizeFormula->eval(PT)[0];
-	if (nextPopulationTargetSize == -1) {
-		nextPopulationTargetSize = population.size();
-	}
 
-	int nextPopulationSize = 0;
+void LexicaseOptimizer::optimize(
+    std::vector<std::shared_ptr<Organism>> &population) {
 
-    std::vector<double> aveScores;
-    std::vector<double> maxScores;
-    std::vector<double> minScores;
+  std::vector<double> aveScores;
+  aveScores.reserve(optimizeFormulasMTs.size());
+  std::vector<double> maxScores;
+  maxScores.reserve(optimizeFormulasMTs.size());
+  std::vector<double> minScores;
+  minScores.reserve(optimizeFormulasMTs.size());
 
-	// add population to kill list so that they are deleted in cleanup step
-    killList.clear();
-    killList.insert(std::begin(population),std::end(population));  
-	
-	scoresHaveDelta = false; 
+  // add population to kill list so that they are deleted in cleanup step
+  killList.clear();
+  killList.insert(std::begin(population), std::end(population));
 
-	scores.clear();
-	for (auto & opt_formula : optimizeFormulasMTs) {
+  scoresHaveDelta = false;
 
-	  std::vector<double>pop_scores ;
-	  for(auto & org:population)
-		 pop_scores.push_back(opt_formula->eval(org->dataMap,PT)[0]);
+  scores.clear();
+  for (auto &opt_formula : optimizeFormulasMTs) {
 
-	  scores.push_back(pop_scores);
+    std::vector<double> pop_scores;
+    pop_scores.reserve(population.size());
 
-      aveScores.push_back(
-             std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0) /
-    		 oldPopulationSize);
-    
-	  auto const minmax = std::minmax_element(std::begin(pop_scores),
-	                                          std::end(pop_scores));
+    for (auto &org : population)
+      pop_scores.push_back(opt_formula->eval(org->dataMap, PT)[0]);
 
-	  scoresHaveDelta |= *minmax.first < *minmax.second; 
+    scores.push_back(pop_scores);
 
-	  minScores.push_back(*minmax.first);
-	  maxScores.push_back(*minmax.second);
-	}
+    aveScores.push_back(
+        std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0) /
+        population.size());
 
-    if (recordOptimizeValues)
-      for (size_t i = 0; i < population.size(); i++)
-         for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) 
-              population[i]->dataMap.set(scoreNames[fIndex], scores[fIndex][i]);
-            
-        // hold newly generated orgs - do not add to population until all have been selected
-	std::vector<std::shared_ptr<Organism>> newPopulation;
+    auto const minmax =
+        std::minmax_element(std::begin(pop_scores), std::end(pop_scores));
 
-	// temp vector used to pass tournamentSize randomly selected orgs to lexicase algorithm
-	std::vector<int> tournamentIndexList;
+    scoresHaveDelta |= *minmax.first < *minmax.second;
 
-	// initialize tournamentIndexList to whole population
-	for (size_t i = 0; i < population.size(); i++) {
-		tournamentIndexList.push_back(i);
-	}
+    minScores.push_back(*minmax.first);
+    maxScores.push_back(*minmax.second);
+  }
 
-	std::shared_ptr<Organism> parent; // for asexual
-	std::vector<std::shared_ptr<Organism>> parents; // for sexual
+  if (recordOptimizeValues)
+    for (size_t i = 0; i < population.size(); i++)
+      for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++)
+        population[i]->dataMap.set(scoreNames[fIndex], scores[fIndex][i]);
 
-	while (nextPopulationSize < nextPopulationTargetSize) {
-		if (numberParents == 1) { // asexual reproduction
-			if (tournamentSize == -1) {
-				parent = population[lexiSelect(tournamentIndexList)];
-			}
-			else {
-				tournamentIndexList.clear();
-				for (int i = 0; i < tournamentSize; i++) {
-					tournamentIndexList.push_back(Random::getIndex(population.size()));
-				}
-				parent = population[lexiSelect(tournamentIndexList)];
-			}
-			newPopulation.push_back(parent->makeMutatedOffspringFrom(parent)); // push to population
-		}
-		else { // sexual reproduction
-			parents.clear();
-			while (static_cast<int>(parents.size()) < numberParents) {
-				if (tournamentSize == -1) {
-					parents.push_back(population[lexiSelect(tournamentIndexList)]);
-				}
-				else {
-					tournamentIndexList.clear();
-					for (int i = 0; i < tournamentSize; i++) {
-						tournamentIndexList.push_back(Random::getIndex(population.size()));
-					}
-					parents.push_back(population[lexiSelect(tournamentIndexList)]);
-				}
-			}
-			newPopulation.push_back(parents[0]->makeMutatedOffspringFromMany(parents));
-		}
-		nextPopulationSize++;
-	}
-	
-	for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
-		std::cout << std::endl << "   " << scoreNames[fIndex] << ":  max = " << std::to_string(maxScores[fIndex])
-			<< "   ave = " << std::to_string(aveScores[fIndex]) << std::flush;
-	}
+  tournamentSize = tournamentSize == -1 ? population.size() : tournamentSize;
 
-	// add new orgs to population so they are visable to the archivist
-	for (auto org : newPopulation) {
-		population.push_back(org);
-	}
+
+  auto nextPopulationTargetSize = nextPopSizeFormula->eval(PT)[0];
+  nextPopulationTargetSize = nextPopulationTargetSize == -1
+                                 ? population.size()
+                                 : nextPopulationTargetSize;
+
+  // generate new organisms
+  // do not add to population until all have been
+  // selected
+  std::vector<std::shared_ptr<Organism>> newPopulation;
+  newPopulation.reserve(nextPopulationTargetSize);
+
+  std::generate_n(
+      std::back_inserter(newPopulation), nextPopulationTargetSize, [&] {
+        std::vector<std::shared_ptr<Organism>> parents;
+        std::generate_n(std::back_inserter(parents), numberParents, [&] {
+          return population[lexiSelect(
+              random_iota(tournamentSize, population.size()))];
+        });
+        return parents[0]->makeMutatedOffspringFromMany(parents);
+      });
+
+  // add new orgs to population so they are visable to the archivist
+  population.insert(std::end(population), std::begin(newPopulation),
+                    std::end(newPopulation));
+
+  for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
+    std::cout << std::endl
+              << "   " << scoreNames[fIndex]
+              << ":  max = " << std::to_string(maxScores[fIndex])
+              << "   ave = " << std::to_string(aveScores[fIndex]) << std::flush;
+  }
 }
 
