@@ -27,9 +27,7 @@ public:
   std::shared_ptr<Abstract_MTree> optimizeFormula;
 
   static std::shared_ptr<ParameterLink<std::string>> Optimizer_MethodStrPL;
-  static std::shared_ptr<ParameterLink<std::string>> reportNamesPL;
 
-public:
   const std::shared_ptr<ParametersTable> PT;
   std::vector<std::string> popFileColumns;
 

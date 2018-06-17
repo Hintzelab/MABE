@@ -40,12 +40,14 @@ std::shared_ptr<ParameterLink<double>> LexicaseOptimizer::epsilonPL =
 Parameters::register_parameter("OPTIMIZER_LEXICASE-epsilon", .1,
 	"cutoff when conducting per formula selection.\n"
 	"e.g. 0.1 = organisms in the top 90% are kept. use 0.0 for classic Lexicase.");
-std::shared_ptr<ParameterLink<bool>> LexicaseOptimizer::epsilonByRangePL =
-Parameters::register_parameter("OPTIMIZER_LEXICASE-epsilonByRange", false,
-	"if true epsilon will be relative to min and max score"
-	"\n  i.e. keep orgs with (score > maxScore - (maxScore-minScore) * epsilon)"
-	"\nif false, epsilon will be relative to organism ranks"
-	"\n  i.e. keep (best current keepers * epsilon) organisms");
+std::shared_ptr<ParameterLink<std::string>> LexicaseOptimizer::epsilonRelativeToPL =
+Parameters::register_parameter("OPTIMIZER_LEXICASE-epsilonRelativeTo", (std::string)"rank",
+	"determines how epsilon is calculated [rank,score]"
+	"\nif rank, epsilon will be relative to organism ranks"
+	"\n  i.e. keep (best current keepers count * epsilon) organisms"
+	"\nif score epsilon will be relative to min and max score"
+	"\n  i.e. keep orgs with score >= maxScore - ( (maxScore-minScore) * epsilon )"
+);
 
 std::shared_ptr<ParameterLink<int>> LexicaseOptimizer::poolSizePL = 
 Parameters::register_parameter("OPTIMIZER_LEXICASE-poolSize", -1,
@@ -78,9 +80,20 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 		convertCSVListToVector(optimizeFormulaNamesPL->get(PT), scoreNames);
 	}
 
-
 	epsilon = epsilonPL->get(PT);
-	epsilonByRange = epsilonByRangePL->get(PT);
+	if (epsilonRelativeToPL->get(PT) == "score") {
+		epsilonRelativeTo = true;
+	}
+	else if (epsilonRelativeToPL->get(PT) == "rank") {
+		epsilonRelativeTo = false;
+	}
+	else {
+		std::cout << "  while setting up LexicaseOptimizer, found epsilonRelativeTo value \"" <<
+			epsilonRelativeToPL->get(PT) << "\" but this value must be either \"score\" or \"rank\"."
+			"\n  exiting.";
+		exit(1);
+	}
+      
 	poolSize = poolSizePL->get(PT);
 	nextPopSizeFormula = stringToMTree(nextPopSizePL->get(PT));
 	numberParents = numberParentsPL->get(PT);
@@ -107,19 +120,20 @@ auto random_iota = [](auto const m, auto const n) {
 };
 
 
-int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
+int LexicaseOptimizer::lexiSelect(const std::vector<int> &orgIndexList) {
 	if (!scoresHaveDelta) { // if all scores are the same! pick random
-		return Random::getIndex(tournamentIndexList.size());
+		return Random::getIndex(orgIndexList.size());
 	}
 
-	// generate a vector with formulasSize and fill with values from 0 to formulasSize in a random order.
+	// generate a vector with formulasSize and fill with values from 0 to formulasSize - 1, in a random order.
 	std::vector<int> formulasOrder(optimizeFormulasMTs.size());
 	iota(formulasOrder.begin(), formulasOrder.end(), 0);
 	std::shuffle(formulasOrder.begin(), formulasOrder.end(), Random::getCommonGenerator());
 	// now we have a random order in formulasOrder
 
-	// keepers is the current list of indexes into population for orgs which have passed all tests.
-	std::vector<int> keepers  = tournamentIndexList;
+	// keepers is the current list of indexes into population for orgs which
+	// have passed all tests so far.
+	std::vector<int> keepers  = orgIndexList;
 
 	while (keepers.size() > 1 && formulasOrder.size() > 0) {
 		// while there are still atleast one keeper and there are still formulas
@@ -128,47 +142,42 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &tournamentIndexList) {
 
 		double scoreCutoff;
 
-		if (epsilonByRange) {
-			// get the range of scores
-			double maxScoreHere = scores[formulaIndex][keepers[0]];
-			double minScoreHere = maxScoreHere;
-			for (size_t i = 0; i < keepers.size(); i++) {
-				maxScoreHere = std::max(scores[formulaIndex][keepers[i]], maxScoreHere);
-				minScoreHere = std::min(scores[formulaIndex][keepers[i]], minScoreHere);
-			}
-			// get scoreCutoff relivite to min and max
-			scoreCutoff = (maxScoreHere - ((maxScoreHere - minScoreHere) * epsilon));
+		if (epsilonRelativeTo) { // get scoreCutoff relitive to score
+			auto scoreRange = std::minmax_element(std::begin(scores[formulaIndex]), std::end(scores[formulaIndex]));
+			scoreCutoff = (*scoreRange.second - ((*scoreRange.second - *scoreRange.first) * epsilon));
 		}
-		else { // not epsilonByRange
-			// create a vector of remaning scores and sort them
+		else { // get scoreCutoff relitive to rank
+			// create a vector of remaning scores
 			std::vector<double> keeperScores;
 			for (size_t i = 0; i < keepers.size(); i++) {
 				keeperScores.push_back(scores[formulaIndex][keepers[i]]);
 			}
-			
-			auto cull_index = std::ceil(std::max((((1.0 - epsilon) * keeperScores.size()) - 1.0), 0.0));
+			// based on the number of keepers, calculate how many to keep.
+			size_t cull_index = std::ceil(std::max((((1.0 - epsilon) * keeperScores.size()) - 1.0), 0.0));
 
+			// get score at the cull index position
 			std::nth_element(std::begin(keeperScores),
 				std::begin(keeperScores) + cull_index,
 				std::end(keeperScores));
 			scoreCutoff = keeperScores[cull_index];
 
-			//std::cout << "cull_index: " << cull_index << "  keeperScores.size(): " << keeperScores.size() << std::endl;
-			//std::cout << "scoreCutoff: " << scoreCutoff << std::endl;
+			std::cout << "cull_index: " << cull_index << "  keeperScores.size(): " << keeperScores.size() << std::endl;
+			std::cout << "scoreCutoff: " << scoreCutoff << std::endl;
 		}
 		// for each keeper, see if there are still a keeper, i.e. they have score >= scoreCutoff
 		for (size_t i = 0; i < keepers.size();) {
 			if (scores[formulaIndex][keepers[i]] >= scoreCutoff) {
-				i++; // this is a keeper
+				i++; // this is a keeper advance i/leave this keeper in place
 			}
 			else {
-				keepers[i] = keepers.back();
-				keepers.pop_back(); // this is not a keeper!
+				keepers[i] = keepers.back(); // this is not a keeper!, copy the last keeper in the list here
+				keepers.pop_back(); // throw away the copy. leave i alone, it points to the copy
 			}
 		}
 	}
-	int pickHere = Random::getIndex(keepers.size());
+	int pickHere = Random::getIndex(keepers.size()); 
 	//std::cout << "    keeping: " << tournamentPopulation[keepers[pickHere]]->ID << std::endl;
+	// if there is only one keeper left, return that, otherwise select randomly from keepers.
 	return keepers[pickHere];
 }
 
@@ -201,8 +210,8 @@ void LexicaseOptimizer::optimize(
     scores.push_back(pop_scores);
 
     aveScores.push_back(
-        std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0) /
-        population.size());
+        std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0.0) /
+        static_cast<double>(population.size()));
 
     auto const minmax =
         std::minmax_element(std::begin(pop_scores), std::end(pop_scores));
@@ -221,7 +230,7 @@ void LexicaseOptimizer::optimize(
   poolSize = poolSize == -1 ? population.size() : poolSize;
 
 
-  auto nextPopulationTargetSize = nextPopSizeFormula->eval(PT)[0];
+  auto nextPopulationTargetSize = static_cast<int>(nextPopSizeFormula->eval(PT)[0]);
   nextPopulationTargetSize = nextPopulationTargetSize == -1
                                  ? population.size()
                                  : nextPopulationTargetSize;
@@ -232,6 +241,10 @@ void LexicaseOptimizer::optimize(
   std::vector<std::shared_ptr<Organism>> newPopulation;
   newPopulation.reserve(nextPopulationTargetSize);
 
+  // generate a list of 'nextPopulationTargetSize' new orgs into 'newPopulation'
+  // for each, generate a 'parents' vector with 'numberParents' parent orgs
+  // parents are selected with lexiSelect( random_iota(poolSize, population.size()))
+  //   where the random_iota command selects 'poolSize' number of population indexes
   std::generate_n(
       std::back_inserter(newPopulation), nextPopulationTargetSize, [&] {
         std::vector<std::shared_ptr<Organism>> parents;
