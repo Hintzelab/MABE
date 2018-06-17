@@ -89,7 +89,7 @@ inline double getNormal(const double mu, const double sigma,
 }
 
 // returns a random subset of ints of size m, from an iota of size n
-inline std::vector<int> randomIota(int m, int n) {
+inline auto randomIota(int m, int n) {
   std::vector<int> v(n);
   std::iota(std::begin(v), std::end(v), 0);
   std::shuffle(std::begin(v), std::end(v), Random::getCommonGenerator());
