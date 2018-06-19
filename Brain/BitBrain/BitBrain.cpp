@@ -40,12 +40,12 @@ BitBrain::BitBrain(int nrInNodes,
 }
 
 shared_ptr<AbstractBrain>
-BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes)
+BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
 {
   shared_ptr<BitBrain> newBrain =
     make_shared<BitBrain>(nrInputValues, nrOutputValues, PT);
   auto genomeHandler =
-    _genomes[genomeName]->newHandler(_genomes[genomeName], true);
+    genomes[genomeName]->newHandler(genomes[genomeName], true);
   newBrain->H = H;
   newBrain->I = I;
   newBrain->O = O;
@@ -114,13 +114,13 @@ BitBrain::update()
   }
 
   for (int i = 0; i < H; i++) {
-    nodes[0][_I + _O + i] = nodes[nodes.size() - 1][I + O + i];
+    nodes[0][I + O + i] = nodes[nodes.size() - 1][I + O + i];
   }
 }
 
 void inline BitBrain::resetOutputs()
 {
-  for (int o = 0; o < _O; o++) {
+  for (int o = 0; o < O; o++) {
     nodes[(int)nodes.size() - 1][o] = 0.0;
   }
 }
@@ -143,9 +143,9 @@ BitBrain::getStats(string& prefix)
 
 void
 BitBrain::initializeGenomes(
-  unordered_map<string, shared_ptr<AbstractGenome>>& _genomes)
+  unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
 {
-  _genomes[genomeName]->fillRandom();
+  genomes[genomeName]->fillRandom();
 }
 
 shared_ptr<AbstractBrain>

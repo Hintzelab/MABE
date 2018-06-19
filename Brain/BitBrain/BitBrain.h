@@ -76,14 +76,14 @@ public:
 
   BitBrain() = delete;
 
-  BitBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
+  BitBrain(int nrInNodes, int nrOutNodes, shared_ptr<ParametersTable> PT);
 
   virtual ~BitBrain() = default;
 
   virtual void update() override;
 
   virtual shared_ptr<AbstractBrain> makeBrain(
-    unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+    unordered_map<string, shared_ptr<AbstractGenome>>& genomes) override;
 
   virtual string description() override;
   virtual DataMap getStats(string& prefix) override;
@@ -93,11 +93,11 @@ public:
   virtual void resetOutputs() override;
 
   virtual void initializeGenomes(
-    std::unordered_map<string, std::shared_ptr<AbstractGenome>>& _genomes)
+    std::unordered_map<string, std::shared_ptr<AbstractGenome>>& genomes)
     override;
 
   virtual shared_ptr<AbstractBrain> makeCopy(
-    shared_ptr<ParametersTable> _PT = nullptr) override;
+    shared_ptr<ParametersTable> PT_ = nullptr) override;
 
   virtual unordered_set<string> requiredGenomes() override
   {
@@ -108,9 +108,6 @@ public:
   inline double readInput(const int& inputAddress) override;
   inline void setOutput(const int& outputAddress, const double& value) override;
   inline double readOutput(const int& outputAddress) override;
-  virtual void getAllBrainStates(std::vector<double>& I,
-                                 std::vector<double>& O,
-                                 std::vector<double>& H);
 
   void showBrain();
 };
@@ -120,4 +117,3 @@ BitBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT)
 {
   return make_shared<BitBrain>(ins, outs, PT);
 }
-
