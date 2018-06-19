@@ -27,34 +27,37 @@
 
 using namespace std;
 
-
-
-class BitBrain : public AbstractBrain {
+class BitBrain : public AbstractBrain
+{
 public:
-  
-  class Gate {
+  class Gate
+  {
   public:
     vector<int> ins;
     vector<int> output;
 
-    Gate(shared_ptr<AbstractGenome::Handler> handler, int range, int nrOfIns) {
-      for (int i = 0; i < nrOfIns; i++){
+    Gate(shared_ptr<AbstractGenome::Handler> handler, int range, int nrOfIns)
+    {
+      for (int i = 0; i < nrOfIns; i++) {
         ins.push_back(handler->readInt(0, range - 1));
       }
+
       for (int i = 0; i < (1 << nrOfIns); i++) {
         output.push_back(handler->readInt(0, 1));
       }
     }
 
-    double update(vector<double> &I) {
+    double update(vector<double>& I)
+    {
       int theI = 0;
-      for (auto i : ins){
+
+      for (auto i : ins) {
         theI = (theI << 1) + Bit(I[i]);
       }
       return output[theI];
     }
   };
-  
+
   static shared_ptr<ParameterLink<string>> genomeNamePL;
   static shared_ptr<ParameterLink<int>> nrOfRecurringNodesPL;
   static shared_ptr<ParameterLink<int>> nrOfLayersPL;
@@ -62,10 +65,12 @@ public:
 
   vector<vector<double>> nodes;
   vector<vector<shared_ptr<Gate>>> gates;
-  
-  void includeGate(shared_ptr<BitBrain> brain, shared_ptr<Gate> gate, int gateLayer);
-  
-  int _I, _O, _H, nrOfLayers, nrOfGateIns;
+
+  void includeGate(shared_ptr<BitBrain> brain,
+                   shared_ptr<Gate> gate,
+                   int gateLayer);
+
+  int I, O, H, nrOfLayers, nrOfGateIns;
 
   string genomeName;
 
@@ -77,31 +82,42 @@ public:
 
   virtual void update() override;
 
-  virtual shared_ptr<AbstractBrain> makeBrain( unordered_map<string, shared_ptr<AbstractGenome>> &_genomes) override;
+  virtual shared_ptr<AbstractBrain> makeBrain(
+    unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
 
   virtual string description() override;
-  virtual DataMap getStats(string &prefix) override;
+  virtual DataMap getStats(string& prefix) override;
   virtual string getType() override { return "BIT"; }
 
   virtual void resetBrain() override;
   virtual void resetOutputs() override;
 
-  virtual void initializeGenomes( std::unordered_map<string, std::shared_ptr<AbstractGenome>> &_genomes) override;
+  virtual void initializeGenomes(
+    std::unordered_map<string, std::shared_ptr<AbstractGenome>>& _genomes)
+    override;
 
-  virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+  virtual shared_ptr<AbstractBrain> makeCopy(
+    shared_ptr<ParametersTable> _PT = nullptr) override;
 
-  virtual unordered_set<string> requiredGenomes() override {
-    return {genomeName};
+  virtual unordered_set<string> requiredGenomes() override
+  {
+    return { genomeName };
   }
 
-  inline void setInput(const int &inputAddress, const double &value) override;
-  inline double readInput(const int &inputAddress) override;
-  inline void setOutput(const int &outputAddress, const double &value) override;
-  inline double readOutput(const int &outputAddress) override;
-  virtual void getAllBrainStates(std::vector<double> &I, std::vector<double> &O, std::vector<double> &H) {}
+  inline void setInput(const int& inputAddress, const double& value) override;
+  inline double readInput(const int& inputAddress) override;
+  inline void setOutput(const int& outputAddress, const double& value) override;
+  inline double readOutput(const int& outputAddress) override;
+  virtual void getAllBrainStates(std::vector<double>& I,
+                                 std::vector<double>& O,
+                                 std::vector<double>& H);
+
   void showBrain();
 };
 
-inline shared_ptr<AbstractBrain> BitBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
+inline shared_ptr<AbstractBrain>
+BitBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT)
+{
   return make_shared<BitBrain>(ins, outs, PT);
 }
+
