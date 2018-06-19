@@ -15,12 +15,13 @@ shared_ptr<ParameterLink<string>> BitBrain::genomeNamePL =
   Parameters::register_parameter("BRAIN_BIT_NAMES-genomeName",
                                  (string) "root::",
                                  "root:: is default value");
-shared_ptr<ParameterLink<int>> BitBrain::nrOfRecurringNodesPL =
-  Parameters::register_parameter("BRAIN_BIT-nrOfRecurringNodes",
+shared_ptr<ParameterLink<int>> BitBrain::nrOfHiddenNodesPL =
+  Parameters::register_parameter("BRAIN_BIT-nrOfHiddenNodes",
                                  0,
-                                 "number of recurring nodes");
+                                 "number of hidden nodes. used to allow recurrence between brain updates");
 shared_ptr<ParameterLink<int>> BitBrain::nrOfLayersPL =
-  Parameters::register_parameter("BRAIN_BIT-nrOfLayers", 0, "number of layers");
+  Parameters::register_parameter("BRAIN_BIT-nrOfLayers", 0,
+                                 "number of \"hidden\" layers. used to add depth to the brain's topology");
 shared_ptr<ParameterLink<int>> BitBrain::nrOfGateInsPL =
   Parameters::register_parameter("BRAIN_BIT-nrOfGateIns",
                                  2,
@@ -34,7 +35,7 @@ BitBrain::BitBrain(int nrInNodes,
   genomeName = genomeNamePL->get(PT);
   nrOfLayers = nrOfLayersPL->get(PT);
   nrOfGateIns = nrOfGateInsPL->get(PT);
-  H = nrOfRecurringNodesPL->get(PT);
+  H = nrOfHiddenNodesPL->get(PT);
   I = nrInNodes;
   O = nrOutNodes;
 }

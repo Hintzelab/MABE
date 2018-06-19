@@ -59,7 +59,7 @@ public:
   };
 
   static shared_ptr<ParameterLink<string>> genomeNamePL;
-  static shared_ptr<ParameterLink<int>> nrOfRecurringNodesPL;
+  static shared_ptr<ParameterLink<int>> nrOfHiddenNodesPL;
   static shared_ptr<ParameterLink<int>> nrOfLayersPL;
   static shared_ptr<ParameterLink<int>> nrOfGateInsPL;
 
