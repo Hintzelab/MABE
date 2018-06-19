@@ -164,16 +164,11 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &orgIndexList) {
 			//std::cout << "cull_index: " << cull_index << "  keeperScores.size(): " << keeperScores.size() << std::endl;
 			//std::cout << "scoreCutoff: " << scoreCutoff << std::endl;
 		}
-		// for each keeper, see if there are still a keeper, i.e. they have score >= scoreCutoff
-		for (size_t i = 0; i < keepers.size();) {
-			if (scores[formulaIndex][keepers[i]] >= scoreCutoff) {
-				i++; // this is a keeper advance i/leave this keeper in place
-			}
-			else {
-				keepers[i] = keepers.back(); // this is not a keeper!, copy the last keeper in the list here
-				keepers.pop_back(); // throw away the copy. leave i alone, it points to the copy
-			}
-		}
+
+		// for each keeper, see if there are still a keeper, i.e. they have score >= scoreCutoff. remove if not
+		keepers.erase(std::remove_if(std::begin(keepers), std::end(keepers), [&](auto k) {
+			return scores[formulaIndex][k] < scoreCutoff;
+		}), std::end(keepers));
 	}
 	int pickHere = Random::getIndex(keepers.size()); 
 	//std::cout << "    keeping: " << tournamentPopulation[keepers[pickHere]]->ID << std::endl;
@@ -192,10 +187,6 @@ void LexicaseOptimizer::optimize(
   std::vector<double> minScores;
   minScores.reserve(optimizeFormulasMTs.size());
 
-  // add population to kill list so that they are deleted in cleanup step
-  killList.clear();
-  killList.insert(std::begin(population), std::end(population));
-
   scoresHaveDelta = false;
 
   scores.clear();
@@ -211,7 +202,7 @@ void LexicaseOptimizer::optimize(
 
     aveScores.push_back(
         std::accumulate(std::begin(pop_scores), std::end(pop_scores), 0.0) /
-        static_cast<double>(population.size()));
+        population.size());
 
     auto const minmax =
         std::minmax_element(std::begin(pop_scores), std::end(pop_scores));
@@ -230,7 +221,7 @@ void LexicaseOptimizer::optimize(
   poolSize = poolSize == -1 ? population.size() : poolSize;
 
 
-  auto nextPopulationTargetSize = static_cast<int>(nextPopSizeFormula->eval(PT)[0]);
+  size_t nextPopulationTargetSize = nextPopSizeFormula->eval(PT)[0];
   nextPopulationTargetSize = nextPopulationTargetSize == -1
                                  ? population.size()
                                  : nextPopulationTargetSize;
@@ -238,7 +229,7 @@ void LexicaseOptimizer::optimize(
   // generate new organisms
   // do not add to population until all have been
   // selected
-  std::vector<std::shared_ptr<Organism>> newPopulation;
+  newPopulation.clear();
   newPopulation.reserve(nextPopulationTargetSize);
 
   // generate a list of 'nextPopulationTargetSize' new orgs into 'newPopulation'
@@ -254,15 +245,19 @@ void LexicaseOptimizer::optimize(
         return parents[0]->makeMutatedOffspringFromMany(parents);
       });
 
-  // add new orgs to population so they are visable to the archivist
-  population.insert(std::end(population), std::begin(newPopulation),
-                    std::end(newPopulation));
-
   for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
     std::cout << std::endl
               << "   " << scoreNames[fIndex]
               << ":  max = " << std::to_string(maxScores[fIndex])
               << "   ave = " << std::to_string(aveScores[fIndex]) << std::flush;
   }
+}
+
+void LexicaseOptimizer::cleanup(std::vector<std::shared_ptr<Organism>> &population) {
+	for (auto org : population) {
+		org->kill();
+	}
+	population.swap(newPopulation);
+	newPopulation.clear();
 }
 

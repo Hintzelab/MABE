@@ -38,17 +38,20 @@ public:
 	int poolSize;
 
 	std::shared_ptr<Abstract_MTree> nextPopSizeFormula;
+	std::vector<std::shared_ptr<Organism>> newPopulation;
+
 	int numberParents;
 
 	bool recordOptimizeValues;
 
 	std::vector<std::shared_ptr<Abstract_MTree>> optimizeFormulasMTs;
 
-	std::vector<std::shared_ptr<Organism>> newPopulation;
-
 	LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_ = nullptr);
 
 	virtual void optimize(std::vector<std::shared_ptr<Organism>> &population) override;
+
+	virtual void cleanup(std::vector<std::shared_ptr<Organism>> &population) override;
+
 
 	int lexiSelect(const std::vector<int> &tournamentIndexList);
 };
