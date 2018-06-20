@@ -40,8 +40,7 @@ BitBrain::BitBrain(int nrInNodes,
   O = nrOutNodes;
 }
 
-shared_ptr<AbstractBrain>
-BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
+shared_ptr<AbstractBrain> BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
 {
   shared_ptr<BitBrain> newBrain =
     make_shared<BitBrain>(nrInputValues, nrOutputValues, PT);
@@ -71,8 +70,7 @@ BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
   return newBrain;
 }
 
-void
-BitBrain::resetBrain()
+void BitBrain::resetBrain()
 {
   for (auto N : nodes) {
     for (int i = 0; i < (int)N.size(); i++) {
@@ -81,14 +79,12 @@ BitBrain::resetBrain()
   }
 }
 
-void
-BitBrain::setInput(const int& inputAddress, const double& value)
+void BitBrain::setInput(const int& inputAddress, const double& value)
 {
   nodes[0][inputAddress] = value;
 }
 
-double
-BitBrain::readInput(const int& inputAddress)
+double BitBrain::readInput(const int& inputAddress)
 {
   return nodes[0][inputAddress];
 }
@@ -99,14 +95,12 @@ BitBrain::setOutput(const int& outputAddress, const double& value)
   nodes[(int)nodes.size() - 1][outputAddress] = value;
 }
 
-double
-BitBrain::readOutput(const int& outputAddress)
+double BitBrain::readOutput(const int& outputAddress)
 {
   return nodes[(int)nodes.size() - 1][outputAddress];
 }
 
-void
-BitBrain::update()
+void BitBrain::update()
 {
   for (int i = 0; i < nrOfLayers + 1; i++) {
     for (int j = 0; j < gates[i].size(); j++) {
@@ -119,6 +113,14 @@ BitBrain::update()
   }
 }
 
+vector<int> BitBrain::getHiddenNodes() {
+	vector<int> temp = {};
+	for (int i = 0; i < H; i++) {
+		temp.push_back(Bit(nodes[nodes.size() - 1][I + O + i]));
+	}
+	return temp;
+}
+
 void inline BitBrain::resetOutputs()
 {
   for (int o = 0; o < O; o++) {
@@ -126,31 +128,27 @@ void inline BitBrain::resetOutputs()
   }
 }
 
-string
-BitBrain::description()
+string BitBrain::description()
 {
   string S = "Bit Brain";
 
   return S;
 }
 
-DataMap
-BitBrain::getStats(string& prefix)
+DataMap BitBrain::getStats(string& prefix)
 {
   DataMap dataMap;
 
   return dataMap;
 }
 
-void
-BitBrain::initializeGenomes(
+void BitBrain::initializeGenomes(
   unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
 {
   genomes[genomeName]->fillRandom();
 }
 
-shared_ptr<AbstractBrain>
-BitBrain::makeCopy(shared_ptr<ParametersTable> PT_)
+shared_ptr<AbstractBrain> BitBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
   if (PT_ == nullptr) {
     PT_ = PT;
@@ -164,8 +162,7 @@ BitBrain::makeCopy(shared_ptr<ParametersTable> PT_)
   return newBrain;
 }
 
-void
-BitBrain::showBrain()
+void BitBrain::showBrain()
 {
   // EMPTY
 }

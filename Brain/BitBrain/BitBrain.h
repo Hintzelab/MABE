@@ -66,10 +66,6 @@ public:
   vector<vector<double>> nodes;
   vector<vector<shared_ptr<Gate>>> gates;
 
-  void includeGate(shared_ptr<BitBrain> brain,
-                   shared_ptr<Gate> gate,
-                   int gateLayer);
-
   int I, O, H, nrOfLayers, nrOfGateIns;
 
   string genomeName;
@@ -92,6 +88,8 @@ public:
   virtual void resetBrain() override;
   virtual void resetOutputs() override;
 
+  vector<int> getHiddenNodes();
+  
   virtual void initializeGenomes(
     std::unordered_map<string, std::shared_ptr<AbstractGenome>>& genomes)
     override;
