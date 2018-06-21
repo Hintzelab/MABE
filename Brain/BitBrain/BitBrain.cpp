@@ -71,12 +71,6 @@ BitBrain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& genomes)
         make_shared<Gate>(genomeHandler, I + O + H, nrOfGateIns);
     }
   }
-  //DEBUG
-  for (auto count:newBrain->reportComponents()){
-    cout << count << " "; 
-  }
-  cout << endl;
-  //END DEBUG
   return newBrain;
 }
 
