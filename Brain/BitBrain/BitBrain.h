@@ -89,6 +89,7 @@ public:
   virtual void resetOutputs() override;
 
   vector<int> getHiddenNodes();
+  vector<int> reportComponents();
   
   virtual void initializeGenomes(
     std::unordered_map<string, std::shared_ptr<AbstractGenome>>& genomes)
