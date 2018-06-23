@@ -22,12 +22,11 @@
 
 class CSVReader {
 
-  std::string delimiter_, open_quotation_, close_quotation_;
-  std::regex item_;
-  
+  std::string delimiter_, quotation_;
+ 
   // try and convert a std::string to a particular type
   // warning: no error if value is not  valid type
-  template <typename T> inline static auto stringTo(std::string source) {
+  template <typename T > inline static auto stringTo(std::string source) {
     std::stringstream ss(source);
     T target;
     ss >> target;
@@ -35,15 +34,16 @@ class CSVReader {
   }
 
 public:
-  CSVReader(char d, char oq) : CSVReader(d,oq,oq) {}
   CSVReader() : CSVReader(',', '"') {}
-  CSVReader(char d, char oq, char cq)
-      : delimiter_(1, d), open_quotation_(1, oq), close_quotation_(1, cq),
-        item_(R"((.*?)(\)" + delimiter_ + "|\\" + open_quotation_ + R"(|$))") {}
+  CSVReader(char d, char oq) : delimiter_(1, d), quotation_(1, oq) {}
 
   // template <class T> auto  stringTo(std::string source);
   // parse a csv line into a vector<T>
-  template <typename T = std::string>
+ //***
+ //shouldn't be doing type conversion
+// ***
+ 
+  template <typename T= std::string>
   std::vector<T> parseLine(std::string raw_line) {
     std::vector<T> data;
 
@@ -56,12 +56,13 @@ public:
       // find next delimiter
       auto delim = raw_line.find_first_of(delimiter_, current);
       // find next open quotation
-      auto open_quote = raw_line.find_first_of(open_quotation_, current);
+      auto open_quote = raw_line.find_first_of(quotation_, current);
+                  std::cout << " # " << delim << "  " << open_quote << " " << current << std::endl;
       // if the next open quotation comes before the next delimiter
       if (open_quote < delim) {
         //  find close quotation
         auto close_quote =
-            raw_line.find_first_of(close_quotation_, open_quote + 1);
+            raw_line.find_first_of(quotation_, open_quote + 1);
         // find first delimiter after that; ignoring delimiter inside of
         // quotation >> warning: assumes that quotes come in pairs
         delim = raw_line.find_first_of(delimiter_, close_quote);
