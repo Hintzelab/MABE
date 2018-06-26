@@ -195,10 +195,12 @@ with open(args.file) as openfileobject:
                     exit(1)
                 new_condition_set = []
                 for eachVar in everythingEqualsAndAfterAsList[1:]:
-                    if eachVar.count('=') > 1:
-                        printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
-                        exit(1)
-                    variable,rawValues=eachVar.split('=')
+                    #if eachVar.count('=') > 1:
+                    #    printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
+                    #    exit(1)
+                    #variable,rawValues=eachVar.split('=')
+                    variable = eachVar.split('=')[0]
+                    rawValues = eachVar[len(variable)+1:]
                     problemPairs = hasUnmatchedSymbols(rawValues)
                     if problemPairs:
                         printWarning("The following value(s) have unmatched {symbols} symbols.".format(symbols=','.join([e[0]+e[1] for e in problemPairs])))
