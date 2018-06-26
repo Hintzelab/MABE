@@ -43,6 +43,7 @@ public:
 
   static std::shared_ptr<ParameterLink<double>> cullBelowPL;
   static std::shared_ptr<ParameterLink<double>> cullRemapPL;
+  static std::shared_ptr<ParameterLink<bool>> cullByRangePL;
 
   std::string selectionMethod;
   int numberParents;
@@ -57,6 +58,10 @@ public:
   int selfCount;
   int eliteCount;
   int surviveCount;
+
+  double cullBelow;
+  double cullRemap;
+  bool cullByRange;
 
   double aveScore;
   double maxScore;
