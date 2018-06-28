@@ -15,8 +15,9 @@ parser.add_argument('-files', type=str, metavar='FILE_PREFIX', default = ['pop.c
 parser.add_argument('-repRange', type=int, metavar=('FIRST','LAST'), default = [1,0],  help='replicate range - default: none (will use files in path directly)', nargs=2, required=False)
 parser.add_argument('-repList', type=str, metavar='REP', default = [],  help='replicate list. useful if you are missing a replicat. cannot be used with repRange - default: none (will use files in path directly)', nargs='+', required=False)
 
-parser.add_argument('-title', type=str, default = 'NONE',  help='title of image (and name of file) - default: none (MGraph will make something up)', required=False)
+parser.add_argument('-title', type=str, default = 'NONE',  help='title of image - default: none (MGraph will make something up)', required=False)
 parser.add_argument('-save', type=str, choices=('pdf','png'), default = '',  help='save files rather then display as either pdf or png - default: none (display image)', required=False)
+parser.add_argument('-saveName', type=str, default = '',  help='if saveFile is png or pdf, and only one file is being created, use this for the file name. - default: none (mGraph will make up a name)', required=False)
 
 parser.add_argument('-data', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be graphed. Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
 parser.add_argument('-dataFromFile', type=str, metavar='FILE_NAME', default = 'ave',  help='this file will be used to determine with column names of data will be graphed. If this file is not in files, then all data will be plotted - default : ave', required=False)
@@ -260,7 +261,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
 					plt.xlabel('Conditions', fontsize=MinorFontSize)
 				else:
 					plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
-				leg = plt.legend(fontsize=LegendFontSize,loc=legendLocation, shadow=True)                    # add a legend
+				leg = plt.legend(fontsize=LegendFontSize,loc=legendLocation)                    # add a legend
 				if (args.legendLineWeight > 0):
 					for legobj in leg.legendHandles:
 						legobj.set_linewidth(args.legendLineWeight)
@@ -319,6 +320,10 @@ imageSize = args.imageSize
 #if conFileNames != ['']:
 	#conFileNames = [i+'/' for i in conFileNames]
 	####cons = [i+'__' for i in cons]
+
+if args.saveName != "" and args.save == "png" and len(args.files) > 1:
+	print("\n\n-saveName was provided, but more then one image file will be created becasue more then input file was listed and -save is png.\n\n  either save as type pdf (for a combined image file),\n  or run mGraph for each input file\n  or remove -saveName")
+	exit()
 
 realLedgendList = ['upper right','upper left','lower right','lower left','center right','center left','lower center','upper center','center']
 abrvLedgendList = ['ur','ul','lr','ll','cr','cl','lc','uc','c']
@@ -484,28 +489,42 @@ if args.save == '':
 
 ######## SAVE TO FILE
 
+##makeOutputName
+#if len(args.save)>2:
+#	saveType = args.save.split('.')[-1]
+#	if (saveType != "pdf" and saveType != "png"):
+#		print('-save argument has unknown type"',saveType,'"must be png or pdf"');
+#		exit()
+#	saveName = args.save[0:-1*(len(saveType)+1)]
+#	print(saveType)
+#	print(saveName)
+#	exit()
+#if ((len(args.save) < 3) and (len(args.save)>0)):
+#	print("-save argument must be png, pdf, or name.png or name.pdf");
+#	
+
 ######## SAVE TO A PNG FILE
 
 if args.save == 'png':
 	for g in allGraphs:
 		if g[-4:] == '.csv':
-			if (args.title != "NONE"):
-				allGraphs[g].savefig(args.title+'_MGraph_' + g[:-4] + '.png', dpi=100)
+			if (args.saveName == ""):
+				allGraphs[g].savefig(args.title+'_MGraph_' + g[:-4].replace('/','_') + '.png', dpi=100)
 			else:
-				allGraphs[g].savefig('MGraph_' + g[:-4] + '.png', dpi=100)
+				allGraphs[g].savefig(args.saveName + '.png', dpi=100)
 		else:
 			if (args.title != "NONE"):
-				allGraphs[g].savefig(args.title+'_MGraph_' + g + '.png', dpi=100)
+				allGraphs[g].savefig(args.title+'_MGraph_' + g.replace('/','_') + '.png', dpi=100)
 			else:
-				allGraphs[g].savefig('MGraph_' + g + '.png', dpi=100)
+				allGraphs[g].savefig('MGraph_' + g.replace('/','_') + '.png', dpi=100)
 
 ######## SAVE TO A PDF FILE
 
 if args.save == 'pdf':
-	if (args.title != "NONE"):
+	if (args.saveName == ""):
 		pp = PdfPages(args.title + '_MGraph.pdf')
 	else:
-		pp = PdfPages('MGraph.pdf')
+		pp = PdfPages(args.saveName+'.pdf')
 	for g in allGraphs:
 		pp.savefig(allGraphs[g])
 	pp.close()
