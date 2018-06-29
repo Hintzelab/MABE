@@ -10,6 +10,7 @@
 
 
 #include "IslandsOptimizer.h"
+#include "../../Utilities/CSV.h"
 #include "../SimpleOptimizer/SimpleOptimizer.h"
 #include "../LexicaseOptimizer/LexicaseOptimizer.h"
 
@@ -25,8 +26,7 @@ Parameters::register_parameter(
 IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
-	std::vector<std::string> opNameSpaces;
-	convertCSVListToVector(IslandNameSpaceListPL->get(PT), opNameSpaces);
+	auto opNameSpaces = CSVReader().parseLine(IslandNameSpaceListPL->get(PT));
 
 	islands = opNameSpaces.size();
 	std::cout << "  setting up IslandOptimizer. Found " << islands << " islands:" << std::endl;
