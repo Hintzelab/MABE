@@ -24,15 +24,6 @@ class CSVReader {
 
   std::string delimiter_, quotation_;
  
-  // try and convert a std::string to a particular type
-  // warning: no error if value is not  valid type
-  template <typename T > inline static auto stringTo(std::string source) {
-    std::stringstream ss(source);
-    T target;
-    ss >> target;
-    return target;
-  }
-
 public:
   CSVReader() : CSVReader(',', '"') {}
   CSVReader(char d, char oq) : delimiter_(1, d), quotation_(1, oq) {}
@@ -43,9 +34,8 @@ public:
  //shouldn't be doing type conversion
 // ***
  
-  template <typename T= std::string>
-  std::vector<T> parseLine(std::string raw_line) {
-    std::vector<T> data;
+  auto parseLine(std::string raw_line) {
+    std::vector<std::string> data;
 
 	if (raw_line.empty())
 		return data;
@@ -71,13 +61,13 @@ public:
         break;
       }
       // add the next field
-      data.push_back(stringTo<T>(raw_line.substr(current, delim - current)));
+      data.push_back(raw_line.substr(current, delim - current));
       // search for the next field
       current = delim + 1;
     }
 
     // add the last field
-    data.push_back(stringTo<T>(raw_line.substr(current)));
+    data.push_back(raw_line.substr(current));
 
     return data;
   }
