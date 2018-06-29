@@ -52,7 +52,7 @@ def printWarning(msg,end='\n'):
 
 # regular expression patterns
 ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
-ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
+ptrnSpaceSeparatedEquals = re.compile(r'\s(\s*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
 #ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnCSVs = re.compile(r'\s*,?\s*(\[(.*?)\]|([^\s",]+|\"([^"\\]|\\.)*?\"))\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
@@ -139,7 +139,7 @@ def hasUnmatchedSymbols(rawString):
     else:
         return problemPairs
 def stripIllegalDirnameChars(rawString):
-    for eachChar in list('[](),\'"\\!@#$%^&*=+` <>?{}'):
+    for eachChar in list(':[](),\'"\\!@#$%^&*=+` <>?{}'):
         rawString = rawString.replace(eachChar,'')
     return rawString
 
@@ -195,16 +195,19 @@ with open(args.file) as openfileobject:
                     exit(1)
                 new_condition_set = []
                 for eachVar in everythingEqualsAndAfterAsList[1:]:
-                    if eachVar.count('=') > 1:
-                        printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
-                        sys.exit(1)
-                    variable,rawValues=eachVar.split('=')
+                    #if eachVar.count('=') > 1:
+                    #    printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
+                    #    exit(1)
+                    #variable,rawValues=eachVar.split('=')
+                    variable = eachVar.split('=')[0]
+                    rawValues = eachVar[len(variable)+1:]
                     problemPairs = hasUnmatchedSymbols(rawValues)
                     if problemPairs:
                         printWarning("The following value(s) have unmatched {symbols} symbols.".format(symbols=','.join([e[0]+e[1] for e in problemPairs])))
                         printWarning(rawValues)
                         sys.exit(1)
-                    values = [e[0].strip('[]') for e in ptrnCSVs.findall(rawValues)]
+                    #values = [e[0].strip('[]') for e in ptrnCSVs.findall(rawValues)] ## removed to leave [] untouched
+                    values = [e[0] for e in ptrnCSVs.findall(rawValues)]
                     new_condition_set.append([variable]+values)
                 condition_sets.append(new_condition_set) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
@@ -464,6 +467,7 @@ for i in range(len(combinations)):
                 sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
+                params = [e.strip('"') for e in params]
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputPrefix" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
         if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
