@@ -17,7 +17,8 @@
 	
 % Optimizer
   * Simple
-  + Islands
+  - Islands
+  - Lexicase
 
 % Archivist
   + Default
