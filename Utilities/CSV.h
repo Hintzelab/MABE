@@ -57,7 +57,6 @@ public:
       auto delim = raw_line.find_first_of(delimiter_, current);
       // find next open quotation
       auto open_quote = raw_line.find_first_of(quotation_, current);
-                  std::cout << " # " << delim << "  " << open_quote << " " << current << std::endl;
       // if the next open quotation comes before the next delimiter
       if (open_quote < delim) {
         //  find close quotation
