@@ -524,7 +524,7 @@ std::vector<std::string> Loader::expandFiles(const std::string &f) {
 
   std::vector<std::string> result;
   static const std::regex wildcard(R"(\*)");
-  std::string file_name = std::regex_replace(f, wildcard, R"(\w*)");
+  std::string file_name = std::regex_replace(f, wildcard, R"([^/]*)");
   static const std::regex valid_path_names("^" + file_name + "$");
   static const std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
 
