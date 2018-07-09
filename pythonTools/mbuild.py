@@ -42,7 +42,7 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverfl
             dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
 compiler = args.compiler
-compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread'
+compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -D_ENABLE_ATOMIC_ALIGNMENT_FIX -lpthread -pthread'
 
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
@@ -338,7 +338,7 @@ outFile.close()
 
 # Create a project file of type in SUPPORTED_PROJECT_FILES
 options['Archivist'].remove('Default')
-alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp','Utilities/zupply.cpp']
+alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp','Utilities/zupply/src/zupply.cpp']
 moduleSources = []
 objects = []
 sources = None
