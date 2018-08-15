@@ -39,6 +39,7 @@ public:
 
 	std::shared_ptr<Abstract_MTree> nextPopSizeFormula;
 	std::vector<std::shared_ptr<Organism>> newPopulation;
+	std::vector<std::shared_ptr<Organism>> oldPopulation;
 
 	int numberParents;
 
