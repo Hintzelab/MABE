@@ -110,13 +110,14 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 	}
 }
 
-auto random_iota = [](auto const m, auto const n) {
-  std::vector<int> v(n);
-  std::iota(std::begin(v), std::end(v), 0);
-  std::shuffle(std::begin(v), std::end(v), Random::getCommonGenerator());
-  std::vector<int> r;
-  std::copy_n(std::begin(v), n, std::back_inserter(r));
-  return r;
+// return n nonrepeating elements for [0..m)
+auto m_choose_n = [](auto const m, auto const n) {
+	std::vector<int> v(m);
+	std::iota(std::begin(v), std::end(v), 0);
+	std::shuffle(std::begin(v), std::end(v), Random::getCommonGenerator());
+	std::vector<int> r;
+	std::copy_n(std::begin(v), n, std::back_inserter(r));
+	return r;
 };
 
 
@@ -234,17 +235,19 @@ void LexicaseOptimizer::optimize(
 
   // generate a list of 'nextPopulationTargetSize' new orgs into 'newPopulation'
   // for each, generate a 'parents' vector with 'numberParents' parent orgs
-  // parents are selected with lexiSelect( random_iota(poolSize, population.size()))
-  //   where the random_iota command selects 'poolSize' number of population indexes
+  // parents are selected with lexiSelect( m_choose_n(population.size(), poolSize))
+  //   where the m_choose_n command selects 'poolSize' number of population indexes
   std::generate_n(
       std::back_inserter(newPopulation), nextPopulationTargetSize, [&] {
         std::vector<std::shared_ptr<Organism>> parents;
         std::generate_n(std::back_inserter(parents), numberParents, [&] {
-          return population[lexiSelect( random_iota(poolSize, population.size()))];
+          return population[lexiSelect(m_choose_n(population.size(), poolSize))];
         });
         return parents[0]->makeMutatedOffspringFromMany(parents);
       });
 
+  oldPopulation = population;
+  population.insert(population.end(), newPopulation.begin(), newPopulation.end());
   for (size_t fIndex = 0; fIndex < optimizeFormulasMTs.size(); fIndex++) {
     std::cout << std::endl
               << "   " << scoreNames[fIndex]
@@ -254,7 +257,7 @@ void LexicaseOptimizer::optimize(
 }
 
 void LexicaseOptimizer::cleanup(std::vector<std::shared_ptr<Organism>> &population) {
-	for (auto org : population) {
+	for (auto org : oldPopulation) {
 		org->kill();
 	}
 	population.swap(newPopulation);
