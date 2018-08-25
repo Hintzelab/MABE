@@ -77,7 +77,7 @@
 #include <sys/syscall.h>
 #endif
 
-#include "zupply.hpp"
+#include "zupply.h"
 
 #include <chrono>
 #include <iomanip>
