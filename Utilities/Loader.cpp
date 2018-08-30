@@ -89,8 +89,6 @@ void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilte
     dir = opendir(curPath.c_str());
     while( (fileinfo=readdir(dir)) ) {
         if (strcmp(fileinfo->d_name,".")==0) continue;
-        //if (strcmp(fileinfo->d_name,"..")==0) continue;
-        //cout << padding << fileinfo->d_name;
         std::string filePath(curPath+"/"+fileinfo->d_name);
         if (curPath == "./") filePath = fileinfo->d_name;
         stat(filePath.c_str(),&statbuf);
@@ -122,7 +120,6 @@ void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilte
     if ((hFind = FindFirstFile(newCurPath.c_str(), &data)) != INVALID_HANDLE_VALUE) {
         do {
             if (strcmp(data.cFileName,".")==0) continue;
-            //cout << data.cFileName;
             std::string filePath(curPath+"\\"+data.cFileName);
             if (curPath == ".") filePath = data.cFileName;
             DWORD ftyp = GetFileAttributesA(filePath.c_str());
@@ -292,22 +289,6 @@ std::string Loader::cleanLines(std::ifstream &flines) {
 
 std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
 
-  ///*
-  //for (auto &p :
-  //     std::experimental::filesystem::recursive_directory_iterator("./")) {
-  //  all_possible_file_names.push_back(std::experimental::filesystem::path(p).generic_string());
-  //}
-  //*/
-  //zz::fs::Directory mabe_org_dir("./", "*organisms*.csv", true); // true=recursive
-  //for (auto const &p : mabe_org_dir) {
-  //	  all_possible_file_names.push_back(p.relative_path());
-  //}
-  //
-  //zz::fs::Directory mabe_data_dir("./", "*data*.csv", true); // true=recursive
-  //for (auto const &p : mabe_data_dir) {
-  //	  all_possible_file_names.push_back(p.relative_path());
-  //}
-
   std::map<std::string, std::vector<std::string>>
       collection_of_files;            // all file names for a collection
   std::set<std::string> actual_files; // every file the user might refer to
@@ -419,8 +400,6 @@ bool Loader::balancedBraces(std::string s) {
 std::vector<std::vector<long>>
 Loader::parseCollection(const std::string &expr) {
   // semantics of collection choosing
-
-  //	cout << expr << endl;
 
   {
     static const std::regex command_collapse(R"(^\s*collapse\s+(\w+)\s*$)");
@@ -675,15 +654,7 @@ std::vector<std::vector<long>> Loader::keywordDefault(long number) {
 std::vector<std::string> Loader::expandFiles(const std::string &f) {
 
   std::vector<std::string> result;
-  //static const std::regex valid_path_names("^" + file_name + "$");
-  //static const std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
   getFilesMatchingRelativePattern(f, result);
-
-  //std::copy_if(all_possible_file_names.begin(), all_possible_file_names.end(),
-  //             std::back_inserter(result), [](const std::string &s) {
-  //               return std::regex_match(s, valid_path_names) &&
-  //                      std::regex_match(s, valid_org_name);
-  //             });
 
   if (result.empty()) {
     std::cout << " error: " << f << " does not match any files" << std::endl;
