@@ -20,6 +20,7 @@
 #include "Utilities/Random.h"
 #include "Utilities/Utilities.h"
 #include "Utilities/gitversion.h"
+#include "Utilities/Filesystem.h"
 
 #include <algorithm>
 #include <csignal> // sigint

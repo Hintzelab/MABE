@@ -1,30 +1,8 @@
 // author : cgnitash, joryschossau
 // Loader.cpp contains implementation of population loading scripting language
-#if defined(unix)        || defined(__unix)      || defined(__unix__) \
-	|| defined(linux) || defined(__linux) || defined(__linux__) \
-	|| defined(sun) || defined(__sun) \
-	|| defined(BSD) || defined(__OpenBSD__) || defined(__NetBSD__) \
-	|| defined(__FreeBSD__) || defined (__DragonFly__) \
-	|| defined(sgi) || defined(__sgi) \
-	|| (defined(__MACOSX__) || defined(__APPLE__)) \
-	|| defined(__CYGWIN__)
-  #define OS_UNIX	1	//!< Unix like OS(POSIX compliant)
-  #undef OS_WINDOWS
-  #elif defined(_MSC_VER) || defined(WIN32)  || defined(_WIN32) || defined(__WIN32__) \
-  	|| defined(WIN64) || defined(_WIN64) || defined(__WIN64__)
-    #define OS_WINDOWS	1	//!< Microsoft Windows
-  #undef OS_UNIX
-#endif
-
-#if defined(OS_UNIX)
-  #include <sys/types.h> // linux only
-  #include <dirent.h> // linux only
-  #include <sys/stat.h> // linux only (stat, lstat)
-#elif defined(OS_WINDOWS)
-  #include <windows.h>
-#endif
 
 #include "Loader.h"
+#include "Filesystem.h"
 
 #include <fstream>
 #include <iostream>
@@ -36,47 +14,12 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
-#include <string.h> // strcmp
-#include <algorithm> // for split
-#include <iterator> // for split
 
 std::string dataVersionOfFilename(const std::string& filename) {
     std::string ext(filename.substr(filename.rfind(".")));
     int orgposIfExist = filename.rfind("organisms");
     if (orgposIfExist != -1) return filename.substr(0,orgposIfExist)+"data"+filename.substr(orgposIfExist+9);
     else return filename.substr(0,filename.rfind("."))+"_data"+ext;
-}
-
-bool fileExists(const std::string& filename) {
-#if defined(OS_UNIX)
-    struct stat statbuf; // linux only
-    return (stat(filename.c_str(), &statbuf) == 0);
-#elif defined(OS_WINDOWS)
-    DWORD fileAttr;
-    fileAttr = GetFileAttributesA(filename.c_str());
-    return (0xFFFFFFFF != fileAttr);
-#endif
-}
-
-bool isDirectory(const std::string& dirname) {
-#if defined(OS_UNIX)
-    struct stat statbuf; // linux only
-    stat(dirname.c_str(), &statbuf);
-	 return (S_ISDIR(statbuf.st_mode));
-#elif defined(OS_WINDOWS)
-    DWORD fileAttr;
-    fileAttr = GetFileAttributesA(dirname.c_str());
-	 return (fileAttr & FILE_ATTRIBUTE_DIRECTORY);
-#endif
-}
-
-template <class Container>
-void split(const std::string& str, Container& cont, char delim = ' ') {
-    std::stringstream ss(str);
-    std::string token;
-    while (std::getline(ss, token, delim)) {
-        cont.push_back(token);
-    }
 }
 
 void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilterPathParts, std::vector<std::string>& filterPathParts, std::vector<std::string>& collectedFiles) {
