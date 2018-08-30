@@ -79,18 +79,6 @@ void split(const std::string& str, Container& cont, char delim = ' ') {
     }
 }
 
-bool wildstrcmp(const char *first, const char *second) {
-    if (*first == '\0' && *second == '\0') // If we reach the end of both std::strings, we are done
-        return true;
-    if (*first == '*' && *(first+1) != '\0' && *second == '\0') // Make sure the characters after '*' are present in second std::string. This function assumes that the first std::string will not contain two consecutive '*'
-        return false;
-    if (*first == '?' || *first == *second) // If the first std::string contains '?', or current characters of both std::strings wildstrcmp
-        return wildstrcmp(first+1, second+1);
-    if (*first == '*') // If there is *, then there are two possibilities a) We consider current character of second std::string b) We ignore current character of second std::string.
-        return wildstrcmp(first+1, second) || wildstrcmp(first, second+1);
-    return false;
-}
-
 void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilterPathParts, std::vector<std::string>& filterPathParts, std::vector<std::string>& collectedFiles) {
     std::string padding(depthIntoFilterPathParts*2,' ');
 #if defined(OS_UNIX)
@@ -107,22 +95,21 @@ void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilte
         if (curPath == "./") filePath = fileinfo->d_name;
         stat(filePath.c_str(),&statbuf);
         lstat(filePath.c_str(),&lstatbuf);
+        const std::regex pattern(filterPathParts[depthIntoFilterPathParts]);
         if (S_ISDIR(statbuf.st_mode)) {
-            //cout << "/" << endl; // found a dir
-            if ( wildstrcmp(filterPathParts[depthIntoFilterPathParts].c_str(), fileinfo->d_name) ) {
+            if ( std::regex_match(fileinfo->d_name, pattern) ) {
                 std::string newPath(curPath+"/"+fileinfo->d_name);
                 if (curPath == "./") newPath = fileinfo->d_name;
                 followPathAndCollectFiles(newPath, depthIntoFilterPathParts+1, filterPathParts, collectedFiles);
             }
         } else if (S_ISREG(statbuf.st_mode)) {
-           //cout << endl;
-           if ( wildstrcmp(filterPathParts[depthIntoFilterPathParts].c_str(), fileinfo->d_name) ) {
-               if (depthIntoFilterPathParts == filterPathParts.size()-1) {
-                   std::string newPath(fileinfo->d_name);
-						 if (curPath != "./") newPath = curPath+"/"+fileinfo->d_name;
-                   collectedFiles.push_back(newPath);
-               }
-           }
+            if ( std::regex_match(fileinfo->d_name, pattern) ) {
+                if (depthIntoFilterPathParts == filterPathParts.size()-1) {
+                    std::string newPath(fileinfo->d_name);
+			    		 if (curPath != "./") newPath = curPath+"/"+fileinfo->d_name;
+                    collectedFiles.push_back(newPath);
+                }
+            }
         }
     }
     closedir(dir);
@@ -170,8 +157,15 @@ void getFilesMatchingRelativePattern(const std::string& pattern, std::vector<std
     std::string pathToStart(".");
     char dirSep='\\';
 #endif
+    std::string file_name_pattern(pattern); // we will escape all regex-sensitive symbols appropriately and convert other appropriately (?->.?, *->.*)
+    static const std::regex period(R"(\.)");
+    static const std::regex wildcard_one_char(R"(\?)");
+    static const std::regex wildcard_0_or_more_chars(R"(\*)");
+    file_name_pattern = std::regex_replace(file_name_pattern, period, R"(\.)");
+    file_name_pattern = std::regex_replace(file_name_pattern, wildcard_one_char, R"(.?)");
+    file_name_pattern = std::regex_replace(file_name_pattern, wildcard_0_or_more_chars, R"(.*)");
     std::vector<std::string> filterPathParts; // filterPath split by dir sep
-    split(pattern, filterPathParts, dirSep); // split filterPath into its parts
+    split(file_name_pattern, filterPathParts, dirSep); // split filterPath into its parts
     followPathAndCollectFiles(pathToStart, 0, filterPathParts, files);
 }
 
@@ -681,8 +675,6 @@ std::vector<std::vector<long>> Loader::keywordDefault(long number) {
 std::vector<std::string> Loader::expandFiles(const std::string &f) {
 
   std::vector<std::string> result;
-  //static const std::regex wildcard(R"(\*)");
-  //std::string file_name = std::regex_replace(f, wildcard, R"([^/]*)");
   //static const std::regex valid_path_names("^" + file_name + "$");
   //static const std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
   getFilesMatchingRelativePattern(f, result);
