@@ -66,19 +66,18 @@ void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilte
             std::string filePath(curPath+"\\"+data.cFileName);
             if (curPath == ".") filePath = data.cFileName;
             DWORD ftyp = GetFileAttributesA(filePath.c_str());
+            const std::regex pattern(filterPathParts[depthIntoFilterPathParts]);
             if (ftyp & FILE_ATTRIBUTE_DIRECTORY) {
-                //cout <<  "\\" << endl; // found a dir
-                if ( wildstrcmp(filterPathParts[depthIntoFilterPathParts].c_str(), data.cFileName) ) {
+                if ( std::regex_match(data.cFileName, pattern) ) {
                     std::string newPath(curPath+"\\"+data.cFileName);
                     if (curPath == ".") newPath = data.cFileName;
                     followPathAndCollectFiles(newPath, depthIntoFilterPathParts+1, filterPathParts, collectedFiles);
                 }
             } else { // regular file
-                //cout << endl;
-                if ( wildstrcmp(filterPathParts[depthIntoFilterPathParts].c_str(), data.cFileName) ) {
+                if ( std::regex_match(data.cFileName, pattern) ) {
                     if (depthIntoFilterPathParts == filterPathParts.size()-1) {
-								std::string newPath(data.cFileName);
-								if (curPath != ".") newPath = curPath+"\\"+data.cFileName;
+                        std::string newPath(data.cFileName);
+                        if (curPath != ".") newPath = curPath+"\\"+data.cFileName;
                         collectedFiles.push_back(newPath);
                     }
                 }
@@ -93,19 +92,23 @@ void getFilesMatchingRelativePattern(const std::string& pattern, std::vector<std
 #if defined(OS_UNIX)
     std::string pathToStart("./");
     char dirSep='/';
+    static const std::regex dirSepPattern("/");
 #elif defined(OS_WINDOWS)
     std::string pathToStart(".");
     char dirSep='\\';
+    static const std::regex dirSepPattern("\\\\");
 #endif
     std::string file_name_pattern(pattern); // we will escape all regex-sensitive symbols appropriately and convert other appropriately (?->.?, *->.*)
+    //static const std::regex dirSepPattern(std::string(1,dirSep));
     static const std::regex period(R"(\.)");
     static const std::regex wildcard_one_char(R"(\?)");
     static const std::regex wildcard_0_or_more_chars(R"(\*)");
+    file_name_pattern = std::regex_replace(file_name_pattern, dirSepPattern, R"(@)");
     file_name_pattern = std::regex_replace(file_name_pattern, period, R"(\.)");
     file_name_pattern = std::regex_replace(file_name_pattern, wildcard_one_char, R"(.?)");
     file_name_pattern = std::regex_replace(file_name_pattern, wildcard_0_or_more_chars, R"(.*)");
     std::vector<std::string> filterPathParts; // filterPath split by dir sep
-    split(file_name_pattern, filterPathParts, dirSep); // split filterPath into its parts
+    split(file_name_pattern, filterPathParts, '@'); // split filterPath into its parts
     followPathAndCollectFiles(pathToStart, 0, filterPathParts, files);
 }
 
@@ -260,6 +263,7 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
        actual_files) { // load all populations from file ONCE.
     // this creates a SINGLE list of organisms that can be efficiently accessed
     // should be done in parallel
+    std::cout << "Parsing file " << file << "..." << std::endl;
     file_contents[file] = generatePopulation(file);
   }
 
