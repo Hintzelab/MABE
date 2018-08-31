@@ -9,6 +9,7 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 #include "LexicaseOptimizer.h"
+#include "../../Utilities/CSV.h"
 #include <iostream>
 #include <numeric>
 #include <algorithm>
@@ -61,8 +62,7 @@ Parameters::register_parameter("OPTIMIZER_LEXICASE-recordOptimizeValues", true,
 LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
-	std::vector<std::string> optimizeFormulasStrings;
-	convertCSVListToVector(optimizeFormulasPL->get(PT), optimizeFormulasStrings);
+	auto optimizeFormulasStrings = CSVReader().parseLine(optimizeFormulasPL->get(PT));
 
 	for (auto s : optimizeFormulasStrings) {
 		optimizeFormulasMTs.push_back(stringToMTree(s));
@@ -77,7 +77,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 	}
 	else {
 		// user has defined names, use those
-		convertCSVListToVector(optimizeFormulaNamesPL->get(PT), scoreNames);
+		auto scoreNames = CSVReader().parseLine(optimizeFormulaNamesPL->get(PT));
 	}
 
 

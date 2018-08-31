@@ -11,6 +11,7 @@
 #define CGPBRAIN_DEBUG 0
 
 #include "../CGPBrain/CGPBrain.h"
+#include "../../Utilities/CSV.h"
 
 std::shared_ptr<ParameterLink<int>> CGPBrain::hiddenNodesPL =
     Parameters::register_parameter("BRAIN_CGP-hiddenNodes", 3,
@@ -63,14 +64,17 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
                    std::shared_ptr<ParametersTable> PT_)
     : AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
-  convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
+  auto avail_ops = availableOperatorsPL->get(PT);
+  auto actual_avail_ops = avail_ops.substr(1,avail_ops.size()-2);
+  availableOperators = CSVReader().parseLine(actual_avail_ops);
   // nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() :
   // PT->lookupInt("BRAIN_CGP-hiddenNodes");
   // magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() :
   // PT->lookupDouble("BRAIN_CGP-magnitudeMax");
   // magnitudeMin = (PT == nullptr) ? magnitudeMinPL->lookup() :
   // PT->lookupDouble("BRAIN_CGP-magnitudeMin");
-  // numOpsPreVector = (PT == nullptr) ? numOpsPreVectorPL->lookup() :
+  // numOpsPreVector = (PT == nullptr) ?
+  // numOpsPreVectorPL->lookup() :
   // PT->lookupInt("BRAIN_CGP-operatorsPreFormula");
 
   // buildMode = (PT == nullptr) ? buildModePL->lookup() :
@@ -78,7 +82,8 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
   // codonMax = (PT == nullptr) ? codonMaxPL->lookup() :
   // PT->lookupInt("BRAIN_CGP-codonMax");
 
-  // readFromOutputs = (PT == nullptr) ? readFromOutputsPL->lookup() :
+  // readFromOutputs = (PT == nullptr) ?
+  // readFromOutputsPL->lookup() :
   // PT->lookupBool("BRAIN_CGP-readFromOutputs");
 
   allOps = {{"SUM", 0}, {"MULT", 1}, {"SUBTRACT", 2}, {"DIVIDE", 3},
