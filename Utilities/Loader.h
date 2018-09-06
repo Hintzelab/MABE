@@ -85,4 +85,3 @@ private:
 
   void printOrganism(long); // strictly to debug all_organisms entries
 };
-
