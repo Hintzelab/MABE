@@ -34,109 +34,6 @@
 
 #include "../Global.h"
 
-/*
-
-class EXAMPLE_MTree : public Abstract_MTree {
-public:
-
-const vector<int> requiredBranches = { XXXX }; // set this value based
-on the needs of the function.
-// -x for variable number of branches >= x
-// empty vector = no requirement / any number of elements is fine
-
-virtual string type() override {
-return "EXAMPLE";				// SET TYPE NAME HERE //
-}
-
-EXAMPLE_MTree() = default;
-EXAMPLE_MTree(vector<shared_ptr<Abstract_MTree>> _branches,
-shared_ptr<Abstract_MTree> _parent = nullptr) {
-parent = _parent;
-branches = _branches;
-if (requiredBranches.size() != 0 &&
-find(requiredBranches.begin(), requiredBranches.end(), (int)branches.size()) ==
-requiredBranches.end()) {
-// now check for requiredBranches < 0
-bool OKay = false;
-for (auto r : requiredBranches) {
-if (r < 0) {
-if (abs(r) <= branches.size()) {
-OKay = true;
-}
-}
-}
-if (!OKay) { // if no < 0 value passed
-cout << "  In " << type() <<
-"_MTree::constructor - branches does not contain a legal number of element(s)!"
-<< endl;
-cout << "    " << branches.size() << " elements
-were provided, but function requires : ";
-for (auto n : requiredBranches) {
-cout << n;
-if (n != requiredBranches.back()) {
-cout << " or ";
-}
-}
-cout << "  NOTE: values < 0 indicate requirement
-> abs(value)." << endl;
-exit(1);
-}
-}
-}
-
-virtual ~EXAMPLE_MTree() = default;
-
-virtual shared_ptr<Abstract_MTree>
-makeCopy(vector<shared_ptr<Abstract_MTree>> _branches = {}) override {
-// make copy is needed to support brain (must perform a deep copy)
-// copy any local data as well as all branches
-if (_branches.size() == 0) {
-for (auto b : branches) {
-_branches.push_back(b->makeCopy());
-}
-}
-shared_ptr<Abstract_MTree> newTree =
-make_shared<EXAMPLE_MTree>(_branches);
-return newTree;
-}
-
-virtual vector<double> eval(DataMap& dataMap,
-shared_ptr<ParametersTable> PT, const vector<vector<double>>& vectorData)
-override {
-double returnValue = branches[0]->eval(dataMap, PT,
-vectorData)[0]; // this will get value in first branch. '[0]' at end is because
-MTrees return vector<int>
-//////////////////
-// DO MATH HERE //
-//////////////////
-return {returnValue}; // return vector with one element
-}
-
-virtual void show(int indent = 0) override {
-cout << string(indent, '\t') << "** "<< type() << endl;
-indent++;
-for (auto b : branches) {
-b->show(indent);
-}
-}
-virtual string getFormula() override {
-string args = type()+"[";
-for (auto b : branches) {
-args += b->getFormula();
-if (b != branches.back()){
-args += ",";
-}
-}
-args += "]";
-return args;
-}
-virtual vector<int> numBranches() override {
-return requiredBranches;
-}
-};
-
-*/
-
 class Abstract_MTree {
 public:
 	std::shared_ptr<ParametersTable> PT;
@@ -1471,7 +1368,7 @@ public:
 };
 
 inline std::shared_ptr<Abstract_MTree>
-stringToMTree(std::string formula, std::shared_ptr<Abstract_MTree> parent = nullptr) {
+stringToMTree(std::string formula) {
 	// std::cout << "in MTree '" << formula << std::endl;
 
 	std::shared_ptr<Abstract_MTree> newMTree;
