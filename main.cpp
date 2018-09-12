@@ -391,6 +391,10 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
       auto newOrg =
           std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
 
+      newOrg->orig_ID = org.first < 0 ? -1 : std::stol(org.second["ID"]);
+      newOrg->orig_update =
+          org.first < 0 ? -1 : std::stol(org.second["update"]);
+
       // add new organism to population
       population.push_back(newOrg);
     }
