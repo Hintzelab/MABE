@@ -51,6 +51,10 @@ public:
   std::unordered_set<int>
       snapshotAncestors; // like ancestors, but for snapshot files.
 
+  int orig_ID; // the original ID of the organism if it was loaded from a file, -1 otherwise
+  int orig_update; // the update at which the organism was saved, if it was
+                   // loaded from a file, -1 otherwise
+				   
   int ID;
   int timeOfBirth; // the time this organism was made
   int timeOfDeath; // the time this organism stopped being alive (this organism
