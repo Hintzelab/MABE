@@ -54,7 +54,8 @@ public:
     PROD = 8,
     STDERR = 16,
     FIRST = 32,
-    VAR = 64
+    VAR = 64,
+	 NO_OUTPUT = 128
   };                               // 0 = do not save or default..?
   std::map<std::string, int> outputBehavior; // Defines how each element should be written
                                    // to file - if element not found, LIST
@@ -151,7 +152,7 @@ public:
   inline std::vector<std::string> getKeys() {
     std::vector<std::string> keys;
     for (auto e : inUse) {
-      keys.push_back(e.first); // just push back the whole key
+		 if (outputBehavior[e.first] != NO_OUTPUT) keys.push_back(e.first); // just push back the whole key
     }
     return (keys);
   }
@@ -175,6 +176,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const double &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -194,6 +196,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const int &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -212,6 +215,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const std::string &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -230,6 +234,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
 
   // set functions (bool,double,int,string) that take a **vector** of value -
@@ -287,6 +292,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const std::vector<std::string> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -305,6 +311,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
 
   // append a value to the end of vector associated with key. If key is not
@@ -326,6 +333,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const double &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -344,6 +352,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const int &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -362,6 +371,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const std::string &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -380,6 +390,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
 
   // append a vector of values to the end of vector associated with key. If key
@@ -400,6 +411,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const std::vector<double> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -416,6 +428,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const std::vector<int> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -432,6 +445,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
   inline void append(const std::string &key, const std::vector<std::string> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -448,6 +462,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, LIST|AVE);
   }
 
   // merge contents of two data maps - if common keys are found, replace 1 =
@@ -841,19 +856,23 @@ public:
     std::vector<std::string> columnNames;
 
     for (auto element : inUse) {
-      if (outputBehavior.find(element.first) == outputBehavior.end()) {
-        // this element has no defined output behavior, so it will be LIST
-        // (default) or FIRST (if it's a solo value)
-        if (element.second == BOOLSOLO || element.second == DOUBLESOLO ||
-            element.second == INTSOLO || element.second == STRINGSOLO) {
-          columnNames.push_back(element.first);
-        } else {
-          columnNames.push_back(element.first + "_LIST");
-        }
-      } else { // there is an output behavior defined
+      //if (outputBehavior.find(element.first) == outputBehavior.end()) {
+      //  // this element has no defined output behavior, so it will be LIST
+      //  // (default) or FIRST (if it's a solo value)
+      //  if (element.second == BOOLSOLO || element.second == DOUBLESOLO ||
+      //      element.second == INTSOLO || element.second == STRINGSOLO) {
+      //    columnNames.push_back(element.first);
+      //  } else {
+      //    columnNames.push_back(element.first + "_LIST");
+      //  }
+      //} else { // there is an output behavior defined
+		 {
         auto OB = outputBehavior[element.first];
         if (OB & AVE) {
           columnNames.push_back(element.first + "_AVE");
+        }
+        if (OB & FIRST) {
+          columnNames.push_back(element.first);
         }
         if (OB & SUM) {
           std::cout << "  WARNING OUTPUT METHOD SUM IS HAS YET TO BE WRITTEN!"
@@ -870,6 +889,7 @@ public:
         if (OB & LIST) {
           columnNames.push_back(element.first + "_LIST");
         }
+		  // if (OB & NO_OUTPUT) do nothing...
       }
     }
     return columnNames;
