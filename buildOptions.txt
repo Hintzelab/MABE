@@ -1,26 +1,14 @@
 % World
-  + Berry
-  + Xor
   * Test
 
 % Genome
-  + Multi
   * Circular
   
 % Brain
-  - Markov
-  * CGP
-  - LSTM
-  + ConstantValues
-  + Human
-  - Wire
+  * Markov
 	
 % Optimizer
   * Simple
-  - Islands
-  - Lexicase
 
 % Archivist
-  + Default
-  + SSwD
   * LODwAP
