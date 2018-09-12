@@ -239,7 +239,8 @@ void DefaultArchivist::saveSnapshotData(
         population[0]->dataMap.getKeys(); // get all keys from the valid orgs
                                           // dataMap (all orgs should have the
                                           // same keys in their dataMaps)
-    files_["snapshotData"].push_back("snapshotAncestors");
+	files_["snapshotData"].push_back("snapshotAncestors");
+	files_["snapshotData"].push_back("update");
   }
 
 
