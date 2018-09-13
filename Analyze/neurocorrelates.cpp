@@ -7,7 +7,8 @@ using std::vector;
 using std::map; using std::pair; 
 #include <algorithm> 
 using std::copy; using std::min; using std::max; 
-#include <math.h>
+#include <cmath>
+using std::log2; using std::pow;
 #include <iostream>
 using std::cout; using std::endl;
 
