@@ -59,7 +59,8 @@ auto CSVReader::doStateAction(state s, char c) {
 }
 
 auto CSVReader::parseLine(const std::string &s) {
-  auto curr = state::precw;
+  fields_.clear();
+   	auto curr = state::precw;
   for (auto c : s) {
     // cast to int to index into more
     // readable transition table
