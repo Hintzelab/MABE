@@ -1,7 +1,6 @@
 
 #pragma once
 
-
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -14,63 +13,35 @@
 #include <vector>
 
 // can parse a csv string into a vector of strings
-// The delimiter and quotation character can be spedified:
+// The delimiter and quotation character can be specified:
 // by default  , and "
-// csv lines can also be directly converted to a vector of a
-// templated type. Note: Behaviour is uspecified if all values
-// in the csv string cannot be converted to the templated type
 
 class CSVReader {
 
-  std::string delimiter_, quotation_;
- 
+  char delimiter_ = ',', quotation_ = '"';
+  std::string current_string_;
+  std::vector<std::string> fields_;
+  enum class input { chars, delim, quote, wh_sp };
+  enum class state { precw, field, delim, quote, succw, openq, CRASH };
+
+  std::array<std::array<state, 4>, 6> Transition{{
+      //  chars  		delim   		quote  		wh_sp
+      {state::field, state::delim, state::quote, state::precw}, // precw
+      {state::field, state::delim, state::succw, state::succw}, // field
+      {state::field, state::delim, state::quote, state::precw}, // delim
+      {state::openq, state::openq, state::succw, state::openq}, // openq
+      {state::CRASH, state::delim, state::CRASH, state::succw}, // succw
+      {state::openq, state::openq, state::succw, state::openq}  // nestq
+      //{state::CRASH ,  state::CRASH ,  state:CRASH: , state::CRASH } KABOOM
+  }};
+
+  auto symbol(char);
+  auto doStateAction(state, char);
+
 public:
-  CSVReader() : CSVReader(',', '"') {}
-  CSVReader(char d, char oq) : delimiter_(1, d), quotation_(1, oq) {}
-
-  // template <class T> auto  stringTo(std::string source);
-  // parse a csv line into a vector<T>
- //***
- //shouldn't be doing type conversion
-// ***
- 
-  auto parseLine(std::string raw_line) {
-    std::vector<std::string> data;
-
-	if (raw_line.empty())
-		return data;
-    
-	auto current = 0u;
-
-    while (true) {
-      // find next delimiter
-      auto delim = raw_line.find_first_of(delimiter_, current);
-      // find next open quotation
-      auto open_quote = raw_line.find_first_of(quotation_, current);
-      // if the next open quotation comes before the next delimiter
-      if (open_quote < delim) {
-        //  find close quotation
-        auto close_quote =
-            raw_line.find_first_of(quotation_, open_quote + 1);
-        // find first delimiter after that; ignoring delimiter inside of
-        // quotation >> warning: assumes that quotes come in pairs
-        delim = raw_line.find_first_of(delimiter_, close_quote);
-      }
-      // if line is completely parsed
-      if (delim == std::string::npos) {
-        break;
-      }
-      // add the next field
-      data.push_back(raw_line.substr(current, delim - current));
-      // search for the next field
-      current = delim + 1;
-    }
-
-    // add the last field
-    data.push_back(raw_line.substr(current));
-
-    return data;
-  }
+  CSVReader(char d) : delimiter_(d) {}
+  CSVReader(char d, char oq) : delimiter_(d), quotation_(oq) {}
+  auto parseLine(const std::string &);
 };
 
 // parses a csv file and stores in memory.
@@ -100,7 +71,7 @@ public:
 
   // number of rows in the file
   auto row_count() const { return rows_.size(); }
-  
+
   // return all columns in the file
   auto columns() const { return columns_; }
 
@@ -110,8 +81,8 @@ public:
   // return all values corresponding to a single column
   std::vector<std::string> singleColumn(std::string column);
 
-  // look up a value in a column and return the value in the corresponding row of
-  // the other column
+  // look up a value in a column and return the value in the corresponding row
+  // of the other column
   std::string lookUp(std::string lookup_column, std::string value,
                      std::string return_column) const;
 

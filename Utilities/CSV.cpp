@@ -14,6 +14,69 @@
 #include <sstream>
 #include <vector>
 
+auto CSVReader::symbol(char c) {
+  return c == delimiter_ ? input::delim
+                         : c == quotation_ ? input::quote
+                                           : c == ' ' ? input::wh_sp
+                                                      : /* char */ input::chars;
+}
+
+auto CSVReader::doStateAction(state s, char c) {
+  switch (s) {
+  case state::precw:
+    // leading whitespace
+    // do nothing
+    break;
+  case state::field:
+    // non nested field
+    // simply keep reading
+    current_string_  += c;
+    break;
+  case state::delim:
+    // found delim
+    // add field
+    // clear field
+    fields_.push_back(current_string_);
+    current_string_ .clear();
+    break;
+  case state::quote:
+    // ready to start
+    // reading quoted field
+    break;
+  case state::openq:
+    // nested field
+    // simply keep reading
+    current_string_  += c;
+    break;
+  case state::succw:
+    // trailing whitespace
+    // do nothing
+    break;
+  case state::CRASH:
+    std::cout << "cannot parse : nested whitespace";
+    // exit(1);
+  }
+}
+
+auto CSVReader::parseLine(const std::string &s) {
+  auto curr = state::precw;
+  for (auto c : s) {
+    // cast to int to index into more
+    // readable transition table
+    curr = Transition[static_cast<int>(curr)][static_cast<int>(symbol(c))];
+
+    doStateAction(curr, c);
+  }
+
+  if (curr == state::openq) {
+    std::cout << "cannot parse : missing quotation";
+    // exit(1);
+  }
+  // add the final field
+  fields_.push_back(current_string_);
+  return fields_;
+}
+
 
 std::vector<std::string> CSV::singleColumn(std::string column) {
   if (!hasColumn(column)) {
