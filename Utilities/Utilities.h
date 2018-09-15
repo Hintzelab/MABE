@@ -246,7 +246,7 @@ inline void convertCSVListToVector(std::string string_data,
 }
 */
 
-template <typename T> inline static auto convertTo(std::vector<std::string> &l) {
+template <typename T> inline static auto convertTo(std::vector<std::string> l) {
   std::vector<T> data;
   for (auto &e : l)
     data.push_back(stringTo<T>(e));

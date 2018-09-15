@@ -39,9 +39,10 @@ class CSVReader {
   auto doStateAction(state, char);
 
 public:
+  CSVReader() = default ;
   CSVReader(char d) : delimiter_(d) {}
   CSVReader(char d, char oq) : delimiter_(d), quotation_(oq) {}
-  auto parseLine(const std::string &);
+  std::vector<std::string> parseLine(const std::string &);
 };
 
 // parses a csv file and stores in memory.

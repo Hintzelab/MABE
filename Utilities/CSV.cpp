@@ -58,7 +58,7 @@ auto CSVReader::doStateAction(state s, char c) {
   }
 }
 
-auto CSVReader::parseLine(const std::string &s) {
+std::vector<std::string> CSVReader::parseLine(const std::string &s) {
   fields_.clear();
    	auto curr = state::precw;
   for (auto c : s) {
@@ -77,7 +77,6 @@ auto CSVReader::parseLine(const std::string &s) {
   fields_.push_back(current_string_);
   return fields_;
 }
-
 
 std::vector<std::string> CSV::singleColumn(std::string column) {
   if (!hasColumn(column)) {
