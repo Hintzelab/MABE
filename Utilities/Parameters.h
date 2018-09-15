@@ -474,7 +474,7 @@ public:
   makelike(std::string value, std::string name = "none provided") override {
     auto newEntry = std::make_shared<ParametersEntry<T>>();
     auto tempVal = *valuePtr;
-    if (load_value(value, tempVal)) {
+    if (stringToValue(value, tempVal)) {
       newEntry->valuePtr = std::make_shared<T>(tempVal);
     } else {
       std::cout << "  in ParametersEntry::makelike() attempting to setup a "
@@ -493,7 +493,7 @@ public:
   void setExisting(std::string value,
                    std::string name = "none provided") override {
     auto tempVal = *valuePtr;
-    if (load_value(value, tempVal)) {
+    if (stringToValue(value, tempVal)) {
       *valuePtr = tempVal;
       local = true;
     } else {
