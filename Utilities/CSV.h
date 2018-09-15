@@ -100,3 +100,5 @@ public:
   }
 };
 
+std::vector<std::string> parseCSVLine(const std::string& line);
+

@@ -242,5 +242,7 @@ void CSV::merge(CSV merge_csv, std::string column) {
   }
 }
 
-
+std::vector<std::string> parseCSVLine(const std::string& line) {
+  return CSVReader().parseLine(line);
+}
 

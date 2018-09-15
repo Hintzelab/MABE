@@ -566,7 +566,7 @@ void MultiGenome::deserialize(std::shared_ptr<ParametersTable> PT, std::unordere
 
 //	std::vector<int> _chromosomeLengths;
 //	convertCSVListToVector(orgData["GENOME_" + name + "_chromosomeLengths"], _chromosomeLengths);
-auto _chromosomeLengths = convertTo<int>(CSVReader().parseLine(
+auto _chromosomeLengths = convertTo<int>(parseCSVLine(
 			         orgData["GENOME_" + name + "_chromosomeLengths"]));
 	std::string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
 	std::string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size()-1);

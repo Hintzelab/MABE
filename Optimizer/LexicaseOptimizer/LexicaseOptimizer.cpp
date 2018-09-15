@@ -63,7 +63,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 
 //	std::vector<std::string> optimizeFormulasStrings;
 //	convertCSVListToVector(optimizeFormulasPL->get(PT), optimizeFormulasStrings);
-	auto optimizeFormulasStrings = CSVReader().parseLine(optimizeFormulasPL->get(PT));
+	auto optimizeFormulasStrings = parseCSVLine(optimizeFormulasPL->get(PT));
 	for (auto s : optimizeFormulasStrings) {
 		optimizeFormulasMTs.push_back(stringToMTree(s));
 	}

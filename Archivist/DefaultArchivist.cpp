@@ -151,7 +151,7 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
     : DefaultArchivist(std::move(PT_),group_prefix) {
 
 //  convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
- default_pop_file_columns_ = CSVReader().parseLine(
+ default_pop_file_columns_ = parseCSVLine(
 		       PopFileColumnNames.substr(1, PopFileColumnNames.size() - 2));
   max_formula_ = std::move(max_formula);
 
