@@ -27,10 +27,17 @@
 #include <iterator> // for split
 #include <string>
 #include <sstream>
+#include <vector>
 
 bool isDirectory(const std::string&);
 bool fileExists(const std::string& filename);
 bool isDirectory(const std::string& dirname);
+void getFilesMatchingRelativePattern(const std::string &pattern,
+                                     std::vector<std::string> &files);
+void followPathAndCollectFiles(std::string &curPath,
+                               unsigned int depthIntoFilterPathParts,
+                               std::vector<std::string> &filterPathParts,
+                               std::vector<std::string> &collectedFiles);
 template <class Container>
 void split(const std::string& str, Container& cont, char delim = ' ') {
     std::stringstream ss(str);
