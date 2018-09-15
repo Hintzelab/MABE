@@ -63,8 +63,11 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
                    std::shared_ptr<ParametersTable> PT_)
     : AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
-  convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
-  // nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() :
+//  convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
+	auto avail_ops = availableOperatorsPL->get(PT);
+	auto actual_avail_ops = avail_ops.substr(1, avail_ops.size() - 2);
+	availableOperators = CSVReader().parseLine(actual_avail_ops); 
+// nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() :
   // PT->lookupInt("BRAIN_CGP-hiddenNodes");
   // magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() :
   // PT->lookupDouble("BRAIN_CGP-magnitudeMax");

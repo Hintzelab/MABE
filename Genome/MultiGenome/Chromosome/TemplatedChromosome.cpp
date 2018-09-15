@@ -322,7 +322,7 @@ void TemplatedChromosome<T>::readChromosomeFromSS(std::stringstream &ss,
       nextString += nextChar;
       ss >> nextChar;
     }
-    load_value(nextString, value);
+    stringToValue(nextString, value);
     // cout << nextString << " = " << value << ", ";
     sites.push_back(value);
     if (i < _chromosomeLength - 1) {
@@ -347,7 +347,7 @@ void TemplatedChromosome<unsigned char>::readChromosomeFromSS(
       nextString += nextChar;
       ss >> nextChar;
     }
-    load_value(nextString, value);
+    stringToValue(nextString, value);
     // cout << nextString << " = " << value << ", ";
     sites.push_back((char)value);
     if (i < _chromosomeLength - 1) {
