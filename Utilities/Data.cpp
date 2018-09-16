@@ -99,6 +99,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
 
       if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
         if (!(OB == LIST || OB == FIRST || OB == NO_OUTPUT)) {
+			std::cout << std::endl << OB << std::endl;
           std::cout << "  in constructHeaderAndDataStrings :: attempt to write "
                   "string not in either LIST or FIRST formatte. This is not "
                   "allowed! Key was '" << i << "'. Exiting..."
