@@ -2,7 +2,6 @@
 
 
 #include "CSV.h"
-
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -242,7 +241,7 @@ void CSV::merge(CSV merge_csv, std::string column) {
   }
 }
 
-std::vector<std::string> parseCSVLine(const std::string& line) {
+std::vector<std::string> CSVParseLine(const std::string& line) {
   return CSVReader().parseLine(line);
 }
 

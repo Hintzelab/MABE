@@ -199,6 +199,21 @@ inline static bool stringToValue(const std::string &source, T &target) {
   return ss >> target ? !(ss >> remaining) : false;
 }
 
+// try and convert a std::string to a particular type
+// warning: no error if value is not  valid type
+template <typename T> inline static auto stringTo(std::string source) {
+  std::stringstream ss(source);
+  T target;
+  ss >> target;
+  return target;
+}
+
+template <typename T> inline static auto convertTo(std::vector<std::string> l) {
+  std::vector<T> data;
+  for (auto &e : l)
+    data.push_back(stringTo<T>(e));
+  return data;
+}
 
 // converts a vector of string to a vector of type of returnData
 template <class T>
