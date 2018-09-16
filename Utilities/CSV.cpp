@@ -13,6 +13,7 @@
 #include <set>
 #include <sstream>
 #include <vector>
+#include <array>
 
 auto CSVReader::symbol(char c) {
   return c == delimiter_ ? input::delim
