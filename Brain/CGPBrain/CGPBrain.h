@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "../../Utilities/Random.h"
+#include "../../Utilities/CSV.h"
 #include "../../Genome/AbstractGenome.h"
 
 #include "../AbstractBrain.h"

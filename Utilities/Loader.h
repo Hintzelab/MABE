@@ -50,8 +50,8 @@ private:
   // read MABE generated files and constructs organsims 
   // redundant function from MABE - should be cleaned
   //
-  std::map<long, std::map<std::string, std::string>> getAttributeMap(
-      const std::string &); // read file and construct partial organism
+//  std::map<long, std::map<std::string, std::string>> getAttributeMap(
+//      const std::string &); // read file and construct partial organism
 
   void parseAllCommands(
       std::string); // read file and parse every assignment to user
