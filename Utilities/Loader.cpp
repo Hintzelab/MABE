@@ -15,6 +15,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 std::string dataVersionOfFilename(const std::string& filename) {
     std::string ext(filename.substr(filename.rfind(".")));
@@ -76,9 +77,9 @@ Loader::loadPopulation(const std::string &loader_option) {
       final_orgs.begin(), final_orgs.end(),
       std::back_inserter(final_population), [this](long org) {
         return org < 0
-                   ? make_pair(org,
+                   ? std::make_pair(org,
                                std::unordered_map<std::string, std::string>())
-                   : make_pair(org, all_organisms.at(org).attributes);
+                   : std::make_pair(org, all_organisms.at(org).attributes);
       });
 
   return final_population;
@@ -547,7 +548,7 @@ std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
     organism org;
     org.orig_ID = std::stol(id);
     org.from_file = file_name;
-    for (const auto &attribute : org_file_data.columns()) {
+    for (const auto &attribute : org_file_data.column_names()) {
       org.attributes.insert(
           make_pair(attribute, org_file_data.lookUp("ID", id, attribute)));
     }

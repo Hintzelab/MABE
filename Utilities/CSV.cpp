@@ -2,7 +2,6 @@
 
 
 #include "CSV.h"
-
 #include <algorithm>
 #include <cmath>
 #include <fstream>
@@ -13,7 +12,6 @@
 #include <set>
 #include <sstream>
 #include <vector>
-#include <array>
 
 auto CSVReader::symbol(char c) {
   return c == delimiter_ ? input::delim
@@ -22,7 +20,15 @@ auto CSVReader::symbol(char c) {
                                                       : /* char */ input::chars;
 }
 
-auto CSVReader::doStateAction(state s, char c) {
+void CSVReader::showLineAndErrorChar(const std::string& line, const int& charIndex) {
+  // example output:
+  // this, was, your string, with, error
+  //                 ^
+  std::cout << line << std::endl;
+  std::cout << std::string(std::max(charIndex-1,0),' ') << "^" << std::endl;
+}
+
+auto CSVReader::doStateAction(state s, char c, const std::string& line, const int& charIndex) {
   switch (s) {
   case state::precw:
     // leading whitespace
@@ -54,25 +60,30 @@ auto CSVReader::doStateAction(state s, char c) {
     // do nothing
     break;
   case state::CRASH:
-    std::cout << "cannot parse : nested whitespace";
-    // exit(1);
+    std::cout << "cannot parse : unexpected character" << std::endl;
+    showLineAndErrorChar(line,charIndex);
+    exit(1);
+    break;
   }
 }
 
 std::vector<std::string> CSVReader::parseLine(const std::string &s) {
   fields_.clear();
    	auto curr = state::precw;
+    auto index(0);
   for (auto c : s) {
     // cast to int to index into more
     // readable transition table
     curr = Transition[static_cast<int>(curr)][static_cast<int>(symbol(c))];
 
-    doStateAction(curr, c);
+    doStateAction(curr, c, s, index);
+    ++index;
   }
 
   if (curr == state::openq) {
-    std::cout << "cannot parse : missing quotation";
-    // exit(1);
+    std::cout << "cannot parse : missing quotation" << std::endl;
+    showLineAndErrorChar(s,index+1);
+    exit(1);
   }
   // add the final field
   fields_.push_back(current_string_);
@@ -87,8 +98,8 @@ std::vector<std::string> CSV::singleColumn(std::string column) {
   }
 
   auto const column_pos =
-      std::find(std::begin(columns_), std::end(columns_), column) -
-      std::begin(columns_);
+      std::find(std::begin(column_names_), std::end(column_names_), column) -
+      std::begin(column_names_);
 
   std::vector<std::string> values;
   std::transform(std::begin(rows_), std::end(rows_), std::back_inserter(values),
@@ -114,8 +125,8 @@ std::string CSV::lookUp(std::string lookup_column, std::string value,
 
   // find position of lookup column
   auto const column_pos =
-      std::find(std::begin(columns_), std::end(columns_), lookup_column) -
-      std::begin(columns_);
+      std::find(std::begin(column_names_), std::end(column_names_), lookup_column) -
+      std::begin(column_names_);
 
   // find number of values in lookup column
   auto const value_count = std::count_if(
@@ -140,13 +151,13 @@ std::string CSV::lookUp(std::string lookup_column, std::string value,
   auto const value_pos = std::find_if(std::begin(rows_), std::end(rows_),
                                       [value, column_pos](auto &row) {
                                         return row[column_pos] == value;
-                                      }) -
+                                 }) -
                          std::begin(rows_);
 
   // find position of return column
   auto const return_pos =
-      std::find(std::begin(columns_), std::end(columns_), return_column) -
-      std::begin(columns_);
+      std::find(std::begin(column_names_), std::end(column_names_), return_column) -
+      std::begin(column_names_);
 
   return rows_[value_pos][return_pos];
 }
@@ -164,11 +175,11 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
 
   // read header line
   getline(file, raw_line);
-  columns_ = reader_.parseLine(raw_line);
+  column_names_ = reader_.parseLine(raw_line);
 
   // ensure column names are unique
-  std::set<std::string> uniq_headers(std::begin(columns_), std::end(columns_));
-  if (uniq_headers.size() != columns_.size()) {
+  std::set<std::string> uniq_headers(std::begin(column_names_), std::end(column_names_));
+  if (uniq_headers.size() != column_names_.size()) {
     std::cout << "Error: CSV file " << file_name_
               << " does not have unique Header names" << std::endl;
     exit(1);
@@ -178,7 +189,7 @@ CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
   while (getline(file, raw_line)) {
     auto data_line = reader_.parseLine(raw_line);
     // ensure all rows have correct number of columns
-    if (columns_.size() != data_line.size()) {
+    if (column_names_.size() != data_line.size()) {
       std::cout << " Error: incorrect number of columns in CSV file "
                 << file_name_ << std::endl;
       exit(1);
@@ -227,15 +238,15 @@ void CSV::merge(CSV merge_csv, std::string column) {
 
   // find position of lookup column
   auto const column_pos =
-      std::find(std::begin(columns_), std::end(columns_), column) -
-      std::begin(columns_);
+      std::find(std::begin(column_names_), std::end(column_names_), column) -
+      std::begin(column_names_);
 
   // merge columns from second file
-  for (auto const &merge_column : merge_csv.columns()) {
+  for (auto const &merge_column : merge_csv.column_names()) {
     // only add additional columns
-    if (std::find(std::begin(columns_), std::end(columns_), merge_column) ==
-        std::end(columns_)) {
-      columns_.push_back(merge_column);
+    if (std::find(std::begin(column_names_), std::end(column_names_), merge_column) ==
+        std::end(column_names_)) {
+      column_names_.push_back(merge_column);
       // for each column add value to every row
       for (auto &row : rows_)
         row.push_back(merge_csv.lookUp(column, row[column_pos], merge_column));
@@ -243,7 +254,7 @@ void CSV::merge(CSV merge_csv, std::string column) {
   }
 }
 
-std::vector<std::string> parseCSVLine(const std::string& line) {
+std::vector<std::string> CSVParseLine(const std::string& line) {
   return CSVReader().parseLine(line);
 }
 

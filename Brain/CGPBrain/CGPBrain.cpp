@@ -66,7 +66,7 @@ CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
 //  convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
 	auto avail_ops = availableOperatorsPL->get(PT);
 	auto actual_avail_ops = avail_ops.substr(1, avail_ops.size() - 2);
-	availableOperators = parseCSVLine(actual_avail_ops); 
+	availableOperators = CSVParseLine(actual_avail_ops); 
 // nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() :
   // PT->lookupInt("BRAIN_CGP-hiddenNodes");
   // magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() :
