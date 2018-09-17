@@ -394,12 +394,19 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
       if ( org.first >= 0 ) {
         if (org.second.find("loadedFrom.File") != org.second.end()) {
           newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.File", DataMap::NO_OUTPUT);
         }
         if (org.second.find("loadedFrom.ID") != org.second.end()) {
           newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.ID", DataMap::NO_OUTPUT);
+        }
+        if (org.second.find("loadedFrom.ID") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.ID", DataMap::NO_OUTPUT);
         }
         if (org.second.find("loadedFrom.Update") != org.second.end()) {
           newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.Update", DataMap::NO_OUTPUT);
         }
         std::cout << "[" << org.second["loadedFrom.File"] << "," << org.second["loadedFrom.ID"] << "," << org.second["loadedFrom.Update"] << "]" << std::endl;
       }
