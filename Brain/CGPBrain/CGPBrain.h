@@ -18,6 +18,7 @@
 
 #include "../../Utilities/Random.h"
 #include "../../Genome/AbstractGenome.h"
+#include "../../Utilities/Utilities.h"
 
 #include "../AbstractBrain.h"
 

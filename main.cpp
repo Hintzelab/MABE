@@ -13,6 +13,7 @@
 #include "Global.h"
 #include "Group/Group.h"
 #include "Organism/Organism.h"
+#include "Utilities/Utilities.h"
 #include "Utilities/Data.h"
 #include "Utilities/Loader.h"
 #include "Utilities/MTree.h"
@@ -273,8 +274,8 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         brainNames.insert(brainName);
         workingString = workingString.substr(workingString.find(',') + 1);
         int ins, outs;
-        stringToValue(workingString.substr(0, workingString.find(',')), ins);
-        stringToValue(workingString.substr(workingString.find(',') + 1), outs);
+        convertStringToValue(workingString.substr(0, workingString.find(',')), ins);
+        convertStringToValue(workingString.substr(workingString.find(',') + 1), outs);
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {

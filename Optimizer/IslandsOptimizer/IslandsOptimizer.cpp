@@ -15,7 +15,7 @@
 
 std::shared_ptr<ParameterLink<std::string>> IslandsOptimizer::IslandNameSpaceListPL =
 Parameters::register_parameter(
-	"OPTIMIZER_ISLANDS-IslandNameSpaceList", static_cast<std::string>("[op1::,op2::,op3::,op4::,op5::]"),
+	"OPTIMIZER_ISLANDS-IslandNameSpaceList", static_cast<std::string>("op1::,op2::,op3::,op4::,op5::"),
 	"list of name spaces to use for island optimizers");
 std::shared_ptr<ParameterLink<double>> IslandsOptimizer::migrationRatePL =
 Parameters::register_parameter(
@@ -26,7 +26,7 @@ IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
 	std::vector<std::string> opNameSpaces;
-	convertCSVListToVector(IslandNameSpaceListPL->get(PT), opNameSpaces);
+	convertCSVListToValues(IslandNameSpaceListPL->get(PT), opNameSpaces);
 
 	islands = opNameSpaces.size();
 	std::cout << "  setting up IslandOptimizer. Found " << islands << " islands:" << std::endl;

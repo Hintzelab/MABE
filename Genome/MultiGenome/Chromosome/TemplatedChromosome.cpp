@@ -314,19 +314,20 @@ void TemplatedChromosome<T>::readChromosomeFromSS(std::stringstream &ss,
   std::string nextString;
   T value;
   sites.clear();
-  ss >> nextChar; // load first char of first site
 
+  bool streamNotEmpty(false);
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
   for (int i = 0; i < _chromosomeLength; i++) {
     nextString = "";
-    while (nextChar != ',' && nextChar != ']') {
+    while (streamNotEmpty && (nextChar != ',')) {
       nextString += nextChar;
-      ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
     }
-    load_value(nextString, value);
+    convertStringToValue(nextString, value);
     // cout << nextString << " = " << value << ", ";
     sites.push_back(value);
     if (i < _chromosomeLength - 1) {
-      ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
     }
   }
   // cout << endl;
@@ -339,19 +340,20 @@ void TemplatedChromosome<unsigned char>::readChromosomeFromSS(
   std::string nextString;
   int value;
   sites.clear();
-  ss >> nextChar; // load first char of first site
 
+  bool streamNotEmpty(false);
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
   for (int i = 0; i < _chromosomeLength; i++) {
     nextString = "";
-    while (nextChar != ',' && nextChar != ']') {
+    while (streamNotEmpty && (nextChar != ',')) {
       nextString += nextChar;
-      ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
     }
-    load_value(nextString, value);
+    convertStringToValue(nextString, value);
     // cout << nextString << " = " << value << ", ";
     sites.push_back((char)value);
     if (i < _chromosomeLength - 1) {
-      ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
     }
   }
   // cout << endl;

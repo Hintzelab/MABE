@@ -131,7 +131,7 @@ std::shared_ptr<ParameterLink<int>> BerryWorld::visionSensorArcSizePL =
 std::shared_ptr<ParameterLink<std::string>>
     BerryWorld::visionSensorDirectionsPL = Parameters::register_parameter(
         "WORLD_BERRY_SENSORS_VISION-visionSensorDirections",
-        (std::string) "[-2,0,1]", "what directions can org see? (if value is < "
+        (std::string) "-2,0,1", "what directions can org see? (if value is < "
                                   "1, then this value will be multipied by "
                                   "directions)");
 
@@ -146,7 +146,7 @@ std::shared_ptr<ParameterLink<int>> BerryWorld::smellSensorArcSizePL =
 std::shared_ptr<ParameterLink<std::string>>
     BerryWorld::smellSensorDirectionsPL = Parameters::register_parameter(
         "WORLD_BERRY_SENSORS_SMELL-smellSensorDirections",
-        (std::string) "[0,.25,.5,.75]", "what directions can org smell? (if "
+        (std::string) "0,.25,.5,.75", "what directions can org smell? (if "
                                         "value is < 1, then this value will be "
                                         "multipied by directions)");
 
@@ -208,10 +208,10 @@ std::shared_ptr<ParameterLink<int>> BerryWorld::alwaysStartOnPL =
                                    "locations)");
 std::shared_ptr<ParameterLink<std::string>>
     BerryWorld::validStartConfigurationsPL = Parameters::register_parameter(
-        "WORLD_BERRY-startConfigurations", (std::string) "[-1]",
+        "WORLD_BERRY-startConfigurations", (std::string) "-1",
         "If alwaysStartOn is -1 and no start locations are provided by a map, "
         "these will determin inital placment of harvesters.\nformat: "
-        "[x,y,facing[,x,y,facing,x,y,facing]] if value = [-1] = all random "
+        "x,y,facing,x,y,facing,x,y,facing if value = -1 = all random "
         "starts (default); -1 in facing position will pick random facing for "
         "that location.");
 
@@ -222,10 +222,10 @@ std::shared_ptr<ParameterLink<int>> BerryWorld::foodTypesPL =
 
 std::shared_ptr<ParameterLink<std::string>>
     BerryWorld::initialFoodDistributionPL = Parameters::register_parameter(
-        "WORLD_BERRY_FOOD-initialFoodDistribution", (std::string) "[-1]",
+        "WORLD_BERRY_FOOD-initialFoodDistribution", (std::string) "-1",
         "values used to generate world when maps are not loaded.\nList "
         "provides types of foods and probability of that food on each "
-        "location.\n  [1,1,2] = 2/3 1, 1/3 2\n  [-1,0,2] = 1/3 random from "
+        "location.\n  1,1,2 = 2/3 1, 1/3 2\n  -1,0,2 = 1/3 random from "
         "food types, 1/3 0, 1/3 2");
 
 std::shared_ptr<ParameterLink<double>> BerryWorld::reward1PL =
@@ -255,38 +255,38 @@ std::shared_ptr<ParameterLink<double>> BerryWorld::reward8PL =
 
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace1PL =
     Parameters::register_parameter(
-        "WORLD_BERRY_FOOD-replace1", (std::string) "[-1]",
+        "WORLD_BERRY_FOOD-replace1", (std::string) "-1",
         "when food 1 is eaten, what should replace it?\nreplacement is chosen "
         "randomly from this list\nelements that appear more then once are more "
         "likely to be selected\n-1 will choose randomly from available food "
         "types");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace2PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace2",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food2");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace3PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace3",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food3");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace4PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace4",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food4");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace5PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace5",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food5");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace6PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace6",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food6");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace7PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace7",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food7");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::replace8PL =
     Parameters::register_parameter("WORLD_BERRY_FOOD-replace8",
-                                   (std::string) "[-1]",
+                                   (std::string) "-1",
                                    "replace rule for food8");
 
 std::shared_ptr<ParameterLink<double>> BerryWorld::poison0PL =
@@ -359,12 +359,12 @@ std::shared_ptr<ParameterLink<bool>> BerryWorld::snapToGridPL =
 
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::mapFilesPL =
     Parameters::register_parameter(
-        "WORLD_BERRY_MAPS-mapFiles", (std::string) "[]",
+        "WORLD_BERRY_MAPS-mapFiles", (std::string) "",
         "list of names of file containing maps (if NONE, random map will be "
         "generated) e.g. [World/HarvestXWorld/maps/patch.txt]");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::whichMapsPL =
     Parameters::register_parameter(
-        "WORLD_BERRY_MAPS-whichMaps", (std::string) "[1/1]",
+        "WORLD_BERRY_MAPS-whichMaps", (std::string) "1/1",
         "list of maps from mapFiles to use to evaluate each harvester, "
         "type/name will select named map,\n* in either position = all,\na "
         "number = randomly select that number of maps (will fail if there are "
@@ -372,18 +372,18 @@ std::shared_ptr<ParameterLink<std::string>> BerryWorld::whichMapsPL =
 
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::triggerFoodsPL =
     Parameters::register_parameter(
-        "WORLD_BERRY_TRIGGERS-triggerFoods", (std::string) "[]",
+        "WORLD_BERRY_TRIGGERS-triggerFoods", (std::string) "",
         "list of foods with triggers, for each food in this list, there must "
         "also be a level and event\nmore then one food may be included in a "
         "trigger (seperated by +). All food must be <= level in this case");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::triggerFoodLevelsPL =
     Parameters::register_parameter(
-        "WORLD_BERRY_TRIGGERS-triggerFoodLevels", (std::string) "[]",
+        "WORLD_BERRY_TRIGGERS-triggerFoodLevels", (std::string) "",
         "list of levels when food triggers will activate, events will trigger "
         "when the associated food drops to or below this level");
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::triggerFoodEventsPL =
     Parameters::register_parameter(
-        "WORLD_BERRY_TRIGGERS-triggerFoodEvents", (std::string) "[]",
+        "WORLD_BERRY_TRIGGERS-triggerFoodEvents", (std::string) "",
         "list of events which will take place when trigger activates\nT*[num] "
         "= all harvesters in the current group gain score of (world updates "
         "remaining * num)\nS[num] = all harvesters gain score of num\n "
@@ -391,6 +391,91 @@ std::shared_ptr<ParameterLink<std::string>> BerryWorld::triggerFoodEventsPL =
         "reset map)\nG[x,y,f,...] = generate f at x,y; if any value == -1 then "
         "use random in world range or food range\nQ = stop running this "
         "evaluation\nrules may be combined with + (i.e. S10+Q)");
+
+template <class T>
+inline static bool load_value(const std::string &value, T &target) {
+  std::stringstream ss(value);
+  std::string remaining;
+  return ss >> target ? !(ss >> remaining) : false;
+}
+inline std::vector<std::string> parseCSVLine(std::string raw_line,
+                                             const char separator = ',',
+                                             const char sep_except = '"') {
+  std::vector<std::string> data_line;
+  std::string s(1,separator), se(1,sep_except);
+  const std::regex piece(R"((.*?)()" + s + "|" + se + R"(|$))");
+  bool in_quotes = false;
+  std::string quoted_string;
+  for (auto &m : forEachRegexMatch(raw_line, piece)) {
+    if (m[2].str() == se) {
+      if (!in_quotes) {
+        data_line.push_back(m[1].str());
+        in_quotes = true;
+      } else {
+        quoted_string += m[1].str();
+        data_line.push_back(quoted_string);
+        quoted_string = "";
+        in_quotes = false;
+      }
+    } else {
+      if (!in_quotes)
+        data_line.push_back(m[1].str());
+      else
+        quoted_string += m[0].str();
+    }
+  }
+  data_line.erase(std::remove_if(data_line.begin(), data_line.end(),
+                                 [](std::string s) { return s == ""; }),
+                  data_line.end());
+  return data_line;
+}
+template <class T>
+inline void convertCSVListToVector(std::string string_data,
+                                   std::vector<T> &return_data,
+                                   const char separator = ',',
+                                   const char sep_except = '"') {
+  return_data.clear();
+  // check all uses of this function to see if leading and trailing quotes are
+  // needed
+  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
+  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
+  std::smatch m_quote;
+  string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
+                    ? m_quote[1].str()
+                    : string_data;
+  std::smatch m_square;
+  string_data = std::regex_match(string_data, m_square, stripoff_square_brackets)
+                    ? m_square[1].str()
+                    : string_data;
+  T temp; // immediately assign from load_value
+  for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
+    if (!load_value(s, temp)) {
+      std::cout << " --- while parsing: " << string_data << " .... "
+                << std::endl;
+      std::cout << " In convertCSVListToVector() attempt to convert string "
+                << s << " to  value failed\n " << std::endl;
+      exit(1);
+    }
+    return_data.push_back(temp);
+  }
+}
+inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
+                         std::stringstream &ss) {
+  rawLine.resize(0);
+  if (file.is_open() && !file.eof()) {
+    while ((rawLine.size() == 0 || rawLine[0] == '#') && !file.eof()) {
+      getline(file, rawLine);
+    }
+    ss.clear();
+    ss.str(std::string());
+    ss << rawLine;
+  } else if (!file.eof()) {
+    std::cout << "in loadSS, file is not open!\n  Exiting." << std::endl;
+    exit(1);
+  }
+  // cout << "from file:  " << rawLine << endl;
+  return file.eof();
+}
 
 std::vector<int> pickUnique(int numAvalible, int numPicks) {
   std::vector<int> picks;

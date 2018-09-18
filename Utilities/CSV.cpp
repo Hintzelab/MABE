@@ -87,6 +87,7 @@ std::vector<std::string> CSVReader::parseLine(const std::string &s) {
   }
   // add the final field
   fields_.push_back(current_string_);
+  current_string_.clear();
   return fields_;
 }
 
@@ -252,9 +253,5 @@ void CSV::merge(CSV merge_csv, std::string column) {
         row.push_back(merge_csv.lookUp(column, row[column_pos], merge_column));
     }
   }
-}
-
-std::vector<std::string> CSVParseLine(const std::string& line, char delim, char quoteChar) {
-  return CSVReader(delim, quoteChar).parseLine(line);
 }
 

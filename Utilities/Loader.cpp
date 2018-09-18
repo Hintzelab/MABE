@@ -3,6 +3,7 @@
 
 #include "Loader.h"
 #include "Filesystem.h"
+#include "CSV.h"
 
 #include <fstream>
 #include <iostream>
@@ -14,6 +15,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 std::string dataVersionOfFilename(const std::string& filename) {
     std::string ext(filename.substr(filename.rfind(".")));
@@ -22,95 +24,6 @@ std::string dataVersionOfFilename(const std::string& filename) {
     else return filename.substr(0,filename.rfind("."))+"_data"+ext;
 }
 
-void followPathAndCollectFiles(std::string& curPath, unsigned int depthIntoFilterPathParts, std::vector<std::string>& filterPathParts, std::vector<std::string>& collectedFiles) {
-    std::string padding(depthIntoFilterPathParts*2,' ');
-#if defined(OS_UNIX)
-    struct dirent *fileinfo;
-    struct stat statbuf;
-    struct stat lstatbuf;
-    DIR *dir;
-    dir = opendir(curPath.c_str());
-    while( (fileinfo=readdir(dir)) ) {
-        if (strcmp(fileinfo->d_name,".")==0) continue;
-        std::string filePath(curPath+"/"+fileinfo->d_name);
-        if (curPath == "./") filePath = fileinfo->d_name;
-        stat(filePath.c_str(),&statbuf);
-        lstat(filePath.c_str(),&lstatbuf);
-        const std::regex pattern(filterPathParts[depthIntoFilterPathParts]);
-        if (S_ISDIR(statbuf.st_mode)) {
-            if ( std::regex_match(fileinfo->d_name, pattern) ) {
-                std::string newPath(curPath+"/"+fileinfo->d_name);
-                if (curPath == "./") newPath = fileinfo->d_name;
-                followPathAndCollectFiles(newPath, depthIntoFilterPathParts+1, filterPathParts, collectedFiles);
-            }
-        } else if (S_ISREG(statbuf.st_mode)) {
-            if ( std::regex_match(fileinfo->d_name, pattern) ) {
-                if (depthIntoFilterPathParts == filterPathParts.size()-1) {
-                    std::string newPath(fileinfo->d_name);
-			    		 if (curPath != "./") newPath = curPath+"/"+fileinfo->d_name;
-                    collectedFiles.push_back(newPath);
-                }
-            }
-        }
-    }
-    closedir(dir);
-#elif defined(OS_WINDOWS)
-    WIN32_FIND_DATA data;
-    HANDLE hFind;
-    std::string newCurPath(curPath);
-    DWORD curPathftyp = GetFileAttributesA(curPath.c_str());
-    if (curPathftyp & FILE_ATTRIBUTE_DIRECTORY) newCurPath = curPath+"\\*";
-    if ((hFind = FindFirstFile(newCurPath.c_str(), &data)) != INVALID_HANDLE_VALUE) {
-        do {
-            if (strcmp(data.cFileName,".")==0) continue;
-            std::string filePath(curPath+"\\"+data.cFileName);
-            if (curPath == ".") filePath = data.cFileName;
-            DWORD ftyp = GetFileAttributesA(filePath.c_str());
-            const std::regex pattern(filterPathParts[depthIntoFilterPathParts]);
-            if (ftyp & FILE_ATTRIBUTE_DIRECTORY) {
-                if ( std::regex_match(data.cFileName, pattern) ) {
-                    std::string newPath(curPath+"\\"+data.cFileName);
-                    if (curPath == ".") newPath = data.cFileName;
-                    followPathAndCollectFiles(newPath, depthIntoFilterPathParts+1, filterPathParts, collectedFiles);
-                }
-            } else { // regular file
-                if ( std::regex_match(data.cFileName, pattern) ) {
-                    if (depthIntoFilterPathParts == filterPathParts.size()-1) {
-                        std::string newPath(data.cFileName);
-                        if (curPath != ".") newPath = curPath+"\\"+data.cFileName;
-                        collectedFiles.push_back(newPath);
-                    }
-                }
-            }
-        } while (FindNextFile(hFind, &data) != 0);
-        FindClose(hFind);
-    }
-#endif
-}
-
-void getFilesMatchingRelativePattern(const std::string& pattern, std::vector<std::string>& files) {
-#if defined(OS_UNIX)
-    std::string pathToStart("./");
-    char dirSep='/';
-    static const std::regex dirSepPattern("/");
-#elif defined(OS_WINDOWS)
-    std::string pathToStart(".");
-    char dirSep='\\';
-    static const std::regex dirSepPattern("\\\\");
-#endif
-    std::string file_name_pattern(pattern); // we will escape all regex-sensitive symbols appropriately and convert other appropriately (?->.?, *->.*)
-    //static const std::regex dirSepPattern(std::string(1,dirSep));
-    static const std::regex period(R"(\.)");
-    static const std::regex wildcard_one_char(R"(\?)");
-    static const std::regex wildcard_0_or_more_chars(R"(\*)");
-    file_name_pattern = std::regex_replace(file_name_pattern, dirSepPattern, R"(@)");
-    file_name_pattern = std::regex_replace(file_name_pattern, period, R"(\.)");
-    file_name_pattern = std::regex_replace(file_name_pattern, wildcard_one_char, R"(.?)");
-    file_name_pattern = std::regex_replace(file_name_pattern, wildcard_0_or_more_chars, R"(.*)");
-    std::vector<std::string> filterPathParts; // filterPath split by dir sep
-    split(file_name_pattern, filterPathParts, '@'); // split filterPath into its parts
-    followPathAndCollectFiles(pathToStart, 0, filterPathParts, files);
-}
 
 std::string Loader::loadFromFile(const std::string &loader_file_name) {
   std::ifstream flines(loader_file_name);
@@ -162,10 +75,10 @@ Loader::loadPopulation(const std::string &loader_option) {
   std::transform(
       final_orgs.begin(), final_orgs.end(),
       std::back_inserter(final_population), [this](long org) {
-        return org < 0
-                   ? make_pair(org,
-                               std::unordered_map<std::string, std::string>())
-                   : make_pair(org, all_organisms.at(org).attributes);
+        // what's the point of this if statement?
+        if (org < 0) return std::make_pair(org, std::unordered_map<std::string, std::string>());
+        else return std::make_pair(org, all_organisms.at(org).attributes);
+        //return std::make_pair(org, all_organisms.at(org).attributes);
       });
 
   return final_population;
@@ -612,53 +525,36 @@ std::vector<std::string> Loader::expandFiles(const std::string &f) {
 
 std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
 
-  auto org_file_data = getAttributeMap(file_name);
+  auto org_file_data = CSV(file_name);
   auto file_contents_pair =
-      std::make_pair(long(all_organisms.size()), long(org_file_data.size()));
+      std::make_pair(long(all_organisms.size()), long(org_file_data.row_count()));
 
   static const std::regex valid_org_name(R"((.*)_organisms(_\d+)?.csv$)");
   std::smatch match_org;
   std::regex_match(file_name, match_org, valid_org_name);
-  //auto data_file_name = std::regex_replace(file_name, valid_org_name,
-  //                                         match_org[1].str() + "_data" +
-  //                                             match_org[2].str() + ".csv");
 
-  std::map<long, std::map<std::string, std::string>> data_file_data;
   std::string data_file_name(dataVersionOfFilename(file_name));
-  if (fileExists(data_file_name)) data_file_data = getAttributeMap(data_file_name);
-  //if (std::find(all_possible_file_names.begin(), all_possible_file_names.end(),
-  //              data_file_name) != all_possible_file_names.end()) {
-  //  data_file_data = getAttributeMap(data_file_name);
-  //}
+  if (fileExists(data_file_name)) {
+	  auto data_file_data = CSV(data_file_name);
+	  org_file_data.merge(data_file_data,"ID");
+  }
 
   // Note - no checking for overlapping columns
-  for (const auto &org_data : org_file_data) {
+  for (auto const &id : org_file_data.singleColumn("ID")) {
     organism org;
-    org.orig_ID = org_data.first;
+    org.orig_ID = std::stol(id);
     org.from_file = file_name;
-    org.attributes.insert(org_data.second.begin(), org_data.second.end());
-    if (data_file_data.find(org.orig_ID) != data_file_data.end()) {
-      org.has_corresponding_data_file = true;
-      org.attributes.insert(data_file_data.at(org.orig_ID).begin(),
-                            data_file_data.at(org.orig_ID).end());
-    } else {
-      org.has_corresponding_data_file = false;
-      // should Warnings be silenced?
-      /*
-                cout << " warning: org " << org.orig_ID << " from file " <<
-         file_name
-                 << " does not have a corresponding entry in " << file_name <<
-         endl
-                 << " Was this file generated by MABE? " << endl;
-      */
+    for (const auto &attribute : org_file_data.column_names()) {
+      org.attributes.insert(
+          make_pair(attribute, org_file_data.lookUp("ID", id, attribute)));
     }
-    org.attributes.insert(make_pair("ID", std::to_string(org.orig_ID)));
     all_organisms.push_back(org);
   }
 
   return file_contents_pair;
 } // end Loader::generatePopulation
 
+/*
 // reads organisms or data file. return key of ID to map of attributes to values
 // attributes do NOT include ID
 std::map<long, std::map<std::string, std::string>>
@@ -744,6 +640,7 @@ Loader::getAttributeMap(const std::string &file_name) {
   file.close();
   return result;
 } // end Loader::getAttributeMap
+*/
 
 void Loader::printOrganism(long i) {
 

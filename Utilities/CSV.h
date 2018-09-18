@@ -115,5 +115,3 @@ public:
   }
 };
 
-std::vector<std::string> CSVParseLine(const std::string & /*line*/, char /*delim*/ = ',', char /*quoteChar*/ = '\"');
-

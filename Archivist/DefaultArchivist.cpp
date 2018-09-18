@@ -50,7 +50,7 @@ std::shared_ptr<ParameterLink<bool>> DefaultArchivist::Arch_writeMaxFilePL =
 std::shared_ptr<ParameterLink<std::string>>
     DefaultArchivist::Arch_DefaultPopFileColumnNamesPL =
         Parameters::register_parameter(
-            "ARCHIVIST_DEFAULT-popFileColumns", std::string("[]"),
+            "ARCHIVIST_DEFAULT-popFileColumns", std::string(""),
             "data to be saved into average file (must be values that can "
             "generate an average). If empty, MABE will try to figure it out");
 
@@ -149,10 +149,10 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
                                    const std::string & group_prefix)
     : DefaultArchivist(std::move(PT_),group_prefix) {
 
-  convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
+  convertCSVListToValues(PopFileColumnNames, default_pop_file_columns_);
   max_formula_ = std::move(max_formula);
 
-  if (default_pop_file_columns_.empty())
+  if (default_pop_file_columns_.empty() || ((default_pop_file_columns_.size()>0) && (default_pop_file_columns_[0].size() == 0))) // hack because somehow getting passed empty string
     default_pop_file_columns_ = popFileColumns;
 
   for (auto &key : default_pop_file_columns_) {

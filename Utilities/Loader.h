@@ -47,11 +47,12 @@ private:
       expandFiles(const std::string &);// for user inputted wildcards
   std::pair<long, long>
       generatePopulation(const std::string &);
+	std::string findAndGenerateAllFiles(std::string /*all_lines*/);
   // read MABE generated files and constructs organsims 
   // redundant function from MABE - should be cleaned
-  //
-  std::map<long, std::map<std::string, std::string>> getAttributeMap(
-      const std::string &); // read file and construct partial organism
+
+  //std::map<long, std::map<std::string, std::string>> getAttributeMap( // considering removal of fn
+  //    const std::string &); // read file and construct partial organism
 
   void parseAllCommands(
       std::string); // read file and parse every assignment to user
@@ -63,7 +64,6 @@ private:
 
   std::string
   cleanLines(std::ifstream &); // clean comments and check for invalid syntax
-  std::string findAndGenerateAllFiles(std::string all_lines);
   // a level of indirection so that all possible files the user might need are
   // read exactly once
   bool balancedBraces(std::string); // simple syntactic check to avoid issues

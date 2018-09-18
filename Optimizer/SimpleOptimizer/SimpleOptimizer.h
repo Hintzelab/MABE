@@ -152,7 +152,7 @@ public:
           parts.push_back(tok);
         }
         if (parts[0] == "size") {
-          if (!load_value(parts[1], tournamentSize)) {
+          if (!convertStringToValue(parts[1], tournamentSize)) {
             std::cout << "  in TournamentSelector constructor, got bad value "
                          "for size \""
                       << parts[1] << "\"\n  exiting..." << std::endl;

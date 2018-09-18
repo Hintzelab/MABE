@@ -12,8 +12,9 @@
 
 
 //#include "AssertWithMessage.h"
-#include <type_traits>
+#include "Utilities.h"
 
+#include <type_traits>
 #include <algorithm>
 #include <fstream>
 #include <iostream>
@@ -24,8 +25,6 @@
 #include <set>
 #include <memory>
 #include <vector>
-
-#include "Utilities.h"
 
 const std::string MABE_pretty_logo =
     R"raw(
@@ -474,7 +473,7 @@ public:
   makelike(std::string value, std::string name = "none provided") override {
     auto newEntry = std::make_shared<ParametersEntry<T>>();
     auto tempVal = *valuePtr;
-    if (load_value(value, tempVal)) {
+    if (convertStringToValue(value, tempVal)) {
       newEntry->valuePtr = std::make_shared<T>(tempVal);
     } else {
       std::cout << "  in ParametersEntry::makelike() attempting to setup a "
@@ -493,7 +492,7 @@ public:
   void setExisting(std::string value,
                    std::string name = "none provided") override {
     auto tempVal = *valuePtr;
-    if (load_value(value, tempVal)) {
+    if (convertStringToValue(value, tempVal)) {
       *valuePtr = tempVal;
       local = true;
     } else {
@@ -873,20 +872,20 @@ public:
     std::string parameterType = this->getParameterType(name);
     if (parameterType == "bool") {
       bool value;
-      stringToValue(value_as_string, value);
+      convertStringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "string") {
       std::string value = value_as_string;
       // since there might be spaces in the value, can't call
-      //  stringToValue(value_as_string, value);
+      //  convertStringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "int") {
       int value;
-      stringToValue(value_as_string, value);
+      convertStringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "double") {
       double value;
-      stringToValue(value_as_string, value);
+      convertStringToValue(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else {
       return false;
