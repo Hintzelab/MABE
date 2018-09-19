@@ -13,7 +13,7 @@
 #include <sstream>
 #include <vector>
 
-auto CSVReader::symbol(char c) {
+CSVReader::input CSVReader::symbol(char c) {
   return c == delimiter_ ? input::delim
                          : c == quotation_ ? input::quote
                                            : c == ' ' ? input::wh_sp
@@ -28,7 +28,7 @@ void CSVReader::showLineAndErrorChar(const std::string& line, const int& charInd
   std::cout << std::string(std::max(charIndex-1,0),' ') << "^" << std::endl;
 }
 
-auto CSVReader::doStateAction(state s, char c, const std::string& line, const int& charIndex) {
+void CSVReader::doStateAction(state s, char c, const std::string& line, const int& charIndex) {
   switch (s) {
   case state::precw:
     // leading whitespace
@@ -69,9 +69,9 @@ auto CSVReader::doStateAction(state s, char c, const std::string& line, const in
 
 std::vector<std::string> CSVReader::parseLine(const std::string &s) {
   fields_.clear();
-   	auto curr = state::precw;
+   	state curr = state::precw;
     auto index(0);
-  for (auto c : s) {
+  for (char c : s) {
     // cast to int to index into more
     // readable transition table
     curr = Transition[static_cast<int>(curr)][static_cast<int>(symbol(c))];
@@ -98,13 +98,13 @@ std::vector<std::string> CSV::singleColumn(std::string column) {
     exit(1);
   }
 
-  auto const column_pos =
+  auto const column_index =
       std::find(std::begin(column_names_), std::end(column_names_), column) -
       std::begin(column_names_);
 
   std::vector<std::string> values;
   std::transform(std::begin(rows_), std::end(rows_), std::back_inserter(values),
-                 [column_pos](auto const &row) { return row[column_pos]; });
+                 [column_index](auto const &row) { return row[column_index]; }); // row type: vec<vecv<string>>
 
   return values;
 }
@@ -125,14 +125,14 @@ std::string CSV::lookUp(std::string lookup_column, std::string value,
   }
 
   // find position of lookup column
-  auto const column_pos =
+  auto const column_index =
       std::find(std::begin(column_names_), std::end(column_names_), lookup_column) -
       std::begin(column_names_);
 
   // find number of values in lookup column
   auto const value_count = std::count_if(
       std::begin(rows_), std::end(rows_),
-      [value, column_pos](auto &row) { return row[column_pos] == value; });
+      [value, column_index](auto &row) { return row[column_index] == value; }); // row type: vec<vecv<string>>
 
   if (!value_count) {
     std::cout << "Error : could not find requested lookup value" << value
@@ -149,18 +149,18 @@ std::string CSV::lookUp(std::string lookup_column, std::string value,
   }
 
   // find row where lookup column has value
-  auto const value_pos = std::find_if(std::begin(rows_), std::end(rows_),
-                                      [value, column_pos](auto &row) {
-                                        return row[column_pos] == value;
+  auto const value_index = std::find_if(std::begin(rows_), std::end(rows_),
+                                      [value, column_index](auto &row) { // row type: vec<vecv<string>>
+                                        return row[column_index] == value;
                                  }) -
                          std::begin(rows_);
 
   // find position of return column
-  auto const return_pos =
+  auto const return_index =
       std::find(std::begin(column_names_), std::end(column_names_), return_column) -
       std::begin(column_names_);
 
-  return rows_[value_pos][return_pos];
+  return rows_[value_index][return_index];
 }
 
 CSV::CSV(std::string fn, char s, char se) : file_name_(fn), reader_(s, se) {
@@ -238,7 +238,7 @@ void CSV::merge(CSV merge_csv, std::string column) {
   }
 
   // find position of lookup column
-  auto const column_pos =
+  auto const column_index =
       std::find(std::begin(column_names_), std::end(column_names_), column) -
       std::begin(column_names_);
 
@@ -249,8 +249,8 @@ void CSV::merge(CSV merge_csv, std::string column) {
         std::end(column_names_)) {
       column_names_.push_back(merge_column);
       // for each column add value to every row
-      for (auto &row : rows_)
-        row.push_back(merge_csv.lookUp(column, row[column_pos], merge_column));
+      for (auto &row : rows_) // row type: vec<vec<string>>
+        row.push_back(merge_csv.lookUp(column, row[column_index], merge_column));
     }
   }
 }

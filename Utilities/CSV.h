@@ -49,8 +49,8 @@ class CSVReader {
     //{state::CRASH, state::CRASH, state::CRASH, state::CRASH}  // CRASH 6
   }};
 
-  auto symbol(char);
-  auto doStateAction(state, char, const std::string&, const int&);
+  CSVReader::input symbol(char);
+  void doStateAction(state, char, const std::string&, const int&);
   void showLineAndErrorChar(const std::string&, const int&);
 
 public:
@@ -80,7 +80,7 @@ public:
   CSV(std::string fn) : CSV(fn, ',', '"') {}
 
   // return csv file name
-  auto fileName() const { return file_name_; }
+  std::string fileName() const { return file_name_; }
 
   // number of columns in the file
   auto column_count() const { return column_names_.size(); }
@@ -89,10 +89,10 @@ public:
   auto row_count() const { return rows_.size(); }
 
   // return all columns in the file
-  auto column_names() const { return column_names_; }
+  std::vector<std::string> column_names() const { return column_names_; }
 
   // return all rows in the file
-  auto rows() const { return rows_; }
+  std::vector<std::vector<std::string>> rows() const { return rows_; }
 
   // return all values corresponding to a single column
   std::vector<std::string> singleColumn(std::string column);
