@@ -17,7 +17,7 @@ if platform.system() == 'Windows':
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='mk,make,vs,visual_studio,xc,x_code,dc,dev_cpp,cb,code_blocks'
+SUPPORTED_PROJECT_FILES='mk,make,vs,visual_studio,xc,x_code,dc,dev_cpp,cb,code_blocks,cm,cmake'
 
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt')
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building')
@@ -1058,7 +1058,7 @@ elif args.generate == 'xcode' or args.generate == 'xc':
         os.mkdir('MABE.xcodeproj')
     with open('MABE.xcodeproj/project.pbxproj','w') as outfile:
         outfile.write(outString)
-if  args.generate == 'code_blocks' or args.generate == 'cb':
+elif  args.generate == 'code_blocks' or args.generate == 'cb':
     targets='''
 			<Option target="Release x64" />
 			<Option target="Debug Win32" />
@@ -1100,6 +1100,26 @@ if  args.generate == 'code_blocks' or args.generate == 'cb':
     with open('MABE.cbp','w') as outfile:
         outfile.write(outString)
     print("In order for MABE to build properly in Code::Blocks the following flags need to be added to the 'Other Linker Options' section under Settings > Compiler ... > Linker Settings \n '-lpthread' \n '-pthread' ")
+
+elif args.generate == 'cmake' or args.generate == 'cm':
+    units = getSourceFilesByBuildOptions(sep='/')
+    # seperate data into more useful containers
+    directories = []
+    files = []
+    for elt in units:
+        if elt[2] not in directories:
+            directories.append(elt[2])
+        if elt[0] not in files:
+            files.append(elt[0])
+    output = "cmake_minimum_required(VERSION 3.12)\nproject(MABE)\n\nset(CMAKE_CXX_STANDARD 17)\n\n"
+    for elt in directories:
+        output += "include_directories({})\n".format((elt if elt != "" else "."))
+    output += "\nadd_executable(MABE"
+    for elt in files:
+        output += "\n\t{}".format(elt)
+    output += ")"
+    with open('CMakeLists.txt', 'w') as outfile:
+        outfile.write(output)
 
 if not (args.noCompile):
     call(["make","-j"+str(args.parallel)])
