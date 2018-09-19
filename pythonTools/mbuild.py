@@ -405,14 +405,16 @@ def getSourceFilesByBuildOptions(sep='/'):
 ## create git version integration
 ## Create an empty file if git is not available
 ## Otherwise capture commit hash
-gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
+gitExists = True ## only false is a) git not installed OR b) .git dir not present (zip download from GitHub)
+if not subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version"): gitExists = False
+if not os.path.isdir(".git"): gitExists = False
 with open(os.path.join("Utilities","gitversion.h"),'w') as file:
     if gitExists:
         commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
         file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
     else:
         file.write('const char *gitversion = "";\n')
-touch("main.cpp") ## IDE-independent signal to recompile main.o
+if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (only do so if we can use git to get a version number though)
 
 # Create a make file if requested (default)
 if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
