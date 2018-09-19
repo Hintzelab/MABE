@@ -534,20 +534,24 @@ std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
 	  org_file_data.merge(data_file_data, "ID");
   }
 
-  // for each ID in the organism+_data data
+  // for each ID in the organism+_data data (in future, we will be able to assume it's in the org file)
   for (const std::string &id : org_file_data.singleColumn("ID")) {
     // create an internal organism
-    OrganismInfo org;
-    // store the unique ID
-    org.orig_ID = std::stol(id);
-    // store the orginal file from which it was pulled
-    org.from_file = file_name;
+    OrganismInfo org_info;
+    org_info.orig_ID = std::stol(id);
+    org_info.from_file = file_name;
     // stick all the attributes_map into the organism
     for (const std::string &attribute : org_file_data.column_names()) {
       // making sure to use the per-file-unique-ID
-      org.attributes_map.insert(make_pair(attribute, org_file_data.lookUp("ID", id, attribute)));
+      org_info.attributes_map.insert(std::make_pair(attribute, org_file_data.lookUp("ID", id, attribute)));
     }
-    all_organism_infos.push_back(org);
+    // Make sure the original ID,File,Update show up in the first generation's datamap store the original id
+    org_info.attributes_map.insert(std::make_pair("loadedFrom.ID",id));
+    // store the orginal file from which it was pulled
+    org_info.attributes_map.insert(std::make_pair("loadedFrom.File",file_name));
+    // store the orginal file from which it was pulled
+    org_info.attributes_map.insert(std::make_pair("loadedFrom.Update",org_file_data.lookUp("ID", id, "update")));
+    all_organism_infos.push_back(org_info);
   }
 
   return file_contents_pair;

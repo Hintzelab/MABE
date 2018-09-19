@@ -389,8 +389,20 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         }
         newBrains[brain.first] = brain.second->makeBrain(newGenomes);
       }
-      auto newOrg =
-          std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+      auto newOrg = std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+
+      // transfer provenance data to newly constructed org datamaps
+      if ( org.first >= 0 ) {
+        if (org.second.find("loadedFrom.File") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+        }
+        if (org.second.find("loadedFrom.ID") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+        }
+        if (org.second.find("loadedFrom.Update") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+        }
+      }
 
       // add new organism to population
       population.push_back(newOrg);
