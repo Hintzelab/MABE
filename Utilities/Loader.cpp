@@ -93,7 +93,7 @@ void Loader::showFinalPopulation(std::vector<OrgID> org_ids) {
   auto orgs_count = std::accumulate(org_ids.begin(), org_ids.end(), 0, [](long acc, long i) { return acc + (i == -2); }); // TODO MN
   std::cout << "Loading " << orgs_count << " Default organisms\n";
 
-  std::map<std::string, std::vector<long>> orgs_from_files; // TODO C
+  std::map<std::string, std::vector<OrgID>> orgs_from_files; // TODO C
   for (auto org_index : org_ids)
     if (org_index > -1) {
       orgs_from_files[all_organism_infos.at(org_index).from_file].push_back( all_organism_infos.at(org_index).orig_ID );
@@ -538,7 +538,7 @@ std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
   for (const std::string &id : org_file_data.singleColumn("ID")) {
     // create an internal organism
     OrganismInfo org_info;
-    org_info.orig_ID = std::stol(id);
+    org_info.orig_ID = std::stoi(id);
     org_info.from_file = file_name;
     // stick all the attributes_map into the organism
     for (const std::string &attribute : org_file_data.column_names()) {

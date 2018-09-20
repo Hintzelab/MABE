@@ -20,10 +20,10 @@ private:
     OrgAttributesMap attributes_map;
     // long ID;	// not used, since ID is known from position in all_organism_infos
     std::string from_file;  // name of organism file this org was pulled from
-    long orig_ID; // ID in the original file
-    bool has_corresponding_data_file;
+    int orig_ID; // ID in the original file
   };
-  std::vector<OrganismInfo> all_organism_infos; // literally
+
+  std::vector<OrganismInfo> all_organism_infos;
 
   const std::string tk_name = "__TK42PL__"; // (invisibly) reserved token names for temporaries
   // this needs a unique name guarantee - enforced
