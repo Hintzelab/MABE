@@ -356,6 +356,27 @@ inline std::vector<int> seq(const std::string sequence_string,
   std::vector<int> v(result.begin(), result.end());
   return v;
 }
+// strip spaces from left-side
+static inline void lstrip(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+		[](int ch) {
+			return !std::isspace(ch);
+	}));
+}
+
+// strip spaces from right-side
+static inline void rstrip(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+		[](int ch) {
+			return !std::isspace(ch);
+		}).base(), s.end());
+}
+
+// strip both ends
+static inline void strip(std::string &s) {
+	rstrip(s);
+	lstrip(s);
+}
 
 /*
 // load a line from FILE. IF the line is empty or a comment (starts with #),
