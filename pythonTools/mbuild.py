@@ -1111,13 +1111,16 @@ elif args.generate == 'cmake' or args.generate == 'cm':
             directories.append(elt[2])
         if elt[0] not in files:
             files.append(elt[0])
-    output = "cmake_minimum_required(VERSION 3.12)\nproject(MABE)\n\nset(CMAKE_CXX_STANDARD 17)\n\n"
+    # Build the output text by appending text into a string
+    # NOTE: the following line of code must have double quotes inside and single quotes on the outside otherwise CMAKE will not parse the command correctly
+    output = 'cmake_minimum_required(VERSION 2.4)\n\nset(CMAKE_CXX_STANDARD 14)\nset(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -O3")\nproject(mabe)\n\n'
     for elt in directories:
         output += "include_directories({})\n".format((elt if elt != "" else "."))
-    output += "\nadd_executable(MABE"
+    output += "\nadd_executable(mabe"
     for elt in files:
         output += "\n\t{}".format(elt)
     output += ")"
+    # Write output string to file
     with open('CMakeLists.txt', 'w') as outfile:
         outfile.write(output)
 
