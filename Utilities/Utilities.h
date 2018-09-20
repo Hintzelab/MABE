@@ -214,7 +214,7 @@ bool convertVectorOfStringsToValues(const std::vector<std::string> &list, std::v
   std::vector<T> data(list.size());
   bool errors_detected(false);
   for (size_t i=0; i<list.size(); i++) {
-    errors_detected |= (false == UNSAFEconvertStringToValue<T>(list[i], data[i]));
+    errors_detected |= (false == convertStringToValue(list[i], data[i]));
   }
   return errors_detected;
 }
@@ -231,11 +231,11 @@ std::vector<T> UNSAFEconvertVectorOfStringsToValues(const std::vector<std::strin
 
 // converts a vector of string to a vector of type of determined by target vector
 template <typename T> inline static
-void convertCSVListToValues(const std::string &source,
+bool convertCSVListToValues(const std::string &source,
                             std::vector<T> &target,
                             const char sep = ',',
                             const char quoteChar = '"') {
-  target = UNSAFEconvertVectorOfStringsToValues<T>(CSVReader(sep, quoteChar).parseLine(source));
+  return convertVectorOfStringsToValues(CSVReader(sep, quoteChar).parseLine(source), target);
 }
 
 // this is here so we can use to string and it will work even if we give it a
