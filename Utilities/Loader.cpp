@@ -549,8 +549,10 @@ std::pair<long, long> Loader::generatePopulation(const std::string &file_name) {
     org_info.attributes_map.insert(std::make_pair("loadedFrom.ID",id));
     // store the orginal file from which it was pulled
     org_info.attributes_map.insert(std::make_pair("loadedFrom.File",file_name));
-    // store the orginal file from which it was pulled
-    org_info.attributes_map.insert(std::make_pair("loadedFrom.Update",org_file_data.lookUp("ID", id, "update")));
+    // store the orginal update
+    if (org.attributes.find("update") != org.attributes.end()) { 
+      org_info.attributes_map.insert(std::make_pair("loadedFrom.Update",org_file_data.lookUp("ID", id, "update")));
+    }
     all_organism_infos.push_back(org_info);
   }
 

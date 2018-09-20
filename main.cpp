@@ -404,6 +404,18 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         }
       }
 
+      if ( org.first >= 0 ) {
+        if (org.second.find("loadedFrom.File") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+        }
+        if (org.second.find("loadedFrom.ID") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+        }
+        if (org.second.find("loadedFrom.Update") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+        }
+      }
+
       // add new organism to population
       population.push_back(newOrg);
     }
