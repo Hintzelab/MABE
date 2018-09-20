@@ -21,6 +21,7 @@
 #include <cmath>
 #include <numeric>
 #include "CSV.h"
+#include <cctype>
 
 inline std::string get_var_typename(const bool &) { return "bool"; }
 
