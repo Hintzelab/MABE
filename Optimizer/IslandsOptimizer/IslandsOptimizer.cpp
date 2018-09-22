@@ -26,7 +26,7 @@ IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
 	std::vector<std::string> opNameSpaces;
-	convertCSVListToValues(IslandNameSpaceListPL->get(PT), opNameSpaces);
+	convertCSVListToVector(IslandNameSpaceListPL->get(PT), opNameSpaces);
 
 	islands = opNameSpaces.size();
 	std::cout << "  setting up IslandOptimizer. Found " << islands << " islands:" << std::endl;

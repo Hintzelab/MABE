@@ -474,7 +474,7 @@ public:
   makelike(std::string value, std::string name = "none provided") override {
     auto newEntry = std::make_shared<ParametersEntry<T>>();
     auto tempVal = *valuePtr;
-    if (convertStringToValue(value, tempVal)) {
+    if (convertString(value, tempVal)) {
       newEntry->valuePtr = std::make_shared<T>(tempVal);
     } else {
       std::cout << "  in ParametersEntry::makelike() attempting to setup a "
@@ -493,7 +493,7 @@ public:
   void setExisting(std::string value,
                    std::string name = "none provided") override {
     auto tempVal = *valuePtr;
-    if (convertStringToValue(value, tempVal)) {
+    if (convertString(value, tempVal)) {
       *valuePtr = tempVal;
       local = true;
     } else {
@@ -873,20 +873,20 @@ public:
     std::string parameterType = this->getParameterType(name);
     if (parameterType == "bool") {
       bool value;
-      convertStringToValue(value_as_string, value);
+      convertString(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "string") {
       std::string value = value_as_string;
       // since there might be spaces in the value, can't call
-      //  convertStringToValue(value_as_string, value);
+      //  convertString(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "int") {
       int value;
-      convertStringToValue(value_as_string, value);
+      convertString(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else if (parameterType == "double") {
       double value;
-      convertStringToValue(value_as_string, value);
+      convertString(value_as_string, value);
       this->setParameter(name, value, _tableNameSpace, _saveOnFileWrite);
     } else {
       return false;

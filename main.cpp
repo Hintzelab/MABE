@@ -274,8 +274,8 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         brainNames.insert(brainName);
         workingString = workingString.substr(workingString.find(',') + 1);
         int ins, outs;
-        convertStringToValue(workingString.substr(0, workingString.find(',')), ins);
-        convertStringToValue(workingString.substr(workingString.find(',') + 1), outs);
+        convertString(workingString.substr(0, workingString.find(',')), ins);
+        convertString(workingString.substr(workingString.find(',') + 1), outs);
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {

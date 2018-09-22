@@ -62,7 +62,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
     : AbstractOptimizer(PT_) {
 
 	std::vector<std::string> optimizeFormulasStrings;
-	convertCSVListToValues(optimizeFormulasPL->get(PT), optimizeFormulasStrings);
+	convertCSVListToVector(optimizeFormulasPL->get(PT), optimizeFormulasStrings);
 
 	for (auto s : optimizeFormulasStrings) {
 		optimizeFormulasMTs.push_back(stringToMTree(s));
@@ -77,7 +77,7 @@ LexicaseOptimizer::LexicaseOptimizer(std::shared_ptr<ParametersTable> PT_)
 	}
 	else {
 		// user has defined names, use those
-		convertCSVListToValues(optimizeFormulaNamesPL->get(PT), scoreNames);
+		convertCSVListToVector(optimizeFormulaNamesPL->get(PT), scoreNames);
 	}
 
 

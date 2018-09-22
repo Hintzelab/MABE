@@ -191,7 +191,7 @@ CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
 // Put an arbitrary value to the target variable, return false on conversion
 // failure (COPIES FUNCTION OF load_value()!)
 template <class T>
-inline static bool convertStringToValue(const std::string &source, T &target) {
+inline static bool convertString(const std::string &source, T &target) {
   std::stringstream ss(source);
   std::string remaining;
   return ss >> target ? !(ss >> remaining) : false;
@@ -200,7 +200,7 @@ inline static bool convertStringToValue(const std::string &source, T &target) {
 // try and convert a std::string to a particular type
 // warning: no error if value is not valid type
 template <typename T> inline static
-auto UNSAFEconvertStringToValue(const std::string &source) {
+auto UNSAFEconvertString(const std::string &source) {
   std::stringstream ss(source);
   T target;
   ss >> target;
@@ -208,34 +208,34 @@ auto UNSAFEconvertStringToValue(const std::string &source) {
 }
 
 // converts a vector of string to a vector of type of values determined by target vector,
-// and returns bool if errors in conversion, ex: convertVectorOfStringsToValues(source, target)
+// and returns bool if errors in conversion, ex: convertVectorOfStringsToVector(source, target)
 template <typename T> inline static
-bool convertVectorOfStringsToValues(const std::vector<std::string> &list, std::vector<T> &target) {
+bool convertVectorOfStringsToVector(const std::vector<std::string> &list, std::vector<T> &target) {
   std::vector<T> data(list.size());
   bool errors_detected(false);
   for (size_t i=0; i<list.size(); i++) {
-    errors_detected |= (false == convertStringToValue(list[i], data[i]));
+    errors_detected |= (false == convertString(list[i], data[i]));
   }
   return errors_detected;
 }
 
-// converts a vector of string to values, determined by caller-specified template type, ex: UNSAFEconvertVectorOfStringsToValues<int>(...)
+// converts a vector of string to values, determined by caller-specified template type, ex: UNSAFEconvertVectorOfStringsToVector<int>(...)
 // warning: no error if value is not valid type
 template <typename T> inline static
-std::vector<T> UNSAFEconvertVectorOfStringsToValues(const std::vector<std::string> &list) {
+std::vector<T> UNSAFEconvertVectorOfStringsToVector(const std::vector<std::string> &list) {
   std::vector<T> data;
   for (auto &e : list)
-    data.push_back(UNSAFEconvertStringToValue<T>(e));
+    data.push_back(UNSAFEconvertString<T>(e));
   return data;
 }
 
 // converts a vector of string to a vector of type of determined by target vector
 template <typename T> inline static
-bool convertCSVListToValues(const std::string &source,
+bool convertCSVListToVector(const std::string &source,
                             std::vector<T> &target,
                             const char sep = ',',
                             const char quoteChar = '"') {
-  return convertVectorOfStringsToValues(CSVReader(sep, quoteChar).parseLine(source), target);
+  return convertVectorOfStringsToVector(CSVReader(sep, quoteChar).parseLine(source), target);
 }
 
 // this is here so we can use to string and it will work even if we give it a

@@ -430,7 +430,7 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
   return data_line;
 }
 template <class T>
-inline void convertCSVListToVector(std::string string_data,
+inline void convertCSVListToValues(std::string string_data,
                                    std::vector<T> &return_data,
                                    const char separator = ',',
                                    const char sep_except = '"') {
@@ -452,7 +452,7 @@ inline void convertCSVListToVector(std::string string_data,
     if (!load_value(s, temp)) {
       std::cout << " --- while parsing: " << string_data << " .... "
                 << std::endl;
-      std::cout << " In convertCSVListToVector() attempt to convert string "
+      std::cout << " In convertCSVListToValues() attempt to convert string "
                 << s << " to  value failed\n " << std::endl;
       exit(1);
     }
@@ -726,9 +726,9 @@ bool BerryWorld::WorldMap::loadMap(std::ifstream &FILE,
         std::vector<double> rate;
         std::vector<std::vector<double>> resourcePrograms;
 
-        convertCSVListToVector(splitLine[1], locations);
-        convertCSVListToVector(splitLine[2], size);
-        convertCSVListToVector(splitLine[3], rate);
+        convertCSVListToValues(splitLine[1], locations);
+        convertCSVListToValues(splitLine[2], size);
+        convertCSVListToValues(splitLine[3], rate);
 
         std::vector<std::string> resourceRulesStrings(
             1); // this will hold std::string for resource rules
@@ -755,7 +755,7 @@ bool BerryWorld::WorldMap::loadMap(std::ifstream &FILE,
 
         for (auto rule : resourceRulesStrings) {
           resourcePrograms.push_back({});
-          convertCSVListToVector(rule, resourcePrograms.back()); // convert each
+          convertCSVListToValues(rule, resourcePrograms.back()); // convert each
                                                                  // resource
                                                                  // rule from
                                                                  // std::string
@@ -836,14 +836,14 @@ bool BerryWorld::WorldMap::loadMap(std::ifstream &FILE,
         // triggerFoodEvents
         std::vector<std::string> tempList;
         double tempValue;
-        convertCSVListToVector(splitLine[1], tempList);
+        convertCSVListToValues(splitLine[1], tempList);
         for (auto e :
              tempList) { // collect foods for this trigger in a std::vector
           std::vector<int> foodsInThisTrigger;
-          convertCSVListToVector(e, foodsInThisTrigger, '+');
+          convertCSVListToValues(e, foodsInThisTrigger, '+');
           triggerFoods.push_back(foodsInThisTrigger);
         }
-        convertCSVListToVector(splitLine[2], tempList);
+        convertCSVListToValues(splitLine[2], tempList);
         for (auto e : tempList) {
           load_value(e, tempValue);
           triggerFoodLevels.push_back(tempValue);
@@ -906,9 +906,9 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   // localize values /////////////////////////////////////
   ////////////////////////////////////////////////////////
 
-  convertCSVListToVector(initialFoodDistributionPL->get(PT),
+  convertCSVListToValues(initialFoodDistributionPL->get(PT),
                          initialFoodDistribution);
-  convertCSVListToVector(validStartConfigurationsPL->get(PT),
+  convertCSVListToValues(validStartConfigurationsPL->get(PT),
                          validStartConfigurations);
   moveDefault = moveDefaultPL->get(PT);
   moveMin = moveMinPL->get(PT);
@@ -939,13 +939,13 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
 
   std::vector<std::string> tempList;
   double tempValue;
-  convertCSVListToVector(triggerFoodsPL->get(PT), tempList);
+  convertCSVListToValues(triggerFoodsPL->get(PT), tempList);
   for (auto e : tempList) { // collect foods for this trigger in a std::vector
     std::vector<int> foodsInThisTrigger;
-    convertCSVListToVector(e, foodsInThisTrigger, '+');
+    convertCSVListToValues(e, foodsInThisTrigger, '+');
     triggerFoods.push_back(foodsInThisTrigger);
   }
-  convertCSVListToVector(triggerFoodLevelsPL->get(PT), tempList);
+  convertCSVListToValues(triggerFoodLevelsPL->get(PT), tempList);
   for (auto e : tempList) {
     load_value(e, tempValue);
     triggerFoodLevels.push_back(tempValue);
@@ -1028,14 +1028,14 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   foodTypes = foodTypesPL->get(PT);
   replaceRules.resize(9);
   replaceRules[0] = {0};
-  convertCSVListToVector(replace1PL->get(PT), replaceRules[1]);
-  convertCSVListToVector(replace2PL->get(PT), replaceRules[2]);
-  convertCSVListToVector(replace3PL->get(PT), replaceRules[3]);
-  convertCSVListToVector(replace4PL->get(PT), replaceRules[4]);
-  convertCSVListToVector(replace5PL->get(PT), replaceRules[5]);
-  convertCSVListToVector(replace6PL->get(PT), replaceRules[6]);
-  convertCSVListToVector(replace7PL->get(PT), replaceRules[7]);
-  convertCSVListToVector(replace8PL->get(PT), replaceRules[8]);
+  convertCSVListToValues(replace1PL->get(PT), replaceRules[1]);
+  convertCSVListToValues(replace2PL->get(PT), replaceRules[2]);
+  convertCSVListToValues(replace3PL->get(PT), replaceRules[3]);
+  convertCSVListToValues(replace4PL->get(PT), replaceRules[4]);
+  convertCSVListToValues(replace5PL->get(PT), replaceRules[5]);
+  convertCSVListToValues(replace6PL->get(PT), replaceRules[6]);
+  convertCSVListToValues(replace7PL->get(PT), replaceRules[7]);
+  convertCSVListToValues(replace8PL->get(PT), replaceRules[8]);
 
   for (int i = 0; i <= foodTypes; i++) {
     for (int repVal : replaceRules[i]) {
@@ -1066,7 +1066,7 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   visionSensorArcSize = visionSensorArcSizePL->get(PT);
   if (useVisionSensorPL->get(PT)) {
     std::vector<double> tempVec;
-    convertCSVListToVector(visionSensorDirectionsPL->get(PT), tempVec);
+    convertCSVListToValues(visionSensorDirectionsPL->get(PT), tempVec);
     for (int i = 0; i < tempVec.size(); i++) {
       visionSensorDirections.push_back(
           abs(tempVec[i]) < 1 ? (int)(tempVec[i] * rotationResolution)
@@ -1079,7 +1079,7 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   smellSensorArcSize = smellSensorArcSizePL->get(PT);
   if (useSmellSensorPL->get(PT)) {
     std::vector<double> tempVec;
-    convertCSVListToVector(smellSensorDirectionsPL->get(PT), tempVec);
+    convertCSVListToValues(smellSensorDirectionsPL->get(PT), tempVec);
     for (int i = 0; i < tempVec.size(); i++) {
       smellSensorDirections.push_back(
           abs(tempVec[i] < 1) ? (int)(tempVec[i] * rotationResolution)
@@ -1241,7 +1241,7 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   //  ///////////////////////////////////////////////////////////
   /////////////////////////////////////////////////////////////////////////////////////
   auto alwaysStartOn = alwaysStartOnPL->get(PT);
-  convertCSVListToVector(mapFilesPL->get(PT), mapFiles);
+  convertCSVListToValues(mapFilesPL->get(PT), mapFiles);
 
   if (mapFiles.size() == 0) {
     mapFiles.push_back("NONE");
@@ -1346,7 +1346,7 @@ BerryWorld::BerryWorld(std::shared_ptr<ParametersTable> PT_)
   /////////////////////////////////////////////////////////////////////////////////////
   std::vector<std::string> temp;
   if (mapFiles[0] != "NONE") {
-    convertCSVListToVector(whichMapsPL->get(PT), temp);
+    convertCSVListToValues(whichMapsPL->get(PT), temp);
     std::cout << "    found the following whichMaps values:" << std::endl;
     for (auto v : temp) {
       std::string delimiter = "/";
@@ -2509,7 +2509,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
             // update world/haresters based on rules(s)
             std::vector<std::string> rules;
             double value;
-            convertCSVListToVector(triggerFoodEvents[i], rules, '+');
+            convertCSVListToValues(triggerFoodEvents[i], rules, '+');
             for (auto rule : rules) {
               if (rule[0] == 'T') { // score based on remaining time
                 load_value(rule.substr(2, rule.size() - 2), value);
@@ -2527,7 +2527,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
               else if (rule[0] == 'R') { // replace
                 std::vector<std::string> replacePairsStrings;
                 std::vector<int> replacePairs;
-                convertCSVListToVector(rule.substr(1, rule.size() - 1),
+                convertCSVListToValues(rule.substr(1, rule.size() - 1),
                                        replacePairsStrings);
                 for (auto e : replacePairsStrings) {
                   load_value(e, value);
@@ -2565,7 +2565,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
               else if (rule[0] == 'G') { // generate
                 std::vector<std::string> genStrings;
                 std::vector<int> genRules;
-                convertCSVListToVector(rule.substr(1, rule.size() - 1),
+                convertCSVListToValues(rule.substr(1, rule.size() - 1),
                                        genStrings);
                 for (auto e : genStrings) {
                   load_value(e, value);
