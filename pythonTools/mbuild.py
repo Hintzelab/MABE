@@ -17,12 +17,12 @@ if platform.system() == 'Windows':
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='mk,make,vs,visual_studio,xc,x_code,dc,dev_cpp,cb,code_blocks,cm,cmake'
+SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks, cm,cmake'
 
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt')
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building')
 parser.add_argument('-nc','--noCompile', action='store_true', default = False, help='create modules.h and makefile, but do not compile')
-parser.add_argument('-g','--generate', help='does not compile but generates project files (2 letter abbreviations are the same as expanded form)', choices=SUPPORTED_PROJECT_FILES.split(','))
+parser.add_argument('-g','--generate', help='does not compile but generates project files (2 letter abbreviations are the same as expanded form)', choices=[e.strip() for e in SUPPORTED_PROJECT_FILES.split(',')])
 parser.add_argument('-pg','--gprof', action='store_true', default = False, help='compile with -pg option (for gprof)')
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6')
 parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt')
@@ -475,7 +475,7 @@ elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
 
     outString = ''
     outString += """[Project]
-FileName=MABE.dev
+FileName=mabe.dev
 Name=mabe
 Type=1
 Ver=2
@@ -549,7 +549,7 @@ BuildCmd={8}
         eachUnit[f_overridebuildcmd],
         eachUnit[f_buildcmd])
 
-    with open('MABE.dev','w') as outfile:
+    with open('mabe.dev','w') as outfile:
         outfile.write(outString)
 elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
     units=getSourceFilesByBuildOptions(sep='\\') ## build source files list, using proper windows path separator
@@ -693,9 +693,9 @@ elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
   </ImportGroup>
 </Project>
 """
-    with open('MABE.vcxproj','w') as outfile:
+    with open('mabe.vcxproj','w') as outfile:
         outfile.write(outString)
-elif args.generate == 'xcode' or args.generate == 'xc':
+elif args.generate == 'x_code' or args.generate == 'xc':
     def newXcodeUUID():
         return ''.join(str(uuid.uuid4()).upper().split('-')[1:])
     units=getSourceFilesByBuildOptions(sep='/')
@@ -764,7 +764,7 @@ elif args.generate == 'xcode' or args.generate == 'xc':
 
 /* Begin PBXFileReference section */
 '''.format(copyPhaseUUID)
-    outString += '		{0} /* MABE */ = {{isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = MABE; sourceTree = BUILT_PRODUCTS_DIR; }};\n'.format(productUUID)
+    outString += '		{0} /* MABE */ = {{isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mabe; sourceTree = BUILT_PRODUCTS_DIR; }};\n'.format(productUUID)
     for unit in units:
         if 'main.cpp' == unit[f_filename]: ## 'main.cpp' file
             outString += '		{0} /* {1} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = {1}; sourceTree = "<group>"; }};\n'.format(unit[f_filerefuuid], unit[f_filename][unit[f_filename].rfind('/')+1:])
@@ -834,7 +834,7 @@ elif args.generate == 'xcode' or args.generate == 'xc':
 '''.format()
     outString += '''		{0} /* MABE */ = {{
 			isa = PBXNativeTarget;
-			buildConfigurationList = {1} /* Build configuration list for PBXNativeTarget "MABE" */;
+			buildConfigurationList = {1} /* Build configuration list for PBXNativeTarget "mabe" */;
 			buildPhases = (
 				{2} /* Sources */,
 				{3} /* Frameworks */,
@@ -844,7 +844,7 @@ elif args.generate == 'xcode' or args.generate == 'xc':
 			);
 			dependencies = (
 			);
-			name = MABE;
+			name = mabe;
 			productName = mabe;
 			productReference = {5} /* MABE */;
 			productType = "com.apple.product-type.tool";
@@ -866,7 +866,7 @@ elif args.generate == 'xcode' or args.generate == 'xc':
 				}};
 			}};
 '''.format(rootObjUUID, nativeTargetUUID)
-    outString += '''			buildConfigurationList = {0} /* Build configuration list for PBXProject "MABE" */;
+    outString += '''			buildConfigurationList = {0} /* Build configuration list for PBXProject "mabe" */;
 			compatibilityVersion = "Xcode 8.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -1056,9 +1056,9 @@ elif args.generate == 'xcode' or args.generate == 'xc':
         buildConfigurationDebugUUID,
         buildConfigurationReleaseUUID,
         rootObjUUID)
-    if not os.path.isdir('MABE.xcodeproj'):
-        os.mkdir('MABE.xcodeproj')
-    with open('MABE.xcodeproj/project.pbxproj','w') as outfile:
+    if not os.path.isdir('mabe.xcodeproj'):
+        os.mkdir('mabe.xcodeproj')
+    with open('mabe.xcodeproj/project.pbxproj','w') as outfile:
         outfile.write(outString)
 elif  args.generate == 'code_blocks' or args.generate == 'cb':
     targets='''
@@ -1099,7 +1099,7 @@ elif  args.generate == 'code_blocks' or args.generate == 'cb':
 	</Project>
 </CodeBlocks_project_file>
 '''
-    with open('MABE.cbp','w') as outfile:
+    with open('mabe.cbp','w') as outfile:
         outfile.write(outString)
     print("In order for MABE to build properly in Code::Blocks the following flags need to be added to the 'Other Linker Options' section under Settings > Compiler ... > Linker Settings \n '-lpthread' \n '-pthread' ")
 
