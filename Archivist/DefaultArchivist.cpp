@@ -152,7 +152,7 @@ DefaultArchivist::DefaultArchivist(std::vector<std::string> & popFileColumns,
   convertCSVListToVector(PopFileColumnNames, default_pop_file_columns_);
   max_formula_ = std::move(max_formula);
 
-  if (default_pop_file_columns_.empty() || ((default_pop_file_columns_.size()>0) && (default_pop_file_columns_[0].size() == 0))) // hack because somehow getting passed empty string
+  if (default_pop_file_columns_.empty()) // hack because somehow getting passed empty string
     default_pop_file_columns_ = popFileColumns;
 
   for (auto &key : default_pop_file_columns_) {

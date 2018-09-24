@@ -31,6 +31,28 @@ inline std::string get_var_typename(const int &) { return "int"; }
 
 inline std::string get_var_typename(const double &) { return "double"; }
 
+// strip spaces from left-side
+static inline void lstrip(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+		[](int ch) {
+			return !std::isspace(ch);
+	}));
+}
+
+// strip spaces from right-side
+static inline void rstrip(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+		[](int ch) {
+			return !std::isspace(ch);
+		}).base(), s.end());
+}
+
+// strip both ends
+static inline void strip(std::string &s) {
+	rstrip(s);
+	lstrip(s);
+}
+
 // not as efficient as it could be (should be an iterable range)
 template <typename Match = std::smatch>
 inline std::vector<Match> forEachRegexMatch(const std::string &s,
@@ -235,7 +257,21 @@ bool convertCSVListToVector(const std::string &source,
                             std::vector<T> &target,
                             const char sep = ',',
                             const char quoteChar = '"') {
-  return convertVectorOfStringsToVector(CSVReader(sep, quoteChar).parseLine(source), target);
+  std::vector<std::string> csvStrings = CSVReader(sep, quoteChar).parseLine(source);
+  bool errors = false;
+  if (csvStrings.size() == 1) {
+    lstrip(csvStrings[0]);
+    if (csvStrings[0].size() == 0) {
+      target.clear();
+      return errors;
+    }
+  }
+  if (csvStrings.size() == 0) {
+    target.clear(); // there's nothing to convert, ensure target vector empty
+  } else {
+    errors = convertVectorOfStringsToVector(csvStrings, target);
+  }
+  return errors;
 }
 
 // this is here so we can use to string and it will work even if we give it a
@@ -357,27 +393,7 @@ inline std::vector<int> seq(const std::string sequence_string,
   std::vector<int> v(result.begin(), result.end());
   return v;
 }
-// strip spaces from left-side
-static inline void lstrip(std::string &s) {
-	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
-		[](int ch) {
-			return !std::isspace(ch);
-	}));
-}
 
-// strip spaces from right-side
-static inline void rstrip(std::string &s) {
-	s.erase(std::find_if(s.rbegin(), s.rend(),
-		[](int ch) {
-			return !std::isspace(ch);
-		}).base(), s.end());
-}
-
-// strip both ends
-static inline void strip(std::string &s) {
-	rstrip(s);
-	lstrip(s);
-}
 
 /*
 // load a line from FILE. IF the line is empty or a comment (starts with #),
