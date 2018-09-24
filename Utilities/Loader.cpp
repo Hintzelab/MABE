@@ -40,6 +40,7 @@ std::string Loader::loadFromFile(const std::string &loader_file_name) {
 
 
 std::vector<std::pair<OrgID, OrgAttributesMap>> Loader::loadPopulation(const std::string &loader_option) {
+  tk_counter = 0; // initialize temporary token counter
   static const std::regex plf_file(R"(.*\.plf)");
   std::string all_lines = std::regex_match(loader_option, plf_file)
                        ? loadFromFile(loader_option)
@@ -47,7 +48,6 @@ std::vector<std::pair<OrgID, OrgAttributesMap>> Loader::loadPopulation(const std
 
   // replace all filenames (expanded or otherwise) with temporary tokens
   all_lines = findAndGenerateAllFiles(all_lines);
-  tk_counter = 0; // initialize temporary token counter
 
   parseAllCommands(all_lines);
 
