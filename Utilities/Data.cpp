@@ -98,30 +98,19 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       OB = outputBehavior[i];
 
       if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
-        if (OB == NONE && typeOfKey == STRING) {
-          OB = LIST; // if no output behavior is assigned, make it list.
-        } else if (OB == NONE && typeOfKey == STRINGSOLO) {
-          OB = FIRST; // unless the value is a solo value (i.e. it was set up
-                      // with a Set(value) function), then make it first.
-        } else if (!(OB == LIST || OB == FIRST)) {
+        if (!(OB == LIST || OB == FIRST || OB == NO_OUTPUT)) {
+			std::cout << std::endl << OB << std::endl;
           std::cout << "  in constructHeaderAndDataStrings :: attempt to write "
                   "string not in either LIST or FIRST formatte. This is not "
-                  "allowed! Exiting..."
+                  "allowed! Key was '" << i << "'. Exiting..."
                << std::endl;
           exit(1);
         }
-      } else if (OB == NONE) { // this is not a string or stringsolo...
-        OB = LIST | AVE; // if no output behavior is assigned, make it list and
-                         // also record the average.
-        if (typeOfKey == BOOLSOLO || typeOfKey == DOUBLESOLO ||
-            typeOfKey == INTSOLO) {
-          OB = FIRST; // unless the value is a solo value (i.e. it was set up
-                      // with a Set(value) function), then make it first.
-        }
-      }
+      } 
 
       if (aveOnly) {
-        OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
+        if (typeOfKey == STRING || typeOfKey == STRINGSOLO) OB = NO_OUTPUT;
+        else OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
                                  // that have been set for AVE
       }
 
