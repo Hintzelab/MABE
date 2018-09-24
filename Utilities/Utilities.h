@@ -211,10 +211,10 @@ auto UNSAFEconvertString(const std::string &source) {
 // and returns bool if errors in conversion, ex: convertVectorOfStringsToVector(source, target)
 template <typename T> inline static
 bool convertVectorOfStringsToVector(const std::vector<std::string> &list, std::vector<T> &target) {
-  std::vector<T> data(list.size());
+  target.resize(list.size());
   bool errors_detected(false);
   for (size_t i=0; i<list.size(); i++) {
-    errors_detected |= (false == convertString(list[i], data[i]));
+    errors_detected |= (false == convertString(list[i], target[i]));
   }
   return errors_detected;
 }
