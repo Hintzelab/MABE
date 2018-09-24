@@ -54,7 +54,8 @@ public:
     PROD = 8,
     STDERR = 16,
     FIRST = 32,
-    VAR = 64
+    VAR = 64,
+	 NO_OUTPUT = 128
   };                               // 0 = do not save or default..?
   std::map<std::string, int> outputBehavior; // Defines how each element should be written
                                    // to file - if element not found, LIST
@@ -151,7 +152,7 @@ public:
   inline std::vector<std::string> getKeys() {
     std::vector<std::string> keys;
     for (auto e : inUse) {
-      keys.push_back(e.first); // just push back the whole key
+		 if (outputBehavior[e.first] != NO_OUTPUT) keys.push_back(e.first); // just push back the whole key
     }
     return (keys);
   }
@@ -175,6 +176,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const double &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -194,6 +196,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const int &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -212,6 +215,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
   inline void set(const std::string &key, const std::string &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -230,10 +234,12 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	 setOutputBehavior(key, FIRST);
   }
 
   // set functions (bool,double,int,string) that take a **vector** of value -
   // either make new map entry or replace existing
+  // outputBehavior is set as though there was an append (i.e. list)
   inline void set(const std::string &key, const std::vector<bool> &value) {
     dataMapType typeOfKey = findKeyInData(key);
     if (typeOfKey == NONE || typeOfKey == BOOL ||
@@ -251,6 +257,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void set(const std::string &key, const std::vector<double> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -269,6 +276,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void set(const std::string &key, const std::vector<int> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -287,6 +295,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void set(const std::string &key, const std::vector<std::string> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -305,6 +314,7 @@ public:
            << findKeyInData(key) << ". Exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST);
   }
 
   // append a value to the end of vector associated with key. If key is not
@@ -326,6 +336,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const double &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -344,6 +355,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const int &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -362,6 +374,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const std::string &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -380,6 +393,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST);
   }
 
   // append a vector of values to the end of vector associated with key. If key
@@ -400,6 +414,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const std::vector<double> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -416,6 +431,7 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const std::vector<int> &value) {
     dataMapType typeOfKey = findKeyInData(key);
@@ -432,14 +448,15 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST | AVE);
   }
   inline void append(const std::string &key, const std::vector<std::string> &value) {
     dataMapType typeOfKey = findKeyInData(key);
     if (typeOfKey == NONE) { // this key is not in data map, use Set.
       set(key, value);
     } else if (typeOfKey == STRING) { // if this key is in data map as a string,
-                                      // append to vector
-      stringData[key].insert(stringData[key].end(), value.begin(), value.end());
+                                      // concat new string with existing value
+		stringData[key] = { stringData[key][0] + value[0] };
       inUse[key] = STRING; // may have been solo - make sure it's list
     } else {
       std::cout << "  In DataMap::append :: attempt to append a vector of type "
@@ -448,88 +465,49 @@ public:
            << lookupDataMapTypeName(typeOfKey) << ".\n  exiting." << std::endl;
       exit(1);
     }
+	setOutputBehavior(key, LIST);
   }
 
-  // merge contents of two data maps - if common keys are found, replace 1 =
-  // overwrite, replace 0 = append
-  inline void merge(DataMap otherDataMap, bool replace = 0) {
-    if (replace == true) {
-      for (std::string key : otherDataMap.getKeys()) {
-        dataMapType typeOfKey = findKeyInData(key);
-        dataMapType typeOfOtherKey = otherDataMap.findKeyInData(key);
-        if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
-          if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
-            set(key, otherDataMap.getBoolVector(key));
-            outputBehavior[key] = otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
-            set(key, otherDataMap.getDoubleVector(key));
-            outputBehavior[key] = otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
-            set(key, otherDataMap.getIntVector(key));
-            outputBehavior[key] = otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
-            set(key, otherDataMap.getStringVector(key));
-            outputBehavior[key] = otherDataMap.outputBehavior[key];
-          }
-        } else {
-          std::cout << "  In DataMap::merge() - attempt to merge key: \"" << key
-               << "\" but types do not match!\n  Exiting." << std::endl;
-        }
-      }
-    } else { // replace != true
-      for (std::string key : otherDataMap.getKeys()) {
-        dataMapType typeOfKey = findKeyInData(key);
-        dataMapType typeOfOtherKey = otherDataMap.findKeyInData(key);
-        if (typeOfOtherKey == typeOfKey || typeOfKey == NONE) {
-          if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
-            append(key, otherDataMap.getBoolVector(key));
-            if (boolData[key].size() == 1 && typeOfOtherKey == BOOLSOLO) {
-              inUse[key] = BOOLSOLO;
-            } else {
-              inUse[key] = BOOL;
-            }
-            outputBehavior[key] =
-                outputBehavior[key] | otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
-            append(key, otherDataMap.getDoubleVector(key));
-            if (doubleData[key].size() == 1 && typeOfOtherKey == DOUBLESOLO) {
-              inUse[key] = DOUBLESOLO;
-            } else {
-              inUse[key] = DOUBLE;
-            }
-            outputBehavior[key] =
-                outputBehavior[key] | otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
-            append(key, otherDataMap.getIntVector(key));
-            if (intData[key].size() == 1 && typeOfOtherKey == INTSOLO) {
-              inUse[key] = INTSOLO;
-            } else {
-              inUse[key] = INT;
-            }
-            outputBehavior[key] =
-                outputBehavior[key] | otherDataMap.outputBehavior[key];
-          }
-          if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
-            append(key, otherDataMap.getStringVector(key));
-            if (stringData[key].size() == 1 && typeOfOtherKey == STRINGSOLO) {
-              inUse[key] = STRINGSOLO;
-            } else {
-              inUse[key] = STRING;
-            }
-            outputBehavior[key] =
-                outputBehavior[key] | otherDataMap.outputBehavior[key];
-          }
-        } else {
-          std::cout << "  In DataMap::merge() - attempt to merge key: \"" << key
-               << "\" but types do not match!\n  Exiting." << std::endl;
-        }
-      }
-    }
+  // merge contents of two data maps - if common keys are found behavior is determined by 'replace'
+  // replace 0 = default behavior - if the same key exists in both maps, throw and error
+  // replace 1 = keep current value - if the same key exists in both maps, keep the current value
+  // replace 3 = keep the other value - if the same key exists in both maps, keep the other value
+  // merge will attempt to merge outputBehavior
+  inline void merge(DataMap otherDataMap, int replace = 0) {
+	  for (std::string key : otherDataMap.getKeys()) {
+		  dataMapType typeOfKey = findKeyInData(key);
+		  dataMapType typeOfOtherKey = otherDataMap.findKeyInData(key);
+		  if (replace == 0) { // no replacement allowed!
+			  if (typeOfKey != NONE) { // make sure key is not in both data maps
+				  std::cout << "  In DataMap::merge() - attempt to merge key: \"" << key
+					  << "\" but key exists in both data maps and replace = 0!\n  Exiting." << std::endl;
+			  }
+		  }
+		  // keep other either because:
+		  //   rule is keep other (replace = 2)
+		  //  or
+		  //   rule is default (and test to make sure key is not in both passed) (replace 0)
+		  //  or
+		  //   rule is keep current, and this key is not already in this data map (replace = 1)
+		  if (replace == 2 || replace == 0 || (replace == 1 && typeOfKey == NONE)) {
+			  if (typeOfOtherKey == BOOL || typeOfOtherKey == BOOLSOLO) {
+				  set(key, otherDataMap.getBoolVector(key));
+				  outputBehavior[key] = otherDataMap.outputBehavior[key];
+			  }
+			  if (typeOfOtherKey == DOUBLE || typeOfOtherKey == DOUBLESOLO) {
+				  set(key, otherDataMap.getDoubleVector(key));
+				  outputBehavior[key] = otherDataMap.outputBehavior[key];
+			  }
+			  if (typeOfOtherKey == INT || typeOfOtherKey == INTSOLO) {
+				  set(key, otherDataMap.getIntVector(key));
+				  outputBehavior[key] = otherDataMap.outputBehavior[key];
+			  }
+			  if (typeOfOtherKey == STRING || typeOfOtherKey == STRINGSOLO) {
+				  set(key, otherDataMap.getStringVector(key));
+				  outputBehavior[key] = otherDataMap.outputBehavior[key];
+			  }
+		  }
+	  }
   }
 
   inline std::vector<bool> getBoolVector(
@@ -597,7 +575,7 @@ public:
                                                        // a dataMap with "key" -
                                                        // if not already string,
                                                        // will be converted
-    std::string returnString = "\"[";
+    std::string returnString = "\"";
     dataMapType typeOfKey = findKeyInData(key);
     if (typeOfKey == NONE) {
       std::cout << "  In DataMap::GetString() :: key \"" << key
@@ -625,7 +603,7 @@ public:
     if (returnString.size() > 2) { // if vector was not empty
       returnString.pop_back();     // remove trailing ","
     }
-    returnString += "]\"";
+    returnString += "\"";
     return returnString;
   }
 
@@ -841,19 +819,23 @@ public:
     std::vector<std::string> columnNames;
 
     for (auto element : inUse) {
-      if (outputBehavior.find(element.first) == outputBehavior.end()) {
-        // this element has no defined output behavior, so it will be LIST
-        // (default) or FIRST (if it's a solo value)
-        if (element.second == BOOLSOLO || element.second == DOUBLESOLO ||
-            element.second == INTSOLO || element.second == STRINGSOLO) {
-          columnNames.push_back(element.first);
-        } else {
-          columnNames.push_back(element.first + "_LIST");
-        }
-      } else { // there is an output behavior defined
+      //if (outputBehavior.find(element.first) == outputBehavior.end()) {
+      //  // this element has no defined output behavior, so it will be LIST
+      //  // (default) or FIRST (if it's a solo value)
+      //  if (element.second == BOOLSOLO || element.second == DOUBLESOLO ||
+      //      element.second == INTSOLO || element.second == STRINGSOLO) {
+      //    columnNames.push_back(element.first);
+      //  } else {
+      //    columnNames.push_back(element.first + "_LIST");
+      //  }
+      //} else { // there is an output behavior defined
+		 {
         auto OB = outputBehavior[element.first];
         if (OB & AVE) {
           columnNames.push_back(element.first + "_AVE");
+        }
+        if (OB & FIRST) {
+          columnNames.push_back(element.first);
         }
         if (OB & SUM) {
           std::cout << "  WARNING OUTPUT METHOD SUM IS HAS YET TO BE WRITTEN!"
@@ -870,6 +852,7 @@ public:
         if (OB & LIST) {
           columnNames.push_back(element.first + "_LIST");
         }
+		  // if (OB & NO_OUTPUT) do nothing...
       }
     }
     return columnNames;

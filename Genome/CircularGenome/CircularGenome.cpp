@@ -658,24 +658,24 @@ void CircularGenome<T>::deserialize(std::shared_ptr<ParametersTable> PT, std::un
 		exit(1);
 	}
 	int genomeLength;
-	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
 	std::string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
 	std::stringstream ss(allSites);
 
+  bool streamNotEmpty(true);
 	sites.clear();
-	ss >> nextChar; // read past leading '['
-	ss >> nextChar; // load first char of first site
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
-		while (nextChar != ',' && nextChar != ']') {
+		while (streamNotEmpty && (nextChar != ',')) {
 			nextString += nextChar;
-			ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
-		load_value(nextString, value);
+		convertString(nextString, value);
 		//cout << nextString << " = " << value << ", ";
 		sites.push_back(value);
-		ss >> nextChar;
+    streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	}
 	//cout << endl;
 }
@@ -691,26 +691,26 @@ void CircularGenome<unsigned char>::deserialize(std::shared_ptr<ParametersTable>
 		exit(1);
 	}
 	int genomeLength;
-	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
 	std::string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
 	std::stringstream ss(allSites);
 
 	sites.clear();
-	ss >> nextChar; // read past leading '['
-	ss >> nextChar; // load first char of first site
+  bool streamNotEmpty(true);
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
-		while (nextChar != ',' && nextChar != ']') {
+		while (streamNotEmpty && (nextChar != ',')) {
 			nextString += nextChar;
-			ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
-		load_value(nextString, value);
-		//cout << nextString << " = " << value << ", ";
+		convertString(nextString, value);
+    //std::cout << nextString << " = " << value << ", ";
 		sites.push_back((unsigned char)value);
 		ss >> nextChar;
 	}
-	//cout << endl;
+  //std::cout << std::endl;
 }
 
 
@@ -798,24 +798,24 @@ void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<std::
 template<class T>
 std::string CircularGenome<T>::genomeToStr() {
 	std::stringstream ss;
-	ss << "\"[";
+	ss << "\"";
 
 	for (size_t i = 0; i < sites.size()-1; i++) {
 		ss << sites[i] << FileManager::separator;
 	}
-	ss << sites[sites.size() - 1] << "]\"";
+	ss << sites[sites.size() - 1] << "\"";
 	return ss.str();
 }
 
 template<>
 std::string CircularGenome<unsigned char>::genomeToStr() {
 	std::stringstream ss;
-	ss << "\"[";
+	ss << "\"";
 
 	for (size_t i = 0; i < sites.size() - 1; i++) {
 		ss << (int)sites[i] << FileManager::separator;
 	}
-	ss << (int)sites[sites.size() - 1] << "]\"";
+	ss << (int)sites[sites.size() - 1] << "\"";
 	return ss.str();
 }
 

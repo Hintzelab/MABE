@@ -27,7 +27,7 @@ std::shared_ptr<ParameterLink<int>> MarkovBrain::randomizeUnconnectedOutputsType
     Parameters::register_parameter(
         "BRAIN_MARKOV_ADVANCED-randomizeUnconnectedOutputsType", 0,
         "determines type of values resulting from randomizeUnconnectedOutput "
-        "[0 = int, 1 = double]");
+        "0 = int, 1 = double");
 std::shared_ptr<ParameterLink<double>>
     MarkovBrain::randomizeUnconnectedOutputsMinPL =
         Parameters::register_parameter(

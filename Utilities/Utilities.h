@@ -20,6 +20,8 @@
 #include <regex>
 #include <cmath>
 #include <numeric>
+#include "CSV.h"
+#include <cctype>
 
 inline std::string get_var_typename(const bool &) { return "bool"; }
 
@@ -28,6 +30,28 @@ inline std::string get_var_typename(const std::string &) { return "string"; }
 inline std::string get_var_typename(const int &) { return "int"; }
 
 inline std::string get_var_typename(const double &) { return "double"; }
+
+// strip spaces from left-side
+static inline void lstrip(std::string &s) {
+	s.erase(s.begin(), std::find_if(s.begin(), s.end(),
+		[](int ch) {
+			return !std::isspace(ch);
+	}));
+}
+
+// strip spaces from right-side
+static inline void rstrip(std::string &s) {
+	s.erase(std::find_if(s.rbegin(), s.rend(),
+		[](int ch) {
+			return !std::isspace(ch);
+		}).base(), s.end());
+}
+
+// strip both ends
+static inline void strip(std::string &s) {
+	rstrip(s);
+	lstrip(s);
+}
 
 // not as efficient as it could be (should be an iterable range)
 template <typename Match = std::smatch>
@@ -84,6 +108,7 @@ template <typename Type> inline int Bit(Type d) { return d > 0.0; }
 template <typename Type> inline int Trit(Type d) { return d < 0 ? -1 : d > 0; }
 
 
+/* // consider removal of fn
 inline std::vector<std::string> parseCSVLine(std::string raw_line,
                                              const char separator = ',',
                                              const char sep_except = '"') {
@@ -115,8 +140,9 @@ inline std::vector<std::string> parseCSVLine(std::string raw_line,
                   data_line.end());
   return data_line;
 }
+*/
 
-
+/*
 inline std::map<std::string, std::vector<std::string>>
 readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
                        const char sep_except = '"') {
@@ -140,8 +166,9 @@ readColumnsFromCSVFile(const std::string &file_name, const char separator = ',',
 
   return data;
 }
+*/
 
-
+/*
 // extract a value from a map<string,vector<string>>
 // given a value from one vector, return the value in another vector at the same
 // index
@@ -181,61 +208,75 @@ CSVLookUp(std::map<std::string, std::vector<std::string>> csv_table,
 
   return csv_table[return_key][pos];
 }
-
-
-template <class T>
-inline static bool load_value(const std::string &value, T &target) {
-  std::stringstream ss(value);
-  std::string remaining;
-  return ss >> target ? !(ss >> remaining) : false;
-}
+*/
 
 // Put an arbitrary value to the target variable, return false on conversion
 // failure (COPIES FUNCTION OF load_value()!)
 template <class T>
-inline static bool stringToValue(const std::string &source, T &target) {
+inline static bool convertString(const std::string &source, T &target) {
   std::stringstream ss(source);
   std::string remaining;
   return ss >> target ? !(ss >> remaining) : false;
 }
 
+// try and convert a std::string to a particular type
+// warning: no error if value is not valid type
+template <typename T> inline static
+auto UNSAFEconvertString(const std::string &source) {
+  std::stringstream ss(source);
+  T target;
+  ss >> target;
+  return target;
+}
 
-// converts a vector of string to a vector of type of returnData
-template <class T>
-inline void convertCSVListToVector(std::string string_data,
-                                   std::vector<T> &return_data,
-                                   const char separator = ',',
-                                   const char sep_except = '"') {
-  return_data.clear();
-  // check all uses of this function to see if leading and trailing quotes are
-  // needed
-  static const std::regex stripoff_qoute(R"(^"(.*?)?"$)");
-  static const std::regex stripoff_square_brackets(R"(^\[(.*?)\]$)");
-  std::smatch m_quote;
-  string_data = std::regex_match(string_data, m_quote, stripoff_qoute)
-                    ? m_quote[1].str()
-                    : string_data;
-  std::smatch m_square;
-  string_data = std::regex_match(string_data, m_square, stripoff_square_brackets)
-                    ? m_square[1].str()
-                    : string_data;
-
-  T temp; // immediately assign from stringToValue
-  for (auto &s : parseCSVLine(string_data, separator, sep_except)) {
-    if (!stringToValue(s, temp)) {
-      std::cout << " --- while parsing: " << string_data << " .... "
-                << std::endl;
-      std::cout << " In convertCSVListToVector() attempt to convert string "
-                << s << " to  value failed\n " << std::endl;
-      exit(1);
-    }
-    return_data.push_back(temp);
+// converts a vector of string to a vector of type of values determined by target vector,
+// and returns bool if errors in conversion, ex: convertVectorOfStringsToVector(source, target)
+template <typename T> inline static
+bool convertVectorOfStringsToVector(const std::vector<std::string> &list, std::vector<T> &target) {
+  target.resize(list.size());
+  bool errors_detected(false);
+  for (size_t i=0; i<list.size(); i++) {
+    errors_detected |= (false == convertString(list[i], target[i]));
   }
+  return errors_detected;
+}
+
+// converts a vector of string to values, determined by caller-specified template type, ex: UNSAFEconvertVectorOfStringsToVector<int>(...)
+// warning: no error if value is not valid type
+template <typename T> inline static
+std::vector<T> UNSAFEconvertVectorOfStringsToVector(const std::vector<std::string> &list) {
+  std::vector<T> data;
+  for (auto &e : list)
+    data.push_back(UNSAFEconvertString<T>(e));
+  return data;
+}
+
+// converts a vector of string to a vector of type of determined by target vector
+template <typename T> inline static
+bool convertCSVListToVector(const std::string &source,
+                            std::vector<T> &target,
+                            const char sep = ',',
+                            const char quoteChar = '"') {
+  std::vector<std::string> csvStrings = CSVReader(sep, quoteChar).parseLine(source);
+  bool errors = false;
+  if (csvStrings.size() == 1) {
+    lstrip(csvStrings[0]);
+    if (csvStrings[0].size() == 0) {
+      target.clear();
+      return errors;
+    }
+  }
+  if (csvStrings.size() == 0) {
+    target.clear(); // there's nothing to convert, ensure target vector empty
+  } else {
+    errors = convertVectorOfStringsToVector(csvStrings, target);
+  }
+  return errors;
 }
 
 // this is here so we can use to string and it will work even if we give it a
 // string as input
-inline std::string to_string(std::string str) { return (str); }
+inline std::string to_string(std::string str) { return str; }
 
 /*
  * getBestInVector(vector<T> vec)
@@ -353,6 +394,8 @@ inline std::vector<int> seq(const std::string sequence_string,
   return v;
 }
 
+
+/*
 // load a line from FILE. IF the line is empty or a comment (starts with #),
 // skip line.
 // if the line is not empty/comment, clean ss and load line.
@@ -374,8 +417,10 @@ inline bool loadLineToSS(std::ifstream &file, std::string &rawLine,
   // cout << "from file:  " << rawLine << endl;
   return file.eof();
 }
+*/
 
 
+/* // considering removing fn
 inline std::map<long, std::map<std::string, std::string>>
 getAttributeMapByID(const std::string &file_name) {
 
@@ -409,4 +454,5 @@ getAttributeMapByID(const std::string &file_name) {
 
   return result;
 }
+*/
 

@@ -13,6 +13,7 @@
 #include "Global.h"
 #include "Group/Group.h"
 #include "Organism/Organism.h"
+#include "Utilities/Utilities.h"
 #include "Utilities/Data.h"
 #include "Utilities/Loader.h"
 #include "Utilities/MTree.h"
@@ -273,8 +274,8 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         brainNames.insert(brainName);
         workingString = workingString.substr(workingString.find(',') + 1);
         int ins, outs;
-        stringToValue(workingString.substr(0, workingString.find(',')), ins);
-        stringToValue(workingString.substr(workingString.find(',') + 1), outs);
+        convertString(workingString.substr(0, workingString.find(',')), ins);
+        convertString(workingString.substr(workingString.find(',') + 1), outs);
         brainIns[brainName] = ins;
         brainOuts[brainName] = outs;
       } else {
@@ -388,8 +389,20 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         }
         newBrains[brain.first] = brain.second->makeBrain(newGenomes);
       }
-      auto newOrg =
-          std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+      auto newOrg = std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
+
+      // transfer provenance data to newly constructed org datamaps
+      if ( org.first >= 0 ) {
+        if (org.second.find("loadedFrom.File") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+        }
+        if (org.second.find("loadedFrom.ID") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+        }
+        if (org.second.find("loadedFrom.Update") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+        }
+      }
 
       if ( org.first >= 0 ) {
         if (org.second.find("loadedFrom.File") != org.second.end()) {
@@ -401,6 +414,22 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         if (org.second.find("loadedFrom.Update") != org.second.end()) {
           newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
         }
+      }
+
+      if ( org.first >= 0 ) {
+        if (org.second.find("loadedFrom.File") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.File", DataMap::NO_OUTPUT);
+        }
+        if (org.second.find("loadedFrom.ID") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.ID", DataMap::NO_OUTPUT);
+        }
+        if (org.second.find("loadedFrom.Update") != org.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+          newOrg->dataMap.setOutputBehavior("loadedFrom.Update", DataMap::NO_OUTPUT);
+        }
+        std::cout << "[" << org.second["loadedFrom.File"] << "," << org.second["loadedFrom.ID"] << "," << org.second["loadedFrom.Update"] << "]" << std::endl;
       }
 
       // add new organism to population

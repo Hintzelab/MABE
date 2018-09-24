@@ -1426,7 +1426,7 @@ stringToMTree(std::string formula) {
 				index++;
 			}
 			double constValue;
-			if (stringToValue(constString, constValue)) {
+			if (convertString(constString, constValue)) {
 				// std::cout << " make const " << constString << std::endl;
 				// std::cout << "     constValue:" << constValue << std::endl;
 				branches.push_back(std::make_shared<CONST_MTree>(constValue));

@@ -18,7 +18,7 @@ std::shared_ptr<ParameterLink<int>> CGPBrain::hiddenNodesPL =
 
 std::shared_ptr<ParameterLink<std::string>> CGPBrain::availableOperatorsPL =
     Parameters::register_parameter(
-        "BRAIN_CGP-availableOperators", (std::string) "[all]",
+        "BRAIN_CGP-availableOperators", (std::string) "all",
         "which opperators are allowed? all indicates, allow all opperators or, "
         "choose from: SUM,MULT,SUBTRACT,DIVIDE,SIN,COS,THRESH,RAND,IF,INV");
 std::shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMaxPL =
