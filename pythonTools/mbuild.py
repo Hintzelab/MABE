@@ -17,7 +17,7 @@ if platform.system() == 'Windows':
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks'
+SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks, cm,cmake'
 
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt')
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building')
@@ -405,14 +405,16 @@ def getSourceFilesByBuildOptions(sep='/'):
 ## create git version integration
 ## Create an empty file if git is not available
 ## Otherwise capture commit hash
-gitExists = subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version")
+gitExists = True ## only false is a) git not installed OR b) .git dir not present (zip download from GitHub)
+if not subprocess.run("git --version",shell=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE).stdout.startswith(b"git version"): gitExists = False
+if not os.path.isdir(".git"): gitExists = False
 with open(os.path.join("Utilities","gitversion.h"),'w') as file:
     if gitExists:
         commitHash = str(subprocess.run("git rev-parse HEAD",shell=True,stdout=subprocess.PIPE).stdout.decode("utf-8").strip())
         file.write('const char *gitversion = "{gitversion}";\n'.format(gitversion=commitHash))
     else:
         file.write('const char *gitversion = "";\n')
-touch("main.cpp") ## IDE-independent signal to recompile main.o
+if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (only do so if we can use git to get a version number though)
 
 # Create a make file if requested (default)
 if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
@@ -1058,7 +1060,7 @@ elif args.generate == 'x_code' or args.generate == 'xc':
         os.mkdir('mabe.xcodeproj')
     with open('mabe.xcodeproj/project.pbxproj','w') as outfile:
         outfile.write(outString)
-if  args.generate == 'code_blocks' or args.generate == 'cb':
+elif  args.generate == 'code_blocks' or args.generate == 'cb':
     targets='''
 			<Option target="Release x64" />
 			<Option target="Debug Win32" />
@@ -1100,6 +1102,29 @@ if  args.generate == 'code_blocks' or args.generate == 'cb':
     with open('mabe.cbp','w') as outfile:
         outfile.write(outString)
     print("In order for MABE to build properly in Code::Blocks the following flags need to be added to the 'Other Linker Options' section under Settings > Compiler ... > Linker Settings \n '-lpthread' \n '-pthread' ")
+
+elif args.generate == 'cmake' or args.generate == 'cm':
+    units = getSourceFilesByBuildOptions(sep='/')
+    # seperate data into more useful containers
+    directories = []
+    files = []
+    for elt in units:
+        if elt[2] not in directories:
+            directories.append(elt[2])
+        if elt[0] not in files:
+            files.append(elt[0])
+    # Build the output text by appending text into a string
+    # NOTE: the following line of code must have double quotes inside and single quotes on the outside otherwise CMAKE will not parse the command correctly
+    output = 'cmake_minimum_required(VERSION 2.4)\n\nset(CMAKE_CXX_STANDARD 14)\nset(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -O3")\nproject(mabe)\n\n'
+    for elt in directories:
+        output += "include_directories({})\n".format((elt if elt != "" else "."))
+    output += "\nadd_executable(mabe"
+    for elt in files:
+        output += "\n\t{}".format(elt)
+    output += ")"
+    # Write output string to file
+    with open('CMakeLists.txt', 'w') as outfile:
+        outfile.write(output)
 
 if not (args.noCompile):
     call(["make","-j"+str(args.parallel)])
