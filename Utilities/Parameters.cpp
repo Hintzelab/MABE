@@ -291,7 +291,7 @@ Parameters::readParametersFile(const std::string &file_name) {
 
     {
       //std::regex name_value_pair(R"(^\s*([\S]+)\s*=\s*(\S?.*\S)\s*$)");
-      std::regex name_value_pair(R"(^\s*([\S]+)\s*=(\s*.*\s*)$)");
+      std::regex name_value_pair(R"(^\s*([-\w:]+)\s*=(\s*.*\s*)$)");
       std::smatch m;
       if (std::regex_match(line, m, name_value_pair)) {
         auto name = name_space_name;
