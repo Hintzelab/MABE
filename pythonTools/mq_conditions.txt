@@ -13,18 +13,16 @@ REPS = 101 103
 
 # VAR = [SHORT NAME]	[REAL NAME]	[conditon1,condition2,etc.]
 # Short name is used in this file, and also determines output directory names
-VAR = TSK	WORLD_BERRY-taskSwitchingCost
-VAR = RF1	WORLD_BERRY-rewardForFood1
-VAR = RF2	WORLD_BERRY-rewardForFood2
+VAR = EAM	WORLD_BERRY-allowEatAndMove
+VAR = AE	WORLD_BERRY-alwaysEat
 
 # Alternatively to VAR/EXCEPT, conditions can achieve a similar effect and still respect EXCEPT declarations
 #CONDITIONS = TSK=1.0,3.0  RF1="some message here"  RF2=2,[1,2,3,4]
-#CONDITIONS = TSK=1.0      RF1=0.80
+CONDITIONS = EAM=1,0  AE=0
 
 # EXCEPT = [SHORT NAME]=[condition],[SHORT NAME]=[condition],etc.
 # If all name/condition pairs are met for any EXCEPT, then that combination will not be run.
-EXCEPT =  TSK=3.0  RF1=0.50
-#EXCEPT = TSK=3.0  RF2=0.75
+#EXCEPT = EAM=0 AE=0
 
 # list of setting files (.cfg) which you want MABE to load with the -f option. files will be loaded in the order provided.
 SETTINGS = settings.cfg,settings_organism.cfg,settings_world.cfg
@@ -52,8 +50,11 @@ EXECUTABLE = ./mabe
 
 # HPCC
 HPCC_LONGJOB = FALSE
-HPCC_PARAMETERS = #PBS -l feature=intel16|intel14
-HPCC_PARAMETERS = #PBS -l nodes=1:ppn=1,walltime=03:50:00,mem=2gb
-HPCC_PARAMETERS = #PBS -j oe
-HPCC_PARAMETERS = #PBS -m ae
+HPCC_PARAMETERS = #SBATCH -C intel18|intel16|intel14
+HPCC_PARAMETERS = #SBATCH --ntasks=1
+HPCC_PARAMETERS = #SBATCH --cpus-per-task=1
+HPCC_PARAMETERS = #SBATCH --time=03:50:00
+HPCC_PARAMETERS = #SBATCH --mem=2G
+HPCC_PARAMETERS = #SBATCH --mail-type=FAIL
+#comma sep the mail type list ex: FAIL,END,REQUEUE
 

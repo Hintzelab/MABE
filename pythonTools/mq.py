@@ -57,18 +57,17 @@ ptrnSpaceSeparatedEquals = re.compile(r'\s(\s*\".*\"|[^\s]+)') # ex: gets ['=','
 ptrnCSVs = re.compile(r'\s*,?\s*(\[(.*?)\]|([^\s",]+|\"([^"\\]|\\.)*?\"))\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
-def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions, padSizeReps):
-    outFile = open(qsubFileName, 'w')
+def makeQsubFile(realDisplayName, conditionDirectoryName, rep, slurmFileName, executable, cfg_files, workDir, conditions, padSizeReps):
+    outFile = open(slurmFileName, 'w')
     outFile.write('#!/bin/bash -login\n')
     for p in HPCC_parameters:
         outFile.write(p + '\n')
-    outFile.write('#PBS -o ' + realDisplayName + '.out\n')
-    outFile.write('#PBS -N ' + realDisplayName + '\n')
+    #outFile.write('#PBS -o ' + realDisplayName + '.out\n')
+    outFile.write('#SBATCH --output=' + realDisplayName + '.out\n')
+    outFile.write('#SBATCH --job-name=' + realDisplayName + '\n')
 
     outFile.write('\n' +
                   'shopt -s expand_aliases\n' +
-                  'module load powertools\n' +
-                  'module load GNU/6.2\n' +
                   '\n' +
                   'cd ' + workDir +
                   '\n')
@@ -80,16 +79,18 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, exe
             includeFileString += fileName + ' '
 
     if HPCC_LONGJOB:
-        outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n' +
-                      'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n' +
-                      #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
-                      'export PBS_JOBSCRIPT="$0"\n' +
-                      '\n' +
-                      'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        print('LONGJOB currently unsupported')
+        sys.exit(0)
+        #outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n' +
+        #              'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n' +
+        #              #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
+        #              'export PBS_JOBSCRIPT="$0"\n' +
+        #              '\n' +
+        #              'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     else:
         outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     outFile.write('ret=$?\n\n' +
-                  'qstat -f ${PBS_JOBID}\n' +
+                  'sacct -j ${SLURM_JOB_ID}\n' +
                   '\n' +
                   'exit $ret\n')
     outFile.close()
@@ -515,17 +516,17 @@ for i in range(len(combinations)):
 
             os.chdir(workDir)  # goto the work dir (on scratch)
 
-            qsubFileName = "MQ.qsub"
+            slurmFileName = "slurm.sb"
 
             # make the qsub file on scratch
-            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + replacedConstantDefs, padSizeReps = padSizeReps)
+            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,slurmFileName = slurmFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + replacedConstantDefs, padSizeReps = padSizeReps)
 
             print("submitting:")
             print("  " + realDisplayName + " :")
             print("  workDir = " + workDir)
-            print("  qsub " + qsubFileName)
+            print("  sbatch " + slurmFileName)
             if not args.runNo:
-                callNoWait(["qsub", qsubFileName])  # run the job
+                callNoWait(["sbatch", slurmFileName])  # run the job
 
 if args.runNo:
     print("")
