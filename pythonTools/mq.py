@@ -526,7 +526,7 @@ for i in range(len(combinations)):
             print("  workDir = " + workDir)
             print("  sbatch " + slurmFileName)
             if not args.runNo:
-                callNoWait(["sbatch", slurmFileName])  # run the job
+                call(["sbatch", slurmFileName])  # run the job
 
 if args.runNo:
     print("")
