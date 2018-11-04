@@ -21,10 +21,10 @@ std::shared_ptr<ParameterLink<int>> Global::updatesPL =
                                    "how long the program will run");
 std::shared_ptr<ParameterLink<std::string>> Global::initPopPL =
     Parameters::register_parameter(
-        "GLOBAL-initPop", std::string("MASTER = default 100"),
+        "GLOBAL-initPop", std::string("default 100"),
         "initial population to start MABE (if it's .plf syntax it will be "
-        "parsed as such. If it's a file name with .plf that population loader "
-        "file is parsed");
+        "parsed as if preceded by \"MASTER = \". If it's a file name with .plf "
+        "that population loader file is parsed");
 std::shared_ptr<ParameterLink<std::string>> Global::modePL =
     Parameters::register_parameter(
         "GLOBAL-mode", std::string("run"),

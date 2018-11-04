@@ -44,7 +44,7 @@ std::vector<std::pair<OrgID, OrgAttributesMap>> Loader::loadPopulation(const std
   static const std::regex plf_file(R"(.*\.plf)");
   std::string all_lines = std::regex_match(loader_option, plf_file)
                        ? loadFromFile(loader_option)
-                       : loader_option;
+                       : "MASTER = " + loader_option;
 
   // replace all filenames (expanded or otherwise) with temporary tokens
   all_lines = findAndGenerateAllFiles(all_lines);
