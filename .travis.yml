@@ -14,7 +14,6 @@ env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
 #
 branches:
   only:
-  - appvyrtest
   - development
   - master
   - "/feature.*/"
