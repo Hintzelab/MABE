@@ -660,7 +660,7 @@ void CircularGenome<T>::deserialize(std::shared_ptr<ParametersTable> PT, std::un
 	int genomeLength;
 	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
-	std::string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::string allSites = orgData["GENOME_" + name + "_sites"];
 	std::stringstream ss(allSites);
 
   bool streamNotEmpty(true);
@@ -673,11 +673,11 @@ void CircularGenome<T>::deserialize(std::shared_ptr<ParametersTable> PT, std::un
       streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
 		convertString(nextString, value);
-		//cout << nextString << " = " << value << ", ";
+		//std::cout << nextString << " = " << value << ", ";
 		sites.push_back(value);
     streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	}
-	//cout << endl;
+	//std::cout << std::endl;
 }
 
 template<>
@@ -693,7 +693,7 @@ void CircularGenome<unsigned char>::deserialize(std::shared_ptr<ParametersTable>
 	int genomeLength;
 	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
-	std::string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::string allSites = orgData["GENOME_" + name + "_sites"];
 	std::stringstream ss(allSites);
 
 	sites.clear();
@@ -703,10 +703,10 @@ void CircularGenome<unsigned char>::deserialize(std::shared_ptr<ParametersTable>
 		nextString = "";
 		while (streamNotEmpty && (nextChar != ',')) {
 			nextString += nextChar;
-      streamNotEmpty = static_cast<bool>(ss >> nextChar);
+            streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
 		convertString(nextString, value);
-    //std::cout << nextString << " = " << value << ", ";
+        //std::cout << nextString << " = " << value << ", ";
 		sites.push_back((unsigned char)value);
 		ss >> nextChar;
 	}
