@@ -1,5 +1,5 @@
 from collections import defaultdict
-from math import log2
+from math import log2,ceil
 import numpy as np
 
 ## Run this script by itself to see the demo work,
@@ -17,7 +17,7 @@ def main():
 
 # shared entropy (information) between the brain and the environment not shared with the sensors  
 # R = H(S,E) + H(S,M) - H(S) - H(E,M,S)
-def R(state_time_series):
+def R(state_time_series,progress_width=0):
   ## assumes a time(t) state is [[sensor],[environment],[memory]]
   ## so [[0,1,0,0],[1,0,0,0,1,1],[0,1]] is one timeslice
   sensor_observations = defaultdict(int)
@@ -26,12 +26,22 @@ def R(state_time_series):
   total_observations = defaultdict(int)
 
   resolution = 1.0 / len(state_time_series)
+  t = 0
+  maxt = len(state_time_series)
+  screen_progress = 0
 
   for (sensor_state, environment_state, memory_state) in state_time_series:
     sensor_observations[ concat_bit_lists(sensor_state) ] += 1
     environment_sensor_observations[ concat_bit_lists(sensor_state,environment_state) ] += 1
     memory_sensor_observations[ concat_bit_lists(sensor_state,memory_state) ] += 1
     total_observations[ concat_bit_lists(sensor_state,environment_state,memory_state) ] += 1
+    if progress_width:
+      screen_progress = ceil((float(t)/float(maxt)) * progress_width)
+      t += 1
+      print('['+('.'*screen_progress)+' '*(progress_width-screen_progress)+']',end='\r')
+  if progress_width:
+    screen_progress = ceil((float(t)/float(maxt)) * progress_width)
+    print('['+('.'*screen_progress)+' '*(progress_width-screen_progress)+']',end='\n') ## (\n)ewline
   # R = H(S,E) + H(S,M) - H(S) - H(E,M,S)
   H_SE = calcEntropy(environment_sensor_observations, resolution)
   H_SM = calcEntropy(memory_sensor_observations, resolution)
