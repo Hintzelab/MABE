@@ -7,11 +7,6 @@ sudo: required
 
 language: cpp
 
-env: MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
-
-#compiler:
-#  - g++
-#
 branches:
   only:
   - development
@@ -24,9 +19,11 @@ matrix:
     - osx_image: xcode10.1
       sudo: required
       python: 3.6
+      env: BADGE=osx
     - os: linux
       language: generic
       python: 3.6
+      env: BADGE=linux
 
 addons:
   apt:
@@ -41,7 +38,7 @@ before_install:
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
       source ~/virtualenv/python3.6/bin/activate
-      eval "${MATRIX_EVAL}"
+      eval "CC=gcc-6 && CXX=g++-6"
       export CC=gcc-6
       export CXX=g++-6
       ln -s $(which gcc-6) gcc
