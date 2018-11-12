@@ -280,8 +280,8 @@ template <> void TemplatedChromosome<bool>::fillRandom(int length) {
   }
   sites.resize(length);
   for (int i = 0; i < length; i++) {
-    std::cout << "alphabetSize: " << alphabetSize << "   "
-         << Random::getDouble(alphabetSize) << std::endl;
+    //std::cout << "alphabetSize: " << alphabetSize << "   "
+    //     << Random::getDouble(alphabetSize) << std::endl;
     sites[i] = (bool)((int)Random::getDouble(alphabetSize));
   }
 }

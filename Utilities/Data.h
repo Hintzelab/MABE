@@ -575,7 +575,7 @@ public:
                                                        // a dataMap with "key" -
                                                        // if not already string,
                                                        // will be converted
-    std::string returnString = "\"";
+    std::string returnString = "";
     dataMapType typeOfKey = findKeyInData(key);
     if (typeOfKey == NONE) {
       std::cout << "  In DataMap::GetString() :: key \"" << key
@@ -603,7 +603,7 @@ public:
     if (returnString.size() > 2) { // if vector was not empty
       returnString.pop_back();     // remove trailing ","
     }
-    returnString += "\"";
+    returnString += "";
     return returnString;
   }
 

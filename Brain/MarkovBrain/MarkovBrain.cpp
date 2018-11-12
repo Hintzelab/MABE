@@ -253,10 +253,10 @@ DataMap MarkovBrain::getStats(std::string &prefix) {
     nextNodesConnectionsList.push_back(nextNodesConnections[i]);
   }
   dataMap.set(prefix + "markovBrain_nodesConnections", nodesConnectionsList);
-  dataMap.setOutputBehavior(prefix + "nodesConnections", DataMap::LIST);
+  dataMap.setOutputBehavior(prefix + "markovBrain_nodesConnections", DataMap::LIST);
   dataMap.set(prefix + "markovBrain_nextNodesConnections",
               nextNodesConnectionsList);
-  dataMap.setOutputBehavior(prefix + "nextNodesConnections", DataMap::LIST);
+  dataMap.setOutputBehavior(prefix + "markovBrain_nextNodesConnections", DataMap::LIST);
 
   return dataMap;
 }

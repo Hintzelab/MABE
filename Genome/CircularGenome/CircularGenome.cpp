@@ -798,24 +798,24 @@ void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<std::
 template<class T>
 std::string CircularGenome<T>::genomeToStr() {
 	std::stringstream ss;
-	ss << "\"";
+	ss << "";
 
 	for (size_t i = 0; i < sites.size()-1; i++) {
 		ss << sites[i] << FileManager::separator;
 	}
-	ss << sites[sites.size() - 1] << "\"";
+	ss << sites[sites.size() - 1];
 	return ss.str();
 }
 
 template<>
 std::string CircularGenome<unsigned char>::genomeToStr() {
 	std::stringstream ss;
-	ss << "\"";
+	ss << "";
 
 	for (size_t i = 0; i < sites.size() - 1; i++) {
 		ss << (int)sites[i] << FileManager::separator;
 	}
-	ss << (int)sites[sites.size() - 1] << "\"";
+	ss << (int)sites[sites.size() - 1] << "";
 	return ss.str();
 }
 
