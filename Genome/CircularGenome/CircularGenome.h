@@ -40,9 +40,16 @@ public:
 	static std::shared_ptr<ParameterLink<int>> mutationCrossCountPL;  // number of crosses to make when performing crossover
 };
 
+
+class CircularGenomeMutTrack {
+public:
+	static int countPoint;
+        static int countCopy;
+        static int countDelete;
+};
+
 template<class T>
 class CircularGenome: public AbstractGenome {
-
 public:
 
 	
@@ -115,7 +122,7 @@ public:
 	std::vector<T> sites;
 	double alphabetSize;
 
-	CircularGenome() = delete;
+        CircularGenome() = delete;
 
 	CircularGenome(std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 		setupCircularGenome(256, 100);
