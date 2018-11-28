@@ -1,2 +1,11 @@
 Utilities/gitversion.h
 modules.h
+
+# Ignore xcode project file:
+mabe.xcodeproj
+
+# Ingore intermediate objects:
+objectFiles/
+
+# Ignore python's cache:
+__pycache__/
