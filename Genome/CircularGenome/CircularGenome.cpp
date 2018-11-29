@@ -555,9 +555,6 @@ void CircularGenome<T>::mutate() {
         
                 incrementDelete();
 	}
-
-        
-
 }
 
 // make a mutated genome. from this genome
