@@ -24,7 +24,6 @@ std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMinPL = Parame
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMaxPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMax", 20000, "if genome is larger then this, mutations will only decrease chromosome size");
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCountPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCrossCount", 3, "number of crosses when performing crossover (including during recombination)");
 
-
 // constructor
 template<class T>
 CircularGenome<T>::Handler::Handler(std::shared_ptr<AbstractGenome> _genome, bool _readDirection) {
@@ -32,7 +31,6 @@ CircularGenome<T>::Handler::Handler(std::shared_ptr<AbstractGenome> _genome, boo
 	setReadDirection(_readDirection);
 	resetHandler();
 }
-
 
 template<class T>
 void CircularGenome<T>::Handler::resetHandler() {
@@ -44,7 +42,6 @@ void CircularGenome<T>::Handler::resetHandler() {
 	resetEOG();
 	resetEOC();
 }
-
 
 template<class T>
 void CircularGenome<T>::Handler::resetHandlerOnChromosome() {
@@ -319,7 +316,6 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	//sizeMinLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMinPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMin", PT);
 	//sizeMaxLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMaxPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMax", PT);
 	//mutationCrossCountLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCrossCountPL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCrossCount", PT);
-        
 
 	sites.resize(_size);
 	alphabetSize = _alphabetSize;
@@ -338,7 +334,6 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	popFileColumns.push_back("genomeLength");
 
 	recordDataMap();
-        
 }
 
 //template<class T>
@@ -501,12 +496,9 @@ int CircularGenome<T>::incrementDelete() {
 // apply mutations to this genome
 template<class T>
 void CircularGenome<T>::mutate() {
-
-        // generate number of mutations
 	int howManyPoint = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationPointRatePL->get(PT));
 	int howManyCopy = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationCopyRatePL->get(PT));
 	int howManyDelete = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationDeleteRatePL->get(PT));
-	
         // do some point mutations
 	for (int i = 0; i < howManyPoint; i++) {
 		pointMutate();
