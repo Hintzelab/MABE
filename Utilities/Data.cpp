@@ -109,9 +109,13 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
       } 
 
       if (aveOnly) {
-        if (typeOfKey == STRING || typeOfKey == STRINGSOLO) OB = NO_OUTPUT;
-        else OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
-                                 // that have been set for AVE
+		  if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
+			  OB = NO_OUTPUT;
+		  }
+		  else {
+			  OB &= (AVE | FIRST); // if aveOnly, only output AVE on the entries
+								 // that have been set for AVE
+		  }
       }
 
       if (OB & FIRST) { // save first (only?) element in vector with key as
@@ -151,9 +155,9 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         }
         if (typeOfKey == STRING || typeOfKey == STRINGSOLO) {
           if (!getStringVector(i).empty()) {
-            dataStr += FileManager::separator + getStringVector(i)[0];
+            dataStr += FileManager::separator + (std::string)"\"" + getStringVector(i)[0] + (std::string)"\"";
           } else {
-            dataStr += '0';
+            dataStr += (std::string)"\"0\"";
             std::cout << "  WARNING!! In DataMap::constructHeaderAndDataStrings :: "
                     "while getting value for FIRST with key \""
                  << i << "\" vector is empty!" << std::endl;
@@ -164,8 +168,7 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         headerStr += FileManager::separator + i + "_AVE";
         dataStr += FileManager::separator + std::to_string(getAverage(i));
       }
-      if (OB &
-          VAR) { // key_VAR = variance of vector (will error if of type string!)
+      if (OB & VAR) { // key_VAR = variance of vector (will error if of type string!)
         headerStr += FileManager::separator + i + "_VAR";
         dataStr += FileManager::separator + std::to_string(getVariance(i));
       }
@@ -181,10 +184,9 @@ void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string 
         std::cout << "  WARNING OUTPUT METHOD STDERR IS HAS YET TO BE WRITTEN!"
              << std::endl;
       }
-      if (OB &
-          LIST) { // key_LIST = save all elements in vector in csv list format
+      if (OB & LIST) { // key_LIST = save all elements in vector in csv list format
         headerStr += FileManager::separator + i + "_LIST";
-        dataStr += FileManager::separator + getStringOfVector(i);
+        dataStr += FileManager::separator + (std::string)"\"" + getStringOfVector(i) + (std::string)"\"";
       }
     }
     headerStr.erase(headerStr.begin()); // clip off the leading separator

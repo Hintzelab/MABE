@@ -545,12 +545,12 @@ DataMap MultiGenome::getStats(std::string& prefix) {
 DataMap MultiGenome::serialize(std::string& name) {
 	DataMap serialDataMap;
 
-	std::string chromosomeLengths = "\"";
+	std::string chromosomeLengths = "";
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		chromosomeLengths += std::to_string(chromosomes[c]->size()) + ",";
 	}
 	chromosomeLengths.pop_back();
-	chromosomeLengths += "\"";
+	chromosomeLengths += "";
 	serialDataMap.set(name + "_chromosomeLengths", chromosomeLengths);
 	serialDataMap.set(name + "_sites", genomeToStr());
 	return serialDataMap;
@@ -647,13 +647,13 @@ void MultiGenome::loadGenomeFile(std::string fileName, std::vector<std::shared_p
 
 // convert a chromosome to a string
 std::string MultiGenome::genomeToStr() {
-	std::string S = "\"";
+	std::string S = "";
 
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		S.append(chromosomes[c]->chromosomeToStr() + FileManager::separator);
 	}
-	S.pop_back(); // clip off the traialing separator
-	S.append("\"");
+	S.pop_back(); // clip off the trailing separator
+	S.append("");
 	return S;
 }
 
