@@ -4,6 +4,9 @@ import collections ## defaultdict
 import os
 import posixpath
 
+if platform.system() == 'Windows':
+    import winreg ## can now safely import
+
 def make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects, product, compiler, compFlags):
     if not posixpath.exists('objectFiles'):
         os.makedirs('objectFiles')

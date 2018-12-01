@@ -9,13 +9,15 @@ import uuid ## unique guid generator for vs project files
 import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
-from mbuildlib.modulewriter import write_modules_h
-from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
 import subprocess
 
 if platform.system() == 'Windows':
     pyreq.require("winreg") ## quits if had to attempt install. So user must run script again.
     import winreg ## can now safely import
+
+# Need to make sure winreg import works before trying to import the buildlibs
+from mbuildlib.modulewriter import write_modules_h
+from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
 
 parser = argparse.ArgumentParser()
 
