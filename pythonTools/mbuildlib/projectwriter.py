@@ -52,10 +52,10 @@ def make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects
 
     outFile.close()
 
-def make_dev_cpp_project(units, f_folder, f_filename, f_compilecpp, f_compile, f_link, f_priority, f_overridebuildcmd, f_buildcmd):
+def make_dev_cpp_project(units):
     folders=[]
     for eachunit in units:
-        folders.append(eachunit[f_folder])
+        folders.append(eachunit['folder'])
     folders=sorted(list(filter(bool,list(set(folders))))) #removes dups & empties, then sorts
     folders=','.join(folders)
 
@@ -126,19 +126,19 @@ OverrideBuildCmd={7}
 BuildCmd={8}
 
 """.format(i+1,
-        eachUnit[f_filename],
-        eachUnit[f_compilecpp],
-        eachUnit[f_folder],
-        eachUnit[f_compile],
-        eachUnit[f_link],
-        eachUnit[f_priority],
-        eachUnit[f_overridebuildcmd],
-        eachUnit[f_buildcmd])
+        eachUnit['filename'],
+        eachUnit['compilecpp'],
+        eachUnit['folder'],
+        eachUnit['compile'],
+        eachUnit['link'],
+        eachUnit['priority'],
+        eachUnit['overridebuildcmd'],
+        eachUnit['buildcmd'])
 
     with open('mabe.dev','w') as outfile:
         outfile.write(outString)
 
-def make_visual_studio_project(units, f_filename):
+def make_visual_studio_project(units):
     outString = ''
     SDKversion = "10.0.16299.0" ## assume win 10...
     platformToolset = "v"
@@ -264,13 +264,13 @@ def make_visual_studio_project(units, f_filename):
 """.format(str(uuid.uuid4()),SDKversion,platformToolset)
     outString += "  <ItemGroup>\n" ## start cpp list
     for eachunit in units:
-        if eachunit[f_filename].endswith('.cpp'):
-            outString += '    <ClCompile Include="{0}" />\n'.format(eachunit[f_filename])
+        if eachunit['filename'].endswith('.cpp'):
+            outString += '    <ClCompile Include="{0}" />\n'.format(eachunit['filename'])
     outString += "  </ItemGroup>\n"
     outString += "  <ItemGroup>\n" ## start header list
     for eachunit in units:
-        if eachunit[f_filename].endswith('.h'):
-            outString += '    <ClInclude Include="{0}" />\n'.format(eachunit[f_filename])
+        if eachunit['filename'].endswith('.h'):
+            outString += '    <ClInclude Include="{0}" />\n'.format(eachunit['filename'])
     outString += "  </ItemGroup>"
     outString += """
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
@@ -283,23 +283,23 @@ def make_visual_studio_project(units, f_filename):
 
 
 
-def make_x_code_project(units, f_uuid, f_filerefuuid, f_folder, f_filename):
+def make_x_code_project(units):
     def newXcodeUUID():
         return ''.join(str(uuid.uuid4()).upper().split('-')[1:])
     for unit in units: ## create XUUIDs for each file
-        unit[f_uuid]=newXcodeUUID()
-        unit[f_filerefuuid]=newXcodeUUID()
+        unit['uuid']=newXcodeUUID()
+        unit['filerefuuid']=newXcodeUUID()
     folders=[]
     for eachunit in units:
-        folders.append(eachunit[f_folder])
+        folders.append(eachunit['folder'])
     folders=sorted(list(filter(bool,list(set(folders))))) #removes dups & empties, then sorts
     folderuuids={}
     for folder in folders:
         folderuuids[folder] = newXcodeUUID()
     folderFiles=collections.defaultdict(list)
     for unit in units:
-        foldername=unit[f_folder]
-        folderFiles[foldername].append( (unit[f_filename], True, unit[f_filerefuuid]) ) ## true for files, false for folders
+        foldername=unit['folder']
+        folderFiles[foldername].append( (unit['filename'], True, unit['filerefuuid']) ) ## true for files, false for folders
     for folderName in folders:
         if '/' in folderName:
             parentName=folderName[0:folderName.rfind('/')]
@@ -333,8 +333,8 @@ def make_x_code_project(units, f_uuid, f_filerefuuid, f_folder, f_filename):
 /* Begin PBXBuildFile section */
 '''.format()
     for unit in units:
-        if unit[f_filename].endswith('.cpp'):
-            outString += "		{0} /* {1} in Sources */ = {{isa = PBXBuildFile; fileRef = {2} /* {1} */; }};\n".format( unit[f_uuid], unit[f_filename], unit[f_filerefuuid] )
+        if unit['filename'].endswith('.cpp'):
+            outString += "		{0} /* {1} in Sources */ = {{isa = PBXBuildFile; fileRef = {2} /* {1} */; }};\n".format( unit['uuid'], unit['filename'], unit['filerefuuid'] )
     outString += '''/* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -353,12 +353,12 @@ def make_x_code_project(units, f_uuid, f_filerefuuid, f_folder, f_filename):
 '''.format(copyPhaseUUID)
     outString += '		{0} /* MABE */ = {{isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = mabe; sourceTree = BUILT_PRODUCTS_DIR; }};\n'.format(productUUID)
     for unit in units:
-        if 'main.cpp' == unit[f_filename]: ## 'main.cpp' file
-            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = {1}; sourceTree = "<group>"; }};\n'.format(unit[f_filerefuuid], unit[f_filename][unit[f_filename].rfind('/')+1:])
-        elif unit[f_filename].endswith('.h'): ## '.h' file
-            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = {1}; sourceTree = "<group>"; }};\n'.format(unit[f_filerefuuid], unit[f_filename][unit[f_filename].rfind('/')+1:])
+        if 'main.cpp' == unit['filename']: ## 'main.cpp' file
+            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = {1}; sourceTree = "<group>"; }};\n'.format(unit['filerefuuid'], unit['filename'][unit['filename'].rfind('/')+1:])
+        elif unit['filename'].endswith('.h'): ## '.h' file
+            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = {1}; sourceTree = "<group>"; }};\n'.format(unit['filerefuuid'], unit['filename'][unit['filename'].rfind('/')+1:])
         else: ## '.cpp' file
-            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = {1}; sourceTree = "<group>"; }};\n'.format(unit[f_filerefuuid], unit[f_filename][unit[f_filename].rfind('/')+1:])
+            outString += '		{0} /* {1} */ = {{isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = {1}; sourceTree = "<group>"; }};\n'.format(unit['filerefuuid'], unit['filename'][unit['filename'].rfind('/')+1:])
     outString += '''/* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -479,8 +479,8 @@ def make_x_code_project(units, f_uuid, f_filerefuuid, f_folder, f_filename):
 			files = (
 '''.format(sourcesPhaseUUID)
     for unit in units:
-        if unit[f_filename].endswith('.cpp'):
-            outString += '				{0} /* {1} in Sources */,\n'.format(unit[f_uuid], unit[f_filename])
+        if unit['filename'].endswith('.cpp'):
+            outString += '				{0} /* {1} in Sources */,\n'.format(unit['uuid'], unit['filename'])
     outString += '''			);
 			runOnlyForDeploymentPostprocessing = 0;
 		}};
@@ -649,7 +649,7 @@ def make_x_code_project(units, f_uuid, f_filerefuuid, f_folder, f_filename):
         outfile.write(outString)
 
 
-def make_codeblocks_project(units, f_filename):
+def make_codeblocks_project(units):
     targets='''
 			<Option target="Release x64" />
 			<Option target="Debug Win32" />
@@ -677,7 +677,7 @@ def make_codeblocks_project(units, f_filename):
     for unit in units:
         outString += '''
 		<Unit filename="{0}">{1}
-		</Unit>'''.format(unit[f_filename], targets)
+		</Unit>'''.format(unit['filename'], targets)
     outString += '''
 		<Extensions>
 			<code_completion />
@@ -698,10 +698,10 @@ def make_cmake_project(units):
     directories = []
     files = []
     for elt in units:
-        if elt[2] not in directories:
-            directories.append(elt[2])
-        if elt[0] not in files:
-            files.append(elt[0])
+        if elt['folder'] not in directories:
+            directories.append(elt['folder'])
+        if elt['filename'] not in files:
+            files.append(elt['filename'])
     # Build the output text by appending text into a string
     # NOTE: the following line of code must have double quotes inside and single quotes on the outside otherwise CMAKE will not parse the command correctly
     output = 'cmake_minimum_required(VERSION 2.4)\n\nset(CMAKE_CXX_STANDARD 14)\nset(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -w -O3")\nproject(mabe)\n\n'

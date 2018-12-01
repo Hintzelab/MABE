@@ -176,46 +176,47 @@ objects = []
 sources = None
 #alwaysSources = [e.replace('/',sep) for e in alwaysSources]
 
-## fields for source units (one unit represents one source file cpp,h,etc)
-f_filename=0
-f_compilecpp=1
-f_folder=2
-f_compile=3
-f_link=4
-f_priority=5
-f_overridebuildcmd=6
-f_buildcmd=7
-f_uuid=8
-f_filerefuuid=9
 def getSourceFilesByBuildOptions(sep='/'):
     def newUnit():
-        return ['','1','','1','1','1000','0','','','']
+        #return ['','1','','1','1','1000','0','','','']
+        return {
+            'filename': '',
+            'compilecpp': '1',
+            'folder': '',
+            'compile': '1',
+            'link': '1',
+            'priority': '1000',
+            'overridebuildcmd': '0',
+            'buildcmd': '',
+            'uuid': '',
+            'filerefuuid': ''
+        }
     units=[]
     for eachsource in alwaysSources:
         unit=newUnit()
-        unit[f_filename]=eachsource.replace('/',sep)
+        unit['filename']=eachsource.replace('/',sep)
         lastSlash=eachsource.rfind('/')
         if lastSlash!=-1:
-            unit[f_folder]=eachsource[0:lastSlash]
+            unit['folder']=eachsource[0:lastSlash]
         units.append(unit)
         if os.path.isfile(eachsource.replace('cpp','h')): ## add possible header
             unitH=newUnit()
-            unitH[f_filename]=eachsource.replace('cpp','h')
-            unitH[f_folder] = unit[f_folder]
+            unitH['filename']=eachsource.replace('cpp','h')
+            unitH['folder'] = unit['folder']
             units.append(unitH)
     for category in options: ## buildOptions dictionary
         for module in options[category]:
             filename=category+sep+module+category+sep+module+category+'.cpp'
             foldername=category+'/'+module+category
             unit=newUnit()
-            unit[f_filename]=filename
-            unit[f_folder]=foldername
+            unit['filename']=filename
+            unit['folder']=foldername
             units.append(unit)
             filename=category+sep+module+category+sep+module+category+'.h'
             foldername=category+'/'+module+category
             unit=newUnit()
-            unit[f_filename]=filename
-            unit[f_folder]=foldername
+            unit['filename']=filename
+            unit['folder']=foldername
             units.append(unit)
             dirs = [d for d in os.listdir(category+'/'+module+category+'/') if os.path.isdir(os.path.join(pathToMABE,category,module+category,d))]
             for eachdir in dirs:
@@ -225,13 +226,13 @@ def getSourceFilesByBuildOptions(sep='/'):
                     filename=filename.replace('/',sep)
                     foldername=category+'/'+module+category+'/'+eachdir
                     unit=newUnit()
-                    unit[f_filename]=filename
-                    unit[f_folder]=foldername
+                    unit['filename']=filename
+                    unit['folder']=foldername
                     units.append(unit)
     unit=newUnit()
-    unit[f_filename]='modules.h'
+    unit['filename']='modules.h'
     units.append(unit)
-    sortedunits=sorted(units, key=lambda x: x[f_folder])
+    sortedunits=sorted(units, key=lambda x: x['folder'])
     return sortedunits
 
 ## create git version integration
@@ -252,13 +253,13 @@ if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (o
 if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
     make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects, product, compiler, compFlags)
 elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
-    make_dev_cpp_project(getSourceFilesByBuildOptions(sep='\\'), f_folder, f_filename, f_compilecpp, f_compile, f_link, f_priority, f_overridebuildcmd, f_buildcmd)
+    make_dev_cpp_project(getSourceFilesByBuildOptions(sep='\\'))
 elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
-    make_visual_studio_project(getSourceFilesByBuildOptions(sep='\\'), f_filename)
+    make_visual_studio_project(getSourceFilesByBuildOptions(sep='\\'))
 elif args.generate == 'x_code' or args.generate == 'xc':
-    make_x_code_project(getSourceFilesByBuildOptions(sep='/'), f_uuid, f_filerefuuid, f_folder, f_filename)
+    make_x_code_project(getSourceFilesByBuildOptions(sep='/'))
 elif  args.generate == 'code_blocks' or args.generate == 'cb':
-    make_codeblocks_project(getSourceFilesByBuildOptions(sep='/'), f_filename)
+    make_codeblocks_project(getSourceFilesByBuildOptions(sep='/'))
 elif args.generate == 'cmake' or args.generate == 'cm':
     make_cmake_project(getSourceFilesByBuildOptions(sep='/'))
 
