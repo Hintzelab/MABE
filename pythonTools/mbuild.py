@@ -10,7 +10,7 @@ import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
 from mbuildlib.modulewriter import write_modules_h
-from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project
+from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project
 import subprocess
 
 if platform.system() == 'Windows':
@@ -342,48 +342,7 @@ elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
 elif args.generate == 'x_code' or args.generate == 'xc':
     make_x_code_project(getSourceFilesByBuildOptions(sep='/'), f_uuid, f_filerefuuid, f_folder, f_filename)
 elif  args.generate == 'code_blocks' or args.generate == 'cb':
-    targets='''
-			<Option target="Release x64" />
-			<Option target="Debug Win32" />
-			<Option target="Release Win32" />
-			<Option target="Debug x64" />'''
-    units=getSourceFilesByBuildOptions(sep='/')
-    outString = '''<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
-<CodeBlocks_project_file>
-	<FileVersion major="1" minor="6" />
-	<Project>
-		<Option title="MABE" />
-		<Option pch_mode="2" />
-		<Option compiler="gcc" />
-		<Build>
-			<Target title="Release x64">
-				<Option output="mabe" prefix_auto="1" extension_auto="1" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-			</Target>
-			<Target title="Debug x64">
-				<Option output="mabe" prefix_auto="1" extension_auto="1" />
-				<Option type="0" />
-				<Option compiler="gcc" />
-			</Target>
-		</Build>'''
-    for unit in units:
-        outString += '''
-		<Unit filename="{0}">{1}
-		</Unit>'''.format(unit[f_filename], targets)
-    outString += '''
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
-	</Project>
-</CodeBlocks_project_file>
-'''
-    with open('mabe.cbp','w') as outfile:
-        outfile.write(outString)
-    print("In order for MABE to build properly in Code::Blocks the following flags need to be added to the 'Other Linker Options' section under Settings > Compiler ... > Linker Settings \n '-lpthread' \n '-pthread' ")
-
+    make_codeblocks_project(getSourceFilesByBuildOptions(sep='/'), f_filename)
 elif args.generate == 'cmake' or args.generate == 'cm':
     make_cmake_project(getSourceFilesByBuildOptions(sep='/'))
 
