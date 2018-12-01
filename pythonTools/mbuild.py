@@ -10,7 +10,7 @@ import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
 from mbuildlib.modulewriter import write_modules_h
-from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project
+from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project
 import subprocess
 
 if platform.system() == 'Windows':
@@ -250,53 +250,7 @@ if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (o
 
 # Create a make file if requested (default)
 if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
-    if not posixpath.exists('objectFiles'):
-        os.makedirs('objectFiles')
-
-    for o in options: ## buildOptions dictionary
-        for t in options[o]: ## specific modules in a category
-            moduleSources.append(pathToMABE+o+'/'+t+o+'/'+t+o+'.cpp')
-            dirs = [d for d in os.listdir(pathToMABE+o+'/'+t+o+'/') if posixpath.isdir(posixpath.join(pathToMABE+'/'+o+'/'+t+o+'/', d))]
-            for d in dirs:
-                contents = [c for c in os.listdir(pathToMABE+o+'/'+t+o+'/'+d+'/') if '.cpp' in c and c.startswith('.')==False] ## include cpp files and ignore hidden files
-                for content in contents:
-                    moduleSources.append(pathToMABE+o+'/'+t+o+'/'+d+'/'+content)
-
-    alwaysSources = [pathToMABE+e for e in alwaysSources]
-    sources = alwaysSources + moduleSources
-
-
-    for s in sources:
-        objects.append('objectFiles/'+posixpath.relpath(s).split('.')[0].replace('/','_') + '.o')
-
-    outFile = open("makefile", 'w')
-
-    outFile.write('all: '+product+'\n\n')
-
-    outFile.write(product+':')
-    for o in objects:
-        outFile.write(' '+o)
-    outFile.write('\n')
-    outFile.write('\t'+compiler+' '+compFlags)
-    for o in objects:
-        outFile.write(' '+o)
-    outFile.write(' -o '+product+'\n\n')
-
-    for i in range(len(sources)):
-        if (sources[i][-8:] == 'main.cpp'):
-            outFile.write(objects[i]+': '+sources[i]+'\n')
-        else:
-            outFile.write(objects[i]+': '+sources[i]+' '+sources[i].replace('.cpp','.h')+'\n')
-        outFile.write('\t'+compiler+' '+compFlags+' -c '+sources[i]+' -o '+objects[i]+'\n\n')
-        
-    outFile.write('clean:\n')
-    outFile.write('\trm -r objectFiles/* '+product+'\n\n')
-
-    outFile.write('cleanup:\n')
-    outFile.write('\trm -r objectFiles/*\n')
-
-    outFile.close()
-
+    make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects, product, compiler, compFlags)
 elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
     units=getSourceFilesByBuildOptions(sep='\\')
     folders=[]
