@@ -10,7 +10,7 @@ import collections ## defaultdict
 from utils import pyreq
 from subprocess import call
 from mbuildlib.modulewriter import write_modules_h
-from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project
+from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
 import subprocess
 
 if platform.system() == 'Windows':
@@ -252,91 +252,7 @@ if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (o
 if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
     make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects, product, compiler, compFlags)
 elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
-    units=getSourceFilesByBuildOptions(sep='\\')
-    folders=[]
-    for eachunit in units:
-        folders.append(eachunit[f_folder])
-    folders=sorted(list(filter(bool,list(set(folders))))) #removes dups & empties, then sorts
-    folders=','.join(folders)
-
-    outString = ''
-    outString += """[Project]
-FileName=mabe.dev
-Name=mabe
-Type=1
-Ver=2
-ObjFiles=
-Includes=
-Libs=
-PrivateResource=
-ResourceIncludes=
-MakeIncludes=
-Compiler=
-CppCompiler=
-Linker=
-IsCpp=1
-Icon=
-ExeOutput=
-ObjectOutput=
-LogOutput=
-LogOutputEnabled=0
-OverrideOutput=0
-OverrideOutputName=
-HostApplication=
-UseCustomMakefile=0
-CustomMakefile=
-CommandLine=
-Folders={0}
-IncludeVersionInfo=0
-SupportXPThemes=0
-CompilerSet=0
-CompilerSettings=00000000g0000000000000000
-UnitCount={1}
-
-[VersionInfo]
-Major=1
-Minor=0
-Release=0
-Build=0
-LanguageID=1033
-CharsetID=1252
-CompanyName=
-FileVersion=
-FileDescription=Developed using the Dev-C++ IDE
-InternalName=
-LegalCopyright=
-LegalTrademarks=
-OriginalFilename=
-ProductName=
-ProductVersion=
-AutoIncBuildNr=0
-SyncProduct=1
-
-
-""".format(folders,str(len(units)))
-    for i,eachUnit in enumerate(units):
-        outString += """[Unit{0}]
-FileName={1}
-CompileCpp={2}
-Folder={3}
-Compile={4}
-Link={5}
-Priority={6}
-OverrideBuildCmd={7}
-BuildCmd={8}
-
-""".format(i+1,
-        eachUnit[f_filename],
-        eachUnit[f_compilecpp],
-        eachUnit[f_folder],
-        eachUnit[f_compile],
-        eachUnit[f_link],
-        eachUnit[f_priority],
-        eachUnit[f_overridebuildcmd],
-        eachUnit[f_buildcmd])
-
-    with open('mabe.dev','w') as outfile:
-        outfile.write(outString)
+    make_dev_cpp_project(getSourceFilesByBuildOptions(sep='\\'), f_folder, f_filename, f_compilecpp, f_compile, f_link, f_priority, f_overridebuildcmd, f_buildcmd)
 elif  args.generate == 'visual_studio' or args.generate == 'vs': ## GENERATE vs
     make_visual_studio_project(getSourceFilesByBuildOptions(sep='\\'), f_filename)
 elif args.generate == 'x_code' or args.generate == 'xc':
