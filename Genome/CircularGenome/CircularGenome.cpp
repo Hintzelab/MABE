@@ -326,6 +326,9 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	genomeFileColumns.push_back("alphabetSize");
 	genomeFileColumns.push_back("genomeLength");
 	genomeFileColumns.push_back("sites");
+        genomeFileColumns.push_back("countCopy");
+        genomeFileColumns.push_back("countDelete");
+        genomeFileColumns.push_back("countPoint");
 	// define columns to added to ave files
 	popFileColumns.clear();
 	popFileColumns.push_back("genomeLength");
@@ -475,16 +478,32 @@ void CircularGenome<double>::pointMutate() {
 	sites[Random::getIndex((int)sites.size())] = Random::getDouble(alphabetSize);
 }
 
+template<class T>
+int CircularGenome<T>::incrementCopy() {
+    return countCopy++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementPoint() {
+    return countPoint++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementDelete() {
+    return countDelete++;
+}
+
 // apply mutations to this genome
 template<class T>
 void CircularGenome<T>::mutate() {
 	int howManyPoint = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationPointRatePL->get(PT));
 	int howManyCopy = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationCopyRatePL->get(PT));
 	int howManyDelete = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationDeleteRatePL->get(PT));
-	// do some point mutations
+        // do some point mutations
 	for (int i = 0; i < howManyPoint; i++) {
 		pointMutate();
-	}
+	        incrementPoint();
+        }
 	// do some copy mutations
 	int MaxGenomeSize = CircularGenomeParameters::sizeMaxPL->get(PT);
 	int IMax = CircularGenomeParameters::mutationCopyMaxSizePL->get(PT);
@@ -513,6 +532,8 @@ void CircularGenome<T>::mutate() {
 		sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 
 		//cout << sites.size() << endl;
+
+                incrementCopy();
 	}
 	// do some deletion mutations
 	int MinGenomeSize = CircularGenomeParameters::sizeMinPL->get(PT);
@@ -531,6 +552,8 @@ void CircularGenome<T>::mutate() {
 		}
 		int segmentStart = Random::getInt(((int)sites.size()) - segmentSize);
 		sites.erase(sites.begin() + segmentStart, sites.begin() + segmentStart + segmentSize);
+        
+                incrementDelete();
 	}
 }
 
@@ -540,7 +563,10 @@ template<class T>
 std::shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(std::shared_ptr<AbstractGenome> parent) {
 	auto newGenome = std::make_shared<CircularGenome<T>>(PT);
 	newGenome->copyFrom(parent);
-	newGenome->mutate();
+	newGenome->countPoint = countPoint;
+        newGenome->countDelete = countDelete;
+        newGenome->countCopy = countCopy;
+        newGenome->mutate();
 	newGenome->recordDataMap();
 	return newGenome;
 }
@@ -634,6 +660,9 @@ template<class T>
 DataMap CircularGenome<T>::getStats(std::string& prefix) {
 	DataMap dataMap;
 	dataMap.set(prefix + "genomeLength", countSites());
+        dataMap.set(prefix + "countPoint", countPoint);
+        dataMap.set(prefix + "countCopy", countCopy);
+        dataMap.set(prefix + "countDelete", countDelete);
 	return (dataMap);
 }
 
@@ -719,6 +748,9 @@ template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.set("genomeLength", countSites());
+        dataMap.set("countPoint", countPoint);
+        dataMap.set("countCopy", countCopy);
+        dataMap.set("countDelete", countDelete);
 
 }
 /*

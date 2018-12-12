@@ -74,8 +74,8 @@ public:
 
 		// modulateIndex checks to see if the current chromosomeIndex and siteIndex are out of range. if they are
 		// it uses readDirection to resolve them.	virtual void copyFrom(std::shared_ptr<Genome> from) {
-
-		//  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
+		
+                //  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
 		// chromosome 10 is 8 long, modulateIndex will set the index to chromosome 2, site 0 (not site 2).
 		// If this behavior is required, use advance Index instead.
 		// If the chromosomeIndex has past the last chromosome (or the first
@@ -92,8 +92,8 @@ public:
 		// returns true if this Handler has reached the end of genome (or start if direction is backwards).
 		virtual bool atEOG() override;
 		virtual bool atEOC() override;
-
-		virtual void printIndex() override;
+		
+                virtual void printIndex() override;
 		virtual int readInt(int valueMin, int valueMax, int code = -1, int CodingRegionIndex = 0) override;
 		virtual double readDouble(double valueMin, double valueMax, int code = -1, int CodingRegionIndex = 0) override;
 
@@ -114,8 +114,8 @@ public:
 
 	std::vector<T> sites;
 	double alphabetSize;
-
-	CircularGenome() = delete;
+        
+        CircularGenome() = delete;
 
 	CircularGenome(std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 		setupCircularGenome(256, 100);
@@ -168,6 +168,13 @@ public:
 
 	virtual void pointMutate();
 
+        int countPoint = 0;
+        int countDelete = 0;
+        int countCopy = 0;
+        
+        virtual int incrementCopy();
+        virtual int incrementPoint();
+        virtual int incrementDelete();
 	// apply mutations to this genome
 	virtual void mutate() override;
 
