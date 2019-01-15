@@ -25,12 +25,9 @@ public:
       optimizeValuePL; // what value is used to generate
   static std::shared_ptr<ParameterLink<std::string>>
       surviveRatePL; // value between 0 and 1 chance to survive
-  static std::shared_ptr<ParameterLink<std::string>> selfRatePL; // value
-                                                                 // between 0
-                                                                 // and 1 chance
-                                                                 // to self (if
-                                                                 // more then
-                                                                 // one parent)
+  static std::shared_ptr<ParameterLink<std::string>> selfRatePL;
+  // value between 0 and 1 chance to self (if more then one parent)
+
   static std::shared_ptr<ParameterLink<std::string>>
       elitismCountPL; // this number of organisms will reproduce asexualy (i.e.
                       // copy w/ mutation)
