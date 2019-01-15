@@ -2,6 +2,7 @@
   + Berry
   + Xor
   * Test
+  + Logic16
 
 % Genome
   + Multi
