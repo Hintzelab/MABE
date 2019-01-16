@@ -170,8 +170,7 @@ int main(int argc, const char *argv[]) {
       for (auto const &group : groups) {
         if (!group.second->archivist->finished_) {
           group.second->optimize(); // create the next updates population
-          group.second
-              ->archive(); // save data, update memory and delete unneeded data;
+          group.second->archive(); // save data, update memory and delete unneeded data;
           if (!group.second->archivist->finished_) {
             done = false; // if any groups archivist says we are not done, then
                           // we are not done
@@ -179,7 +178,7 @@ int main(int argc, const char *argv[]) {
           group.second->optimizer->cleanup(group.second->population);
         }
       }
-      std::cout << "\n";
+	  std::cout << std::endl;
       Global::update++; // advance time to create new population(s)
     }
 
@@ -369,67 +368,72 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
     }
     // add population_size organisms which look like progenitor but could be
     // loaded from file
-    for (auto &org : orgs_to_load) {
+    for (auto &orgData : orgs_to_load) {
       // make a new genome like the template genome
-      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
-          newGenomes;
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> newGenomes;
       std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> newBrains;
       for (auto const &genome : templateGenomes) {
-        if (org.first < 0) {
+        if (orgData.first < 0) { // if this org is not loaded...
           newGenomes[genome.first] = genome.second->makeLike();
-        } else {
+        } else { // if this file is loaded ...
           auto name = genome.first;
-          genome.second->deserialize(genome.second->PT, org.second, name);
+          genome.second->deserialize(genome.second->PT, orgData.second, name);
           newGenomes[genome.first] = genome.second;
         }
       }
       for (auto const &brain : templateBrains) {
-        if (org.first < 0) {
+        if (orgData.first < 0) { // if this brain is not loaded
           brain.second->initializeGenomes(newGenomes);
-        }
-        newBrains[brain.first] = brain.second->makeBrain(newGenomes);
+		  newBrains[brain.first] = brain.second->makeBrain(newGenomes);
+		}
+		else { // if this brain is loaded
+	      newBrains[brain.first] = brain.second->makeBrain(newGenomes);
+		  auto name = brain.first;
+		  newBrains[brain.first]->deserialize(brain.second->PT, orgData.second, name);
+		}
       }
       auto newOrg = std::make_shared<Organism>(progenitor, newGenomes, newBrains, PT);
 
       // transfer provenance data to newly constructed org datamaps
-      if ( org.first >= 0 ) {
-        if (org.second.find("loadedFrom.File") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
+/* copy of code below is this needed?
+	  if ( orgData.first >= 0 ) {
+        if (orgData.second.find("loadedFrom.File") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(orgData.second["loadedFrom.File"]));
         }
-        if (org.second.find("loadedFrom.ID") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+        if (orgData.second.find("loadedFrom.ID") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(orgData.second["loadedFrom.ID"])));
         }
-        if (org.second.find("loadedFrom.Update") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
-        }
-      }
-
-      if ( org.first >= 0 ) {
-        if (org.second.find("loadedFrom.File") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
-        }
-        if (org.second.find("loadedFrom.ID") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
-        }
-        if (org.second.find("loadedFrom.Update") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+        if (orgData.second.find("loadedFrom.Update") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(orgData.second["loadedFrom.Update"])));
         }
       }
 
-      if ( org.first >= 0 ) {
-        if (org.second.find("loadedFrom.File") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.File", std::string(org.second["loadedFrom.File"]));
-          newOrg->dataMap.setOutputBehavior("loadedFrom.File", DataMap::NO_OUTPUT);
+      if ( orgData.first >= 0 ) {
+        if (orgData.second.find("loadedFrom.File") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(orgData.second["loadedFrom.File"]));
         }
-        if (org.second.find("loadedFrom.ID") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(org.second["loadedFrom.ID"])));
+        if (orgData.second.find("loadedFrom.ID") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(orgData.second["loadedFrom.ID"])));
+        }
+        if (orgData.second.find("loadedFrom.Update") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(orgData.second["loadedFrom.Update"])));
+        }
+      }
+*/
+      if ( orgData.first >= 0 ) {
+        if (orgData.second.find("loadedFrom.File") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.File", std::string(orgData.second["loadedFrom.File"]));
+		  newOrg->dataMap.setOutputBehavior("loadedFrom.File", DataMap::NO_OUTPUT);
+        }
+        if (orgData.second.find("loadedFrom.ID") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.ID", static_cast<int>(std::stol(orgData.second["loadedFrom.ID"])));
           newOrg->dataMap.setOutputBehavior("loadedFrom.ID", DataMap::NO_OUTPUT);
         }
-        if (org.second.find("loadedFrom.Update") != org.second.end()) {
-          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(org.second["loadedFrom.Update"])));
+        if (orgData.second.find("loadedFrom.Update") != orgData.second.end()) {
+          newOrg->dataMap.set("loadedFrom.Update", static_cast<int>(std::stol(orgData.second["loadedFrom.Update"])));
           newOrg->dataMap.setOutputBehavior("loadedFrom.Update", DataMap::NO_OUTPUT);
         }
-        std::cout << "[" << org.second["loadedFrom.File"] << "," << org.second["loadedFrom.ID"] << "," << org.second["loadedFrom.Update"] << "]" << std::endl;
+        std::cout << "[" << orgData.second["loadedFrom.File"] << "," << orgData.second["loadedFrom.ID"] << "," << orgData.second["loadedFrom.Update"] << "]" << std::endl;
       }
 
       // add new organism to population
