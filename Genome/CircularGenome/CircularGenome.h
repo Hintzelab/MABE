@@ -42,11 +42,11 @@ public:
 	static std::shared_ptr<ParameterLink<int>> sizeMinPL;
 	static std::shared_ptr<ParameterLink<int>> mutationCrossCountPL;  // number of crosses to make when performing crossover
 
-	static std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationIndelRatePL;
-	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMinSizePL;
-	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMaxSizePL;
-	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelInsertMethodPL;
-	static std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationIndelCopyFirstPL;
+	static std::shared_ptr<ParameterLink<double>> mutationIndelRatePL;
+	static std::shared_ptr<ParameterLink<int>> mutationIndelMinSizePL;
+	static std::shared_ptr<ParameterLink<int>> mutationIndelMaxSizePL;
+	static std::shared_ptr<ParameterLink<int>> mutationIndelInsertMethodPL;
+	static std::shared_ptr<ParameterLink<bool>> mutationIndelCopyFirstPL;
 
 };
 
