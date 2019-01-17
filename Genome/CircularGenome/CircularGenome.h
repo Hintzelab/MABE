@@ -12,6 +12,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include <limits>
 
 #include <fstream>
 #include <iostream>
@@ -29,6 +30,8 @@ class CircularGenomeParameters {
 public:
 	static std::shared_ptr<ParameterLink<int>> sizeInitialPL;
 	static std::shared_ptr<ParameterLink<double>> mutationPointRatePL;
+	static std::shared_ptr<ParameterLink<double>> mutationPointOffsetRatePL;
+	static std::shared_ptr<ParameterLink<double>> mutationPointOffsetRangePL;
 	static std::shared_ptr<ParameterLink<double>> mutationCopyRatePL;
 	static std::shared_ptr<ParameterLink<int>> mutationCopyMinSizePL;
 	static std::shared_ptr<ParameterLink<int>> mutationCopyMaxSizePL;
@@ -38,28 +41,21 @@ public:
 	static std::shared_ptr<ParameterLink<int>> sizeMaxPL;
 	static std::shared_ptr<ParameterLink<int>> sizeMinPL;
 	static std::shared_ptr<ParameterLink<int>> mutationCrossCountPL;  // number of crosses to make when performing crossover
+
+	static std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationIndelRatePL;
+	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMinSizePL;
+	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMaxSizePL;
+	static std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelInsertMethodPL;
+	static std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationIndelCopyFirstPL;
+
 };
 
 template<class T>
-class CircularGenome: public AbstractGenome {
+class CircularGenome : public AbstractGenome {
 
 public:
 
-	
-
-	//std::shared_ptr<ParameterLink<int>> initialSizeLPL;
-	//std::shared_ptr<ParameterLink<double>> mutationPointRateLPL;
-	//std::shared_ptr<ParameterLink<double>> mutationCopyRateLPL;
-	//std::shared_ptr<ParameterLink<int>> mutationCopyMinSizeLPL;
-	//std::shared_ptr<ParameterLink<int>> mutationCopyMaxSizeLPL;
-	//std::shared_ptr<ParameterLink<double>> mutationDeleteRateLPL;
-	//std::shared_ptr<ParameterLink<int>> mutationDeleteMinSizeLPL;
-	//std::shared_ptr<ParameterLink<int>> mutationDeleteMaxSizeLPL;
-	//std::shared_ptr<ParameterLink<int>> sizeMaxLPL;
-	//std::shared_ptr<ParameterLink<int>> sizeMinLPL;
-	//std::shared_ptr<ParameterLink<int>> mutationCrossCountLPL;
-
-	class Handler: public AbstractGenome::Handler {
+	class Handler : public AbstractGenome::Handler {
 	public:
 		std::shared_ptr<CircularGenome> genome;
 		int siteIndex;
@@ -74,8 +70,8 @@ public:
 
 		// modulateIndex checks to see if the current chromosomeIndex and siteIndex are out of range. if they are
 		// it uses readDirection to resolve them.	virtual void copyFrom(std::shared_ptr<Genome> from) {
-		
-                //  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
+
+				//  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
 		// chromosome 10 is 8 long, modulateIndex will set the index to chromosome 2, site 0 (not site 2).
 		// If this behavior is required, use advance Index instead.
 		// If the chromosomeIndex has past the last chromosome (or the first
@@ -92,8 +88,8 @@ public:
 		// returns true if this Handler has reached the end of genome (or start if direction is backwards).
 		virtual bool atEOG() override;
 		virtual bool atEOC() override;
-		
-                virtual void printIndex() override;
+
+		virtual void printIndex() override;
 		virtual int readInt(int valueMin, int valueMax, int code = -1, int CodingRegionIndex = 0) override;
 		virtual double readDouble(double valueMin, double valueMax, int code = -1, int CodingRegionIndex = 0) override;
 
@@ -114,27 +110,27 @@ public:
 
 	std::vector<T> sites;
 	double alphabetSize;
-        
-        CircularGenome() = delete;
 
-	CircularGenome(std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
+	CircularGenome() = delete;
+
+	CircularGenome(std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 		setupCircularGenome(256, 100);
 	}
 
-//	CircularGenome(double _alphabetSize, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
-//		alphabetSize = _alphabetSize;
-//	}
+	//	CircularGenome(double _alphabetSize, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
+	//		alphabetSize = _alphabetSize;
+	//	}
 
 	CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_);
 
 	virtual std::shared_ptr<AbstractGenome> makeCopy(std::shared_ptr<ParametersTable> PT_);
-	
+
 	virtual ~CircularGenome() = default;
 
 	virtual void setupCircularGenome(int _size, double _alphabetSize);
 
 	virtual std::shared_ptr<AbstractGenome> makeLike() override {
-		return std::make_shared<CircularGenome<T>>(alphabetSize, (int)sites.size(),PT);
+		return std::make_shared<CircularGenome<T>>(alphabetSize, (int)sites.size(), PT);
 	}
 
 	virtual int size();
@@ -154,27 +150,32 @@ public:
 	// This function is to make testing easy.
 	virtual void fillConstant(int value);
 
-// Copy functions
+	// Copy functions
 
-// copy the contents of another genome to this genome
-// no undefined action, this function must be defined
+	// copy the contents of another genome to this genome
+	// no undefined action, this function must be defined
 	virtual void copyFrom(std::shared_ptr<AbstractGenome> from) override;
 
-// Mutation functions
+	// Mutation functions
 
 	virtual int countSites();
 
 	virtual bool isEmpty() override;
 
-	virtual void pointMutate();
+	virtual void pointMutate(double range = -1);
 
-        int countPoint = 0;
-        int countDelete = 0;
-        int countCopy = 0;
-        
-        virtual int incrementCopy();
-        virtual int incrementPoint();
-        virtual int incrementDelete();
+	int countPoint = 0;
+	int countPointOffset = 0;
+	int countDelete = 0;
+	int countCopy = 0;
+	int countIndel = 0;
+
+	virtual int incrementCopy();
+	virtual int incrementPoint();
+	virtual int incrementPointOffset();
+	virtual int incrementDelete();
+	virtual int incrementIndel();
+
 	// apply mutations to this genome
 	virtual void mutate() override;
 
