@@ -1,0 +1,270 @@
+// mutation distribution for BiLogBrain
+
+// What it does:
+// This will periodically find the organism with the highest "score" (can be changed below)
+// in it's dataMap and then create and evaluate all single (and possibly double) mutants
+// of this organism.
+// The output will be a file with one line for each update where a test was run with values
+// which show the delta from the non-modified score for the best mutation, and the average
+// of the best 5%, 10%, 25%, 50% and all mutations. In addtion, the original score is also
+// recoded.
+
+// How to use:
+// Copy this line into your [world].h file right after '#pragma once'
+
+	#include "../../Brain/BiLogBrain/BiLogBrain.h"
+	
+// Copy the following code into the evaluate() function for any world that uses a standard
+// evaluateSolo(Organism, analyze, visualize, debug) function call. This will likely be in
+// the worlds .h file, but may be in the .cpp file.
+// This code thould be added just before the '}' at the end of the evaluate function.
+
+// This code assumes the use of brainNamePL->get(PT) and groupNamePL->get(PT), if these
+// are not being used, you may need to make changes to the code below. Also, this
+// assumes that the world only uses one group and one brain... if this is not the case
+// changes will also be needed.
+
+// see the ipython notebook for details on visualizing these results.
+
+	/////////////////////////////////////////////////////////////////
+	// CODE CODE CODE CODE CODE CODE CODE CODE CODE CODE CODE CODE //
+	/////////////////////////////////////////////////////////////////
+	
+	// set these parameters
+	bool recordLODMutationDistributions = true;    // (visualize mode) set to true to record all organisms a loaded population (update will be pulled from organism)
+												   // (run mode) set to false to periodically record data from best durring a run
+	int recordMutationDistributionOn = -1;         // use -1 to turn off, to collect in visualize mode, set to 1 
+	int mutationDepth = 2;                         // 1 or 2 ( > then 2 will just result in 2)
+	std::string scoreName = "score";               // you may need to change this if the world does not generate score
+	std::string mutationDistributionsFileName = "BiLogBrainMutationDistributions.csv"; // name of output file
+
+	///////////////////////////////////////////////////////////
+	// you should not need to mess with anything below here! //
+	///////////////////////////////////////////////////////////
+	auto localGroupName = groupNamePL->get(PT);
+	auto localBrainName = brainNamePL->get(PT);
+	if (groups[localGroupName]->population[0]->brains[localBrainName]->description() == "BiLog Brain") { // turn on for bitBrain mutation distribution
+		if (!recordLODMutationDistributions && recordMutationDistributionOn > 0 && Global::update % recordMutationDistributionOn == 0) { // if recordMutationDistributionOn < 0, don't do anything
+
+			// find best org
+			double bestScore = groups[localGroupName]->population[0]->dataMap.getAverage(scoreName);
+			double nextScore;
+			auto bestOrg = groups[localGroupName]->population[0];
+			for (auto org : groups[localGroupName]->population) {
+				nextScore = org->dataMap.getAverage(scoreName);
+				if (bestScore != nextScore) {
+					if (bestScore < nextScore) {
+						bestOrg = org;
+						bestScore = nextScore;
+					}
+				}
+			}
+
+			// make copy of best org
+			auto testOrg = bestOrg->makeCopy(bestOrg->PT);
+			auto copyBrain = std::dynamic_pointer_cast<BiLogBrain>(testOrg->brains[localBrainName]);
+
+			// get counts of all possible mutations and set up data containers for mutant scores
+			int mutationOptions1 = copyBrain->mutationOptions(1);
+			int mutationOptions2 = copyBrain->mutationOptions(2);
+			int mutationOptionsTotal;
+
+			DataMap mutationDistDataMap;
+
+			std::vector<std::vector<double>> mutationScores;
+			if (mutationDepth == 1) {
+				mutationScores.resize(6);
+				mutationOptionsTotal = mutationOptions1;
+			}
+			else if (mutationDepth > 1) {
+				mutationScores.resize(6 + 36);
+				mutationOptionsTotal = mutationOptions1 + mutationOptions2;
+			}
+
+			std::cout << "running mutation distribution (depth " << mutationDepth << ") on best org " << bestOrg->ID << " with score " << bestOrg->dataMap.getAverage("score") <<
+				" and " << mutationOptionsTotal << " mutants..." << std::endl;
+
+			// run single mutations
+			for (int i = 0; i < mutationOptions1; i++) {
+				std::vector<int> mutationTypeList;
+				std::vector<int> indexList = { i };
+				testOrg->brains[localBrainName] = copyBrain->getMutantBrain(indexList, mutationTypeList);
+				testOrg->dataMap.clear(scoreName);
+				evaluateSolo(testOrg, 0, 0, 0);
+				mutationScores[mutationTypeList[0]].push_back(testOrg->dataMap.getAverage(scoreName));
+			}
+			// run double mutations (these will have index 6 -> 41)
+			if (mutationDepth > 1) {
+				for (int i = 0; i < mutationOptions1; i++) {
+					for (int j = 0; j < mutationOptions1; j++) {
+						std::vector<int> mutationTypeList;
+						std::vector<int> indexList = { i,j };
+						testOrg->brains[localBrainName] = copyBrain->getMutantBrain(indexList, mutationTypeList);
+						testOrg->dataMap.clear(scoreName);
+						evaluateSolo(testOrg, 0, 0, 0);
+						mutationScores[(mutationTypeList[0] * mutationTypeList[1]) + 6].push_back(testOrg->dataMap.getAverage(scoreName));
+					}
+				}
+			}
+
+			// for each type of mutation, sort the resulting scores
+			for (int i = 0; i < mutationScores.size(); i++) {
+				std::sort(mutationScores[i].begin(), mutationScores[i].end());
+			}
+
+			//construct header string and blank entry (used if values are missing (prolly because some mutation is disabled)
+			std::string headerText = "eval_score,update,";
+			for (int mutType = 0; mutType < mutationScores.size(); mutType++) {
+				for (std::string name : { "best", "05", "10", "25", "50", "all" }) {
+					headerText += "mut" + std::to_string(mutType) + "_" + name + ",";
+				}
+			}
+			headerText = headerText.substr(0, headerText.size() - 1);
+
+			//construct data string
+
+			double evaluation_score = bestOrg->dataMap.getAverage(scoreName);
+			std::string visualizeData = std::to_string(evaluation_score) + "," + std::to_string(Global::update) + ",";
+
+			std::string blankEntry = "0,0,0,0,0,0,"; // 6 0s because we record best,.05,.10,.25,.5,all
+			for (int mutType = 0; mutType < mutationScores.size(); mutType++) {
+				double total = 0;
+				int count = 0;
+				if (mutationScores[mutType].size() == 0) {
+					visualizeData += blankEntry;
+				}
+				for (int j = mutationScores[mutType].size() - 1; j >= 0; j--) {
+					total += mutationScores[mutType][j];
+					count++;
+					if (count == 1) {
+						visualizeData += std::to_string(total - evaluation_score) + ",";
+					}
+					if (count == (int)(mutationScores[mutType].size()*.05) || (((int)(mutationScores[mutType].size()*.05) == 0) && count == 1)) {
+						visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+					}
+					if (count == (int)(mutationScores[mutType].size()*.10) || (((int)(mutationScores[mutType].size()*.10) == 0) && count == 1)) {
+						visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+					}
+					if (count == (int)(mutationScores[mutType].size()*.25) || (((int)(mutationScores[mutType].size()*.25) == 0) && count == 1)) {
+						visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+					}
+					if (count == (int)(mutationScores[mutType].size()*.50) || (((int)(mutationScores[mutType].size()*.50) == 0) && count == 1)) {
+						visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+					}
+					if (count == (int)mutationScores[mutType].size()) {
+						visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+					}
+				}
+			} // end construct data string
+			visualizeData = visualizeData.substr(0, visualizeData.size() - 1);
+
+			FileManager::writeToFile(mutationDistributionsFileName, visualizeData, headerText);
+		} // end mutation distribution code for realtime
+
+		else if (recordLODMutationDistributions) {
+			for (auto org : groups[localGroupName]->population) {
+				// to set up, get a testOrg
+				auto testOrg = org->makeCopy(org->PT);
+				auto copyBrain = std::dynamic_pointer_cast<BiLogBrain>(testOrg->brains[localBrainName]);
+
+				// get counts of all possible mutations and set up data containers for mutant scores
+				int mutationOptions1 = copyBrain->mutationOptions(1);
+				int mutationOptions2 = copyBrain->mutationOptions(2);
+				int mutationOptionsTotal;
+
+				DataMap mutationDistDataMap;
+
+				std::vector<std::vector<double>> mutationScores;
+				if (mutationDepth == 1) {
+					mutationScores.resize(6);
+					mutationOptionsTotal = mutationOptions1;
+				}
+				else if (mutationDepth > 1) {
+					mutationScores.resize(6 + 36);
+					mutationOptionsTotal = mutationOptions1 + mutationOptions2;
+				}
+
+				std::cout << "running mutation distribution (depth " << mutationDepth << ") on loaded org " << org->dataMap.getIntVector("loadedFrom.ID")[0] << " from update " << org->dataMap.getIntVector("loadedFrom.Update")[0] << " with score " << org->dataMap.getAverage("score") <<
+					" and " << mutationOptionsTotal << " mutants..." << std::endl;
+				// run single mutations
+				for (int i = 0; i < mutationOptions1; i++) {
+					std::vector<int> mutationTypeList;
+					std::vector<int> indexList = { i };
+					testOrg->brains[localBrainName] = copyBrain->getMutantBrain(indexList, mutationTypeList);
+					testOrg->dataMap.clear(scoreName);
+					evaluateSolo(testOrg, 0, 0, 0);
+					mutationScores[mutationTypeList[0]].push_back(testOrg->dataMap.getAverage(scoreName));
+				}
+				// run double mutations (these will have index 6 -> 41)
+				if (mutationDepth > 1) {
+					for (int i = 0; i < mutationOptions1; i++) {
+						for (int j = 0; j < mutationOptions1; j++) {
+							std::vector<int> mutationTypeList;
+							std::vector<int> indexList = { i,j };
+							testOrg->brains[localBrainName] = copyBrain->getMutantBrain(indexList, mutationTypeList);
+							testOrg->dataMap.clear(scoreName);
+							evaluateSolo(testOrg, 0, 0, 0);
+							mutationScores[(mutationTypeList[0] * mutationTypeList[1]) + 6].push_back(testOrg->dataMap.getAverage(scoreName));
+						}
+					}
+				}
+
+				// for each type of mutation, sort the resulting scores
+				for (int i = 0; i < mutationScores.size(); i++) {
+					std::sort(mutationScores[i].begin(), mutationScores[i].end());
+				}
+
+				//construct header string and blank entry (used if values are missing (prolly because some mutation is disabled)
+				std::string headerText = "eval_score,update,";
+				for (int mutType = 0; mutType < mutationScores.size(); mutType++) {
+					for (std::string name : { "best", "05", "10", "25", "50", "all" }) {
+						headerText += "mut" + std::to_string(mutType) + "_" + name + ",";
+					}
+				}
+				headerText = headerText.substr(0, headerText.size() - 1);
+
+				//construct data string
+
+				double evaluation_score = org->dataMap.getAverage(scoreName);
+				std::string visualizeData = std::to_string(evaluation_score) + "," + std::to_string(org->dataMap.getIntVector("loadedFrom.Update")[0]) + ",";
+
+				std::string blankEntry = "0,0,0,0,0,0,"; // 6 0s because we record best,.05,.10,.25,.5,all
+				for (int mutType = 0; mutType < mutationScores.size(); mutType++) {
+					double total = 0;
+					int count = 0;
+					if (mutationScores[mutType].size() == 0) {
+						visualizeData += blankEntry;
+					}
+					for (int j = mutationScores[mutType].size() - 1; j >= 0; j--) {
+						total += mutationScores[mutType][j];
+						count++;
+						if (count == 1) {
+							visualizeData += std::to_string(total - evaluation_score) + ",";
+						}
+						if (count == (int)(mutationScores[mutType].size()*.05) || (((int)(mutationScores[mutType].size()*.05) == 0) && count == 1)) {
+							visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+						}
+						if (count == (int)(mutationScores[mutType].size()*.10) || (((int)(mutationScores[mutType].size()*.10) == 0) && count == 1)) {
+							visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+						}
+						if (count == (int)(mutationScores[mutType].size()*.25) || (((int)(mutationScores[mutType].size()*.25) == 0) && count == 1)) {
+							visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+						}
+						if (count == (int)(mutationScores[mutType].size()*.50) || (((int)(mutationScores[mutType].size()*.50) == 0) && count == 1)) {
+							visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+						}
+						if (count == (int)mutationScores[mutType].size()) {
+							visualizeData += std::to_string((total / (double)count) - evaluation_score) + ",";
+						}
+					}
+				} // end construct data string
+				visualizeData = visualizeData.substr(0, visualizeData.size() - 1);
+
+				FileManager::writeToFile(mutationDistributionsFileName, visualizeData, headerText);
+			} // end mutation distribution code for LOD for one organism
+		} // end mutation distribution code for LOD
+	} // end if (brainType == BiLogBrain)
+	else {
+		std::cout << "  Warning!! :: you have added code to generate BiLog Brain mutation distributions, but "
+			"you appear to be using a diffrent brain type. No mutation distributions will be generated!" << std::endl;
+	}
