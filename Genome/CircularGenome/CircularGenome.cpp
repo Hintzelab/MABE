@@ -177,6 +177,23 @@ double CircularGenome<T>::Handler::readDouble(double valueMin, double valueMax, 
 	advanceIndex();
 	//scale the value
 	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
+	// old version where return values did not include upper value... return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
+	return (value / (genome->alphabetSize - 1.0)) * (valueMax - valueMin) + valueMin;
+}
+
+template<>
+double CircularGenome<double>::Handler::readDouble(double valueMin, double valueMax, int code, int CodingRegionIndex) {
+	double value;
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	value = (double)genome->sites[siteIndex];
+	//codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
+	advanceIndex();
+	//scale the value
+	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
 	return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
 }
 
@@ -240,11 +257,29 @@ void CircularGenome<T>::Handler::writeDouble(double value, double valueMin, doub
 		std::cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
 		exit(1);
 	}
-	value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	// old version: value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
+	value = ((value - valueMin) / (valueMax - valueMin)) * (genome->alphabetSize - 1.0);
+	std::cout << value << std::endl;
 	genome->sites[siteIndex] = (T)value;
 	advanceIndex();
 }
 
+template<>
+void CircularGenome<double>::Handler::writeDouble(double value, double valueMin, double valueMax) {
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	if ((value - valueMin) > (valueMax - valueMin)) {
+		std::cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
+		exit(1);
+	}
+	value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	genome->sites[siteIndex] = value;
+	advanceIndex();
+}
 
 
 template<class T>
