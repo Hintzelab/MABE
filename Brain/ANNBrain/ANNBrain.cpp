@@ -16,9 +16,10 @@ std::shared_ptr<ParameterLink<int>> ANNBrain::nrOfHiddenLayersPL = Parameters::r
 std::shared_ptr<ParameterLink<std::string>> ANNBrain::hiddenLayerSizesPL = Parameters::register_parameter("BRAIN_ANN-hiddenLayerSizes", (std::string)"", "comma seperated list of sizes for each hidden layer if there are hidden layers\n"
 	"if a single number, all hidden layers will have this size\n"
 	"if blank, hidden layers will all have (number of outputs + number of recurrent) nodes.");
-std::shared_ptr<ParameterLink<std::string>> ANNBrain::weightRangePL = Parameters::register_parameter("BRAIN_ANN-weightRange", (std::string)"-1.0,1.0", "range for weight values (min,max)");
-std::shared_ptr<ParameterLink<std::string>> ANNBrain::biasRangePL = Parameters::register_parameter("BRAIN_ANN-biasRange", (std::string)"-1.0,1.0 (min,max)",
-	"When each nodes value is calculated a bias in this range (derived from the genome) will be added to the node value before thresholding.");
+std::shared_ptr<ParameterLink<std::string>> ANNBrain::weightRangePL = Parameters::register_parameter("BRAIN_ANN-weightRange", (std::string)"-1.0,1.0",
+	"range for weight values (min,max)");
+std::shared_ptr<ParameterLink<std::string>> ANNBrain::biasRangePL = Parameters::register_parameter("BRAIN_ANN-biasRange", (std::string)"-1.0,1.0",
+	"When each nodes value is calculated a bias in this range (derived from the genome) will be added to the node value before thresholding.  (min,max)");
 std::shared_ptr<ParameterLink<std::string>> ANNBrain::thresholdMethodPL = Parameters::register_parameter("BRAIN_ANN-thresholdMethod", (std::string)"Tanh",
 	"Threshold method applied to node values after summation. Must be one of: NONE, Sigmoid, Tanh, ReLU, Binary");
 
