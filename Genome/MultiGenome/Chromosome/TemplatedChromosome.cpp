@@ -216,11 +216,37 @@ bool TemplatedChromosome<T>::readSite(int &siteIndex, T &value,
   return EOC;
 }
 
-// scale value using valueMin and valueMax to alphabetSize and write at
-// siteIndex
-// value - MIN(valueMin,valueMax) must be < ABS(valueMax - valueMin)
+// version used with int, char and bool. valueMin will map to 0; valueMax will map to alphabetSize - 1
+// function scales value using valueMin and valueMax to alphabetSize-1 and writes new value at siteIndex
+// value - MIN(valueMin,valueMax) must be <= ABS(valueMax - valueMin)
 template <class T>
 bool TemplatedChromosome<T>::writeDouble(int &siteIndex, double value,
+	double valueMin, double valueMax,
+	bool readDirection) {
+	bool EOC = modulateIndex(siteIndex);
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	if ((value - valueMin) > (valueMax - valueMin)) {
+		std::cout << "Error: attempting to write double. given range is too small, "
+			"value: "
+			<< value << " is not < valueMax: " << valueMin
+			<< " - valueMin: " << valueMin << "\n";
+		exit(1);
+	}
+	value = ((value - valueMin) / (valueMax - valueMin)) * (alphabetSize - 1.0);
+	sites[siteIndex] = (T)value;
+	EOC = EOC | advanceIndex(siteIndex, readDirection);
+	return EOC;
+}
+
+// version used with doubles, will simply scale value to alphabet size based on
+// valueMin = 0 and valueMax = alphabetSize and write into genome at siteIndex
+// (note, it is possible to write a value of aphabetsize)
+template <>
+bool TemplatedChromosome<double>::writeDouble(int &siteIndex, double value,
                                          double valueMin, double valueMax,
                                          bool readDirection) {
   bool EOC = modulateIndex(siteIndex);
@@ -237,18 +263,20 @@ bool TemplatedChromosome<T>::writeDouble(int &siteIndex, double value,
     exit(1);
   }
   value = ((value - valueMin) / (valueMax - valueMin)) * alphabetSize;
-  sites[siteIndex] = (T)value;
+  sites[siteIndex] = value;
   EOC = EOC | advanceIndex(siteIndex, readDirection);
   return EOC;
 }
 
-// this is a scaling function - while it will work with other types it should
-// only be used with double and float
+// this is a scaling function - it will return a value in range valueMin/valueMax inclusive
+// This version will be used with int, char and bool
+// (note double specialized version is not inclusive on the upper bound)
 template <class T>
 bool TemplatedChromosome<T>::siteToDouble(int &siteIndex, double &value,
                                           double valueMin, double valueMax,
                                           bool readDirection, int code,
                                           int CodingRegionIndex) {
+	std::cout << "not double read" << std::endl;
   if (valueMin > valueMax) {
     double temp = valueMin;
     valueMax = valueMin;
@@ -258,9 +286,33 @@ bool TemplatedChromosome<T>::siteToDouble(int &siteIndex, double &value,
   value = (double)sites[siteIndex];
   codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
   EOC = EOC | advanceIndex(siteIndex, readDirection);
-  // scale the value
-  value = (value * ((valueMax - valueMin) / alphabetSize)) + valueMin;
+
+  //old version (did was not inclusive of upper bound):  value = (value * ((valueMax - valueMin) / alphabetSize)) + valueMin;
+
+  value = (value / (alphabetSize - 1.0)) * (valueMax - valueMin) + valueMin;
+
   return EOC;
+}
+
+// double specialized version of siteToDouble. not inclusive on the upper bound
+template <>
+bool TemplatedChromosome<double>::siteToDouble(int &siteIndex, double &value,
+	double valueMin, double valueMax,
+	bool readDirection, int code,
+	int CodingRegionIndex) {
+
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	bool EOC = modulateIndex(siteIndex);
+	value = (double)sites[siteIndex];
+	codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
+	EOC = EOC | advanceIndex(siteIndex, readDirection);
+
+	value = ((value / (alphabetSize)) * (valueMax - valueMin)) + valueMin;
+	return EOC;
 }
 
 // resize a chromosome to length and fill will values from alphabet
