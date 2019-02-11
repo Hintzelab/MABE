@@ -529,6 +529,8 @@ bool CircularGenome<T>::isEmpty() {
 //	sites[Random::getIndex((int)sites.size())] = newVal;
 //}
 
+// mutate a random site to a new value.
+// if range is provied (not -1) then the new value will be within +/- range of current value
 template<class T>
 void CircularGenome<T>::pointMutate(double range) {
 	if (range == -1) {
@@ -540,7 +542,7 @@ void CircularGenome<T>::pointMutate(double range) {
 			std::max(0,std::min((int)alphabetSize-1,
 				sites[siteIndex] +
 			(((Random::getIndex(2)*2)-1) * // sign (((0 or 1) * 2) - 1)
-				Random::getInt(1,(int)range)))); // value
+				Random::getInt(1,std::max(1,(int)range))))); // value (will be 1 or more)
 	}
 }
 
@@ -553,9 +555,10 @@ void CircularGenome<double>::pointMutate(double range) {
 		int siteIndex = Random::getIndex((int)sites.size());
 		sites[siteIndex] =
 			std::max(0.0, std::min(alphabetSize - std::numeric_limits<double>::min(), // value must be in the range of [0,alphabetSize)
-				sites[siteIndex] +
+			//std::max(0.0, std::min(alphabetSize, // value must be in the range of [0,alphabetSize)
+					sites[siteIndex] +
 				((double)((Random::getIndex(2) * 2.0) - 1.0) * // sign (((0 or 1) * 2) - 1)
-					Random::getDouble(0, (int)range)))); // value
+					Random::getDouble(0, range)))); // value
 	}
 }
 
