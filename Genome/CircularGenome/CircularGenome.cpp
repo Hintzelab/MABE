@@ -10,6 +10,8 @@
 
 #include "../../Global.h"
 #include "CircularGenome.h"
+#include <cmath> // std::nextbefore
+#include <cfloat> // DBL_MAX
 
 // Initialize Parameters
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeInitialPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeInitial", 5000, "starting size for genome");
@@ -553,12 +555,10 @@ void CircularGenome<double>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-		sites[siteIndex] =
-			std::max(0.0, std::min(alphabetSize - std::numeric_limits<double>::min(), // value must be in the range of [0,alphabetSize)
-			//std::max(0.0, std::min(alphabetSize, // value must be in the range of [0,alphabetSize)
-					sites[siteIndex] +
-				((double)((Random::getIndex(2) * 2.0) - 1.0) * // sign (((0 or 1) * 2) - 1)
-					Random::getDouble(0, range)))); // value
+		double offsetMagnitude = Random::getDouble(0, range);
+		double offsetDirection = (Random::getIndex(2) * 2.0) - 1.0;
+		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
+		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetDirection*offsetMagnitude)));
 	}
 }
 
