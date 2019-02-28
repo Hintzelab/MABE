@@ -156,12 +156,12 @@ std::string Loader::find_and_generate_all_files(std::string all_lines) {
       quoted_files)) { // replace quoted file names with temporary token name
     std::string new_tk =
         tk_name + std::to_string(tk_counter++); // creating new token
-    all_lines = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
     auto exp_files = expand_files(m[1].str()); // expand the filename
     collection_of_files[new_tk] =
         exp_files; //  update list of files assoc with collection name
     actual_files.insert(exp_files.begin(),
                         exp_files.end()); // add files to global file list
+    all_lines = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
   }
 
   std::map<std::string, std::pair<long, long>> file_contents;
