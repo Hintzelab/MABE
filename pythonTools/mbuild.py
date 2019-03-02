@@ -31,6 +31,7 @@ parser.add_argument('-pg','--gprof', action='store_true', default = False, help=
 parser.add_argument('-p','--parallel', default = 1, help='how many threads do you want to use when you compile?  i.e. make -j6')
 parser.add_argument('-i','--init', action = 'store_true', default = False, help='refresh or initialize the buildOptions.txt')
 parser.add_argument('-C','--compiler', default = 'c++', help='select c++ compiler to build mabe - default : c++')
+parser.add_argument('-do','--debugOptimization', action='store_true', default = False, help='compiles with debug optimization "-g -O0" instead of "-O3". This exposes more of the program to debug tools like gdb and valgrind but slows down program execution. -  default : False')
 
 args = parser.parse_args()
 
@@ -46,7 +47,10 @@ def touch(fname, mode=0o666, dir_fd=None, **kwargs): ## from https://stackoverfl
             dir_fd=None if os.supports_fd else dir_fd, **kwargs)
 
 compiler = args.compiler
-compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread'
+if args.debugOptimization:
+    compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -g -O0 -lpthread -pthread'
+else:
+    compFlags='-Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread'
 
 if (args.gprof):
     compFlags =  compFlags + ' -pg'
@@ -271,3 +275,4 @@ if (args.cleanup):
     call(["make","cleanup"])
     call(["rm","makefile"])
     call(["rmdir","objectFiles"])
+
