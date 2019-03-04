@@ -152,14 +152,14 @@ std::string Loader::findAndGenerateAllFiles(std::string all_lines) {
   while (std::regex_search( all_lines, m, quoted_files)) {
     // create a new token, and bump the token counter
     std::string new_tk = tk_name + std::to_string(tk_counter++);
-    // replace quoted file names with temporary token name
-    all_lines = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
     // expand the filename in case there are wildcards
     auto exp_files = expandFiles(m[1].str());
     //  update the local list of files associated with collection name
     collection_of_files[new_tk] = exp_files;
     // add list of files to global file list
     actual_files.insert(exp_files.begin(), exp_files.end());
+    // replace quoted file names with temporary token name
+    all_lines = m.prefix().str() + " " + new_tk + " " + m.suffix().str();
   }
 
   // simple map from filename -> (start index of org in all_organism_infos, number of
