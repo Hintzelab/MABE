@@ -47,6 +47,7 @@ EXECUTABLE = ./mabe
 #EXECUTABLE = mabe.exe
 
 -----
+# comma separate the mail type list ex: FAIL,END,REQUEUE
 
 # HPCC
 HPCC_LONGJOB = FALSE
@@ -56,5 +57,3 @@ HPCC_PARAMETERS = #SBATCH --cpus-per-task=1
 HPCC_PARAMETERS = #SBATCH --time=03:50:00
 HPCC_PARAMETERS = #SBATCH --mem=2G
 HPCC_PARAMETERS = #SBATCH --mail-type=FAIL
-#comma sep the mail type list ex: FAIL,END,REQUEUE
-
