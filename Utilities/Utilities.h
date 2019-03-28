@@ -305,12 +305,12 @@ template <typename Type>
 inline int vectorToBitToInt(const std::vector<Type> &nodes,
                             const std::vector<int> &nodeAddresses,
                             bool reverseOrder = false) {
-  auto node_addresses = nodeAddresses;
-  if (reverseOrder)
-    std::reverse(node_addresses.begin(), node_addresses.end());
-  return std::accumulate(
-      node_addresses.begin(), node_addresses.end(), 0,
-      [&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
+	if(reverseOrder)
+		return std::accumulate(nodeAddresses.crbegin(), nodeAddresses.crend(), 0,
+			[&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
+	else
+		return std::accumulate(nodeAddresses.cbegin(), nodeAddresses.cend(), 0,
+			[&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
 }
 
 template <typename Type>
