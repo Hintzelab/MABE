@@ -303,8 +303,7 @@ inline int findGreatestInVector(std::vector<Type> vec) {
 // etc... hopefully you see the pattern
 template <typename Type>
 inline int vectorToBitToInt(const std::vector<Type> &nodes,
-                            const std::vector<int> &nodeAddresses,
-                            bool reverseOrder = false) {
+	const std::vector<int> &nodeAddresses, bool reverseOrder = false) {
 	if(reverseOrder)
 		return std::accumulate(nodeAddresses.crbegin(), nodeAddresses.crend(), 0,
 			[&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
@@ -313,17 +312,17 @@ inline int vectorToBitToInt(const std::vector<Type> &nodes,
 			[&nodes](int result, int na) { return result * 2 + Bit(nodes.at(na)); });
 }
 
+// like vectorToBitToInt, but converts node values to trits (-1, 0, or 1) adds one to
+// the result and then generates a number in base 3 rather then base 2.
 template <typename Type>
 inline int vectorToTritToInt(const std::vector<Type> &nodes,
-                             const std::vector<int> &nodeAddresses,
-                             bool reverseOrder = false) {
-  auto node_addresses = nodeAddresses;
-  if (reverseOrder)
-    std::reverse(node_addresses.begin(), node_addresses.end());
-  return std::accumulate(node_addresses.begin(), node_addresses.end(), 0,
-                         [&nodes](int result, int na) {
-                           return result * 3 + Trit(nodes.at(na)) + 1;
-                         });
+	const std::vector<int> &nodeAddresses, bool reverseOrder = false) {
+	if (reverseOrder)
+		return std::accumulate(nodeAddresses.crbegin(), nodeAddresses.crend(), 0,
+			[&nodes](int result, int na) {return result * 3 + Trit(nodes.at(na)) + 1; });
+	else
+		return std::accumulate(nodeAddresses.cbegin(), nodeAddresses.cend(), 0,
+			[&nodes](int result, int na) {return result * 3 + Trit(nodes.at(na)) + 1; });
 }
 
 // converts a ',' separated formatted string to sequence with duplicates removed
