@@ -81,3 +81,23 @@ void XorWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
   }
   org->dataMap.set("score", score / evaluationsPerGenerationPL->get(PT));
 }
+
+void XorWorld::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
+                      int analyze, int visualize, int debug) {
+  int popSize = groups[groupNamePL->get(PT)]->population.size();
+  for (int i = 0; i < popSize; i++) {
+    evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
+                 visualize, debug);
+  }
+}
+
+std::unordered_map<std::string, std::unordered_set<std::string>>
+XorWorld::requiredGroups() {
+  // agents in this world will need 2 inputs, and 1 output:
+  return {{groupNamePL->get(PT),
+        {"B:" + brainNamePL->get(PT) + ",2," +
+            std::to_string(1)}}}; // default requires a root group and a brain
+  // (in root namespace) and no genome
+}
+
+
