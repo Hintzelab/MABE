@@ -44,25 +44,12 @@ public:
 
 	virtual std::vector<double> eval(DataMap &dataMap, std::shared_ptr<ParametersTable> PT,
 		const std::vector<std::vector<double>> &vectorData) = 0;
-	virtual std::vector<double> eval(DataMap &dataMap) {
-		std::vector<std::vector<double>> placeholder = {};
-		return eval(dataMap, nullptr, placeholder);
-	}
-	virtual std::vector<double> eval(std::shared_ptr<ParametersTable> PT) {
-		DataMap dataMap;
-		std::vector<std::vector<double>> placeholder = {};
-		return eval(dataMap, PT, placeholder);
-	}
-	virtual std::vector<double> eval(std::vector<std::vector<double>> &vectorData) {
-		DataMap dataMap;
-		return eval(dataMap, nullptr, vectorData);
-	}
+	virtual std::vector<double> eval(DataMap &dataMap);
+	virtual std::vector<double> eval(std::shared_ptr<ParametersTable> PT);
+  virtual std::vector<double> eval(std::vector<std::vector<double>> &vectorData);
 
 	virtual std::vector<double> eval(DataMap &dataMap,
-		std::shared_ptr<ParametersTable> PT) {
-		std::vector<std::vector<double>> placeholder = {};
-		return eval(dataMap, PT, placeholder);
-	}
+                                   std::shared_ptr<ParametersTable> PT);
 	virtual std::vector<double> eval(DataMap &dataMap,
 		const std::vector<std::vector<double>> &vectorData) {
 		return eval(dataMap, nullptr, vectorData);

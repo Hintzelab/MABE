@@ -176,7 +176,23 @@ write_modules_h(pathToMABE, options)
 
 # Create a project file of type in SUPPORTED_PROJECT_FILES
 options['Archivist'].remove('Default')
-alwaysSources=['main.cpp','Global.cpp','Group/Group.cpp','Organism/Organism.cpp','Utilities/Data.cpp','Utilities/Parameters.cpp','Utilities/Loader.cpp','Utilities/Filesystem.cpp','Utilities/CSV.cpp','World/AbstractWorld.cpp','Genome/AbstractGenome.cpp','Brain/AbstractBrain.cpp','Optimizer/AbstractOptimizer.cpp','Archivist/DefaultArchivist.cpp','Analyze/neurocorrelates.cpp']
+alwaysSources=['main.cpp',
+               'Analyze/neurocorrelates.cpp',
+               'Archivist/DefaultArchivist.cpp',
+               'Brain/AbstractBrain.cpp',
+               'Genome/AbstractGenome.cpp',
+               'Global.cpp',
+               'Group/Group.cpp',
+               'Optimizer/AbstractOptimizer.cpp',
+               'Organism/Organism.cpp',
+               'Utilities/Data.cpp',
+               'Utilities/MTree.cpp',
+               'Utilities/Parameters.cpp',
+               'Utilities/Loader.cpp',
+               'Utilities/Filesystem.cpp',
+               'Utilities/CSV.cpp',
+               'World/AbstractWorld.cpp'
+               ]
 moduleSources = []
 objects = []
 sources = None
