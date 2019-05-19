@@ -73,12 +73,7 @@ public:
 
 	// return a vector of shared pointers to each node
 	virtual void explode(std::shared_ptr<Abstract_MTree> tree,
-		std::vector<std::shared_ptr<Abstract_MTree>> &nodeList) {
-		nodeList.push_back(tree);
-		for (auto b : tree->branches) {
-			explode(b, nodeList);
-		}
-	}
+                       std::vector<std::shared_ptr<Abstract_MTree>> &nodeList);
 };
 
 // return (int) branches[0] % (int) branches[1]
@@ -94,83 +89,20 @@ public:
 	}
 
 	MOD_MTree() = default;
-	MOD_MTree(std::vector<std::shared_ptr<Abstract_MTree>> _branches) {
-		branches = _branches;
-		if (requiredBranches.size() != 0 &&
-			find(requiredBranches.begin(), requiredBranches.end(),
-			(int)branches.size()) == requiredBranches.end()) {
-			// now check for requiredBranches < 0
-			bool OKay = false;
-			for (auto r : requiredBranches) {
-				if (r < 0) {
-					if (abs(r) <= branches.size()) {
-						OKay = true;
-					}
-				}
-			}
-			if (!OKay) { // if no < 0 value passed
-				std::cout << "  In " << type() << "_MTree::constructor - branches does not "
-					"contain a legal number of element(s)!"
-					<< std::endl;
-				std::cout << "    " << branches.size()
-					<< " elements were provided, but function requires : ";
-				for (auto n : requiredBranches) {
-					std::cout << n;
-					if (n != requiredBranches.back()) {
-						std::cout << " or ";
-					}
-				}
-				std::cout << "  NOTE: values < 0 indicate requirement > abs(value)." << std::endl;
-				exit(1);
-			}
-		}
-	}
+	MOD_MTree(std::vector<std::shared_ptr<Abstract_MTree>> _branches);
 
 	virtual ~MOD_MTree() = default;
 
 	virtual std::shared_ptr<Abstract_MTree>
-		makeCopy(std::vector<std::shared_ptr<Abstract_MTree>> _branches = {}) override {
-		// make copy is needed to support brain (must perform a deep copy)
-		// copy any local data as well as all branches
-		if (_branches.size() == 0) {
-			for (auto b : branches) {
-				_branches.push_back(b->makeCopy());
-			}
-		}
-		std::shared_ptr<Abstract_MTree> newTree = std::make_shared<MOD_MTree>(_branches);
-		return newTree;
-	}
+		makeCopy(std::vector<std::shared_ptr<Abstract_MTree>> _branches = {}) override;
 
 	virtual std::vector<double>
 		eval(DataMap &dataMap, std::shared_ptr<ParametersTable> PT,
-			const std::vector<std::vector<double>> &vectorData) override {
-		int temp = ((int)branches[1]->eval(dataMap, PT, vectorData)[0] == 0)
-			? (int)1
-			: (int)branches[1]->eval(dataMap, PT, vectorData)[0];
-		double returnValue =
-			(int)branches[0]->eval(dataMap, PT, vectorData)[0] % temp;
-		return { returnValue }; // return vector with one element
-	}
+         const std::vector<std::vector<double>> &vectorData) override;
 
-	virtual void show(int indent = 0) override {
-		std::cout << std::string(indent, '\t') << "** " << type() << std::endl;
-		indent++;
-		for (auto b : branches) {
-			b->show(indent);
-		}
-	}
-	virtual std::string getFormula() override {
-		std::string args = type() + "[";
-		for (auto b : branches) {
-			args += b->getFormula();
-			if (b != branches.back()) {
-				args += ",";
-			}
-		}
-		args += "]";
-		return args;
-	}
-	virtual std::vector<int> numBranches() override { return requiredBranches; }
+	virtual void show(int indent = 0) override;
+	virtual std::string getFormula() override;
+	virtual std::vector<int> numBranches() override;
 };
 
 // return absolute value of first branch
