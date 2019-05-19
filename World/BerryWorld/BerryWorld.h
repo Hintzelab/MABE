@@ -370,21 +370,6 @@ public:
 
   // takes x,y and updates them by moving one step in facing
   Point2d moveOnGrid(std::shared_ptr<Harvester> harvester, double distance,
-                     int offset = 0) {
-    Point2d newLoc;
-    // cout << "deltas: " << moveDeltas[harvester->face].x << "," <<
-    // moveDeltas[harvester->face].y << endl;
-    newLoc.x = loopModDouble(
-        (harvester->loc.x +
-         (moveDeltas[loopMod(harvester->face + offset, moveDeltas.size())].x *
-          distance)),
-        worldX);
-    newLoc.y = loopModDouble(
-        (harvester->loc.y +
-         (moveDeltas[loopMod(harvester->face + offset, moveDeltas.size())].y *
-          distance)),
-        worldY);
-    return (newLoc);
-  }
+                     int offset = 0);
 };
 
