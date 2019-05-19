@@ -104,6 +104,64 @@ Logic16World::Logic16World(std::shared_ptr<ParametersTable> PT_) : AbstractWorld
 	}
 }
 
+void Logic16World::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups, int analyze, int visualize, int debug) {
+	// at update 1000 mess it all up
+	if (logicShuffleMethod > 0 && Global::update%logicShuffleTime == 0 && Global::update!= 0) {
+		// if there is a shuffleMethod, and it's a shuffle time and not time 0 shuffle logic...
+		std::vector<int> testLogicNew(testLogic.size());
+		if (logicShuffleMethod == 1) { // RANDOM
+			std::cout << "testLogic shuffle (RANDOM): ";
+			for (auto v : testLogic) {
+				std::cout << v << ",";
+			}
+
+			int pick;
+			for (int i = testLogic.size() - 1; i >= 0; i--) {
+				pick = Random::getInt(0, i);
+				testLogicNew[i] = testLogic[pick];
+				testLogic[pick] = testLogic[i];
+			}
+
+			std::cout << "  ->  ";
+			for (auto v : testLogicNew) {
+				std::cout << v << ",";
+			}
+			std::cout << std::endl;
+
+			testLogic = testLogicNew;
+		}
+		else if (logicShuffleMethod == 2) { // SLIDE
+			std::cout << "testLogic shuffle (SLIDE): ";
+
+			for (int i = testLogic.size() - 1; i >= 0; i--) {
+				if (i == 0) {
+					testLogicNew[i] = testLogic.back();
+				}
+				else {
+					testLogicNew[i] = testLogic[i - 1];
+				}
+			}
+
+			for (auto v : testLogic) {
+				std::cout << v << ",";
+			}
+			std::cout << "  ->  ";
+			for (auto v : testLogicNew) {
+				std::cout << v << ",";
+			}
+			std::cout << std::endl;
+
+			testLogic = testLogicNew;
+		} // else do nothing, we already checked for bad shuffle type in constructor
+	}
+
+	int popSize = groups[groupName]->population.size();
+	for (int i = 0; i < popSize; i++) {
+		evaluateSolo(groups[groupName]->population[i], analyze, visualize, debug);
+	}
+}
+
+
 void Logic16World::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visualize, int debug) {
 
 	auto brain = org->brains[brainName];
@@ -152,3 +210,12 @@ void Logic16World::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int 
 		org->dataMap.set("score", score / (double)evaluationsPerGeneration);
 	}
 }
+
+std::unordered_map<std::string, std::unordered_set<std::string>>
+Logic16World::requiredGroups() {
+  // agents in this world will need 2 inputs, and a number of outputs = to the number of logic tests
+  std::cout << "Logic16 world requires brains with 2 inputs and " << testLogic.size() << " outputs." << std::endl;
+  return { {groupNamePL->get(PT),
+        {"B:" + brainNamePL->get(PT) + "," + std::to_string(2+extraBrainInputs) +"," + std::to_string(testLogic.size())}} };
+}
+
