@@ -186,3 +186,69 @@ std::string ABS_MTree::getFormula() {
 
 std::vector<int> ABS_MTree::numBranches() { return requiredBranches; }
 
+std::string IF_MTree::type() {
+  return "IF"; // SET TYPE NAME HERE //
+}
+
+IF_MTree::IF_MTree(std::vector<std::shared_ptr<Abstract_MTree>> _branches) {
+  branches = _branches;
+  if (requiredBranches.size() != 0 &&
+			find(requiredBranches.begin(), requiredBranches.end(),
+           (int)branches.size()) == requiredBranches.end()) {
+    std::cout << "  In " << type() << "_MTree::constructor - branches does not "
+      "contain a legal number of element(s)!"
+              << std::endl;
+    std::cout << "    " << branches.size()
+              << " elements were provided, but function requires : ";
+    for (auto n : requiredBranches) {
+      std::cout << n;
+      if (n != requiredBranches.back()) {
+        std::cout << " or ";
+      }
+    }
+    std::cout << "  NOTE: values < 0 indicate requirement > abs(value)." << std::endl;
+    exit(1);
+  }
+}
+
+std::shared_ptr<Abstract_MTree>
+IF_MTree::makeCopy(std::vector<std::shared_ptr<Abstract_MTree>> _branches) {
+  // make copy is needed to support brain (must perform a deep copy)
+  if (_branches.size() == 0) {
+    for (auto b : branches) {
+      _branches.push_back(b->makeCopy());
+    }
+  }
+  std::shared_ptr<Abstract_MTree> newTree = std::make_shared<IF_MTree>(_branches);
+  return newTree;
+}
+
+std::vector<double>
+IF_MTree::eval(DataMap &dataMap, std::shared_ptr<ParametersTable> PT,
+     const std::vector<std::vector<double>> &vectorData) {
+  return { (branches[0]->eval(dataMap, PT, vectorData)[0] > 0)
+			? branches[1]->eval(dataMap, PT, vectorData)[0]
+			: branches[2]->eval(dataMap, PT, vectorData)[0] };
+}
+
+void IF_MTree::show(int indent) {
+  std::cout << std::string(indent, '\t') << "** " << type() << std::endl;
+  indent++;
+  for (auto b : branches) {
+    b->show(indent);
+  }
+}
+
+std::string IF_MTree::getFormula() {
+  std::string args = type() + "[";
+  for (auto b : branches) {
+    args += b->getFormula();
+    if (b != branches.back()) {
+      args += ",";
+    }
+  }
+  args += "]";
+  return args;
+}
+
+std::vector<int> IF_MTree::numBranches() { return requiredBranches; }
