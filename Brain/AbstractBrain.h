@@ -105,7 +105,7 @@ public:
          << std::endl
          << "Exiting." << std::endl;
     exit(1);
-    return makeCopy();
+    return makeCopy(PT);
   }
 
   // Make a brain like the brain that called this function, using genomes and
@@ -216,7 +216,7 @@ public:
   //	}
 
   virtual std::shared_ptr<AbstractBrain>
-  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) {
+  makeCopy(std::shared_ptr<ParametersTable> PT_) {
     std::cout << "ERROR IN AbstractBrain::makeCopy() - You are using the abstract "
             "copy constructor for brains. You must define your own"
          << std::endl;

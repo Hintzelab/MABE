@@ -1901,7 +1901,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
           newHarvester->isClone = true;
           newHarvester->org =
               harvesters[i]->org; // provide access to org though harvester
-          newHarvester->brain = harvesters[i]->brain->makeCopy();
+          newHarvester->brain = harvesters[i]->brain->makeCopy(harvesters[i]->brain->PT);
           // set inital location
           auto pick =
               Random::getIndex(tempValidSpaces.size()); // get a random index
