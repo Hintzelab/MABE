@@ -134,12 +134,77 @@ public:
 
 	std::vector<std::shared_ptr<AbstractBrain>> getAllSingleGateKnockouts(); 
 
+  std::vector<std::vector<double>> getTPMforTimepoint() {
+    bool fbState=DecomposableFeedbackGate::feedbackON;
+    int maxReps=1000;//100;
+    cout << maxReps << endl;
+    vector<double> recoverState=nodes;
+    vector<double> recoverNextNodeStates=nextNodes;
+    vector<double> recoverI=inputValues;
+    vector<double> recoverO=outputValues;
+    DecomposableFeedbackGate::feedbackON=false;
+    vector<vector<double>> TPM;
+    for(int state=0;state<(1<<nodes.size());state++){
+      vector<double> nextState=vector<double>(nodes.size(),0.0);
+      for(int reps=0;reps<maxReps;reps++){
+        for(int i=0;i<nodes.size();i++){
+          if(i<nrInputValues)
+            inputValues[i]=(double)((state>>i)&1);
+          else
+            nodes[i]=(double)((state>>i)&1);
+        }
+        update();
+        for(int i=0;i<nodes.size();i++){
+          if(nodes[i]>0.0)
+            nextState[i]+=1.0;
+        }
+      }
+      for(int i=0;i<nextState.size();i++)
+        nextState[i]/=maxReps;
+      TPM.push_back(nextState);
+    }
+  
+    //recover current state of everything
+    nodes=recoverState;
+    nextNodes=recoverNextNodeStates;
+    inputValues=recoverI;
+    outputValues=recoverO;
+    DecomposableFeedbackGate::feedbackON=fbState;
+    return TPM;
+  }
+  
+  std::string getsampledTPM() {
+    vector<vector<double>> TPM=getTPMforTimepoint();
+    std::string S=to_string("[");
+    for(int i=0;i<(int)TPM.size();i++){
+      if(i!=0)
+        S+=",";
+      S+="[";
+      for(int o=0;o<(int)TPM[i].size();o++){
+        if(o!=0)
+          S+=",";
+        S+=to_string(TPM[i][o]);
+      }
+      S+="]";
+    }
+    return S+"]";
+  }
+
+  std::string getTPMdescription() {
+    std::string S=to_string("[");
+    for(int g=0;g<gates.size();g++){
+      if(g!=0)
+        S+=",";
+      S+=gates[g]->getTPMdescription();
+    }
+    return S+"]";
+  }
 };
 
 inline std::shared_ptr<AbstractBrain>
 MarkovBrain_brainFactory(int ins, int outs, std::shared_ptr<ParametersTable> PT) {
   return std::make_shared<MarkovBrain>(std::make_shared<ClassicGateListBuilder>(PT), ins,
                                   outs, PT);
-
 }
+
 

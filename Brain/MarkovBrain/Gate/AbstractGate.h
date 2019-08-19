@@ -64,4 +64,7 @@ public:
 		connectionsLists.second = outputs;
 		return connectionsLists;
 	}
+        virtual std::string getTPMdescription(){
+            return "{\"type\":\"undescribed\"}";
+        }
 };
