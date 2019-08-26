@@ -34,6 +34,34 @@ public:
 	virtual string gateType() override{
 		return "Deterministic";
 	}
+        virtual std::string getTPMdescription() override{
+          std::string S="";
+          S+="\"ins\":[";
+          for(int i=0;i<inputs.size();i++){
+            if(i!=0)
+              S+=",";
+            S+=to_string(inputs[i]);
+          }
+          S+="],\"outs\":[";
+          for(int o=0;o<outputs.size();o++){
+            if(o!=0)
+              S+=",";
+            S+=to_string(outputs[o]);
+          }
+          S+="],\"logic\":[";
+          for(int i=0;i<(int)table.size();i++){
+            if(i!=0)
+              S+=",";
+            S+="[";
+            for(int o=0;o<(int)table[i].size();o++){
+              if(o!=0)
+                S+=",";
+              S+=to_string(table[i][o]);
+            }
+            S+="]";
+          }
+          return "{\"type\":\"deterministic\","+S+"]}";
+        }
 };
 
 

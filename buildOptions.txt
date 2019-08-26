@@ -3,11 +3,13 @@
   + Xor
   * Test
   + Logic16
+  - BlockCatch
+  - TPM
 
 % Genome
   + Multi
   * Circular
-  
+
 % Brain
   - Markov
   * CGP
@@ -16,7 +18,8 @@
   + Human
   - Wire
   + ANN
-	
+  - BiLog
+
 % Optimizer
   * Simple
   - Islands
@@ -26,3 +29,4 @@
   + Default
   + SSwD
   * LODwAP
+

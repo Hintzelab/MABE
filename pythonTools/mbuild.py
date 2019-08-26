@@ -16,8 +16,8 @@ if platform.system() == 'Windows':
     import winreg ## can now safely import
 
 # Need to make sure winreg import works before trying to import the buildlibs
-from mbuildlib.modulewriter import write_modules_h
-from mbuildlib.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
+from libmbuild.modulewriter import write_modules_h
+from libmbuild.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
 
 parser = argparse.ArgumentParser()
 
