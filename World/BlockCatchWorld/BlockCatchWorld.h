@@ -74,30 +74,7 @@ public:
     BlockCatchWorld (std::shared_ptr<ParametersTable> _PT = nullptr);
     ~BlockCatchWorld () = default;
 	void evaluateSolo(std::shared_ptr<Organism> org, int analyse, int visualize, int debug);
-	void evaluate(std::map<std::string, std::shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
-		int popSize = groups[groupName]->population.size();
-		for (int i = 0; i < popSize; i++) {
-			evaluateSolo(groups[groupName]->population[i], analyse, visualize, debug);
-		}
-
-		if (visualizeBest > 0 && Global::update % visualizeBest == 0 && Global::update > 0) {
-			// get best org (org with best score)
-			double bestScore = groups[groupNamePL->get(PT)]->population[0]->dataMap.getAverage("score");
-			auto bestOrg = groups[groupNamePL->get(PT)]->population[0];
-			for (auto org : groups[groupNamePL->get(PT)]->population) {
-				double orgScore = org->dataMap.getAverage("score");
-				if (bestScore != orgScore) {
-					if (bestScore < orgScore) {
-						bestOrg = org;
-						bestScore = orgScore;
-					}
-				}
-			}
-			std::cout << "  running visualization for org with ID: " << bestOrg->ID << " and score: " << bestScore << std::endl;
-			auto testOrg = bestOrg->makeCopy(bestOrg->PT); // make a copy so we don't mess up the data map
-			evaluateSolo(testOrg, analyse, 1, debug);
-		}
-	}
+	void evaluate(std::map<std::string, std::shared_ptr<Group>>& groups, int analyse, int visualize, int debug);
 
 	void debugDisplay(int worldX, int time, std::vector<std::vector<int>> patternBuffer, int frameIndex, std::vector<int> sensorArray, std::vector<int> gapArray);
 	void visualizeDisplay(bool catchPattern, int worldX, int startYMax, int endTime, int time, int patternIndex, int catchPatternsCount,
@@ -105,8 +82,6 @@ public:
 		std::vector<int> sensorArray, std::vector<int> gapArray);
 
 	void loadPatterns(int& patternCounter, std::vector<std::string> patterns);
-	virtual std::unordered_map<std::string, std::unordered_set<std::string>> requiredGroups() override {
-		return { { groupNamePL->get(PT),{ "B:" + brainNamePL->get(PT) + ","+std::to_string(numberOfSensors)+",2"} } };
-	}
+	virtual std::unordered_map<std::string, std::unordered_set<std::string>> requiredGroups() override;
 
 };

@@ -70,3 +70,24 @@ void TestWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
   }
 }
 
+void TestWorld::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
+                      int analyze, int visualize, int debug) {
+  int popSize = groups[groupNamePL->get(PT)]->population.size();
+  for (int i = 0; i < popSize; i++) {
+    evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
+                 visualize, debug);
+  }
+}
+
+std::unordered_map<std::string, std::unordered_set<std::string>>
+TestWorld::requiredGroups() {
+  return {{groupNamePL->get(PT),
+        {"B:" + brainNamePL->get(PT) + ",1," +
+            std::to_string(numberOfOutputsPL->get(PT))}}};
+  // requires a root group and a brain (in root namespace) and no addtional
+  // genome,
+  // the brain must have 1 input, and the variable numberOfOutputs outputs
+}
+
+
+

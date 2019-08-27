@@ -31,21 +31,11 @@ public:
   virtual ~XorWorld() = default;
   void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
                             int visualize, int debug);
-  virtual void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
-                        int analyze, int visualize, int debug) {
-    int popSize = groups[groupNamePL->get(PT)]->population.size();
-    for (int i = 0; i < popSize; i++) {
-      evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
-                   visualize, debug);
-    }
-  }
+  void evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
+                          int analyze, int visualize, int debug) override;
 
-  virtual std::unordered_map<std::string, std::unordered_set<std::string>>
-  requiredGroups() override {
-    // agents in this world will need 2 inputs, and 1 output:
-    return {{groupNamePL->get(PT),
-             {"B:" + brainNamePL->get(PT) + ",2," +
-              std::to_string(1)}}}; // default requires a root group and a brain
-                                    // (in root namespace) and no genome
-  }
+
+
+  std::unordered_map<std::string, std::unordered_set<std::string>>
+    requiredGroups() override;
 };

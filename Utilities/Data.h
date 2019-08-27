@@ -87,17 +87,7 @@ public:
   DataMap() = default;
 
   // copy constructor
-  DataMap(std::shared_ptr<DataMap> source) {
-    boolData = source->boolData;
-    doubleData = source->doubleData;
-    intData = source->intData;
-    stringData = source->stringData;
-    for (auto entry : source->inUse) {
-      inUse[entry.first] = entry.second;
-    }
-    // inUse = source->inUse; // replaced with for loop.
-    outputBehavior = source->outputBehavior;
-  }
+  DataMap(std::shared_ptr<DataMap> source);
 
   inline void setOutputBehavior(const std::string &key, int _outputBehavior) {
     outputBehavior[key] = _outputBehavior;

@@ -72,6 +72,20 @@ void FileManager::closeFile(const std::string &fileName) {
   fileStates[fileName] = false; // make a note that this file is closed
 }
 
+// copy constructor
+DataMap::DataMap(std::shared_ptr<DataMap> source) {
+  boolData = source->boolData;
+  doubleData = source->doubleData;
+  intData = source->intData;
+  stringData = source->stringData;
+  for (auto entry : source->inUse) {
+    inUse[entry.first] = entry.second;
+  }
+  // inUse = source->inUse; // replaced with for loop.
+  outputBehavior = source->outputBehavior;
+}
+
+
 // take two strings (header and data), and a list of keys, and whether or not to
 // save "{LIST}"s. convert data from data map to header and data strings
 void DataMap::constructHeaderAndDataStrings(std::string &headerStr, std::string &dataStr,
