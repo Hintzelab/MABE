@@ -991,7 +991,8 @@ BiLogBrain::makeBrainFrom(std::shared_ptr<AbstractBrain> parent, std::unordered_
 std::shared_ptr<AbstractBrain>
 BiLogBrain::makeBrainFromMany(std::vector<std::shared_ptr<AbstractBrain>> parents,
 	std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes) {
-	return makeBrain(_genomes);
+	//return makeBrain(_genomes);
+	return makeBrainFrom(parents[0],_genomes);
 }
 
 

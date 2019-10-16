@@ -143,16 +143,17 @@ int LexicaseOptimizer::lexiSelect(const std::vector<int> &orgIndexList) {
 
 		double scoreCutoff;
 
+		// create a vector of remaning scores
+		std::vector<double> keeperScores;
+		for (size_t i = 0; i < keepers.size(); i++) {
+			keeperScores.push_back(scores[formulaIndex][keepers[i]]);
+		}
+
 		if (epsilonRelativeTo) { // get scoreCutoff relitive to score
-			auto scoreRange = std::minmax_element(std::begin(scores[formulaIndex]), std::end(scores[formulaIndex]));
+			auto scoreRange = std::minmax_element(std::begin(keeperScores), std::end(keeperScores));
 			scoreCutoff = (*scoreRange.second - ((*scoreRange.second - *scoreRange.first) * epsilon));
 		}
 		else { // get scoreCutoff relitive to rank
-			// create a vector of remaning scores
-			std::vector<double> keeperScores;
-			for (size_t i = 0; i < keepers.size(); i++) {
-				keeperScores.push_back(scores[formulaIndex][keepers[i]]);
-			}
 			// based on the number of keepers, calculate how many to keep.
 			size_t cull_index = std::ceil(std::max((((1.0 - epsilon) * keeperScores.size()) - 1.0), 0.0));
 
