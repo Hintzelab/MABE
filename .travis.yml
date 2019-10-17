@@ -1,39 +1,56 @@
+os:
+  - linux
+  - osx
+
 dist: trusty
 sudo: required
 
 language: cpp
 
-compiler:
-  - g++
-
 branches:
   only:
-  - master
   - development
+  - master
   - "/feature.*/"
   - "/hotfix.*/"
+
+matrix:
+  allow_failures:
+    - osx_image: xcode10.1
+      sudo: required
+      python: 3.6
+      env: BADGE=osx
+    - os: linux
+      language: generic
+      python: 3.6
+      env: BADGE=linux
 
 addons:
   apt:
     packages:
-      - python3
       - cmake
+      - g++-6
     sources: &sources
       - ubuntu-toolchain-r-test
 
-#before_install:
-#  # C++14
-#  - sudo apt-get update -qq
-
-install: 
-  # C++14
-  - sudo apt-get install -qq gcc-7 g++-7
-  - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-7 90
+before_install:
+  - python --version
+  - |
+    if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
+      source ~/virtualenv/python3.6/bin/activate
+      eval "CC=gcc-6 && CXX=g++-6"
+      export CC=gcc-6
+      export CXX=g++-6
+      ln -s $(which gcc-6) gcc
+      ln -s $(which g++-6) g++
+      ln -s $(which g++-6) c++
+      export PATH=$(pwd):$PATH
+    fi
+  - python3 --version
+  - c++ --version
 
 script:
   - cp .travis.buildOptions.txt buildOptions.txt
   - ls
-  - python3 --version
-  - g++ --version
   - python3 pythonTools/mbuild.py -g make
   - make -j4

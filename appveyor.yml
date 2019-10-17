@@ -1,0 +1,45 @@
+image:
+- Visual Studio 2017
+
+stack: python 3
+shallow_clone: false
+clone_depth: 3
+
+environment:
+  PY_DIR: C:\Python37-x64
+
+matrix:
+  allow_failures:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      arch: 64
+      python: 37
+      platform: x64
+      configuration: Release
+    #- platform: x86
+    #  configuration: Debug
+
+install:
+  - "SET PATH=C:\\Python37-x64;C:\\Python37-x64\\Scripts;%PATH%"
+  - git submodule update --init --recursive
+  - ps: python -m pip install --upgrade pip
+  #- ps: python -m pip install winreg
+  - ps: python --version
+
+build:
+  project: mabe.vcxproj        # path to Visual Studio solution or project
+  parallel: true                        # enable MSBuild parallel builds
+
+build_script:
+  - cmd: copy .travis.buildOptions.txt buildOptions.txt
+  - cmd: python pythonTools/mbuild.py -g vs
+  - cmd: call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+  - cmd: MSBuild mabe.vcxproj /property:Configuration=Release /property:Platform=x64 /m:4
+  - cmd: copy x64\Release\mabe.exe mabe.exe
+  - cmd: echo build_script finished
+
+  #test_script:
+  #  - git clone https://github.com/hintzelab/mabe_testing
+  #  - ps: $testbranch = git rev-parse --abbrev-ref HEAD
+  #  - ps: cd mabe_testing
+  #  - ps: python -m pip install gitpython pytest
+  #  - ps: python contest.py ..\ $testbranch development "python pythonTools/mbuild.py -g vs && MSBuild mabe.vcxproj /property:Configuration=Release /property:Platform=x64 /m:8 && copy x64\Release\mabe.exe mabe.exe" mabe.exe

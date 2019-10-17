@@ -10,177 +10,296 @@
 
 #include "SimpleOptimizer.h"
 
-using namespace std;
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::selectionMethodPL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-selectionMethod", (std::string) "Roulette()",
+	"how are parents selected? options: Roulette(),Tournament(size=VAL)");
+std::shared_ptr<ParameterLink<int>> SimpleOptimizer::numberParentsPL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-numberParents", 1,
+	"number of parents used to produce offspring");
 
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::optimizeValuePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-optimizeValue",
+(std::string) "DM_AVE[score]",
+"value to optimize (MTree)");
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::surviveRatePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-surviveRate",
+(std::string) "0",
+"value between 0 and 1, probability that an "
+"organism will survive (MTree)");
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::selfRatePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate",
+(std::string) "0",
+"value between 0 and 1, probability that an "
+"organism will self (ignored if "
+"numberParents = 1) (MTree)");
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::elitismCountPL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount",
+(std::string) "1",
+"number of mutated offspring "
+"added to next population for "
+"each elite organism (MTree)");
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::elitismRangePL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-elitismRange", (std::string) "0",
+	"number of elite organisms (i.e. if 5, then best 5) (MTree)");
 
-shared_ptr<ParameterLink<string>> SimpleOptimizer::selectionMethodPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selectionMethod", (string) "Roulette()", "how are parents selected? options: Roullette(),Tournament(size=VAL)\na list may be provided with the formatte:/n[S,S...] where the number of elements is exactly equal to the number of parnets.\nIn this case, the first S will apply to the selection of the first parent, the second S to the second, etc.");
-shared_ptr<ParameterLink<int>> SimpleOptimizer::numberParentsPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-numberParents", 1, "number of parents used to produce offspring");
+std::shared_ptr<ParameterLink<std::string>> SimpleOptimizer::nextPopSizePL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-nextPopSize", (std::string) "-1",
+	"size of population after optimization(MTree). -1 indicates use "
+	"current population size");
 
-shared_ptr<ParameterLink<string>> SimpleOptimizer::optimizeValuePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-optimizeValue", (string) "DM_AVE[score]", "value to optimize (MTree)\na list may be provided with the formatte:/n[OV,OV...] where the number of elements is exactly equal to the number of parnets.\nIn this case, the first OV will apply to the selection of the first parent, the second OV to the second, etc.");
-shared_ptr<ParameterLink<string>> SimpleOptimizer::surviveRatePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-surviveRate", (string) "0", "value between 0 and 1, likelyhood that an organism will self (ignored if numberParents = 1) (MTree)");
-shared_ptr<ParameterLink<string>> SimpleOptimizer::selfRatePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-selfRate", (string) "0", "value between 0 and 1, likelyhood that an organism will survive (MTree)");
-shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismCountPL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismCount", (string) "1", "number of mutated offspring added to next population for each elite organism (MTree)");
-shared_ptr<ParameterLink<string>> SimpleOptimizer::elitismRangePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-elitismRange", (string) "0", "number of elite organisms (i.e. if 5, then best 5) (MTree)");
+std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullBelowPL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-cullBelow", -1.0,
+	"cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)\nif -1, no culling.");
+std::shared_ptr<ParameterLink<double>> SimpleOptimizer::cullRemapPL =
+Parameters::register_parameter(
+	"OPTIMIZER_SIMPLE-cullRemap", -1.0,
+	"if cullBelow is being used (not -1) then remap scores between cullRemap and 1.0 so that the minimum score in the culled population is remapped to cullRemap and the high score is remapped to 1.0\nThe effect will be that the lowest score after culling will have a cullRemap % chance to kept if selected using the Roulette selection method");
 
-shared_ptr<ParameterLink<string>> SimpleOptimizer::nextPopSizePL = Parameters::register_parameter("OPTIMIZER_SIMPLE-nextPopSize", (string)"-1", "size of population after optimization(MTree). -1 indicates use current population size");
+std::shared_ptr<ParameterLink<bool>> SimpleOptimizer::cullByRangePL =
+Parameters::register_parameter("OPTIMIZER_SIMPLE-cullByRange", false,
+	"if true cull will be relative to min and max score"
+	"\n  i.e. cull organisms with score less then (((maxScore - minScore) * cullBelow) + minScore)"
+	"\nif false, cull will be relative to organism ranks"
+	"\n  i.e. find score of cullBelow*populaiton size best, and discard all orgs with lower score.");
 
-SimpleOptimizer::SimpleOptimizer(shared_ptr<ParametersTable> _PT) : AbstractOptimizer(_PT) {
+SimpleOptimizer::SimpleOptimizer(std::shared_ptr<ParametersTable> PT_)
+	: AbstractOptimizer(PT_) {
 
-
+	selectionMethod = selectionMethodPL->get(PT);
 	numberParents = numberParentsPL->get(PT);
 
-	if (selectionMethodPL->get(PT)[0] == '['){// this is a list of selection methods, break into list
-		convertCSVListToVector(selectionMethodPL->get(PT), selectionMethods);
-	}
-	else { // else, it's just one element, put that in list
-		selectionMethods.push_back(selectionMethodPL->get(PT));
-	}
-	if (selectionMethods.size() != 1 && selectionMethods.size() != numberParents) { // size must 1 (apply this to all), or parent size (apply to each parent in order)
-		cout << "OPTIMIZER_SIMPLE-selectionMethod provided a list :\"" << selectionMethodPL->get(PT) << "\" with a bad size (must be either 1, or number of parents).\nexiting." << endl;
-		exit(1);
-	}
-
-	vector<string> tmp;
-	if (optimizeValuePL->get(PT)[0] == '[') {// this is a list of selection optimize values, break into list
-		convertCSVListToVector(optimizeValuePL->get(PT), tmp);
-	}
-	else { // else, it's just one element, put that in list
-		tmp.push_back(optimizeValuePL->get(PT));
-	}
-	for (auto s : tmp) {
-		optimizeValueMTs.push_back(stringToMTree(s));
-	}
-	if (optimizeValueMTs.size() != 1 && optimizeValueMTs.size() != numberParents) {
-		cout << "OPTIMIZER_SIMPLE-optimizeValue provided a list :\"" << optimizeValuePL->get(PT) << "\" with a bad size (must be either 1, or number of parents).\nexiting." << endl;
-		exit(1);
-	}
-
+	optimizeValueMT = stringToMTree(optimizeValuePL->get(PT));
 	surviveRateMT = stringToMTree(surviveRatePL->get(PT));
 	selfRateMT = stringToMTree(selfRatePL->get(PT));
 	elitismCountMT = stringToMTree(elitismCountPL->get(PT));
 	elitismRangeMT = stringToMTree(elitismRangePL->get(PT));
 	nextPopSizeMT = stringToMTree(nextPopSizePL->get(PT));
 
-	for (auto selectionMethod : selectionMethods) {
-		vector<string> selectorArgs;
-		stringstream ss(selectionMethod); // Turn the string into a stream.
-		string tok;
+	cullBelow = cullBelowPL->get(PT); // -1 or [0,1] orgs who ((opVal - min) / (max - min)) < cullBelow are culled before selection
+									  // culled orgs will not be automatically not be allowed to survive
+									  // if -1 (default) then cullBelowScore = 0
+	cullRemap = cullRemapPL->get(PT); // -1 or [0,1] scores will be normalized between min and cullBelowScore score and then adjusted
+									  // such that min score is the value
+									  // if -1, no normalization will occur
 
-		while (getline(ss, tok, '(')) {
-			selectorArgs.push_back(tok);
-		}
-
-		selectorArgs[1].pop_back();
-		//cout << "SimpleOptimizer method: " << selectorArgs[0] << "  " << selectorArgs[1] << endl;
-		//cout << selectorArgs.size() << endl;
-		if (selectorArgs[0] == "Tournament") {
-			selectors.push_back(make_shared<TournamentSelector>(selectorArgs[1], this));
-		}
-		else if (selectorArgs[0] == "Roulette") {
-			selectors.push_back(make_shared<RouletteSelector>(selectorArgs[1], this));
-		}
-		else {
-			cout << "  in SimpleOptimizer constructor, selector method \"" << selectionMethod << "\" is not known.\n  exiting..." << endl;
-			exit(1);
-		}
+	if (cullBelow != -1 && !(cullBelow >= 0 && cullBelow <= 1.0)) {
+		std::cout << "  in SimpleOptimizer constructor, found cullBelow value "
+			<< cullBelow << " but cullBelow must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+		exit(1);
+	}
+	if (cullRemap != -1 && !(cullRemap >= 0 && cullRemap <= 1.0)) {
+		std::cout << "  in SimpleOptimizer constructor, found cullRemap value "
+			<< cullRemap << " but cullRemap must be either -1 or in the range [0,1].\n  exiting." << std::endl;
+		exit(1);
 	}
 
-	optimizeDMValue = "optimizeValue"; // max will be max this value from dataMap
+	cullByRange = cullByRangePL->get(PT);;
+
+	optimizeFormula = optimizeValueMT;
+
+	std::vector<std::string> selectorArgs;
+	std::stringstream ss(selectionMethod); // Turn the string into a stream.
+	std::string tok;
+
+	while (getline(ss, tok, '(')) {
+		selectorArgs.push_back(tok);
+	}
+
+	selectorArgs[1].pop_back();
+	// cout << "SimpleOptimizer method: " << selectorArgs[0] << "  " <<
+	// selectorArgs[1] << endl;
+	// cout << selectorArgs.size() << endl;
+	if (selectorArgs[0] == "Tournament") {
+		selector = std::make_shared<TournamentSelector>(selectorArgs[1], this);
+	}
+	else if (selectorArgs[0] == "Roulette") {
+		selector = std::make_shared<RouletteSelector>(selectorArgs[1], this);
+	}
+	else {
+		std::cout << "  in SimpleOptimizer constructor, selector method \""
+			<< selectionMethod << "\" is not known.\n  exiting..."
+			<< std::endl;
+		exit(1);
+	}
 
 	popFileColumns.clear();
 	popFileColumns.push_back("optimizeValue");
-	for (int j = 1; j < (int)optimizeValueMTs.size(); j++) {
-		popFileColumns.push_back("optimizeValue_" + to_string(j));
-	}
-
 }
 
-void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
-	oldPopulationSize = (int)population.size();
-	/////// MUST update to MTREE
-	nextPopulationTargetSize = (int)nextPopSizeMT->eval(PT)[0];
+void SimpleOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population) {
+	oldPopulationSize = static_cast<int>(population.size());
+
+	nextPopulationTargetSize = static_cast<int>(nextPopSizeMT->eval(PT)[0]);
 
 	if (nextPopulationTargetSize == -1) {
 		nextPopulationTargetSize = population.size();
 	}
-	/////// MUST update to MTREE
 
 	nextPopulationSize = 0;
 
 	selfCount = 0;
 	eliteCount = 0;
 	surviveCount = 0;
-	maxScore.clear();
-	minScore.clear();
-	aveScore.clear();
 
-	// for max and min score we will use one optimizeValueMTs[0]
-	// Note: this is only used to report population status
-	for (auto mt : optimizeValueMTs) {
-		maxScore.push_back(mt->eval(population[0]->dataMap, population[0]->PT)[0]);
-		minScore.push_back(maxScore.back());
-		aveScore.push_back(0);
-	}
-	
+	aveScore = 0;
+	maxScore = optimizeValueMT->eval(population[0]->dataMap, PT)[0];
+	minScore = maxScore;
+	auto scoresHaveDelta = false;
+
+	double deltaScore; // maxScore - cullBelow
+
+	double cullBelowScore;
+
+	std::vector<std::shared_ptr<Organism>> populationAfterCull;
+	scoresAfterCull.clear();
+
 	elites.clear();
 	scores.clear();
 	killList.clear();
 
-	for (int i = 0; i < (int)population.size(); i++) {
-		scores.push_back({});
-		if (Random::P(surviveRateMT->eval(population[i]->dataMap, population[i]->PT)[0])) {
-			// does this organism survive?
+	// get all scores
+
+	for (size_t i = 0; i < population.size(); i++) {
+		double opVal = optimizeValueMT->eval(population[i]->dataMap, PT)[0];
+		scores.push_back(opVal);
+		aveScore += opVal;
+		population[i]->dataMap.set("optimizeValue", opVal);
+		//std::cout << population[i]->ID << " " << opVal << std::endl;
+		if (opVal > maxScore) {
+			maxScore = opVal;
+			scoresHaveDelta = true;
+		}
+		if (opVal < minScore) {
+			minScore = opVal;
+			scoresHaveDelta = true;
+		}
+	}
+	aveScore /= oldPopulationSize;
+
+	if (cullBelow > -.5 && scoresHaveDelta) { // cull and normalize scores if min == max then all scores are the same, do nothing!
+		culledMinScore = maxScore;
+		culledMaxScore = maxScore;
+		auto culledScoresHaveDetla = false;
+		if (cullByRange) {
+			cullBelowScore = minScore + ((maxScore - minScore) * cullBelow);
+
+			// uncomment to see all scores
+			//for (auto s : scores) {
+			//	std::cout << s << " ";
+			//}
+			//std::cout << "\ncullBelowScore: " << cullBelowScore << std::endl;
+
+		}
+		else { // cull not by range, but by rank position
+			auto sortedScores = scores;
+			auto cull_index = std::ceil(std::max(((cullBelow * sortedScores.size()) - 1.0), 0.0));
+			std::nth_element(std::begin(sortedScores),
+				std::begin(sortedScores) + cull_index,
+				std::end(sortedScores));
+			cullBelowScore = sortedScores[cull_index];
+
+			// uncomment to see all scores
+			//for (auto ss : sortedScores) {
+			//	std::cout << ss << " ";
+			//}
+			//std::cout << "\ncull_index: " << cull_index << " cullBelowScore: " << cullBelowScore << std::endl;
+		}
+		deltaScore = maxScore - cullBelowScore;
+		//std::cout << "\n\nmax: " << maxScore << "   min: " << minScore;
+		//std::cout << "  cullBelowScore: " << cullBelowScore << "  deltaScore: " << deltaScore << std::endl;
+		for (size_t i = 0; i < population.size(); i++) {
+			//std::cout << scores[i];
+			if (scores[i] >= cullBelowScore) { // if not culled, add to culledPopulation
+				populationAfterCull.push_back(population[i]);
+				scoresAfterCull.push_back(scores[i]);
+				if (scores[i] < culledMinScore) {
+					culledMinScore = scores[i];
+					culledScoresHaveDetla = true;
+				}
+				//std::cout << " ->  " << scoresAfterCull.back() << "   min: " << culledMinScore;
+			}
+			else { // if culled, add to kill list and DO NOT add to culled population
+				killList.insert(population[i]);
+				//std::cout << " ->  culled";
+			}
+			//std::cout << std::endl;
+		}
+		culledPopulationSize = static_cast<int>(populationAfterCull.size());
+		if ((cullRemap > -.5) && (culledScoresHaveDetla)) { // normaization
+			for (int i = 0; i < culledPopulationSize; i++) {
+				//std::cout << "  remap: " << scoresAfterCull[i] << " ";
+				scoresAfterCull[i] = (((scoresAfterCull[i] - culledMinScore) / (culledMaxScore - culledMinScore)) * (1.0 - cullRemap)) + cullRemap;
+				//std::cout << scoresAfterCull[i] << std::endl;
+			}
+			culledMaxScore = 1; // all scores will be between 0 and 1
+			culledMinScore = 0;
+		}
+	}
+	else { // if not culling, don't worry, we are using population and scores as is.
+		populationAfterCull = population;
+		culledPopulationSize = oldPopulationSize;
+		scoresAfterCull = scores;
+		culledMinScore = minScore;
+		culledMaxScore = maxScore;
+	}
+
+	// figure out if an orgs survive
+	for (int i = 0; i < culledPopulationSize; i++) {
+		if (Random::P(surviveRateMT->eval(populationAfterCull[i]->dataMap, PT)[0])) {
 			surviveCount++;
 			nextPopulationSize++;
 		}
 		else {
-			// they did not survive!
-			killList.insert(population[i]);
-		}
-		// for each optimizeValueMT, calculate the score with that MT for this org
-		for (int j = 0; j < (int)optimizeValueMTs.size(); j++) {
-			scores[i].push_back(optimizeValueMTs[j]->eval(population[i]->dataMap, population[i]->PT)[0]);
-
-			aveScore[j] += scores[i][j];
-			if (scores[i][j] > maxScore[j]) {
-				maxScore[j] = scores[i][j];
-			}
-			if (scores[i][j] < minScore[j]) {
-				minScore[j] = scores[i][j];
-			}
-		}
-		// lastly, save all the optimizeValues to dataMap
-		population[i]->dataMap.set("optimizeValue", scores[i][0]); // we need to have this for the archivist to be able to find max
-		for (int j = 1; j < (int)scores[i].size(); j++) {
-			population[i]->dataMap.set("optimizeValue_"+to_string(j), scores[i][j]);
+			killList.insert(populationAfterCull[i]);
 		}
 	}
 
-	for (int j = 0; j < (int)optimizeValueMTs.size(); j++) {
-		aveScore[j] /= oldPopulationSize;
-	}
-
-	// in order to pick elites, we need a list of scores. tempScores will be the zeroth score from each org
-	vector<double> tempScores;
-	for (auto orgScores : scores) {
-		tempScores.push_back(orgScores[0]);
-	}
-
-	int elitismRange = (int)elitismRangeMT->eval(PT)[0];
-	int elitismCount = (int)elitismCountMT->eval(PT)[0];
+	auto tempScores = scoresAfterCull;
+	int elitismRange = static_cast<int>(elitismRangeMT->eval(PT)[0]);
+	int elitismCount = static_cast<int>(elitismCountMT->eval(PT)[0]);
 	for (int i = 0; i < elitismRange; i++) { // get handles for elite orgs
-		elites.push_back(findGreatestInVector(tempScores)); // add index of current best to elites
-		tempScores[elites.back()] = minScore[0]; // set score for this pick to min (so it's not picked again)
+		elites.push_back(findGreatestInVector(tempScores));
+		tempScores[elites.back()] = culledMinScore;
 	}
-	
-	// first add elitism offspring for each of the best elitismRange organisms (assuming there is room)
+
+	/*
+	for (auto p : population) {
+			cout << optimizeValueMT->eval(p->dataMap, PT)[0] << ", ";
+	}
+	cout << endl;
+	for (auto elite : elites) {
+			cout << population[elite]->ID << ":" <<
+	optimizeValueMT->eval(population[elite]->dataMap, PT)[0] << "  ..." << endl;
+	}
+	*/
+
+	// first add elitism offspring for each of the best elitismRange organisms
+	// (assuming there is room)
 	int currentElite = 0;
 	int currentCopy = 0;
-	while ((nextPopulationSize < nextPopulationTargetSize) && (currentElite < min(elitismRange,oldPopulationSize))) {
+
+	while ((nextPopulationSize < nextPopulationTargetSize) && (currentElite < std::min(elitismRange, culledPopulationSize))) {
 		currentCopy = 0;
 		while ((nextPopulationSize < nextPopulationTargetSize) && (currentCopy < elitismCount)) {
-			//population.push_back(population[elites[currentElite]]->makeMutatedOffspringFrom(population[elites[currentElite]]));
-			population.push_back(population[elites[currentElite]]->makeCopy());
+			// old code - created mutated offspring
+			//push_back(populationAfterCull[elites[currentElite]]->makeMutatedOffspringFrom(populationAfterCull[elites[currentElite]]));
+			// new version - offspring is unmutated copy
+			auto eliteParent = populationAfterCull[elites[currentElite]];
+			std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> newGenomes;
+			std::unordered_map<std::string, std::shared_ptr<AbstractBrain>> newBrains;
+			for (auto genome : eliteParent->genomes) {
+				newGenomes[genome.first] = genome.second->makeCopy(genome.second->PT);
+			}
+			for (auto brain : eliteParent->brains) {
+				newBrains[brain.first] = brain.second->makeCopy(brain.second->PT);
+			}
+			population.push_back(std::make_shared<Organism>(eliteParent, newGenomes, newBrains, eliteParent->PT));
+			//std::cout << "added elite org: " << population.back()->ID << " from parent: " << eliteParent->ID << std::endl;
 			nextPopulationSize++;
 			eliteCount++;
 			currentCopy++;
@@ -189,38 +308,33 @@ void SimpleOptimizer::optimize(vector<shared_ptr<Organism>> &population) {
 	}
 
 	// now select parents for remainder of population
-	vector<shared_ptr<Organism>> parents;
-	while (nextPopulationSize < nextPopulationTargetSize) {  // while we have not filled up the next generation
+	std::vector<std::shared_ptr<Organism>> parents;
+	while (nextPopulationSize < nextPopulationTargetSize) { // while we have not
+															// filled up the next
+															// generation
 		if (numberParents == 1) {
-			auto parent = population[selectors[0]->select(0)];
-			population.push_back(parent->makeMutatedOffspringFrom(parent));
+			auto parent = populationAfterCull[selector->select()]; // select from culled
+			population.push_back(parent->makeMutatedOffspringFrom(parent)); // add to population
 		}
 		else {
 			parents.clear();
-			parents.push_back(population[selectors[0]->select(0)]);
+			parents.push_back(populationAfterCull[selector->select()]); // select from culled
 			if (Random::P(selfRateMT->eval(parents[0]->dataMap, PT)[0])) {
-				population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0]));
+				population.push_back(parents[0]->makeMutatedOffspringFrom(parents[0])); // push to population
 			}
 			else {
-				while ((int)parents.size() < numberParents) {
-					if (selectors.size() > 1) { // if there is more then one selector, use the one indexed for this parent
-						parents.push_back(population[selectors[parents.size()]->select(parents.size())]);
-					}
-					else { // use the common selector
-						parents.push_back(population[selectors[0]->select(parents.size())]);
-					}
+				while (static_cast<int>(parents.size()) < numberParents) {
+					parents.push_back(populationAfterCull[selector->select()]); // select from culled
 				}
-				population.push_back(parents[0]->makeMutatedOffspringFromMany(parents));
+				population.push_back(parents[0]->makeMutatedOffspringFromMany(parents)); // push to population
 			}
 		}
 		nextPopulationSize++;
 	}
-	cout << "max = " << to_string(maxScore[0]) << "   ave = " << to_string(aveScore[0]);
+	std::cout << "max = " << std::to_string(maxScore)
+		<< "   ave = " << std::to_string(aveScore);
 	for (auto org : population) {
-		if (org->timeOfBirth != Global::update) {
-			org->dataMap.set("Simple_numOffspring", org->offspringCount);
-		}
+		org->dataMap.set("Simple_numOffspring", org->offspringCount);
 	}
-
 }
 

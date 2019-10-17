@@ -29,7 +29,7 @@ shared_ptr<ParameterLink<bool>> Gate_Builder::usingTritDeterministicGatePL = Par
 shared_ptr<ParameterLink<int>> Gate_Builder::tritDeterministicGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_TRIT-initialCount", 3, "seed genome with this many start codons");
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingNeuronGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allow", false, "set to true to enable Neuron gates");
-shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 3, "seed genome with this many start codons");
+shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-initialCount", 20, "seed genome with this many start codons (neurons tend to work better in larger numbers)");
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-allow", false, "set to true to enable feedback gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::feedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
@@ -38,6 +38,9 @@ shared_ptr<ParameterLink<bool>> Gate_Builder::usingDecoGatePL = Parameters::regi
 shared_ptr<ParameterLink<bool>> Gate_Builder::decoUse2LevelPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-use2Level", false, "set to true to allow \"super decomposable\" gates");
 shared_ptr<ParameterLink<bool>> Gate_Builder::deco2LevelRowFirstPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-rowFirst", true, "set to true to make second-order decomposable gates operate in row-first expansion");
 shared_ptr<ParameterLink<int>> Gate_Builder::decoGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-initialCount", 3, "seed genome with this many start codons");
+
+shared_ptr<ParameterLink<bool>> Gate_Builder::usingDecoDirectGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_DIRECT-allow", false, "set to true to enable decomposible gates (direct factors version)");
+shared_ptr<ParameterLink<int>> Gate_Builder::decoDirectGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_DIRECT-initialCount", 3, "seed genome with this many start codons");
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingDecomposableFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_FEEDBACK-allow", false, "set to true to enable decomposable feedback gates");
 shared_ptr<ParameterLink<int>> Gate_Builder::decomposableFeedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
@@ -142,8 +145,9 @@ void Gate_Builder::setupGates() {
 	int TritDeterministicCode     = 47;
 	int NeuronCode                = 48;
 	int FeedbackCode              = 49;
-    int DecomposableCode          = 50;
-    int DecomposableFeedbackCode  = 51;
+        int DecomposableCode          = 50;
+        int DecomposableFeedbackCode  = 51;
+  	int DecomposableDirectCode    = 52;
 
 	int bitsPerCodon = bitsPerCodonPL->get(PT);
 	makeGate.resize(1 << bitsPerCodon);
@@ -200,6 +204,7 @@ void Gate_Builder::setupGates() {
 			/// derived from independent probabilities and will not produce
 			/// instantaneous causation.
 			vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID);
+                        vector<vector<double>> factorsListHandover;
 			if (decoUse2Level == false) { /// normal 1-level mode is to create decomposability on each row
 				vector<vector<double>> factorsList(1 << addresses.first.size());
 				for (vector<double>& factors : factorsList) {
@@ -208,6 +213,7 @@ void Gate_Builder::setupGates() {
 						eachFactor = genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
 					}
 				}
+                                factorsListHandover=factorsList;
 				for (int rowi=0; rowi<rawTable.size(); rowi++) {
 					for (int outputi=0; outputi<rawTable[rowi].size(); outputi++) {
 						double p(1.0);
@@ -306,7 +312,53 @@ void Gate_Builder::setupGates() {
 				shared_ptr<DecomposableGate> nullObj = nullptr;
 				return nullObj;
 			}
-			return make_shared<DecomposableGate>(addresses,rawTable,gateID, _PT);
+			return make_shared<DecomposableGate>(addresses,rawTable,gateID,factorsListHandover, _PT);
+		});
+	}
+        if ( usingDecoDirectGatePL->get(PT)) {
+		inUseGateNames.insert("DecomposableDirect");
+		int codonOne = DecomposableDirectCode;
+		inUseGateTypes.insert(codonOne);
+		{
+			gateStartCodes[codonOne].push_back(codonOne);
+			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+		}
+		intialGateCounts[codonOne] = decoDirectGateInitialCountPL->get(PT);
+		AddGate(codonOne, [](shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, shared_ptr<ParametersTable> _PT) {
+			string IO_Ranges = DecomposableDirectGate::IO_RangesPL->get(_PT);
+			int maxIn, maxOut;
+			pair<vector<int>,vector<int>> addresses = getInputsAndOutputs(IO_Ranges, maxIn, maxOut, genomeHandler, gateID, _PT, "BRAIN_MARKOV_GATES_DECOMPOSABLE_DIRECT");
+			/// read in as many factors as there are outputs (one factor : one bit)
+			/// these factors are used to expand by multiplication into the probabilities
+			/// for each combination of output. 2-output gate will have 2 factors,
+			/// which multiply together:
+			/// (1-p)*(1-q), (1-p)*q, p*(1-q), p*q
+			/// to form these 4 probabilities. By definition these 4 probabilities are now
+			/// derived from independent probabilities and will not produce
+			/// instantaneous causation.
+			//vector<vector<int>> rawTable = genomeHandler->readTable( {1 << addresses.first.size(), 1 << addresses.second.size()}, {(int)pow(2,maxIn), (int)pow(2,maxOut)}, {0, 255}, AbstractGate::DATA_CODE, gateID); // TODO: DELETE ME
+      vector<vector<double>> factorsList(1 << addresses.first.size());
+      for (vector<double>& factors : factorsList) {
+        factors.resize(addresses.second.size());
+        for (double& eachFactor : factors) {
+          eachFactor = genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+        }
+        // finish reading entire 4-value row from the genome
+        // to prevent frame shifts
+        // vvv change 4 and 16 to maxIn, maxOut
+        for (int i(0); i<(4-factors.size()); i++) genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+      }
+      // finish reading entire 16-rows (4-value each) from the genome
+      // to prevent frame shifts
+      for (int rowi(0); rowi<(16-factorsList.size()); rowi++) {
+        for (int coli(0); coli<4; coli++) genomeHandler->readDouble(0, 1, AbstractGate::DATA_CODE, gateID);
+      }
+			if (genomeHandler->atEOC()) {
+        // if we landed at the end of the genome, assume we couldn't read all the required data, so return null (incomplete gene transcription)
+				shared_ptr<DecomposableDirectGate> nullObj = nullptr;
+				return nullObj;
+			}
+			return make_shared<DecomposableDirectGate>(addresses,factorsList,gateID, _PT);
 		});
 	}
 	if (usingDetGatePL->get(PT)) {
@@ -484,14 +536,27 @@ void Gate_Builder::setupGates() {
 			double deliveryCharge = genomeHandler->readDouble(NeuronGate::defaultDeliveryChargeMinPL->get(_PT), NeuronGate::defaultDeliveryChargeMaxPL->get(_PT), AbstractGate::DATA_CODE, gateID);
 			double deliveryError = NeuronGate::defaultDeliveryErrorPL->get(_PT);
 
+			// assume Threshold is not coming from a node
 			int ThresholdFromNode = -1;
-			int DeliveryChargeFromNode = -1;
-			bool defaultThresholdFromNode = NeuronGate::defaultThresholdFromNodePL->get(_PT);
-			if (defaultThresholdFromNode) {
+			int defaultThresholdFromNode = NeuronGate::defaultThresholdFromNodePL->get(_PT);
+			// if defaultThresholdFromNode == -1 then genome should decide
+			if (defaultThresholdFromNode == -1) {
+				defaultThresholdFromNode = genomeHandler->readInt(0, 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+			}
+			// if either user or genome sets defaultThresholdFromNode = 1 then Threshold value will come from node, get an address
+			if (defaultThresholdFromNode == 1) {
 				ThresholdFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
-			bool defaultDeliveryChargeFromNode = NeuronGate::defaultDeliveryChargeFromNodePL->get(_PT);
-			if (defaultDeliveryChargeFromNode) {
+
+			// assume DeliveryCharge is not coming from a node
+			int DeliveryChargeFromNode = -1;
+			int defaultDeliveryChargeFromNode = NeuronGate::defaultDeliveryChargeFromNodePL->get(_PT);
+			// if defaultDeliveryChargeFromNode == -1 then genome should decide
+			if (defaultDeliveryChargeFromNode == -1) {
+				defaultDeliveryChargeFromNode = genomeHandler->readInt(0, 1, AbstractGate::IN_ADDRESS_CODE, gateID);
+			}
+			// if either user or genome sets defaultThresholdFromNode = 1 then DeliveryCharge value will come from node, get an address
+			if (defaultDeliveryChargeFromNode == 1) {
 				DeliveryChargeFromNode = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1, AbstractGate::IN_ADDRESS_CODE, gateID);
 			}
 			if (genomeHandler->atEOC()) {

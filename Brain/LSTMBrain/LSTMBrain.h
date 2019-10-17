@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <set>
@@ -22,63 +22,64 @@
 
 #include "../AbstractBrain.h"
 
-
-using namespace std;
-
-class LSTMBrain: public AbstractBrain {
+class LSTMBrain : public AbstractBrain {
 public:
+  static std::shared_ptr<ParameterLink<std::string>> genomeNamePL;
 
-	static shared_ptr<ParameterLink<string>> genomeNamePL;
+  std::string genomeName;
 
-	string genomeName;
+  std::vector<std::vector<double>> Wf, Wi, Wc, Wo;
+  std::vector<double> ft, it, Ct, Ot, dt;
+  std::vector<double> bt, bi, bC, bO;
+  int I_, O_;
+  std::vector<double> C, X, H;
 
-    vector<vector<double>> Wf,Wi,Wc,Wo;
-    vector<double> ft,it,Ct,Ot,dt;
-    vector<double> bt,bi,bC,bO;
-    int _I,_O;
-    vector<double> C,X,H;
+  LSTMBrain() = delete;
 
-    
-	LSTMBrain() = delete;
+  LSTMBrain(int _nrInNodes, int _nrOutNodes,
+            std::shared_ptr<ParametersTable> PT_);
 
-	LSTMBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT);
+  virtual ~LSTMBrain() = default;
 
-	virtual ~LSTMBrain() = default;
+  virtual void update() override;
 
-	virtual void update() override;
+  virtual std::shared_ptr<AbstractBrain>
+  makeBrain(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+                &_genomes) override;
 
-	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
+  virtual std::string description() override;
+  virtual DataMap getStats(std::string &prefix) override;
+  virtual std::string getType() override { return "LSTM"; }
 
-	virtual string description() override;
-	virtual DataMap getStats(string& prefix) override;
-	virtual string getType() override {
-		return "LSTM";
-	}
+  virtual void resetBrain() override;
+  virtual void resetOutputs() override;
 
-	virtual void resetBrain() override;
-	virtual void resetOutputs() override;
+  virtual void initializeGenomes(
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+          &_genomes) override;
 
-	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
-    
-    double fastSigmoid(double value){
-        return  value / (1.0 + fabs(value));
-    }
-    void singleLayerUpdate(vector<double> &IN,vector<double> &out,vector<vector<double>> &W);
-    void vectorMathSigmoid(vector<double> &V);
-    void vectorMathTanh(vector<double> &V);
-    void vectorMathElementalPlus(vector<double> &A,vector<double> &B,vector<double> &result);
-    void vectorMathElementalMultiply(vector<double> &A,vector<double> &B,vector<double> &result);
-    void showVector(vector<double> &V);
-    
-    virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+  double fastSigmoid(double value) { return value / (1.0 + fabs(value)); }
+  void singleLayerUpdate(std::vector<double> &IN, std::vector<double> &out,
+                         std::vector<std::vector<double>> &W);
+  void vectorMathSigmoid(std::vector<double> &V);
+  void vectorMathTanh(std::vector<double> &V);
+  void vectorMathElementalPlus(std::vector<double> &A, std::vector<double> &B,
+                               std::vector<double> &result);
+  void vectorMathElementalMultiply(std::vector<double> &A,
+                                   std::vector<double> &B,
+                                   std::vector<double> &result);
+  void showVector(std::vector<double> &V);
 
-	virtual unordered_set<string> requiredGenomes() override {
-		return { genomeNamePL->get(PT) };
-	}
+  virtual std::shared_ptr<AbstractBrain>
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
 
+  virtual std::unordered_set<std::string> requiredGenomes() override {
+    return {genomeNamePL->get(PT)};
+  }
 };
 
-inline shared_ptr<AbstractBrain> LSTMBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
-	return make_shared<LSTMBrain>(ins, outs, PT);
+inline std::shared_ptr<AbstractBrain>
+LSTMBrain_brainFactory(int ins, int outs, std::shared_ptr<ParametersTable> PT) {
+  return std::make_shared<LSTMBrain>(ins, outs, PT);
 }
 

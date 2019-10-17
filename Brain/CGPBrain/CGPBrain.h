@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <set>
@@ -18,86 +18,89 @@
 
 #include "../../Utilities/Random.h"
 #include "../../Genome/AbstractGenome.h"
+#include "../../Utilities/Utilities.h"
 
 #include "../AbstractBrain.h"
 
-
-using namespace std;
-
-class CGPBrain: public AbstractBrain {
+class CGPBrain : public AbstractBrain {
 public:
+  static std::shared_ptr<ParameterLink<int>> hiddenNodesPL;
+  // int nrHiddenValues;
 
-	static shared_ptr<ParameterLink<int>> hiddenNodesPL;
-	//int nrHiddenValues;
+  static std::shared_ptr<ParameterLink<std::string>> genomeNamePL;
+  // std::string genomeName;
 
-	static shared_ptr<ParameterLink<string>> genomeNamePL;
-	//string genomeName;
+  static std::shared_ptr<ParameterLink<std::string>> availableOperatorsPL;
+  std::vector<std::string> availableOperators;
 
-	static shared_ptr<ParameterLink<string>> availableOperatorsPL;
-	vector<string> availableOperators;
+  static std::shared_ptr<ParameterLink<double>> magnitudeMaxPL;
+  static std::shared_ptr<ParameterLink<double>> magnitudeMinPL;
+  // double magnitudeMax;
+  // double magnitudeMin;
 
-	static shared_ptr<ParameterLink<double>> magnitudeMaxPL;
-	static shared_ptr<ParameterLink<double>> magnitudeMinPL;
-	//double magnitudeMax;
-	//double magnitudeMin;
+  static std::shared_ptr<ParameterLink<int>> numOpsPreVectorPL;
+  // int numOpsPreVector;
 
-	static shared_ptr<ParameterLink<int>> numOpsPreVectorPL;
-	//int numOpsPreVector;
+  static std::shared_ptr<ParameterLink<std::string>> buildModePL;
+  // string buildMode;
 
-	static shared_ptr<ParameterLink<string>> buildModePL;
-	//string buildMode;
+  static std::shared_ptr<ParameterLink<int>> codonMaxPL;
+  // int codonMax;
 
-	static shared_ptr<ParameterLink<int>> codonMaxPL;
-	//int codonMax;
+  static std::shared_ptr<ParameterLink<bool>> readFromOutputsPL;
+  // bool readFromOutputs;
 
-	static shared_ptr<ParameterLink<bool>> readFromOutputsPL;
-	//bool readFromOutputs;
-	
-	vector<double> readFromValues; // list of values that can be read from (inputs, outputs, hidden)
-	vector<double> writeToValues; // list of values that can be written to (there will be this number of trees) (outputs, hidden)
+  std::vector<double> readFromValues; // list of values that can be read from
+                                 // (inputs, outputs, hidden)
+  std::vector<double> writeToValues;  // list of values that can be written to (there
+                                 // will be this number of trees) (outputs,
+                                 // hidden)
 
-	int nrInputTotal; // inputs + last outputs (maybe) + hidden
-	int nrOutputTotal; // outputs + hidden
+  int nrInputTotal;  // inputs + last outputs (maybe) + hidden
+  int nrOutputTotal; // outputs + hidden
 
-	map<string, int> allOps;
-	vector<int> availableOps;
-	int availableOpsCount;
+  std::map<std::string, int> allOps;
+  std::vector<int> availableOps;
+  int availableOpsCount;
 
-	vector<vector<int>> brainVectors; // instruction sets (op,in1,in2)
+  std::vector<std::vector<int>> brainVectors; // instruction sets (op,in1,in2)
 
+  CGPBrain() = delete;
 
-	CGPBrain() = delete;
+  CGPBrain(int _nrInNodes, int _nrOutNodes,
+           std::shared_ptr<ParametersTable> PT_ = nullptr);
+  CGPBrain(int _nrInNodes, int _nrOutNodes,
+           std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
+           std::shared_ptr<ParametersTable> PT_ = nullptr);
 
-	CGPBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = nullptr);
-	CGPBrain(int _nrInNodes, int _nrOutNodes, unordered_map<string, shared_ptr<AbstractGenome>>& _genomes, shared_ptr<ParametersTable> _PT = nullptr);
+  virtual ~CGPBrain() = default;
 
-	virtual ~CGPBrain() = default;
+  virtual void update() override;
 
-	virtual void update() override;
+  virtual std::shared_ptr<AbstractBrain> makeBrain(
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes) override {
+    std::shared_ptr<CGPBrain> newBrain =
+        std::make_shared<CGPBrain>(nrInputValues, nrOutputValues, _genomes, PT);
+    return newBrain;
+  }
 
-	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override {
-		shared_ptr<CGPBrain> newBrain = make_shared<CGPBrain>(nrInputValues, nrOutputValues, _genomes, PT);
-		return newBrain;
-	}
+  virtual std::unordered_set<std::string> requiredGenomes() override {
+    return {genomeNamePL->get(PT)};
+  }
 
-	virtual unordered_set<string> requiredGenomes() override {
-		return {genomeNamePL->get(PT) };
-	}
+  virtual std::string description() override;
+  virtual DataMap getStats(std::string &prefix) override;
+  virtual std::string getType() override { return "CGP"; }
 
+  virtual void resetBrain() override;
 
-	virtual string description() override;
-	virtual DataMap getStats(string& prefix) override;
-	virtual string getType() override {
-		return "CGP";
-	}
-
-	virtual void resetBrain() override;
-
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
-	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
-
+  virtual std::shared_ptr<AbstractBrain>
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
+  virtual void initializeGenomes(
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes);
 };
 
-inline shared_ptr<AbstractBrain> CGPBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT) {
-	return make_shared<CGPBrain>(ins, outs, PT);
+inline std::shared_ptr<AbstractBrain>
+CGPBrain_brainFactory(int ins, int outs, std::shared_ptr<ParametersTable> PT) {
+  return std::make_shared<CGPBrain>(ins, outs, PT);
 }

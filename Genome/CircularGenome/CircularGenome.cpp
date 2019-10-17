@@ -10,24 +10,36 @@
 
 #include "../../Global.h"
 #include "CircularGenome.h"
+#include <cmath> // std::nextbefore
+#include <cfloat> // DBL_MAX
 
 // Initialize Parameters
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeInitialPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeInitial", 5000, "starting size for genome");
-shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointRate", 0.005, "per site point mutation rate");
-shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationCopyRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyRate", 0.00002, "per site insertion rate");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMinSize", 128, "minimum size of insertion mutation");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMaxSize", 512, "maximum size of insertion mutation");
-shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationDeleteRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteRate", 0.00002, "per site deletion rate");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMinSize", 128, "minimum size of insertion mutation");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMaxSize", 512, "maximum size of insertion mutation");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMinPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMin", 2000, "if genome is smaller then this, mutations will only increase chromosome size");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMaxPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMax", 20000, "if genome is larger then this, mutations will only decrease chromosome size");
-shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCountPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCrossCount", 3, "number of crosses when performing crossover (including during recombination)");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeInitialPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeInitial", 5000, "starting size for genome");
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointRate", 0.005, "per site point mutation rate");
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationCopyRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyRate", 0.00002, "per site insertion rate");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMinSize", 128, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationDeleteRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteRate", 0.00002, "per site deletion rate");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMinSize", 128, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationIndelRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelRate", 0.0, "per site insertion+deletion (indel) rate. This mutation copies a segment of the genome and deletes a segment of the same size so genome size remains fixed).");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMinSize", 128, "minimum size of insertion-deletion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMaxSize", 512, "maximum size of insertion-deletion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelInsertMethodPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelInsertMethod", 0, "where is copied material inserted?\n0 = place random, 1 = replace deleted sites, 2 = insert just before copied material");
+std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationIndelCopyFirstPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelCopyFirst", true, "whether copy or deletion happens first (0 = delete first, 1 = copy first)");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMinPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMin", 2000, "if genome is smaller then this, mutations will only increase chromosome size");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMaxPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMax", 20000, "if genome is larger then this, mutations will only decrease chromosome size");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCountPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCrossCount", 3, "number of crosses when performing crossover (including during recombination)");
+
+
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRate", 0.0, "per site point offset mutation rate (site changes in range (+/-)mutationPointOffsetRange)");
+std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRangePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRange", 1.0, "range of PointOffset mutation");
+
 
 // constructor
 template<class T>
-CircularGenome<T>::Handler::Handler(shared_ptr<AbstractGenome> _genome, bool _readDirection) {
-	genome = dynamic_pointer_cast<CircularGenome>(_genome);
+CircularGenome<T>::Handler::Handler(std::shared_ptr<AbstractGenome> _genome, bool _readDirection) {
+	genome = std::dynamic_pointer_cast<CircularGenome>(_genome);
 	setReadDirection(_readDirection);
 	resetHandler();
 }
@@ -53,7 +65,7 @@ void CircularGenome<T>::Handler::resetHandlerOnChromosome() {
 	resetEOC();
 }
 // modulateIndex checks to see if the current chromosomeIndex and siteIndex are out of range. if they are
-// it uses readDirection to resolve them.	virtual void copyFrom(shared_ptr<Genome> from) {
+// it uses readDirection to resolve them.	virtual void copyFrom(std::shared_ptr<Genome> from) {
 
 //  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
 // chromosome 10 is 8 long, modulateIndex will set the index to chromosome 2, site 0 (not site 2).
@@ -109,9 +121,9 @@ bool CircularGenome<T>::Handler::atEOC() {
 
 template<class T>
 void CircularGenome<T>::Handler::printIndex() {
-	string rd = (readDirection) ? "forward" : "backwards";
+	std::string rd = (readDirection) ? "forward" : "backwards";
 
-	cout << "  siteIndex: " << siteIndex << "  EOC: " << EOC << "  EOG: " << EOG << "  direction: " << rd << endl;
+	std::cout << "  siteIndex: " << siteIndex << "  EOC: " << EOC << "  EOG: " << EOG << "  direction: " << rd << std::endl;
 }
 
 template<class T>
@@ -167,6 +179,23 @@ double CircularGenome<T>::Handler::readDouble(double valueMin, double valueMax, 
 	advanceIndex();
 	//scale the value
 	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
+	// old version where return values did not include upper value... return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
+	return (value / (genome->alphabetSize - 1.0)) * (valueMax - valueMin) + valueMin;
+}
+
+template<>
+double CircularGenome<double>::Handler::readDouble(double valueMin, double valueMax, int code, int CodingRegionIndex) {
+	double value;
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	value = (double)genome->sites[siteIndex];
+	//codingRegions.assignCode(code, siteIndex, CodingRegionIndex);
+	advanceIndex();
+	//scale the value
+	//cout << "  value: " << value << "  valueMin: " << valueMin << "  valueMax: " << valueMax << "  final: " << (value * ((valueMax - valueMin) / genome->alphabetSize)) + valueMin << endl;
 	return ((value / genome->alphabetSize) * (valueMax - valueMin)) + valueMin;
 }
 
@@ -177,11 +206,11 @@ void CircularGenome<T>::Handler::writeInt(int value, int valueMin, int valueMax)
 		valueMax = valueMin;
 		valueMin = temp;
 	}
-	vector<T> decomposedValue;
+	std::vector<T> decomposedValue;
 	int writeValueBase = valueMax - valueMin + 1;
 	value = value - valueMin;
 	if (writeValueBase < value) {
-		cout << "ERROR : attempting to write value to Circular Genome. \n value is too large :: (valueMax - valueMin + 1) < value!" << endl;
+		std::cout << "ERROR : attempting to write value to Circular Genome. \n value is too large :: (valueMax - valueMin + 1) < value!" << std::endl;
 		exit(1);
 	}
 	while (writeValueBase > genome->alphabetSize) {  // load value in alphabetSize chunks into decomposedValue
@@ -227,19 +256,37 @@ void CircularGenome<T>::Handler::writeDouble(double value, double valueMin, doub
 		valueMin = temp;
 	}
 	if ((value - valueMin) > (valueMax - valueMin)) {
-		cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
+		std::cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
 		exit(1);
 	}
-	value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	// old version: value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
+	value = ((value - valueMin) / (valueMax - valueMin)) * (genome->alphabetSize - 1.0);
+	std::cout << value << std::endl;
 	genome->sites[siteIndex] = (T)value;
 	advanceIndex();
 }
 
+template<>
+void CircularGenome<double>::Handler::writeDouble(double value, double valueMin, double valueMax) {
+	if (valueMin > valueMax) {
+		double temp = valueMin;
+		valueMax = valueMin;
+		valueMin = temp;
+	}
+	if ((value - valueMin) > (valueMax - valueMin)) {
+		std::cout << "Error: attempting to write double. given range is too small, value: " << value << " is not < valueMax: " << valueMin << " - valueMin: " << valueMin << "\n";
+		exit(1);
+	}
+	value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
+	genome->sites[siteIndex] = value;
+	advanceIndex();
+}
 
 
 template<class T>
-shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
-	auto newGenomeHandler = make_shared<CircularGenome<T>::Handler>(genome, readDirection);
+std::shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
+	auto newGenomeHandler = std::make_shared<CircularGenome<T>::Handler>(genome, readDirection);
 	newGenomeHandler->EOG = EOG;
 	newGenomeHandler->EOC = EOC;
 	newGenomeHandler->siteIndex = siteIndex;
@@ -247,8 +294,8 @@ shared_ptr<AbstractGenome::Handler> CircularGenome<T>::Handler::makeCopy() {
 }
 
 template<class T>
-void CircularGenome<T>::Handler::copyTo(shared_ptr<AbstractGenome::Handler> to) {
-	auto castTo = dynamic_pointer_cast<CircularGenome<T>::Handler>(to);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+void CircularGenome<T>::Handler::copyTo(std::shared_ptr<AbstractGenome::Handler> to) {
+	auto castTo = std::dynamic_pointer_cast<CircularGenome<T>::Handler>(to);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	castTo->readDirection = readDirection;
 	castTo->genome = genome;
 	castTo->siteIndex = siteIndex;
@@ -274,8 +321,8 @@ void CircularGenome<T>::Handler::randomize() {
 }
 
 template<class T>
-vector<vector<int>> CircularGenome<T>::Handler::readTable(pair<int, int> tableSize, pair<int, int> tableMaxSize, pair<int, int> valueRange, int code, int CodingRegionIndex) {
-	vector<vector<int>> table;
+std::vector<std::vector<int>> CircularGenome<T>::Handler::readTable(std::pair<int, int> tableSize, std::pair<int, int> tableMaxSize, std::pair<int, int> valueRange, int code, int CodingRegionIndex) {
+	std::vector<std::vector<int>> table;
 	int x = 0;
 	int y = 0;
 	int Y = tableSize.first;
@@ -305,18 +352,6 @@ vector<vector<int>> CircularGenome<T>::Handler::readTable(pair<int, int> tableSi
 
 template<class T>
 void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
-	//initialSizeLPL = (PT == nullptr) ? CircularGenomeParameters::sizeInitialPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeInitial", PT);
-	//mutationPointRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationPointRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationPointRate", PT);
-	//mutationCopyRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationCopyRate", PT);
-	//mutationCopyMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMinSize", PT);
-	//mutationCopyMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCopyMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCopyMaxSize", PT);
-	//mutationDeleteRateLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteRatePL : Parameters::getDoubleLink("GENOME_CIRCULAR-mutationDeleteRate", PT);
-	//mutationDeleteMinSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMinSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMinSize", PT);
-	//mutationDeleteMaxSizeLPL = (PT == nullptr) ? CircularGenomeParameters::mutationDeleteMaxSizePL : Parameters::getIntLink("GENOME_CIRCULAR-mutationDeleteMaxSize", PT);
-	//sizeMinLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMinPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMin", PT);
-	//sizeMaxLPL = (PT == nullptr) ? CircularGenomeParameters::sizeMaxPL : Parameters::getIntLink("GENOME_CIRCULAR-sizeMax", PT);
-	//mutationCrossCountLPL = (PT == nullptr) ? CircularGenomeParameters::mutationCrossCountPL : Parameters::getIntLink("GENOME_CIRCULAR-mutationCrossCount", PT);
-
 	sites.resize(_size);
 	alphabetSize = _alphabetSize;
 	// define columns to be written to genome files
@@ -326,58 +361,77 @@ void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	genomeFileColumns.push_back("alphabetSize");
 	genomeFileColumns.push_back("genomeLength");
 	genomeFileColumns.push_back("sites");
+    
+	genomeFileColumns.push_back("countCopy");
+    genomeFileColumns.push_back("countDelete");
+	genomeFileColumns.push_back("countPoint");
+	genomeFileColumns.push_back("countPointOffset");
+	genomeFileColumns.push_back("countIndel");
+	
 	// define columns to added to ave files
 	popFileColumns.clear();
 	popFileColumns.push_back("genomeLength");
+    
+	popFileColumns.push_back("countCopy");
+    popFileColumns.push_back("countDelete");
+	popFileColumns.push_back("countPoint");
+	popFileColumns.push_back("countPointOffset");
+	popFileColumns.push_back("countIndel");
 
 	recordDataMap();
 }
 
 //template<class T>
-//CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+//CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 //	setupCircularGenome(_size, _alphabetSize);
 //}
 
 template<class T>
-CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<T>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
-	cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char" << endl;
+	std::cout << "ERROR : TYPE specified for CircularGenome is not supported.\nTypes supported are: int, double, bool, unsigned char" << std::endl;
 	exit(1);
 }
 
 template<>
-CircularGenome<int>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<int>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<bool>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	if (_alphabetSize != 2) {
-		cout << "ERROR: in CircularGenome constructor, alphabetSize for bool must be 2!" << endl;
+		std::cout << "ERROR: in CircularGenome constructor, alphabetSize for bool must be 2!" << std::endl;
 		exit(1);
 	}
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<double>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<double>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	setupCircularGenome(_size, _alphabetSize);
 }
 template<>
-CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT) {
+CircularGenome<unsigned char>::CircularGenome(double _alphabetSize, int _size, std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_) {
 	if (_alphabetSize > 256 || _alphabetSize < 2) {
-		cout << "ERROR: in CircularGenome constructor, alphabetSize for unsigned char must be 2 or greater and 256 or less!" << endl;
+		std::cout << "ERROR: in CircularGenome constructor, alphabetSize for unsigned char must be 2 or greater and 256 or less!" << std::endl;
 		exit(1);
 	}
 	setupCircularGenome(_size, _alphabetSize);
 }
 
 template<class T>
-shared_ptr<AbstractGenome> CircularGenome<T>::makeCopy(shared_ptr<ParametersTable> _PT) {
-	if (_PT == nullptr) {
-		_PT = PT;
+std::shared_ptr<AbstractGenome> CircularGenome<T>::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
 
-	auto newGenome = make_shared<CircularGenome>(alphabetSize, 1, _PT);
+	auto newGenome = std::make_shared<CircularGenome>(alphabetSize, 1, PT_);
+
 	newGenome->sites = sites; 
+	newGenome->countPoint = countPoint;
+	newGenome->countPointOffset = countPointOffset;
+	newGenome->countDelete = countDelete;
+	newGenome->countCopy = countCopy;
+	newGenome->countIndel = countIndel;
 
 	return newGenome;
 }
@@ -385,9 +439,9 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeCopy(shared_ptr<ParametersTabl
 
 
 template<class T>
-shared_ptr<AbstractGenome::Handler> CircularGenome<T>::newHandler(shared_ptr<AbstractGenome> _genome, bool _readDirection) {
+std::shared_ptr<AbstractGenome::Handler> CircularGenome<T>::newHandler(std::shared_ptr<AbstractGenome> _genome, bool _readDirection) {
 	//cout << "In Genome::newHandler()" << endl;
-	return make_shared<Handler>(_genome, _readDirection);
+	return std::make_shared<Handler>(_genome, _readDirection);
 }
 
 template<class T> int CircularGenome<T>::size() {
@@ -443,13 +497,18 @@ void CircularGenome<T>::fillConstant(int value) {
 // copy the contents of another genome to this genome
 // no undefined action, this function must be defined
 template<class T>
-void CircularGenome<T>::copyFrom(shared_ptr<AbstractGenome> from) {
-	auto castFrom = dynamic_pointer_cast<CircularGenome<T>>(from);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+void CircularGenome<T>::copyFrom(std::shared_ptr<AbstractGenome> from) {
+	auto castFrom = std::dynamic_pointer_cast<CircularGenome<T>>(from);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	alphabetSize = castFrom->alphabetSize;
 	sites.clear();
 	for (auto site : castFrom->sites) {
 		sites.push_back(site);
 	}
+	countPoint = castFrom->countPoint;
+	countPointOffset = castFrom->countPointOffset;
+	countDelete = castFrom->countDelete;
+	countCopy = castFrom->countCopy;
+	countIndel = castFrom->countIndel;
 }
 
 // Mutation functions
@@ -465,25 +524,87 @@ bool CircularGenome<T>::isEmpty() {
 	return (countSites() == 0);
 }
 
+//template<class T>
+//void CircularGenome<T>::pointMutate() {
+//        
+//        auto newVal = Random::getIndex((int)std::ceil((mutationPointWindowPL->get(PT))*alphabetSize));
+//	sites[Random::getIndex((int)sites.size())] = newVal;
+//}
+
+// mutate a random site to a new value.
+// if range is provied (not -1) then the new value will be within +/- range of current value
 template<class T>
-void CircularGenome<T>::pointMutate() {
-	sites[Random::getIndex((int)sites.size())] = Random::getIndex((int)alphabetSize);
+void CircularGenome<T>::pointMutate(double range) {
+	if (range == -1) {
+		sites[Random::getIndex((int)sites.size())] = Random::getIndex((int)alphabetSize);
+	}
+	else {
+		int siteIndex = Random::getIndex((int)sites.size());
+		sites[siteIndex] =
+			std::max(0,std::min((int)alphabetSize-1,
+				sites[siteIndex] +
+			(((Random::getIndex(2)*2)-1) * // sign (((0 or 1) * 2) - 1)
+				Random::getInt(1,std::max(1,(int)range))))); // value (will be 1 or more)
+	}
 }
 
 template<>
-void CircularGenome<double>::pointMutate() {
-	sites[Random::getIndex((int)sites.size())] = Random::getDouble(alphabetSize);
+void CircularGenome<double>::pointMutate(double range) {
+	if (range == -1) {
+		sites[Random::getIndex((int)sites.size())] = Random::getDouble(alphabetSize);
+	}
+	else {
+		int siteIndex = Random::getIndex((int)sites.size());
+		double offsetMagnitude = Random::getDouble(0, range);
+		double offsetDirection = (Random::getIndex(2) * 2.0) - 1.0;
+		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
+		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetDirection*offsetMagnitude)));
+	}
+}
+
+template<class T>
+int CircularGenome<T>::incrementCopy() {
+    return countCopy++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementPoint() {
+	return countPoint++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementPointOffset() {
+	return countPointOffset++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementDelete() {
+    return countDelete++;
+}
+
+template<class T>
+int CircularGenome<T>::incrementIndel() {
+    return countIndel++;
 }
 
 // apply mutations to this genome
 template<class T>
 void CircularGenome<T>::mutate() {
 	int howManyPoint = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationPointRatePL->get(PT));
+	int howManyPointOffset = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationPointOffsetRatePL->get(PT));
 	int howManyCopy = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationCopyRatePL->get(PT));
 	int howManyDelete = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationDeleteRatePL->get(PT));
+	int howManyIndel = Random::getBinomial((int)sites.size(), CircularGenomeParameters::mutationIndelRatePL->get(PT));
 	// do some point mutations
 	for (int i = 0; i < howManyPoint; i++) {
 		pointMutate();
+		incrementPoint();
+	}
+	// do some pointOffset mutations
+	double pointOffsetRange = CircularGenomeParameters::mutationPointOffsetRangePL->get(PT);
+	for (int i = 0; i < howManyPointOffset; i++) {
+		pointMutate(pointOffsetRange);
+		incrementPointOffset();
 	}
 	// do some copy mutations
 	int MaxGenomeSize = CircularGenomeParameters::sizeMaxPL->get(PT);
@@ -493,17 +614,17 @@ void CircularGenome<T>::mutate() {
 		//chromosome->mutateCopy(PT.lookup("mutationCopyMinSize"), PT.lookup("mutationCopyMaxSize"), PT.lookup("chromosomeSizeMax"));
 
 		//cout << "size: " << sites.size() << "->";
-		////shared_ptr<Chromosome<T>> segment = dynamic_pointer_cast<Chromosome<T>>(getSegment(minSize, maxSize));
+		////std::shared_ptr<Chromosome<T>> segment = dynamic_pointer_cast<Chromosome<T>>(getSegment(minSize, maxSize));
 
 		int segmentSize = Random::getInt(IMax - IMin) + IMin;
 		if (segmentSize > (int)sites.size()) {
-			cout << "segmentSize = " << segmentSize << "  sites.size() = " << (int)sites.size() << endl;
-			cout << "maxSize:minSize" << IMax << ":" << IMin << endl;
-			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for insert is > then sites.size()!\nExitting!" << endl;
+			std::cout << "segmentSize = " << segmentSize << "  sites.size() = " << (int)sites.size() << std::endl;
+			std::cout << "maxSize:minSize" << IMax << ":" << IMin << std::endl;
+			std::cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for insert is > then sites.size()!\nExitting!" << std::endl;
 			exit(1);
 		}
 		int segmentStart = Random::getInt((int)sites.size() - segmentSize);
-		vector<T> segment;
+		std::vector<T> segment;
 		segment.clear();
 		auto it = sites.begin();
 		segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
@@ -513,6 +634,8 @@ void CircularGenome<T>::mutate() {
 		sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 
 		//cout << sites.size() << endl;
+
+		incrementCopy();
 	}
 	// do some deletion mutations
 	int MinGenomeSize = CircularGenomeParameters::sizeMinPL->get(PT);
@@ -524,23 +647,98 @@ void CircularGenome<T>::mutate() {
 		int segmentSize = Random::getInt(DMax - DMin) + DMin;
 		//cout << "segSize: " << segmentSize << "\tsize: " << sites.size() << "\t->\t";
 		if (segmentSize > (int)sites.size()) {
-			cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << endl;
-			cout << "maxSize : minSize   " << DMax << " : " << DMin << endl;
-			cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for delete is > then sites.size()!\nExitting!" << endl;
+			std::cout << "segmentSize = " << segmentSize << "  sites.size() = " << sites.size() << std::endl;
+			std::cout << "maxSize : minSize   " << DMax << " : " << DMin << std::endl;
+			std::cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for delete is > then sites.size()!\nExitting!" << std::endl;
 			exit(1);
 		}
 		int segmentStart = Random::getInt(((int)sites.size()) - segmentSize);
 		sites.erase(sites.begin() + segmentStart, sites.begin() + segmentStart + segmentSize);
+
+		incrementDelete();
+	}
+	// do some combination insertion-deletion (indel) mutations
+	int IDMax = CircularGenomeParameters::mutationIndelMaxSizePL->get(PT);
+	int IDMin = CircularGenomeParameters::mutationIndelMinSizePL->get(PT);
+	bool copyFirst = CircularGenomeParameters::mutationIndelCopyFirstPL->get(PT);
+	int insertMethod = CircularGenomeParameters::mutationIndelInsertMethodPL->get(PT);
+
+	for (int i = 0; i < howManyIndel; i++) {
+
+		int segmentSize = Random::getInt(IDMin, IDMax);
+		if (segmentSize > (int)sites.size()) {
+			std::cout << "segmentSize = " << segmentSize << "  sites.size() = " << (int)sites.size() << std::endl;
+			std::cout << "maxSize:minSize" << IDMax << ":" << IDMin << std::endl;
+			std::cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for indel is > then sites.size()!\nExiting!" << std::endl;
+			exit(1);
+		}
+
+		// create a new genome segment
+		std::vector<T> segment;
+		auto it = sites.begin(); // i.e. iterator
+
+		if (copyFirst) {
+			// if copy before delete
+			// copy a portion of the genome into segment
+			int segmentStart = Random::getIndex((int)sites.size() - segmentSize); // where to copy from
+			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			segment.clear();
+			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
+			// delete a portion of the genome of the same size
+			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
+			// insert the copied sites back into genome
+			if (insertMethod == 0) {
+				// copy to random location
+				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+			}
+			else if (insertMethod == 1) {
+				// replace deleted segment
+				sites.insert(it + deleteStart, segment.begin(), segment.end());
+			}
+			else if (insertMethod == 2) {
+				// insert segment just in front of copied sites
+				if (segmentStart > deleteStart) { // note if deleteStart is in copied segment things are weird.
+					segmentStart -= deleteStart;  // but no matter what we do, it's going to be weird...
+				}
+				sites.insert(it + segmentStart, segment.begin(), segment.end());
+			}
+		}
+		else {
+			// delete before copy (deleted sites cannot be copied)
+			// delete a portion of the genome
+			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
+
+			// copy a portion of the genome into segment
+			int segmentStart = Random::getIndex((int)sites.size() - segmentSize);
+			segment.clear();
+			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
+
+			// insert the copied sites back into genome
+			if (insertMethod == 0) {
+				// copy to random location
+				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+			}
+			else if (insertMethod == 1) {
+				// replace deleted segment
+				sites.insert(it + deleteStart, segment.begin(), segment.end());
+			}
+			else if (insertMethod == 2) {
+				// insert segment just in front of copied sites
+				sites.insert(it + segmentStart, segment.begin(), segment.end());
+			}
+		}
+		incrementIndel();
 	}
 }
 
 // make a mutated genome. from this genome
 // inherit the ParamatersTable from the calling instance
 template<class T>
-shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
-	auto newGenome = make_shared<CircularGenome<T>>(PT);
+std::shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(std::shared_ptr<AbstractGenome> parent) {
+	auto newGenome = std::make_shared<CircularGenome<T>>(PT);
 	newGenome->copyFrom(parent);
-	newGenome->mutate();
+    newGenome->mutate();
 	newGenome->recordDataMap();
 	return newGenome;
 }
@@ -553,15 +751,15 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFrom(shared_ptr<A
 // if ploidy > 1 then the number of parents must match ploidy (this may be extended in the future)
 // in this case, each parent crosses all of its chromosomes and contributs the result as a new chromosome
 template<class T>
-shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<shared_ptr<AbstractGenome>> parents) {
-	//cout << "In Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)" << endl;
+std::shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(std::vector<std::shared_ptr<AbstractGenome>> parents) {
+	//cout << "In Genome::makeMutatedGenome(std::vector<std::shared_ptr<AbstractGenome>> parents)" << endl;
 	// first, check to make sure that parent genomes are conpatable.
-	auto castParent0 = dynamic_pointer_cast<CircularGenome<T>>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+	auto castParent0 = std::dynamic_pointer_cast<CircularGenome<T>>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 
-	auto newGenome = make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,PT);
+	auto newGenome = std::make_shared<CircularGenome<T>>(castParent0->alphabetSize,0,PT);
 	//newGenome->alphabetSize = castParent0->alphabetSize;
 
-//	vector<shared_ptr<AbstractChromosome>> parentChromosomes;
+//	vector<std::shared_ptr<AbstractChromosome>> parentChromosomes;
 //	for (auto rawParent : parents) {
 //		auto parent = dynamic_pointer_cast<CircularGenome<T>>(rawParent);
 //		parentChromosomes.push_back(parent->chromosomes[i]);  // make a vector that contains the nth chromosome from each parent
@@ -569,7 +767,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 //	newGenome->chromosomes[newGenome->chromosomes.size() - 1]->crossover(parentChromosomes, newGenome->PT.lookup("genomecrossCount"));  // create a crossover chromosome
 
 	if (parents.size() == 0) {
-		cout << "ERROR! in CircularGenome<T>::makeMutatedGenomeFromMany crossover... attempt to cross 0 parents\nExiting!" << endl;
+		std::cout << "ERROR! in CircularGenome<T>::makeMutatedGenomeFromMany crossover... attempt to cross 0 parents\nExiting!" << std::endl;
 		exit(1);
 	}
 	if (parents.size() == 1) {  // if there is only one parent...
@@ -579,13 +777,13 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 		//cout << "many parent" << endl;
 
 		// extract the sites list from each parent
-		vector<vector<T>> parentSites;
+		std::vector<std::vector<T>> parentSites;
 		for (auto parent : parents) {
-			parentSites.push_back(dynamic_pointer_cast<CircularGenome<T>>(parent)->sites);
+			parentSites.push_back(std::dynamic_pointer_cast<CircularGenome<T>>(parent)->sites);
 		}
 
 		// randomly determine crossCount number crossLocations
-		vector<double> crossLocations;
+		std::vector<double> crossLocations;
 		int crossCount = CircularGenomeParameters::mutationCrossCountPL->get(PT);
 		for (int i = 0; i < crossCount; i++) {  // get some cross locations (% of length of chromosome)
 			crossLocations.push_back(Random::getDouble(1.0));
@@ -620,7 +818,7 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 	}
 	newGenome->mutate();
 	newGenome->recordDataMap();
-	//cout << "  Leaving Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n" << flush;
+	//cout << "  Leaving Genome::makeMutatedGenome(vector<std::shared_ptr<AbstractGenome>> parents)\n" << flush;
 	return newGenome;
 }
 
@@ -631,15 +829,20 @@ shared_ptr<AbstractGenome> CircularGenome<T>::makeMutatedGenomeFromMany(vector<s
 // the undefined action is to return an empty vector
 
 template<class T>
-DataMap CircularGenome<T>::getStats(string& prefix) {
+DataMap CircularGenome<T>::getStats(std::string& prefix) {
 	DataMap dataMap;
 	dataMap.set(prefix + "genomeLength", countSites());
+	dataMap.set(prefix + "countPoint", countPoint);
+	dataMap.set(prefix + "countPointOffset", countPointOffset);
+	dataMap.set(prefix + "countCopy", countCopy);
+    dataMap.set(prefix + "countDelete", countDelete);
+    dataMap.set(prefix + "countIndel", countIndel);
 	return (dataMap);
 }
 
 
 template<class T>
-DataMap CircularGenome<T>::serialize(string& name) {
+DataMap CircularGenome<T>::serialize(std::string& name) {
 	DataMap serialDataMap;
 	serialDataMap.set(name + "_genomeLength", countSites());
 	serialDataMap.set(name + "_sites", genomeToStr());
@@ -648,69 +851,69 @@ DataMap CircularGenome<T>::serialize(string& name) {
 
 // given a DataMap and PT, return genome [name] from the DataMap
 template<class T>
-void CircularGenome<T>::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+void CircularGenome<T>::deserialize(std::shared_ptr<ParametersTable> PT, std::unordered_map<std::string, std::string>& orgData, std::string& name) {
 	char nextChar;
-	string nextString;
+	std::string nextString;
 	T value;
 	// make sure that data has needed columns
 	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
-		cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << endl;
+		std::cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << std::endl;
 		exit(1);
 	}
 	int genomeLength;
-	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
-	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::string allSites = orgData["GENOME_" + name + "_sites"];
 	std::stringstream ss(allSites);
 
+  bool streamNotEmpty(true);
 	sites.clear();
-	ss >> nextChar; // read past leading '['
-	ss >> nextChar; // load first char of first site
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
-		while (nextChar != ',' && nextChar != ']') {
+		while (streamNotEmpty && (nextChar != ',')) {
 			nextString += nextChar;
-			ss >> nextChar;
+      streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
-		load_value(nextString, value);
-		//cout << nextString << " = " << value << ", ";
+		convertString(nextString, value);
+		//std::cout << nextString << " = " << value << ", ";
 		sites.push_back(value);
-		ss >> nextChar;
+    streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	}
-	//cout << endl;
+	//std::cout << std::endl;
 }
 
 template<>
-void CircularGenome<unsigned char>::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+void CircularGenome<unsigned char>::deserialize(std::shared_ptr<ParametersTable> PT, std::unordered_map<std::string, std::string>& orgData, std::string& name) {
 	char nextChar;
-	string nextString;
+	std::string nextString;
 	int value;
 	// make sure that data has needed columns
 	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
-		cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << endl;
+		std::cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << std::endl;
 		exit(1);
 	}
 	int genomeLength;
-	load_value(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
 
-	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size() - 1);
+	std::string allSites = orgData["GENOME_" + name + "_sites"];
 	std::stringstream ss(allSites);
 
 	sites.clear();
-	ss >> nextChar; // read past leading '['
-	ss >> nextChar; // load first char of first site
+  bool streamNotEmpty(true);
+  streamNotEmpty = static_cast<bool>(ss >> nextChar);
 	for (int i = 0; i < genomeLength; i++) {
 		nextString = "";
-		while (nextChar != ',' && nextChar != ']') {
+		while (streamNotEmpty && (nextChar != ',')) {
 			nextString += nextChar;
-			ss >> nextChar;
+            streamNotEmpty = static_cast<bool>(ss >> nextChar);
 		}
-		load_value(nextString, value);
-		//cout << nextString << " = " << value << ", ";
+		convertString(nextString, value);
+        //std::cout << nextString << " = " << value << ", ";
 		sites.push_back((unsigned char)value);
 		ss >> nextChar;
 	}
-	//cout << endl;
+  //std::cout << std::endl;
 }
 
 
@@ -719,12 +922,16 @@ template<class T>
 void CircularGenome<T>::recordDataMap() {
 	dataMap.set("alphabetSize", alphabetSize);
 	dataMap.set("genomeLength", countSites());
-
+	dataMap.set("countPoint", countPoint);
+	dataMap.set("countPointOffset", countPointOffset);
+	dataMap.set("countCopy", countCopy);
+    dataMap.set("countDelete", countDelete);
+    dataMap.set("countIndel", countIndel);
 }
 /*
 // load all genomes from a file
 template<class T>
-void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) {
+void CircularGenome<T>::loadGenomeFile(string fileName, vector<std::shared_ptr<AbstractGenome>> &genomes) {
 	genomes.clear();
 	std::ifstream FILE(fileName);
 	string rawLine;
@@ -738,7 +945,7 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 			std::stringstream ss(rawLine);
 			ss >> _update >> rubbish >> _ID >> rubbish >> _alphabetSize >> rubbish >> _genomeLength >> rubbish >> rubbish >> rubbish;
 
-			shared_ptr<CircularGenome<T>> newGenome = make_shared<CircularGenome<T>>(PT);
+			std::shared_ptr<CircularGenome<T>> newGenome = make_shared<CircularGenome<T>>(PT);
 			newGenome->alphabetSize = _alphabetSize;
 			newGenome->sites.clear();
 			for (int i = 0; i < _genomeLength; i++) {
@@ -756,7 +963,7 @@ void CircularGenome<T>::loadGenomeFile(string fileName, vector<shared_ptr<Abstra
 }
 
 template<>
-void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) {
+void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<std::shared_ptr<AbstractGenome>> &genomes) {
 	genomes.clear();
 	std::ifstream FILE(fileName);
 	string rawLine;
@@ -770,7 +977,7 @@ void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<share
 			std::stringstream ss(rawLine);
 			ss >> _update >> rubbish >> _ID >> rubbish >> _alphabetSize >> rubbish >> _genomeLength >> rubbish >> rubbish >> rubbish;
 
-			shared_ptr<CircularGenome<unsigned char>> newGenome = make_shared<CircularGenome<unsigned char>>(PT);
+			std::shared_ptr<CircularGenome<unsigned char>> newGenome = make_shared<CircularGenome<unsigned char>>(PT);
 			newGenome->alphabetSize = _alphabetSize;
 			newGenome->sites.clear();
 			for (int i = 0; i < _genomeLength; i++) {
@@ -796,26 +1003,26 @@ void CircularGenome<unsigned char>::loadGenomeFile(string fileName, vector<share
 
 // convert a chromosome to a string
 template<class T>
-string CircularGenome<T>::genomeToStr() {
-	stringstream ss;
-	ss << "\"[";
+std::string CircularGenome<T>::genomeToStr() {
+	std::stringstream ss;
+	ss << "";
 
 	for (size_t i = 0; i < sites.size()-1; i++) {
 		ss << sites[i] << FileManager::separator;
 	}
-	ss << sites[sites.size() - 1] << "]\"";
+	ss << sites[sites.size() - 1];
 	return ss.str();
 }
 
 template<>
-string CircularGenome<unsigned char>::genomeToStr() {
-	stringstream ss;
-	ss << "\"[";
+std::string CircularGenome<unsigned char>::genomeToStr() {
+	std::stringstream ss;
+	ss << "";
 
 	for (size_t i = 0; i < sites.size() - 1; i++) {
 		ss << (int)sites[i] << FileManager::separator;
 	}
-	ss << (int)sites[sites.size() - 1] << "]\"";
+	ss << (int)sites[sites.size() - 1] << "";
 	return ss.str();
 }
 
@@ -824,8 +1031,8 @@ string CircularGenome<unsigned char>::genomeToStr() {
 
 template<class T>
 void CircularGenome<T>::printGenome() {
-	cout << "alphabetSize: " << getAlphabetSize() << endl;
-	cout << genomeToStr();
-	cout << endl;
+	std::cout << "alphabetSize: " << getAlphabetSize() << std::endl;
+	std::cout << genomeToStr();
+	std::cout << std::endl;
 }
 

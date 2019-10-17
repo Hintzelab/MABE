@@ -13,25 +13,25 @@
 
 // Initialize Parameters
 
-shared_ptr<ParameterLink<int>> MultiGenome::initialPloidyPL = Parameters::register_parameter("GENOME_MULTI-chromosome_ploidy", 1, "number of chromosomes in each chromosome_set");
-shared_ptr<ParameterLink<int>> MultiGenome::initialChromosomesPL = Parameters::register_parameter("GENOME_MULTI-chromosome_sets", 1, "number of chromosome sets (e.g. chromosome_set = 2 and chromosome_ploidy = 3 will result in a genome with 6 chromosomes)");
+std::shared_ptr<ParameterLink<int>> MultiGenome::initialPloidyPL = Parameters::register_parameter("GENOME_MULTI-chromosome_ploidy", 1, "number of chromosomes in each chromosome_set");
+std::shared_ptr<ParameterLink<int>> MultiGenome::initialChromosomesPL = Parameters::register_parameter("GENOME_MULTI-chromosome_sets", 1, "number of chromosome sets (e.g. chromosome_set = 2 and chromosome_ploidy = 3 will result in a genome with 6 chromosomes)");
 
-shared_ptr<ParameterLink<int>> MultiGenome::initialChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeInitial", 5000, "starting size for all chromosomes in genome (inital genome size will be chromosomeSizeInitial * chromosome_sets * chromosome_ploidy)");
-shared_ptr<ParameterLink<double>> MultiGenome::pointMutationRatePL = Parameters::register_parameter("GENOME_MULTI-mutationPointRate", 0.005, "per site point mutation rate");
-shared_ptr<ParameterLink<double>> MultiGenome::insertionRatePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyRate", 0.00002, "per site insertion rate");
-shared_ptr<ParameterLink<int>> MultiGenome::insertionMinSizePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyMinSize", 128, "minimum size of insertion mutation");
-shared_ptr<ParameterLink<int>> MultiGenome::insertionMaxSizePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyMaxSize", 512, "maximum size of insertion mutation");
-shared_ptr<ParameterLink<double>> MultiGenome::deletionRatePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteRate", 0.00002, "per site deletion rate");
-shared_ptr<ParameterLink<int>> MultiGenome::deletionMinSizePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteMinSize", 128, "minimum size of insertion mutation");
-shared_ptr<ParameterLink<int>> MultiGenome::deletionMaxSizePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteMaxSize", 512, "maximum size of insertion mutation");
-shared_ptr<ParameterLink<int>> MultiGenome::minChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeMin", 2000, "if a chromosome is smaller then this, mutations will only increase chromosome size");
-shared_ptr<ParameterLink<int>> MultiGenome::maxChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeMax", 20000, "if a chromosome is larger then this, mutations will only decrease chromosome size");
+std::shared_ptr<ParameterLink<int>> MultiGenome::initialChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeInitial", 5000, "starting size for all chromosomes in genome (inital genome size will be chromosomeSizeInitial * chromosome_sets * chromosome_ploidy)");
+std::shared_ptr<ParameterLink<double>> MultiGenome::pointMutationRatePL = Parameters::register_parameter("GENOME_MULTI-mutationPointRate", 0.005, "per site point mutation rate");
+std::shared_ptr<ParameterLink<double>> MultiGenome::insertionRatePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyRate", 0.00002, "per site insertion rate");
+std::shared_ptr<ParameterLink<int>> MultiGenome::insertionMinSizePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyMinSize", 128, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> MultiGenome::insertionMaxSizePL = Parameters::register_parameter("GENOME_MULTI-mutationCopyMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<double>> MultiGenome::deletionRatePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteRate", 0.00002, "per site deletion rate");
+std::shared_ptr<ParameterLink<int>> MultiGenome::deletionMinSizePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteMinSize", 128, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> MultiGenome::deletionMaxSizePL = Parameters::register_parameter("GENOME_MULTI-mutationDeleteMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> MultiGenome::minChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeMin", 2000, "if a chromosome is smaller then this, mutations will only increase chromosome size");
+std::shared_ptr<ParameterLink<int>> MultiGenome::maxChromosomeSizePL = Parameters::register_parameter("GENOME_MULTI-chromosomeSizeMax", 20000, "if a chromosome is larger then this, mutations will only decrease chromosome size");
 
-shared_ptr<ParameterLink<int>> MultiGenome::crossCountPL = Parameters::register_parameter("GENOME_MULTI-mutationCrossCount", 3, "number of crosses when performing crossover");
+std::shared_ptr<ParameterLink<int>> MultiGenome::crossCountPL = Parameters::register_parameter("GENOME_MULTI-mutationCrossCount", 3, "number of crosses when performing crossover");
 
 // constructor
-MultiGenome::Handler::Handler(shared_ptr<AbstractGenome> _genome, bool _readDirection) {
-	genome = dynamic_pointer_cast<MultiGenome>(_genome);
+MultiGenome::Handler::Handler(std::shared_ptr<AbstractGenome> _genome, bool _readDirection) {
+	genome = std::dynamic_pointer_cast<MultiGenome>(_genome);
 	setReadDirection(_readDirection);
 	resetHandler();
 }
@@ -57,7 +57,7 @@ void MultiGenome::Handler::resetHandlerOnChromosome() {
 	resetEOC();
 }
 // modulateIndex checks to see if the current chromosomeIndex and siteIndex are out of range. if they are
-// it uses readDirection to resolve them.	virtual void copyFrom(shared_ptr<Genome> from) {
+// it uses readDirection to resolve them.	virtual void copyFrom(std::shared_ptr<Genome> from) {
 
 //  modulate index truncates nonexistant sites. i.e. if the current addres is chromosome 1, site 10 and
 // chromosome 10 is 8 long, modulateIndex will set the index to chromosome 2, site 0 (not site 2).
@@ -163,9 +163,9 @@ void MultiGenome::Handler::advanceChromosome() {
 }
 
 void MultiGenome::Handler::printIndex() {
-	string rd = (readDirection) ? "forward" : "backwards";
+	std::string rd = (readDirection) ? "forward" : "backwards";
 
-	cout << "chromosomeIndex: " << chromosomeIndex << "  siteIndex: " << siteIndex << "  EOC: " << EOC << "  EOG: " << EOG << "  direction: " << rd << endl;
+	std::cout << "chromosomeIndex: " << chromosomeIndex << "  siteIndex: " << siteIndex << "  EOC: " << EOC << "  EOG: " << EOG << "  direction: " << rd << std::endl;
 }
 
 int MultiGenome::Handler::readInt(int valueMin, int valueMax, int code, int CodingRegionIndex) {
@@ -200,8 +200,8 @@ void MultiGenome::Handler::writeDouble(double value, double valueMin, double val
 	}
 }
 
-shared_ptr<AbstractGenome::Handler> MultiGenome::Handler::makeCopy() {
-	auto newGenomeHandler = make_shared<MultiGenome::Handler>(genome, readDirection);
+std::shared_ptr<AbstractGenome::Handler> MultiGenome::Handler::makeCopy() {
+	auto newGenomeHandler = std::make_shared<MultiGenome::Handler>(genome, readDirection);
 	newGenomeHandler->EOG = EOG;
 	newGenomeHandler->EOC = EOC;
 	newGenomeHandler->siteIndex = siteIndex;
@@ -209,8 +209,8 @@ shared_ptr<AbstractGenome::Handler> MultiGenome::Handler::makeCopy() {
 	return(newGenomeHandler);
 }
 
-void MultiGenome::Handler::copyTo(shared_ptr<AbstractGenome::Handler> to) {
-	auto castTo = dynamic_pointer_cast<MultiGenome::Handler>(to);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+void MultiGenome::Handler::copyTo(std::shared_ptr<AbstractGenome::Handler> to) {
+	auto castTo = std::dynamic_pointer_cast<MultiGenome::Handler>(to);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	castTo->readDirection = readDirection;
 	castTo->genome = genome;
 	castTo->chromosomeIndex = chromosomeIndex;
@@ -236,8 +236,10 @@ void MultiGenome::Handler::randomize() {
 	siteIndex = Random::getIndex(genome->chromosomes[chromosomeIndex]->size());
 }
 
-vector<vector<int>> MultiGenome::Handler::readTable(pair<int, int> tableSize, pair<int, int> tableMaxSize, pair<int, int> valueRange, int code, int CodingRegionIndex) {
-	vector<vector<int>> table;
+std::vector<std::vector<int>> MultiGenome::Handler::readTable(
+    std::pair<int, int> tableSize, std::pair<int, int> tableMaxSize,
+    std::pair<int, int> valueRange, int code, int CodingRegionIndex) {
+        std::vector<std::vector<int>> table;
 	int x = 0;
 	int y = 0;
 	int Y = tableSize.first;
@@ -266,7 +268,7 @@ vector<vector<int>> MultiGenome::Handler::readTable(pair<int, int> tableSize, pa
 }
 
 // make an empty genome and ploidy = 1
-MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
+MultiGenome::MultiGenome(std::shared_ptr<ParametersTable> PT_) : AbstractGenome(PT_){
 
 	//initialPloidyLPL = (PT == nullptr) ? initialGenomeSizePL : Parameters::getIntLink("GENOME_CIRCULAR-sizeInitial", PT);;
 	//initialChromosomesLPL = ;
@@ -299,8 +301,8 @@ MultiGenome::MultiGenome(shared_ptr<ParametersTable> _PT) : AbstractGenome(_PT){
 }
 
 // make a genome with 1 chromosome
-MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<ParametersTable> _PT) :
-		MultiGenome(_PT) {
+MultiGenome::MultiGenome(std::shared_ptr<AbstractChromosome> _chromosome, std::shared_ptr<ParametersTable> PT_) :
+		MultiGenome(PT_) {
 	//ploidy = 1;
 	chromosomes.push_back(_chromosome->makeLike());
 	/////////chromosomes[0]->fillRandom();  // resize and set with random values
@@ -308,15 +310,15 @@ MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, shared_ptr<
 }
 
 // make a genome with 1 or more chromosome and ploidy >= 1
-MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _ploidy, shared_ptr<ParametersTable> _PT) :
-		MultiGenome(_PT) {
+MultiGenome::MultiGenome(std::shared_ptr<AbstractChromosome> _chromosome, int chromosomeCount, int _ploidy, std::shared_ptr<ParametersTable> PT_) :
+		MultiGenome(PT_) {
 	ploidy = _ploidy;
 	if (ploidy < 1) {
-		cout << "Error: Genome must have plodiy >= 1";
+		std::cout << "Error: Genome must have plodiy >= 1";
 		exit(1);
 	}
 	if (chromosomeCount < 1) {
-		cout << "Error: Genome must have at least one chromosome";
+		std::cout << "Error: Genome must have at least one chromosome";
 		exit(1);
 	}
 	for (int i = 0; i < (chromosomeCount * ploidy); i++) {
@@ -325,8 +327,8 @@ MultiGenome::MultiGenome(shared_ptr<AbstractChromosome> _chromosome, int chromos
 	recordDataMap();
 }
 
-shared_ptr<AbstractGenome> MultiGenome::makeCopy(shared_ptr<ParametersTable> _PT) {
-	auto newGenome = make_shared<MultiGenome>(_PT);
+std::shared_ptr<AbstractGenome> MultiGenome::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+	auto newGenome = std::make_shared<MultiGenome>(PT_);
 	newGenome->chromosomes.resize(0);
 	for (auto chromosome : chromosomes) {
 		newGenome->chromosomes.push_back(chromosome->makeCopy());
@@ -336,16 +338,16 @@ shared_ptr<AbstractGenome> MultiGenome::makeCopy(shared_ptr<ParametersTable> _PT
 	return newGenome;
 }
 
-shared_ptr<AbstractGenome::Handler> MultiGenome::newHandler(shared_ptr<AbstractGenome> _genome, bool _readDirection) {
+std::shared_ptr<AbstractGenome::Handler> MultiGenome::newHandler(std::shared_ptr<AbstractGenome> _genome, bool _readDirection) {
 	//cout << "In Genome::newHandler()" << endl;
 	for (auto chromosome : chromosomes) {
 		if (chromosome->size() == 0) {
-			cout << "Warning! :: you are creating a grenome handler to a genome with and empty chromosome. This is not allowed!\nExiting!\n\n";
+			std::cout << "Warning! :: you are creating a grenome handler to a genome with and empty chromosome. This is not allowed!\nExiting!\n\n";
 			exit(1);
 		}
 	}
 
-	return make_shared<Handler>(_genome, _readDirection);
+	return std::make_shared<Handler>(_genome, _readDirection);
 }
 
 double MultiGenome::getAlphabetSize() {
@@ -384,8 +386,8 @@ void MultiGenome::fillConstant(int value, bool acendingChromosomes) {
 
 // copy the contents of another genome to this genome
 // no undefined action, this function must be defined
-void MultiGenome::copyFrom(shared_ptr<AbstractGenome> from) {
-	auto castFrom = dynamic_pointer_cast<MultiGenome>(from);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+void MultiGenome::copyFrom(std::shared_ptr<AbstractGenome> from) {
+	auto castFrom = std::dynamic_pointer_cast<MultiGenome>(from);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	chromosomes.resize(0);
 	for (auto chromosome : castFrom->chromosomes) {
 		chromosomes.push_back(chromosome->makeCopy());
@@ -449,16 +451,16 @@ void MultiGenome::mutate() {
 
 // make a mutated genome. from this genome
 // inherit the ParamatersTable from the calling instance
-shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<AbstractGenome> parent) {
+std::shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(std::shared_ptr<AbstractGenome> parent) {
 	if (ploidy == 1) { // if single parent and single ploidy, then just copy and mutate
-		auto newGenome = make_shared<MultiGenome>(PT);
+		auto newGenome = std::make_shared<MultiGenome>(PT);
 		newGenome->copyFrom(parent);
 		newGenome->mutate();
 		newGenome->recordDataMap();
 		return newGenome;
 	}
 	// otherwise, make ploidy parents and process selfing
-	vector<shared_ptr<AbstractGenome>> parents;
+	std::vector<std::shared_ptr<AbstractGenome>> parents;
 	while (parents.size() < ploidy) {
 		parents.push_back(parent);
 	}
@@ -472,33 +474,33 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFrom(shared_ptr<Abstrac
 // each parents 0 chromosome is crossed to make a new 0 chromosome, then each parents 1 chromosome...
 // if ploidy > 1 then the number of parents must match ploidy (this may be extended in the future)
 // in this case, each parent crosses all of its chromosomes and contributs the result as a new chromosome
-shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_ptr<AbstractGenome>> parents) {
-//	cout << "In Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n";
+std::shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(std::vector<std::shared_ptr<AbstractGenome>> parents) {
+//	cout << "In Genome::makeMutatedGenome(vector<std::shared_ptr<AbstractGenome>> parents)\n";
 	// first, check to make sure that parent genomes are conpatable.
-	auto castParent0 = dynamic_pointer_cast<MultiGenome>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
+	auto castParent0 = std::dynamic_pointer_cast<MultiGenome>(parents[0]);  // we will be pulling all sorts of stuff from this genome so lets just cast it once.
 	int testPloidy = castParent0->ploidy;
 	size_t testChromosomeCount = castParent0->chromosomes.size();
 	for (auto rawParent : parents) {
-		auto parent = dynamic_pointer_cast<MultiGenome>(rawParent);
+		auto parent = std::dynamic_pointer_cast<MultiGenome>(rawParent);
 		if (parent->ploidy != testPloidy) {
-			cout << "ERROR! In Genome::makeMutatedGenome(vector<shared_ptr<Genome>> parents). Parents are incompatible due to mismatched ploidy!\nExiting!\n";
+			std::cout << "ERROR! In Genome::makeMutatedGenome(vector<std::shared_ptr<Genome>> parents). Parents are incompatible due to mismatched ploidy!\nExiting!\n";
 			exit(1);
 		}
 		if (parent->chromosomes.size() != testChromosomeCount) {
-			cout << "ERROR! In Genome::makeMutatedGenome(vector<shared_ptr<Genome>> parents). Parents are incompatible due to mismatched number of Chromosomes!\nExiting!\n";
+			std::cout << "ERROR! In Genome::makeMutatedGenome(vector<std::shared_ptr<Genome>> parents). Parents are incompatible due to mismatched number of Chromosomes!\nExiting!\n";
 			exit(1);
 		}
 
 	}
-	auto newGenome = make_shared<MultiGenome>(PT);
+	auto newGenome = std::make_shared<MultiGenome>(PT);
 	newGenome->ploidy = castParent0->ploidy;  // copy ploidy from 0th parent
 	int crossCount = crossCountPL->get(PT);
 	if (ploidy == 1) {  // if haploid then cross chromosomes from all parents
 		for (size_t i = 0; i < castParent0->chromosomes.size(); i++) {
 			newGenome->chromosomes.push_back(castParent0->chromosomes[0]->makeLike());
-			vector<shared_ptr<AbstractChromosome>> parentChromosomes;
+			std::vector<std::shared_ptr<AbstractChromosome>> parentChromosomes;
 			for (auto rawParent : parents) {
-				auto parent = dynamic_pointer_cast<MultiGenome>(rawParent);
+				auto parent = std::dynamic_pointer_cast<MultiGenome>(rawParent);
 				parentChromosomes.push_back(parent->chromosomes[i]);  // make a vector that contains the nth chromosome from each parent
 			}
 			newGenome->chromosomes[newGenome->chromosomes.size() - 1]->crossover(parentChromosomes, crossCount);  // create a crossover chromosome
@@ -510,22 +512,22 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 			for (auto parent : parents) {
 
 				newGenome->chromosomes.push_back(castParent0->chromosomes[0]->makeLike());  // add a chromosome to this genome
-				vector<shared_ptr<AbstractChromosome>> parentChromosomes;
+				std::vector<std::shared_ptr<AbstractChromosome>> parentChromosomes;
 				for (int pCount = 0; pCount < ploidy; pCount++) {  // make a vector containing all the chromosomes in this chromosome set from this parent
-					parentChromosomes.push_back(dynamic_pointer_cast<MultiGenome>(parent)->chromosomes[(currSet * ploidy) + pCount]);
+					parentChromosomes.push_back(std::dynamic_pointer_cast<MultiGenome>(parent)->chromosomes[(currSet * ploidy) + pCount]);
 				}
 				newGenome->chromosomes[newGenome->chromosomes.size() - 1]->crossover(parentChromosomes, crossCount);
 				parentCount++;
 			}
 		}
 	} else {  // ploidy does not match number of parents...
-		cout << "In Genome::makeMutatedGenome(). ploidy > 1 and ploidy != number of parents... this is not supported (yet)!\nWhat does it even mean?\nExiting!";
+		std::cout << "In Genome::makeMutatedGenome(). ploidy > 1 and ploidy != number of parents... this is not supported (yet)!\nWhat does it even mean?\nExiting!";
 		exit(1);
 	}
 
 	newGenome->mutate();
 	newGenome->recordDataMap();
-//	cout << "  Leaving Genome::makeMutatedGenome(vector<shared_ptr<AbstractGenome>> parents)\n";
+//	cout << "  Leaving Genome::makeMutatedGenome(vector<std::shared_ptr<AbstractGenome>> parents)\n";
 	return newGenome;
 }
 
@@ -534,42 +536,41 @@ shared_ptr<AbstractGenome> MultiGenome::makeMutatedGenomeFromMany(vector<shared_
 // gets data about genome which can be added to a data map
 // data is in pairs of strings (key, value)
 // the undefined action is to return an empty vector
-DataMap MultiGenome::getStats(string& prefix) {
+DataMap MultiGenome::getStats(std::string& prefix) {
 	DataMap dataMap;
 	dataMap.set(prefix +"genomeLength",countSites());
 	return (dataMap);
 }
 
-DataMap MultiGenome::serialize(string& name) {
+DataMap MultiGenome::serialize(std::string& name) {
 	DataMap serialDataMap;
 
-	string chromosomeLengths = "\"[";
+	std::string chromosomeLengths = "";
 	for (size_t c = 0; c < chromosomes.size(); c++) {
-		chromosomeLengths += to_string(chromosomes[c]->size()) + ",";
+		chromosomeLengths += std::to_string(chromosomes[c]->size()) + ",";
 	}
 	chromosomeLengths.pop_back();
-	chromosomeLengths += "]\"";
+	chromosomeLengths += "";
 	serialDataMap.set(name + "_chromosomeLengths", chromosomeLengths);
 	serialDataMap.set(name + "_sites", genomeToStr());
 	return serialDataMap;
 }
 
 // given a DataMap and PT, return genome [name] from the DataMap
-void MultiGenome::deserialize(shared_ptr<ParametersTable> PT, unordered_map<string, string>& orgData, string& name) {
+void MultiGenome::deserialize(std::shared_ptr<ParametersTable> PT, std::unordered_map<std::string, std::string>& orgData, std::string& name) {
 	// make sure that data has needed columns
 	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_chromosomeLengths") == orgData.end()) {
-		cout << "  In MultiGenome::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << endl;
+		std::cout << "  In MultiGenome::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << std::endl;
 		exit(1);
 	}
 
-	vector<int> _chromosomeLengths;
+	std::vector<int> _chromosomeLengths;
 	convertCSVListToVector(orgData["GENOME_" + name + "_chromosomeLengths"], _chromosomeLengths);
-	string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
-	string allSites = orgData["GENOME_" + name + "_sites"].substr(1, orgData["GENOME_" + name + "_sites"].size()-1);
+	std::string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
+	std::string allSites = orgData["GENOME_" + name + "_sites"];
 	std::stringstream ss(allSites);
 
 	char nextChar;
-	ss >> nextChar; // move past the leading '['
 
 	for (size_t i = 0; i < _chromosomeLengths.size(); i++) {
 		//cout << i << "  :  " << ss.str() << endl;
@@ -595,13 +596,13 @@ void MultiGenome::recordDataMap() {
 }
 
 // load all genomes from a file
-void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGenome>> &genomes) {
+void MultiGenome::loadGenomeFile(std::string fileName, std::vector<std::shared_ptr<AbstractGenome>> &genomes) {
 	genomes.clear();
 	std::ifstream FILE(fileName);
-	string rawLine;
+	std::string rawLine;
 	int _update, _ID, _sitesCount, _chromosomeCount, _ploidy;
 	double _alphabetSize;
-	vector<int> _chromosomeLengths;
+	std::vector<int> _chromosomeLengths;
 	char rubbish;
 	if (FILE.is_open()) {  // if the file named by configFileName can be opened
 		getline(FILE, rawLine);  // bypass first line
@@ -623,7 +624,7 @@ void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGeno
 			}
 			ss >> rubbish >> rubbish >> rubbish >> rubbish;
 
-			shared_ptr<MultiGenome> newGenome = make_shared<MultiGenome>(chromosomes[0], _chromosomeCount / _ploidy, _ploidy,PT);
+			std::shared_ptr<MultiGenome> newGenome = std::make_shared<MultiGenome>(chromosomes[0], _chromosomeCount / _ploidy, _ploidy,PT);
 			for (int i = 0; i < _chromosomeCount; i++) {
 				newGenome->chromosomes[i]->readChromosomeFromSS(ss, _chromosomeLengths[i]);
 			}
@@ -633,7 +634,7 @@ void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGeno
 			genomes.push_back(newGenome);
 		}
 	} else {
-		cout << "\n\nERROR: In MultiGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting\n" << endl;
+		std::cout << "\n\nERROR: In MultiGenome::loadGenomeFile, unable to open file \"" << fileName << "\"\n\nExiting\n" << std::endl;
 		exit(1);
 	}
 }
@@ -645,21 +646,21 @@ void MultiGenome::loadGenomeFile(string fileName, vector<shared_ptr<AbstractGeno
 // Translation functions - convert genomes into usefull stuff
 
 // convert a chromosome to a string
-string MultiGenome::genomeToStr() {
-	string S = "\"[";
+std::string MultiGenome::genomeToStr() {
+	std::string S = "";
 
 	for (size_t c = 0; c < chromosomes.size(); c++) {
 		S.append(chromosomes[c]->chromosomeToStr() + FileManager::separator);
 	}
-	S.pop_back(); // clip off the traialing separator
-	S.append("]\"");
+	S.pop_back(); // clip off the trailing separator
+	S.append("");
 	return S;
 }
 
 void MultiGenome::printGenome() {
-	cout << "alphabetSize: " << getAlphabetSize() << "  chromosomes: " << chromosomes.size() << "  ploidy: " << ploidy << endl;
+	std::cout << "alphabetSize: " << getAlphabetSize() << "  chromosomes: " << chromosomes.size() << "  ploidy: " << ploidy << std::endl;
 	for (size_t c = 0; c < chromosomes.size(); c++) {
-		cout << c << " : " << chromosomes[c]->size() << " : " << chromosomes[c]->chromosomeToStr() << endl;
+		std::cout << c << " : " << chromosomes[c]->size() << " : " << chromosomes[c]->chromosomeToStr() << std::endl;
 	}
 }
 

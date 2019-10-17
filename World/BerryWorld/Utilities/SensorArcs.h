@@ -16,7 +16,6 @@
 #include <iostream>
 #include <map>
 #include <memory>
-#include "math.h"
 #include <cmath>
 #include <sstream>
 #include <set>
@@ -24,7 +23,6 @@
 #include "VectorNd.h"
 #include "../../../Utilities/Utilities.h"
 
-using namespace std;
 
 class SensorArc {
 public:
@@ -45,10 +43,10 @@ public:
 
 	};
 
-	vector<int> allLocations;
-	vector<int> edgeLocations;
-	vector<int> blockingOnlyIndexes;
-	vector<Location> locationsTree;
+	std::vector<int> allLocations;
+	std::vector<int> edgeLocations;
+	std::vector<int> blockingOnlyIndexes;
+	std::vector<Location> locationsTree;
 	double distanceMin, distanceMax;
 	double angle1, angle2;
 	bool calculateBlocking;
@@ -64,8 +62,8 @@ public:
 	// if size > 1 then evaluate locations within size distance and combine arcs
 	inline void getWorkingAngles(const double& x, const double& y, double& minWorkingAngle, double& maxWorkingAngle, int size = 1) {
 		if (size != 1) {
-			cout << " in getWorkingAngles : size has not been implemented yet..." << endl;
-			exit(0);
+			std::cout << " in getWorkingAngles : size has not been implemented yet..." << std::endl;
+			exit(1);
 			// the idea here is to allow for blobing, for locations that are farther away, if they are blocking, they will block more area. This should reduce the size
 			// of the trees and allow for farther vision (which is less accurate at distance). i.e. size = some factor of distance.
 		}
@@ -77,17 +75,17 @@ public:
 		double workingAngle2 = getworkingAngle(x1, y2);
 		double workingAngle3 = getworkingAngle(x2, y1);
 		double workingAngle4 = getworkingAngle(x2, y2);
-		//cout << x1 << " " << x2 << " " << y1 << " " << y2 << "   " << workingAngle1 << " " << workingAngle2 << " " << workingAngle3 << " " << workingAngle4 << endl;
+		//std::cout << x1 << " " << x2 << " " << y1 << " " << y2 << "   " << workingAngle1 << " " << workingAngle2 << " " << workingAngle3 << " " << workingAngle4 << endl;
 
-		minWorkingAngle = min(workingAngle1, min(workingAngle2, min(workingAngle3, workingAngle4)));
-		maxWorkingAngle = max(workingAngle1, max(workingAngle2, max(workingAngle3, workingAngle4)));
+		minWorkingAngle = std::min(workingAngle1, std::min(workingAngle2, std::min(workingAngle3, workingAngle4)));
+		maxWorkingAngle = std::max(workingAngle1, std::max(workingAngle2, std::max(workingAngle3, workingAngle4)));
 		if (maxWorkingAngle - minWorkingAngle > 180) { // this space crosses 360/0
-			vector<double> listOfNums = { workingAngle1, workingAngle2, workingAngle3, workingAngle4 };
+			std::vector<double> listOfNums = { workingAngle1, workingAngle2, workingAngle3, workingAngle4 };
 			sort(listOfNums.begin(), listOfNums.end());
 			minWorkingAngle = listOfNums[1];
 			maxWorkingAngle = listOfNums[2];
 		}
-		//cout << x << "," << y << " === " << x1 << "," << y1 360 << "   " << x2 << "," << y2 << "   covers   " << minWorkingAngle << "," << maxWorkingAngle << endl;
+		//std::cout << x << "," << y << " === " << x1 << "," << y1 360 << "   " << x2 << "," << y2 << "   covers   " << minWorkingAngle << "," << maxWorkingAngle << endl;
 	}
 
 	void drawArc() {
@@ -95,13 +93,13 @@ public:
 		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
 			int Y = abs(y);
 			if (Y < 10) {
-				cout << "  " << Y << "  : ";
+				std::cout << "  " << Y << "  : ";
 			}
 			else if (Y < 100) {
-				cout << " " << Y << "  : ";
+				std::cout << " " << Y << "  : ";
 			}
 			else {
-				cout << Y << "  : ";
+				std::cout << Y << "  : ";
 			}
 
 			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
@@ -112,45 +110,45 @@ public:
 					}
 				}
 				if (dist == -1) {
-					cout << " - ";
+					std::cout << " - ";
 				}
 				else if (dist < 10) {
-					cout << " " << dist << " ";
+					std::cout << " " << dist << " ";
 				}
 				else if (dist < 100) {
-					cout << dist << " ";
+					std::cout << dist << " ";
 				}
 				else {
-					cout << dist;
+					std::cout << dist;
 				}
 
 			}
-			cout << endl << endl;
+			std::cout << "\n" << "\n";
 		}
 
-		cout << "       ";
+		std::cout << "       ";
 		for (int X = -1 * (int)distanceMax; X <= (int)distanceMax; X++) {
 			int x = abs(X);
 			if (x < 10) {
-				cout << " " << x << " ";
+				std::cout << " " << x << " ";
 			}
 			else if (x < 100) {
-				cout << x << " ";
+				std::cout << x << " ";
 			}
 			else {
-				cout << x;
+				std::cout << x;
 			}
 
 		}
-		cout << endl;
+		std::cout << "\n";
 	}
 
 	//return all of the visible arcs between angle1 and angle2 (i.e. removing arcs blocked by blocking locations.
-	vector<double> makeVisableArcs(vector<int> blockingLocations) {
+	std::vector<double> makeVisableArcs(std::vector<int> blockingLocations) {
 
 		int blockingCount = blockingLocations.size() / 2;
 
-		vector<double> visableArcs, tempBlockedArcs, blockedArcs;
+		std::vector<double> visableArcs, tempBlockedArcs, blockedArcs;
 
 		int search_index;
 		double minWorkingAngle, maxWorkingAngle;
@@ -181,11 +179,11 @@ public:
 					search_index = j;
 				}
 			}
-			//cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
-			swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
-			//cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
-			//cout << endl << endl << endl;
-			swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
+			//std::cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
+			std::swap(tempBlockedArcs[search_index * 2], tempBlockedArcs[i * 2]);
+			//std::cout << tempBlockedArcs[search_index * 2] << "," << tempBlockedArcs[i * 2] << endl;
+			//std::cout << endl << endl << endl;
+			std::swap(tempBlockedArcs[(search_index * 2) + 1], tempBlockedArcs[(i * 2) + 1]);
 		}
 
 		//see if any blocking arcs can be combined or removed and define visible arcs
@@ -228,7 +226,7 @@ public:
 				else if (tempBlockedArcs[0] > angle2 && tempBlockedArcs[1] > angle1) {
 					visableArcs = { 0,tempBlockedArcs[0],tempBlockedArcs[1],360 };
 				}
-				vector<double> temp = { 0,0,360,360 };
+				std::vector<double> temp = { 0,0,360,360 };
 				if (visableArcs == temp) { // if actually empty!
 					visableArcs.resize(0);
 				}
@@ -236,7 +234,7 @@ public:
 
 		}
 		else { // there is more then one blocking arc! build blockedArcs
-		 //cout << "in more then one blocking arc!" << endl;
+		 //std::cout << "in more then one blocking arc!" << endl;
 			blockedArcs.push_back(tempBlockedArcs[0]);
 
 			int j = 1;
@@ -261,13 +259,13 @@ public:
 				}
 			}
 
-			//cout << "arcs have been combined!" << endl;
+			//std::cout << "arcs have been combined!" << endl;
 
 			// blockingCount now counts number elements (not arcs)
 			blockingCount = blockedArcs.size();
 
 			int tempVisableArcsCount;
-			vector<double> tempVisableArcs;
+			std::vector<double> tempVisableArcs;
 			if (angle1 < angle2) {
 				tempVisableArcs = { angle1,angle2 };
 				tempVisableArcsCount = 2;
@@ -277,17 +275,17 @@ public:
 				tempVisableArcsCount = 4;
 			}
 
-			//cout << "done creating tempVisibleArcs : " << tempVisableArcsCount << endl;
+			//std::cout << "done creating tempVisibleArcs : " << tempVisableArcsCount << endl;
 
 //			for (int i = 0; i < (int)tempVisableArcs.size(); i++){
-//				cout << tempVisableArcs[i] << " ";
+//				std::cout << tempVisableArcs[i] << " ";
 //			}
-//			cout << endl;
+//			std::cout << endl;
 //
 //			for (int i = 0; i < (int)blockedArcs.size(); i++){
-//				cout << blockedArcs[i] << " ";
+//				std::cout << blockedArcs[i] << " ";
 //			}
-//			cout << endl;
+//			std::cout << endl;
 
 			// Now, start counters v and b at 0, march though visableArcs and blockedArcs
 			int v = 0;
@@ -313,7 +311,7 @@ public:
 					if (!inVisArc) { // if we are between visible arcs
 						if (blockedArcs[b] < v1) { // if this b is < the start of the next visible arc, skip it
 							b++;
-							//cout << "+"<<endl;
+							//std::cout << "+"<<endl;
 						}
 						else if (blockedArcs[b] == v1 && b % 2 == 0) { // if this b is the start of the next visible arc, skip it and..
 							b++;
@@ -321,20 +319,20 @@ public:
 								visableArcs.push_back(blockedArcs[b]);// add this as a closer
 								inVisArc = true;// this b opens a visible arc
 								b++;
-								//cout << "++"<<endl;
+								//std::cout << "++"<<endl;
 							}
-							//cout << "+++"<<endl;
+							//std::cout << "+++"<<endl;
 						}
 						else if (b % 2 == 0) { // if b is in arc, and is a start of a blocking arc
 							visableArcs.push_back(v1);// add v1 and set inVisArc true (we are now in an arc
 							inVisArc = true;
-							//cout << "++++"<<endl;
+							//std::cout << "++++"<<endl;
 						}
 						else if (blockedArcs[b] < v2) { // if b in arc and it is an end, set it (the start of the visible arc is hidden
 							visableArcs.push_back(blockedArcs[b]);
 							b++;
 							inVisArc = true;
-							//cout << "+++++"<<endl;
+							//std::cout << "+++++"<<endl;
 						}
 						else if (b % 2 == 0) { // if the next blocking arc is past the end of this visible arc, add v1 and v2, the whole arc, and we are still !inVisArc
 							visableArcs.push_back(v1);
@@ -344,7 +342,7 @@ public:
 								v1 = tempVisableArcs[v++];
 								v2 = tempVisableArcs[v];
 							}
-							//cout << "++++-+"<<endl;
+							//std::cout << "++++-+"<<endl;
 						}
 						else { // this ends the current block ... this whole visual arc is not seen
 							v++;
@@ -356,23 +354,23 @@ public:
 						// << "++++--+"<<endl;
 					}
 					else { // inVisArc
-//						cout << "++++---+"<<endl;
-//						cout << "    " << b << " " << v1 << " " << v2 << endl;
-//						cout << "    " << blockedArcs[b] << endl;
-//						cout << endl;
+//						std::cout << "++++---+"<<endl;
+//						std::cout << "    " << b << " " << v1 << " " << v2 << endl;
+//						std::cout << "    " << blockedArcs[b] << endl;
+//						std::cout << endl;
 //						for (int i = 0; i < (int)blockedArcs.size(); i++){
-//							cout << blockedArcs[i] << " ";
+//							std::cout << blockedArcs[i] << " ";
 //						}
-//						cout << endl;
-//						cout << endl;
+//						std::cout << endl;
+//						std::cout << endl;
 						if (blockedArcs[b] <= v1) { // if b is not in the next vis arc, skip it
 							b++;
-							//cout << "aaa"<<endl;
+							//std::cout << "aaa"<<endl;
 						}
 						else if (b % 2 == 0 && blockedArcs[b] < v2) { // if b is the start of a blocked arc and in this vis arc, add it
 							visableArcs.push_back(blockedArcs[b]);
 							b++;
-							//cout << "bbb"<<endl;
+							//std::cout << "bbb"<<endl;
 						}
 						else if (b % 2 == 1 && blockedArcs[b] < v2) { // if b is the end of a blocked arc and in this vis arc, add it
 							visableArcs.push_back(blockedArcs[b]);
@@ -385,9 +383,9 @@ public:
 							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
 								v1 = tempVisableArcs[v++];
 								v2 = tempVisableArcs[v];
-								//cout << "ccc"<<endl;
+								//std::cout << "ccc"<<endl;
 							}
-							//cout << "ddd"<<endl;
+							//std::cout << "ddd"<<endl;
 						}
 						else if (b % 2 == 1 && blockedArcs[b] >= v2) { // if b is the end of a blocked arc and past the end of this vis arc...
 							inVisArc = false;// then the last b closed this arc, skip v2. also, we are now between vis arcs
@@ -395,15 +393,15 @@ public:
 							if (v < tempVisableArcsCount) { // if there are more vis arcs, advance
 								v1 = tempVisableArcs[v++];
 								v2 = tempVisableArcs[v];
-								//cout << "eee"<<endl;
+								//std::cout << "eee"<<endl;
 							}
-							//cout << "fff"<<endl;
+							//std::cout << "fff"<<endl;
 						}
 					}
 				}
 			}
 
-			//cout << "merge of tempVis and blocking done" << endl;
+			//std::cout << "merge of tempVis and blocking done" << endl;
 
 			// now check to see if there are any viable arcs left and add if needed
 			if (b == blockingCount) {
@@ -426,22 +424,22 @@ public:
 
 				}
 			}
-			//cout << "check for extra vis arcs done" << endl;
+			//std::cout << "check for extra vis arcs done" << endl;
 
 		}
 		return (visableArcs);
 	}
 
 	// given the x and y of a location (square), is that square visible (in visibleArcs)
-	bool isLocationVisible(const vector<double>& visableArcs, const int& x, const int& y) {
+	bool isLocationVisible(const std::vector<double>& visableArcs, const int& x, const int& y) {
 		double minWorkingAngle, maxWorkingAngle, arc1, arc2;
 		getWorkingAngles(x, y, minWorkingAngle, maxWorkingAngle);
 
-		//		cout << x << "," << y << "   " << minWorkingAngle << "," << maxWorkingAngle << endl;
+		//		std::cout << x << "," << y << "   " << minWorkingAngle << "," << maxWorkingAngle << endl;
 		//		for (int i = 0; i < (int)visableArcs.size();i++){
-		//			cout << visableArcs[i] << " ";
+		//			std::cout << visableArcs[i] << " ";
 		//		}
-		//		cout << endl;
+		//		std::cout << endl;
 
 		bool visible = false;
 		for (int i = 0; i < ((int)visableArcs.size()) / 2; i++) {
@@ -467,13 +465,13 @@ public:
 				}
 			}
 		}
-		//cout << "   " << visible << endl;
+		//std::cout << "   " << visible << endl;
 		return (visible);
 	}
 
 	// make binary decision tree
-	void makeLocationsTree(vector<int> blockingLocations, int allLocations_index) {
-		//cout << "+1+" << endl;
+	void makeLocationsTree(std::vector<int> blockingLocations, int allLocations_index) {
+		//std::cout << "+1+" << endl;
 		if (allLocations_index < locationsCount) { // if we have not passed the last element in allLocations...
 												   // if not blocked, add current location to locationsTree
 			Location newLocation;
@@ -494,17 +492,17 @@ public:
 			// else newLocation.clearIndex = currentLocationTree_index+1; // this is where to go if this location is clear
 			// then call makeLocationsTree(allLocations, blockedLocations, index of non-blocked location)
 
-			vector<double> visableArcs = makeVisableArcs(blockingLocations);
+			std::vector<double> visableArcs = makeVisableArcs(blockingLocations);
 
-			//cout << allLocations.size() << endl;
+			//std::cout << allLocations.size() << endl;
 
 			while (allLocations_index < locationsCount && // there are still locations
 				!isLocationVisible(visableArcs, allLocations[allLocations_index * 2], allLocations[(allLocations_index * 2) + 1])) { // and this location is not blocked
 			//calculateBlocking && isABlockingOnlyLocation))) { // or if this location is blocking only, but we are not calculating blocking
 				allLocations_index++; // skip this location
-				//cout << "index = " << allLocations_index << endl;
+				//std::cout << "index = " << allLocations_index << endl;
 			}
-			//cout << "+2+" << endl;
+			//std::cout << "+2+" << endl;
 
 			// we should now either be done, or have a visible location
 
@@ -515,12 +513,12 @@ public:
 				locationsTree[currentLocationTree_index].clearIndex = currentLocationTree_index + 1;
 				makeLocationsTree(blockingLocations, allLocations_index);
 			}
-			//cout << "+3+" << endl;
+			//std::cout << "+3+" << endl;
 
 			// once we come back ...
 
 			if (!calculateBlocking) {
-				//cout << "+XX+" << endl;
+				//std::cout << "+XX+" << endl;
 				if (allLocations_index < locationsCount) {
 					locationsTree[currentLocationTree_index].blockedIndex = currentLocationTree_index + 1;
 				}
@@ -530,25 +528,25 @@ public:
 			}
 			else { // continue here if we need to precalculate blocking
 				  // add this location to blockingLocations
-			 //cout << "+YY+" << endl;
+			 //std::cout << "+YY+" << endl;
 				blockingLocations.push_back(locationsTree[currentLocationTree_index].x);
 				blockingLocations.push_back(locationsTree[currentLocationTree_index].y);
 
-				//cout << "here1?" << endl;
+				//std::cout << "here1?" << endl;
 				visableArcs = makeVisableArcs(blockingLocations);
-				//cout << "here2?" << endl;
+				//std::cout << "here2?" << endl;
 
-//				cout << locationsTree[currentLocationTree_index].x << "   " << locationsTree[currentLocationTree_index].y << endl;
+//				std::cout << locationsTree[currentLocationTree_index].x << "   " << locationsTree[currentLocationTree_index].y << endl;
 //				for (auto v : blockingLocations){
-//					cout << v << " ";
+//					std::cout << v << " ";
 //				}
-//				cout << endl;
+//				std::cout << endl;
 //
 //				for (auto v : visableArcs){
-//					cout << v << " ";
+//					std::cout << v << " ";
 //				}
-//				cout << endl;
-//				cout << "+ZZ+" << endl;
+//				std::cout << endl;
+//				std::cout << "+ZZ+" << endl;
 
 				// (yes, this is a repeat)
 				// now check locations from allLocations (starting at allLocations_index+1) till a visible location is found, if non is found, mark newLocation.blockIndex = -1
@@ -560,21 +558,21 @@ public:
 					// while there are locations on allLocations and they are not visible...
 					allLocations_index++;
 				}
-				//cout << "+AA+" << endl;
+				//std::cout << "+AA+" << endl;
 
 				// we should now either be done, or have a visible location
 
 				if (allLocations_index == locationsCount) {
-					//cout << "+BB+" << endl;
+					//std::cout << "+BB+" << endl;
 					locationsTree[currentLocationTree_index].blockedIndex = -1; // with this location clear, there are no other clear locations, we are at a leaf node
 				}
 				else { // else we have a visible location, add it to the tree
-				 //cout << "+CC+" << endl;
+				 //std::cout << "+CC+" << endl;
 					locationsTree[currentLocationTree_index].blockedIndex = (int)locationsTree.size();
 					makeLocationsTree(blockingLocations, allLocations_index);
 				}
 			}
-			//cout << "+4+" << endl;
+			//std::cout << "+4+" << endl;
 
 		}
 	}
@@ -584,7 +582,7 @@ public:
 	// if noBlocking, then
 	SensorArc(double _angle1, double _angle2, double _distanceMax, double _distanceMin, bool calculateBlocking) :
 		angle1(_angle1), angle2(_angle2), calculateBlocking(calculateBlocking) {
-		//vector<int> allLocations;
+		//std::vector<int> allLocations;
 
 		distanceMax = _distanceMax;
 		distanceMin = _distanceMin;
@@ -596,7 +594,7 @@ public:
 
 		bool check;
 
-		//cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "  blocking: " << calculateBlocking << ")" << endl;
+		//std::cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "  blocking: " << calculateBlocking << ")" << endl;
 		if (abs(angle1 - angle2) == 360) { // if arc is exactly 360 degrees
 			angle1 = 0;
 			angle2 = 360;
@@ -609,9 +607,9 @@ public:
 			angle2 = loopModDouble(angle2, 360);
 		}
 
-		//cout << "adjusted angles " << angle1 << " " << angle2 << endl;
+		//std::cout << "adjusted angles " << angle1 << " " << angle2 << endl;
 		// first get a list of locations
-		//cout << "-2-" << endl;
+		//std::cout << "-2-" << endl;
 
 		for (int y = -1 * (int)distanceMax; y <= (int)distanceMax; y++) {
 			for (int x = -1 * (int)distanceMax; x <= (int)distanceMax; x++) {
@@ -621,24 +619,24 @@ public:
 
 				// if any corner is in between angles, set check to true
 				if (angle1 <= angle2) {
-					//cout << minWorkingAngle << "  " << maxWorkingAngle << "    " << angle1 << "  " << angle2 << endl;
+					//std::cout << minWorkingAngle << "  " << maxWorkingAngle << "    " << angle1 << "  " << angle2 << endl;
 					if (minWorkingAngle > angle1 && minWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-					//cout << "min" << endl;
+					//std::cout << "min" << endl;
 						check = true;
 					}
 					else if (maxWorkingAngle > angle1 && maxWorkingAngle < angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location is in the arc and distance
-				 //cout << "max" << endl;
+				 //std::cout << "max" << endl;
 						check = true;
 					}
 					else if (maxWorkingAngle - minWorkingAngle <= 180) {
 						if (minWorkingAngle <= angle1 && maxWorkingAngle >= angle2 && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) { // if this location contains the whole visible arc
-						//cout << "mid" << endl;
+						//std::cout << "mid" << endl;
 							check = true;
 						}
 					}
 					else { // maxWorkingAngle - minWorkingAngle > 180
 						if ((minWorkingAngle > angle1 || maxWorkingAngle < angle2) && (pow(x, 2) + pow(y, 2)) <= distanceMaxSquared && (pow(x, 2) + pow(y, 2)) >= distanceMinSquared) {
-							//cout << "outside" << endl;
+							//std::cout << "outside" << endl;
 							check = true;
 						}
 						else if (minWorkingAngle == angle1 && maxWorkingAngle == angle2) {
@@ -675,7 +673,7 @@ public:
 
 			}
 		}
-		//cout << "-3-" << endl;
+		//std::cout << "-3-" << endl;
 
 		locationsCount = allLocations.size() / 2;
 
@@ -699,26 +697,26 @@ public:
 		//			vector<int> offsetsY = { 1, 0, -1, 0 };
 		//			int testX, testY;
 		//			bool includeLocation;
-		//			//cout << "-4-" << endl;
+		//			//std::cout << "-4-" << endl;
 		//
 		//			for (auto f : allLocations) {
-		//				cout << f << " ";
+		//				std::cout << f << " ";
 		//			}
-		//			cout << endl;
+		//			std::cout << endl;
 		//			edgeLocations.clear();
 		//			for (int i = 0; i < locationsCount; i++) { // for every location
 		//				for (int l = 0; l < 4; l++) {
 		//					testX = allLocations[i * 2] + offsetsX[l];
 		//					testY = allLocations[i * 2 + 1] + offsetsY[l];
-		//					//cout << "+++++ " << testX <<","<< testY << endl;
-		//					//cout << pow(testX, 2) + pow(testY, 2) <<  " " << maxDistance << " " << distanceMin << endl;
+		//					//std::cout << "+++++ " << testX <<","<< testY << endl;
+		//					//std::cout << pow(testX, 2) + pow(testY, 2) <<  " " << maxDistance << " " << distanceMin << endl;
 		//					includeLocation = true;
 		//					if (pow(testX, 2) + pow(testY, 2) >= maxDistance || pow(testX, 2) + pow(testY, 2) < distanceMin) {
 		//						includeLocation = false;
 		//					} else {
 		//						for (int j = 0; j < locationsCount; j++) { // for every location in allLocations
 		//							if (testX == allLocations[j * 2] && testY == allLocations[j * 2 + 1]) {
-		//								//cout << testX << "," << testY << "   " << allLocations[j * 2] << "," << allLocations[j * 2 + 1] << endl;
+		//								//std::cout << testX << "," << testY << "   " << allLocations[j * 2] << "," << allLocations[j * 2 + 1] << endl;
 		//								includeLocation = false;
 		//								//j = locationsCount;
 		//							}
@@ -733,15 +731,15 @@ public:
 		//					if (includeLocation) {
 		//						edgeLocations.push_back(testX);
 		//						edgeLocations.push_back(testY);
-		//						//cout << "   ++ " << testX << "," << testY << endl;
+		//						//std::cout << "   ++ " << testX << "," << testY << endl;
 		//					}
 		//				}
 		//			}
-		//			//cout << "-5-" << endl;
+		//			//std::cout << "-5-" << endl;
 		//
 		//			//combine edge and all locations into all
-		//			//cout << allLocations.size() / 2 << endl;
-		//			//cout << edgeLocations.size() / 2 << endl;
+		//			//std::cout << allLocations.size() / 2 << endl;
+		//			//std::cout << edgeLocations.size() / 2 << endl;
 		//
 		//			allLocations.insert(allLocations.end(), edgeLocations.begin(), edgeLocations.end());
 		//
@@ -751,7 +749,7 @@ public:
 		///////////////////////////////////////////////////////////////////////
 
 		locationsCount = allLocations.size() / 2;
-		//cout << locationsCount << endl;
+		//std::cout << locationsCount << endl;
 
 		// now we have a list of locations, sort the list
 		int search_index;
@@ -764,10 +762,10 @@ public:
 				}
 			}
 			// swap closest pair to current
-			swap(allLocations[i * 2], allLocations[search_index * 2]);
-			swap(allLocations[i * 2 + 1], allLocations[search_index * 2 + 1]);
+			std::swap(allLocations[i * 2], allLocations[search_index * 2]);
+			std::swap(allLocations[i * 2 + 1], allLocations[search_index * 2 + 1]);
 		}
-		//cout << "-6-" << endl;
+		//std::cout << "-6-" << endl;
 
 		// make blockingOnlyIndexes
 
@@ -775,12 +773,12 @@ public:
 			for (int j = 0; j < (int)edgeLocations.size() / 2; j++) { // for all edge locations
 				if (allLocations[i * 2] == edgeLocations[j * 2] && allLocations[i * 2 + 1] == edgeLocations[j * 2 + 1]) {
 					// this is an edge locations, add i (this index) to blockingOnlyIndexes
-					//cout << "----   " << allLocations[i * 2] << "," << allLocations[i * 2 + 1] << endl;
+					//std::cout << "----   " << allLocations[i * 2] << "," << allLocations[i * 2 + 1] << endl;
 					blockingOnlyIndexes.push_back(i);
 				}
 			}
 		}
-		//cout << "-7-" << endl;
+		//std::cout << "-7-" << endl;
 
 		// make a new list of indexes for the edge locations
 
@@ -800,23 +798,23 @@ public:
 					}
 				}
 				if (type == 0) {
-					cout << "  ";
+					std::cout << "  ";
 				}
 				else if (type == 1) {
-					cout << " +";
+					std::cout << " +";
 				}
 				else {
-					cout << " -";
+					std::cout << " -";
 				}
 			}
-			cout << endl;
+			std::cout << endl;
 		}
 		*/
 		// now build the locationsTree!
 
 		int allLocations_index = 0;
 
-		vector<int> blockingLocations;
+		std::vector<int> blockingLocations;
 
 		locationsTree.clear();
 		blockingLocations.clear();
@@ -824,7 +822,7 @@ public:
 		//int allLocationsSize = allLocations.size() / 2;
 
 		makeLocationsTree(blockingLocations, allLocations_index);
-		//cout << "-8-" << endl;
+		//std::cout << "-8-" << endl;
 
 	}
 
@@ -855,7 +853,7 @@ class Sensor {
 public:
 	int resolution; // how many angles to precalculate
 
-	map<int, shared_ptr<SensorArc>> angles;
+	std::map<int, std::shared_ptr<SensorArc>> angles;
 
 	Sensor() {
 		resolution = 0;
@@ -864,14 +862,14 @@ public:
 	Sensor(double angle1, double angle2, double distanceMax, double distanceMin, int _resolution, bool calculateBlocking) {
 		resolution = _resolution;
 		double resolutionOffset = 360.0 / resolution;
-		//cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "     resolution: " << resolution << "  blocking: " << calculateBlocking << ")" << endl;
+		//std::cout << "building sensor (arc: " << angle1 << "," << angle2 << "    distances: " << distanceMin << "," << distanceMax << "     resolution: " << resolution << "  blocking: " << calculateBlocking << ")" << endl;
 		for (int i = 0; i < resolution; i++) {
-			//cout << "   building arc # " << i << endl;
-			angles[i] = make_shared<SensorArc>((i * resolutionOffset) + angle1, (i * resolutionOffset) + angle2, distanceMax, distanceMin, calculateBlocking);
+			//std::cout << "   building arc # " << i << endl;
+			angles[i] = std::make_shared<SensorArc>((i * resolutionOffset) + angle1, (i * resolutionOffset) + angle2, distanceMax, distanceMin, calculateBlocking);
 		}
 	}
 
-	void senseTotals(Vector2d<int>& worldgrid, int& orgx, int& orgy, int& orgf, vector<int>& values, int blocker = -1, bool wrap = false) {
+	void senseTotals(Vector2d<int>& worldgrid, int& orgx, int& orgy, int& orgf, std::vector<int>& values, int blocker = -1, bool wrap = false) {
 
 		bool blocked = false;
 		int currentIndex = 0;
@@ -884,7 +882,7 @@ public:
 		if (wrap) {
 
 			while (currentIndex != -1) {
-				//cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
+				//std::cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
 				//<< this->angles[orgf]->cX(currentIndex) + orgx << "," << this->angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(this->angles[orgf]->cX(currentIndex) + orgx, this->angles[orgf]->cY(currentIndex) + orgy) << endl;
 				currentX = loopMod(this->angles[orgf]->cX(currentIndex) + orgx, worldgrid.x());
 				currentY = loopMod(this->angles[orgf]->cY(currentIndex) + orgy, worldgrid.y());
@@ -892,16 +890,16 @@ public:
 				//if (!this->angles[orgf]->isBlockingOnly(currentIndex)) {
 				values[worldgrid(currentX, currentY)]++;
 				//} //else {
-				//cout << " isBlockingOnly" << endl;
+				//std::cout << " isBlockingOnly" << endl;
 				//}
-				//cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
+				//std::cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
 				currentIndex = this->angles[orgf]->advanceIndex(currentIndex, blocked);
-				//cout << " nextIndex: " << currentIndex << endl;
+				//std::cout << " nextIndex: " << currentIndex << endl;
 			}
 		}
 		else {
 			while (currentIndex != -1) {
-				//cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
+				//std::cout << currentIndex << "  :  " << this->angles[orgf]->locationsTree[currentIndex].locationID << "  :  " << this->angles[orgf]->cX(currentIndex) << "," << this->angles[orgf]->cY(currentIndex) << "  "
 				//<< this->angles[orgf]->cX(currentIndex) + orgx << "," << this->angles[orgf]->cY(currentIndex) + orgy << "  <>  " << worldgrid(this->angles[orgf]->cX(currentIndex) + orgx, this->angles[orgf]->cY(currentIndex) + orgy) << endl;
 				currentX = this->angles[orgf]->cX(currentIndex) + orgx, worldgrid.x();
 				currentY = this->angles[orgf]->cY(currentIndex) + orgy, worldgrid.y();
@@ -909,11 +907,11 @@ public:
 				//if (!this->angles[orgf]->isBlockingOnly(currentIndex)) {
 				values[worldgrid(currentX, currentY)]++;
 				//} //else {
-				//cout << " isBlockingOnly" << endl;
+				//std::cout << " isBlockingOnly" << endl;
 				//}
-				//cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
+				//std::cout << blocker << "    " << ((blocked) ? "blocked" : "open") << endl;
 				currentIndex = this->angles[orgf]->advanceIndex(currentIndex, blocked);
-				//cout << " nextIndex: " << currentIndex << endl;
+				//std::cout << " nextIndex: " << currentIndex << endl;
 			}
 		}
 	}

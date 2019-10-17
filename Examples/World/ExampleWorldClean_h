@@ -34,7 +34,7 @@ public:
 	static shared_ptr<ParameterLink<string>> groupNameSpacePL;
 	static shared_ptr<ParameterLink<string>> brainNameSpacePL;
 	
-	ExampleWorld(shared_ptr<ParametersTable> _PT);
+	ExampleWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~ExampleWorld() = default;
 
 	virtual void evaluateSolo(shared_ptr<Organism> org, int analyze, int visualize, int debug);

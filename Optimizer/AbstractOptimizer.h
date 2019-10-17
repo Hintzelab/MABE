@@ -11,7 +11,7 @@
 #pragma once
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <vector>
 
 #include "../Genome/AbstractGenome.h"
@@ -22,63 +22,52 @@
 #include "../Utilities/Parameters.h"
 #include "../Utilities/Random.h"
 
-using namespace std;
-
 class AbstractOptimizer {
- public:
-	string optimizeDMValue;
+public:
+  std::shared_ptr<Abstract_MTree> optimizeFormula;
 
-	static shared_ptr<ParameterLink<string>> Optimizer_MethodStrPL;
-	static shared_ptr<ParameterLink<string>> reportNamesPL;
+  static std::shared_ptr<ParameterLink<std::string>> Optimizer_MethodStrPL;
 
- public:
-	const shared_ptr<ParametersTable> PT;
-	vector<string> popFileColumns;
+  const std::shared_ptr<ParametersTable> PT;
+  std::vector<std::string> popFileColumns;
 
-	unordered_set <shared_ptr<Organism>> killList; // set of organisms to be killed after archive 
+  std::unordered_set<std::shared_ptr<Organism>>
+      killList; // set of organisms to be killed after archive
 
-	AbstractOptimizer(shared_ptr<ParametersTable> _PT) : PT(_PT) {
+  AbstractOptimizer(std::shared_ptr<ParametersTable> PT_) : PT(PT_) {}
 
-	}
+  virtual ~AbstractOptimizer() = default;
+  // virtual vector<shared_ptr<Organism>>
+  // makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
+  virtual void optimize(std::vector<std::shared_ptr<Organism>> &population) = 0;
 
-	virtual ~AbstractOptimizer() = default;
-	//virtual vector<shared_ptr<Organism>> makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
-	virtual void optimize(vector<shared_ptr<Organism>> &population) = 0;
+  virtual void cleanup(std::vector<std::shared_ptr<Organism>> &population) {
+    std::vector<std::shared_ptr<Organism>> newPopulation;
+    for (auto org : population) {
+      if (killList.find(org) == killList.end()) { // if not in kill list
+        newPopulation.push_back(org);             // move into new population
+      } else {
+        org->kill(); // if in kill list, call kill
+      }
+    }
 
-	virtual void cleanup(vector<shared_ptr<Organism>> &population) {
-		vector<shared_ptr<Organism>> newPopulation;
-		for (auto org : population) {
-			if (killList.find(org) == killList.end()) { // if not in kill list
-				newPopulation.push_back(org); // move into new population
-			}
-			else {
-				org->kill(); // if in kill list, call kill
-			}
-		}
+    population = newPopulation;
+    killList.clear();
+  }
 
-		population = newPopulation;
-		killList.clear();
-	}
+  // virtual string maxValueName() {
+  //	return("score");
+  //}
 
-	//virtual string maxValueName() {
-	//	return("score");
-	//}
+  virtual bool requireGenome() { return false; }
+  virtual bool requireBrain() { return false; }
 
-	virtual bool requireGenome() {
-		return false;
-	}
-	virtual bool requireBrain() {
-		return false;
-	}
-
-
-	virtual unordered_set<string> requiredGenomes() {
-		return {};
-		// "root" = use empty name space
-		// "GROUP::" = use group name space
-		// "blah" = use "blah namespace at root level
-		// "Group::blah" = use "blah" name space inside of group name space
-	}
-
+  virtual std::unordered_set<std::string> requiredGenomes() {
+    return {};
+    // "root" = use empty name space
+    // "GROUP::" = use group name space
+    // "blah" = use "blah namespace at root level
+    // "Group::blah" = use "blah" name space inside of group name space
+  }
 };
 

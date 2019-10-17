@@ -12,8 +12,8 @@
 
 shared_ptr<ParameterLink<string>> ExampleBrain::genomeNamePL = Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
-ExampleBrain::ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT) :
-	AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
+ExampleBrain::ExampleBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
+	AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
 	// "popFileColumns" provides the DefaultArchivist with values which the world
 	// "thinks are interesting" and therefore should be saved in pop.csv files
@@ -195,15 +195,15 @@ void ExampleBrain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGe
 // gates. A may brain have interal states which must also be copied. Obviously
 // the functioning of makeCopy will depend in a great deal on the brain.
 //
-shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> _PT)
+shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> PT_)
 {
 	// if no PT is provide, use the PT of the object being copied.
-	if (_PT == nullptr) {
-		_PT = PT;
+	if (PT_ == nullptr) {
+		PT_ = PT;
 	}
 
 	// at minimum (like in makeBrain() a new brain must be created.
-	auto newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues, _PT);
+	auto newBrain = make_shared<ExampleBrain>(nrInputValues, nrOutputValues, PT_);
 	return newBrain;
 
 	// This code is from Markov Brains. Here we create a new gate list
@@ -215,6 +215,6 @@ shared_ptr<AbstractBrain> ExampleBrain::makeCopy(shared_ptr<ParametersTable> _PT
 	//for (auto gate : gates) {
 	//	_gates.push_back(gate->makeCopy());
 	//}
-	//auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, _PT);
+	//auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, PT_);
 
 }																																																					  //shared_ptr<ParameterLink<int>> AbstractBrain::hiddenNodesPL = Parameters::register_parameter("BRAIN-hiddenNodes", 8, "number of hidden nodes, if brain type supports hiden nodes");  // string parameter for outputMethod;

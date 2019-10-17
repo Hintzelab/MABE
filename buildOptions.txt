@@ -2,11 +2,14 @@
   + Berry
   + Xor
   * Test
+  + Logic16
+  - BlockCatch
+  - TPM
 
 % Genome
   + Multi
   * Circular
-  
+
 % Brain
   - Markov
   * CGP
@@ -14,11 +17,16 @@
   + ConstantValues
   + Human
   - Wire
-	
+  + ANN
+  - BiLog
+
 % Optimizer
   * Simple
+  - Islands
+  - Lexicase
 
 % Archivist
   + Default
   + SSwD
   * LODwAP
+

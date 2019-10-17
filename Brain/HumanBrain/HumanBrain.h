@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include <math.h>
+#include <cmath>
 #include <memory>
 #include <iostream>
 #include <set>
@@ -22,57 +22,61 @@
 
 #include "../AbstractBrain.h"
 
-using namespace std;
-
-class HumanBrain: public AbstractBrain {
+class HumanBrain : public AbstractBrain {
 public:
+  static std::shared_ptr<ParameterLink<bool>> useActionMapPL;
+  static std::shared_ptr<ParameterLink<std::string>> actionMapFileNamePL;
 
-	static shared_ptr<ParameterLink<bool>> useActionMapPL;
-	static shared_ptr<ParameterLink<string>> actionMapFileNamePL;
+  bool useActionMap;
+  std::string actionMapFileName;
 
-	bool useActionMap;
-	string actionMapFileName;
+  std::map<char, std::vector<double>> actionMap;
+  std::map<char, std::string> actionNames;
 
-	map<char, vector<double>> actionMap;
-	map<char, string> actionNames;
+  HumanBrain() = delete;
 
-	HumanBrain() = delete;
+  HumanBrain(int _nrInNodes, int _nrOutNodes,
+             std::shared_ptr<ParametersTable> PT_ = Parameters::root);
 
-	HumanBrain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> _PT = Parameters::root);
+  virtual ~HumanBrain() = default;
 
-	virtual ~HumanBrain() = default;
+  virtual void update() override;
 
-	virtual void update() override;
+  virtual std::shared_ptr<AbstractBrain>
+  makeBrain(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+                &_genomes) override;
+  virtual std::shared_ptr<AbstractBrain>
+  makeCopy(std::shared_ptr<ParametersTable> PT_ = nullptr) override;
 
-	virtual shared_ptr<AbstractBrain> makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) override;
-	virtual shared_ptr<AbstractBrain> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+  // virtual shared_ptr<AbstractBrain>
+  // makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) override {
+  //	//cout << "  in makeMutatedBrainFrom" << endl;
+  //	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
+  //}
 
-	//virtual shared_ptr<AbstractBrain> makeMutatedBrainFrom(shared_ptr<AbstractBrain> parent) override {
-	//	//cout << "  in makeMutatedBrainFrom" << endl;
-	//	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
-	//}
+  // virtual shared_ptr<AbstractBrain>
+  // makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents)
+  // override {
+  //	//cout << "  in makeMutatedBrainFromMany" << endl;
+  //	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
+  //}
 
-	//virtual shared_ptr<AbstractBrain> makeMutatedBrainFromMany(vector<shared_ptr<AbstractBrain>> parents) override {
-	//	//cout << "  in makeMutatedBrainFromMany" << endl;
-	//	return make_shared<HumanBrain>(nrInputValues, nrOutputValues, PT);
-	//}
+  virtual std::string description() override;
+  virtual DataMap getStats(std::string &prefix) override;
+  virtual std::string getType() override { return "Human"; }
 
-	virtual string description() override;
-	virtual DataMap getStats(string& prefix) override;
-	virtual string getType() override {
-		return "Human";
-	}
+  virtual void resetBrain() override;
 
-	virtual void resetBrain() override;
+  virtual void initializeGenomes(
+      std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
+          &_genomes);
 
-	virtual void initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes);
-	
-	virtual unordered_set<string> requiredGenomes() override {
-		return {};
-	}
-
+  virtual std::unordered_set<std::string> requiredGenomes() override {
+    return {};
+  }
 };
 
-inline shared_ptr<AbstractBrain> HumanBrain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
-	return make_shared<HumanBrain>(ins, outs, PT);
+inline std::shared_ptr<AbstractBrain> HumanBrain_brainFactory(
+    int ins, int outs, std::shared_ptr<ParametersTable> PT = Parameters::root) {
+  return std::make_shared<HumanBrain>(ins, outs, PT);
 }

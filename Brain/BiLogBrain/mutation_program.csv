@@ -1,0 +1,4 @@
+update,onePerBrain,onePerGate,wire1,wire2,logic1,logic2,logic3,logic4,comment
+0,-1,-1,.05,.05,0,0,0,0,          ##__only_wires_for_the_first_100_updates
+100,-1,-1,0,0,.05,.05,.05,.05,    ##__only_logic_for_updates_100_to_199
+200,.33,-1,1,1,1,1,1,1,           ##__onePerBrain_with_equal_probability_forevermore...

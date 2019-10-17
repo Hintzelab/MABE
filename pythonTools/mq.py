@@ -31,66 +31,10 @@ import datetime
 import getpass  # for getuser() gets current username
 import itertools # for generating combinations of conditions
 import re
-import imp # module dependency checking
+from utils import pyreq
 import subprocess # invoking command line module installation
 
-suitableModuleInstallers = "conda,pip3,pip".split(',')
-requiredNonstandardModules = "colorama,psutil".split(',')
-installCMDString = ''
-modulesAreMissing = False
-def testForModuleAndBuildInstallString(moduleName):
-    global installCMDString, modulesAreMissing
-    try:
-        imp.find_module(moduleName)
-    except ImportError:
-        installCMDString += moduleName+' '
-        modulesAreMissing = True
-def executableExistsInPath(exename,separator):
-    foundPath = None
-    for extension in ['','.exe']:
-        if foundPath is not None:
-            break
-        for path in os.environ["PATH"].split(os.pathsep):
-            if foundPath is not None:
-                break
-            fp = os.path.join(path,exename).replace(os.pathsep,separator)
-            if os.path.isfile(fp): #and os.access(os.path.join(path,exename),os.X_OK):
-                foundPath = fp
-    return foundPath
-for moduleName in requiredNonstandardModules:
-    testForModuleAndBuildInstallString(moduleName)
-if modulesAreMissing:
-    print("Error: Required python modules are missing: {modules}".format(modules=', '.join(installCMDString.split())))
-    print()
-    response = 'NoInput'
-    while response not in ['','y','n','yes','no']:
-        response = input("Should I try to install them? [Y/n] (Enter defaults yes): ").lower()
-    if response in ['','y','yes']:
-        preferredInstaller = None
-        for eachInstaller in suitableModuleInstallers:
-            installerPath = executableExistsInPath(eachInstaller,'/') # handles *nix and *nix-on-win
-            if installerPath is not None:
-                preferredInstaller = eachInstaller
-                break
-            installerPath = executableExistsInPath(eachInstaller,'\\') # handles running on standard win
-            if installerPath is not None:
-                preferredInstaller = eachInstaller
-                break
-        if preferredInstaller is None:
-            print("Error: no suitable python installer found of either "+', '.join(suitableModuleInstallers))
-            print("       Please run the following command using your python module installer:")
-            print("       "+preferredInstaller + ' install '+installCMDString)
-            sys.exit(1)
-        print("Found module installer "+preferredInstaller)
-        try:
-            subprocess.run(preferredInstaller + ' install '+installCMDString, shell=True, check=True)
-        except subprocess.CalledProcessError:
-            print("Error: module installation using the following installation system failed:")
-            print("       "+preferredInstaller)
-            sys.exit(1)
-        print()
-        print("Installation success. Please try to run the script as you were again (press the up arrow on your keyboard to recall previous commands).")
-    sys.exit(0)
+pyreq.require("colorama,psutil") # quits if not found, even after it installs. must run this script again
 
 # colored warning and error printing
 import colorama
@@ -108,23 +52,22 @@ def printWarning(msg,end='\n'):
 
 # regular expression patterns
 ptrnCommand = re.compile(r'^\s*([A-Z]+)\s') # ex: gets 'VAR' from 'VAR = UD GLOBAL-msg "a message"'
-ptrnSpaceSeparatedEquals = re.compile(r'\s(\S*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
+ptrnSpaceSeparatedEquals = re.compile(r'\s(\s*\".*\"|[^\s]+)') # ex: gets ['=','UD','GLOBAL-updated','a message']
 #ptrnCSVs = re.compile(r'\s*,?\s*([^\s",]+|\"([^"\\]|\\.)*?\")\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnCSVs = re.compile(r'\s*,?\s*(\[(.*?)\]|([^\s",]+|\"([^"\\]|\\.)*?\"))\s*,?\s*') # ex: gets ['1.2','2',"a \"special\" msg"] from '1.2,2,"a \"special\" msg"'
 ptrnGlobalUpdates = re.compile(r'GLOBAL-updates\s+[0-9]+') # ex: None or 'GLOBAL-updates    300'
 
-def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, executable, cfg_files, workDir, conditions, padSizeReps):
-    outFile = open(qsubFileName, 'w')
+def makeQsubFile(realDisplayName, conditionDirectoryName, rep, slurmFileName, executable, cfg_files, workDir, conditions, padSizeReps):
+    outFile = open(slurmFileName, 'w')
     outFile.write('#!/bin/bash -login\n')
     for p in HPCC_parameters:
         outFile.write(p + '\n')
-    outFile.write('#PBS -o ' + realDisplayName + '.out\n')
-    outFile.write('#PBS -N ' + realDisplayName + '\n')
+    #outFile.write('#PBS -o ' + realDisplayName + '.out\n')
+    outFile.write('#SBATCH --output=' + realDisplayName + '.out\n')
+    outFile.write('#SBATCH --job-name=' + realDisplayName + '\n')
 
     outFile.write('\n' +
                   'shopt -s expand_aliases\n' +
-                  'module load powertools\n' +
-                  'module load GNU/6.2\n' +
                   '\n' +
                   'cd ' + workDir +
                   '\n')
@@ -136,16 +79,18 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, qsubFileName, exe
             includeFileString += fileName + ' '
 
     if HPCC_LONGJOB:
-        outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n' +
-                      'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n' +
-                      #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
-                      'export PBS_JOBSCRIPT="$0"\n' +
-                      '\n' +
-                      'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        print('LONGJOB currently unsupported')
+        sys.exit(0)
+        #outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n' +
+        #              'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n' +
+        #              #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
+        #              'export PBS_JOBSCRIPT="$0"\n' +
+        #              '\n' +
+        #              'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     else:
-        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputDirectory ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     outFile.write('ret=$?\n\n' +
-                  'qstat -f ${PBS_JOBID}\n' +
+                  'sacct -j ${SLURM_JOB_ID}\n' +
                   '\n' +
                   'exit $ret\n')
     outFile.close()
@@ -195,7 +140,7 @@ def hasUnmatchedSymbols(rawString):
     else:
         return problemPairs
 def stripIllegalDirnameChars(rawString):
-    for eachChar in list('[](),\'"\\!@#$%^&*=+` <>?{}'):
+    for eachChar in list(':[](),\'"\\!@#$%^&*=+` <>?{}'):
         rawString = rawString.replace(eachChar,'')
     return rawString
 
@@ -251,16 +196,19 @@ with open(args.file) as openfileobject:
                     exit(1)
                 new_condition_set = []
                 for eachVar in everythingEqualsAndAfterAsList[1:]:
-                    if eachVar.count('=') > 1:
-                        printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
-                        sys.exit(1)
-                    variable,rawValues=eachVar.split('=')
+                    #if eachVar.count('=') > 1:
+                    #    printError("more than 1 '=' character found in CONDITIONS values (probably in a string?) and we haven't considered this problem yet.")
+                    #    exit(1)
+                    #variable,rawValues=eachVar.split('=')
+                    variable = eachVar.split('=')[0]
+                    rawValues = eachVar[len(variable)+1:]
                     problemPairs = hasUnmatchedSymbols(rawValues)
                     if problemPairs:
                         printWarning("The following value(s) have unmatched {symbols} symbols.".format(symbols=','.join([e[0]+e[1] for e in problemPairs])))
                         printWarning(rawValues)
                         sys.exit(1)
-                    values = [e[0].strip('[]') for e in ptrnCSVs.findall(rawValues)]
+                    #values = [e[0].strip('[]') for e in ptrnCSVs.findall(rawValues)] ## removed to leave [] untouched
+                    values = [e[0] for e in ptrnCSVs.findall(rawValues)]
                     new_condition_set.append([variable]+values)
                 condition_sets.append(new_condition_set) # results as: condition_sets=[[['PUN','0.0','1.0','1.5'], ['UH','1'], ['UI','1']], /* next condition set here... */ ]
             if line[0] == "EXECUTABLE":
@@ -513,14 +461,15 @@ for i in range(len(combinations)):
             else:
                 conditionDirectoryName = displayName + "_C" + str(i).zfill(padSizeCombinations) + "__" + stripIllegalDirnameChars(conditions[i][1:-1])
             print("running:")
-            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputDirectory " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + replacedConstantDefs)
+            print("  " + executable + " -f " + cfg_files_str + " -p GLOBAL-outputPrefix " + conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/ " + "GLOBAL-randomSeed " + str(rep) + " " + combinations[i][1:] + replacedConstantDefs)
             # make rep directory (this will also make the condition directory if it's not here already)
             call(["mkdir","-p", conditionDirectoryName + "/" + str(rep).zfill(padSizeReps)])
             if not args.runNo:
                 sys.stdout.flush() # force flush before running MABE, otherwise sometimes MABE output shows before the above
                 # turn combinations string into a list
                 params = combinations[i][1:].split()
-                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputDirectory" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
+                params = [e.strip('"') for e in params]
+                call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputPrefix" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
         if args.runHPCC:
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
@@ -567,17 +516,17 @@ for i in range(len(combinations)):
 
             os.chdir(workDir)  # goto the work dir (on scratch)
 
-            qsubFileName = "MQ.qsub"
+            slurmFileName = "slurm.sb"
 
             # make the qsub file on scratch
-            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,qsubFileName = qsubFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + replacedConstantDefs, padSizeReps = padSizeReps)
+            makeQsubFile(realDisplayName = realDisplayName, conditionDirectoryName = conditionDirectoryName, rep = rep ,slurmFileName = slurmFileName, executable = executable, cfg_files = cfg_files, workDir = workDir, conditions = combinations[i][1:] + replacedConstantDefs, padSizeReps = padSizeReps)
 
             print("submitting:")
             print("  " + realDisplayName + " :")
             print("  workDir = " + workDir)
-            print("  qsub " + qsubFileName)
+            print("  sbatch " + slurmFileName)
             if not args.runNo:
-                callNoWait(["qsub", qsubFileName])  # run the job
+                call(["sbatch", slurmFileName])  # run the job
 
 if args.runNo:
     print("")

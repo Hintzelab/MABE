@@ -1,7 +1,11 @@
-Utilities/zupply/build
-Utilities/zupply/doc
-Utilities/zupply/examples
-Utilities/zupply/LICENSE
-Utilities/zupply/README.md
-Utilities/zupply/unittest
-Utilities/zupply/src/quickstart.cpp
+Utilities/gitversion.h
+modules.h
+
+# Ignore xcode project file:
+mabe.xcodeproj
+
+# Ingore intermediate objects:
+objectFiles/
+
+# Ignore python's cache:
+__pycache__/
