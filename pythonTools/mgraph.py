@@ -2,7 +2,6 @@
 # <nbformat>3.0</nbformat>
 #%matplotlib inline
 
-# BUG: if you pass * as an argument to some parameters (e.g. -data, -dataFromFile) behavior is weird
 
 #check dependencies
 from utils import pyreq
@@ -389,13 +388,14 @@ def main(args):
     abrvLegendList = ['ur','ul','lr','ll','cr','cl','lc','uc','c']
     args.legendLocation = realLegendList[abrvLegendList.index(args.legendLocation)]
 
-    # ----------------------------
+    # ---Load Data -------------------------
+    if args.path != '' and args.path[-1] != '/': args.path += '/' #new
     reps = get_rep_list(args) #new
     files = args.files
     conFolderNames, conUserNames = get_con_names(args) #new
     dataColumnNames = get_data_names(args, conFolderNames, reps) #new
     godFrames, updateMin = load_data(args, conFolderNames, conUserNames, reps, files, dataColumnNames) #new
-    #-------------------------------
+    # --------------------------------------
 
     if len(args.whereRange) == 0 and args.whereRangeLimitToData:
         args.whereRange.append(0)
@@ -410,26 +410,26 @@ def main(args):
     for name in godFrames:
         godFrames[name].reindex(copy=False)
         if len(args.whereRange)==1:
-            godFrames[name]=godFrames[name][godFrames[name][args.whereValue]==args.whereRange[0]]
+            godFrames[name] = godFrames[name][godFrames[name][args.whereValue]==args.whereRange[0]]
         if len(args.whereRange)==2:
-            godFrames[name]=godFrames[name][godFrames[name][args.whereValue] >= args.whereRange[0]]
-            godFrames[name]=godFrames[name][godFrames[name][args.whereValue] <= args.whereRange[1]]
+            godFrames[name] = godFrames[name][godFrames[name][args.whereValue] >= args.whereRange[0]]
+            godFrames[name] = godFrames[name][godFrames[name][args.whereValue] <= args.whereRange[1]]
         if len(args.whereRange)==3:
             cropRange = list(range(args.whereRange[0],args.whereRange[1]+1,args.whereRange[2]))
-            godFrames[name]=godFrames[name][godFrames[name][args.whereValue].isin(cropRange)]
+            godFrames[name] = godFrames[name][godFrames[name][args.whereValue].isin(cropRange)]
 
     allGraphs = {}
 
     if args.combineConditions:
         for file in files:
             if args.verbose: print ("generating plot for: " + file)
-            thisNamesList = find_alternate_data_names(godFrames[file][godFrames[file]["con"] == conUserNames[0]].columns, dataColumnNames)
+            thisNamesList = find_alternate_data_names(isolate_condition(godFrames[file], conUserNames[0]).columns, dataColumnNames)
             allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = conUserNames, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)
     else:
         for con in conUserNames:
             for file in files:
                 if args.verbose: print ("generating plot for: " + con + "__" + file)
-                thisNamesList = find_alternate_data_names(godFrames[file][godFrames[file]["con"] == conUserNames[0]].columns, dataColumnNames)
+                thisNamesList = find_alternate_data_names(isolate_condition(godFrames[file], conUserNames[0]).columns, dataColumnNames)
                 allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)
 
     #plt.tight_layout()
