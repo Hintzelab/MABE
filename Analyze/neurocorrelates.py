@@ -8,21 +8,26 @@ import numpy as np
 
 def main():
   print("running demo, calculating R:")
-  states = [[[0,0,1,0,1,0,1],[0,1,1,0,1,1],[0,0,1,1]],
-            [[1,1,1,1,0,1,0],[1,0,1,1,0,0],[1,1,0,0]],
-            [[0,0,1,0,1,0,1],[1,0,1,1,0,0],[0,1,0,1]]]
+  #          inputs          world     memory
+  #          v               v         v
+  #          0 1 2 3 4 5 6 7 0 1 2 3 4 0 1 2 3
+  states = [[0,0,1,0,1,0,1,0,1,1,0,1,1,0,0,1,1],
+            [1,1,1,1,0,1,0,1,0,1,1,0,0,1,1,0,0],
+            [0,0,1,0,1,0,1,1,0,1,1,0,0,0,1,0,1]]
   states = np.array(states)
-  print( R(states) )
+  # now mask 'on' the bits you care about when calling R()
+  #        states   inputs           world   memory    numInputBits    numWorldBits
+  print( R(states,  list(range(7)),  (0,2),  (0,2,3),  n_senBits=7,    n_envBits=6) )
   print('ran okay')
 
 # shared entropy (information) between the brain and the environment not shared with the sensors  
 # R = H(S,E) + H(S,M) - H(S) - H(E,M,S)
-def R(state_time_series,progress_width=0):
+def R(state_time_series, sensorBitMask, environmentBitMask, memoryBitMask, n_senBits, n_envBits, progress_width=0):
   ## assumes a time(t) state is [[sensor],[environment],[memory]]
   ## so [[0,1,0,0],[1,0,0,0,1,1],[0,1]] is one timeslice
   sensor_observations = defaultdict(int)
-  environment_sensor_observations = defaultdict(int)
-  memory_sensor_observations = defaultdict(int)
+  sensor_environment_observations = defaultdict(int)
+  sensor_memory_observations = defaultdict(int)
   total_observations = defaultdict(int)
 
   resolution = 1.0 / len(state_time_series)
@@ -30,24 +35,56 @@ def R(state_time_series,progress_width=0):
   maxt = len(state_time_series)
   screen_progress = 0
 
-  for (sensor_state, environment_state, memory_state) in state_time_series:
-    sensor_observations[ concat_bit_lists(sensor_state) ] += 1
-    environment_sensor_observations[ concat_bit_lists(sensor_state,environment_state) ] += 1
-    memory_sensor_observations[ concat_bit_lists(sensor_state,memory_state) ] += 1
-    total_observations[ concat_bit_lists(sensor_state,environment_state,memory_state) ] += 1
-    if progress_width:
-      screen_progress = ceil((float(t)/float(maxt)) * progress_width)
-      t += 1
-      print('['+('.'*screen_progress)+' '*(progress_width-screen_progress)+']',end='\r')
+  sensorBitMask = tuple(np.array(sensorBitMask))
+  environmentBitMask = tuple(np.array(environmentBitMask)+n_senBits)
+  memoryBitMask = tuple(np.array(memoryBitMask)+n_senBits+n_envBits)
+
+  sensorBits = state_time_series[:,sensorBitMask]
+  environmentBits = state_time_series[:,environmentBitMask]
+  memoryBits = state_time_series[:,memoryBitMask]
+
+  sensorInts = bitsToInts(sensorBits)
+  sensorAndEnvironmentInts = bitsToInts(np.concatenate((sensorBits,environmentBits),axis=1))
+  sensorAndMemoryInts = bitsToInts(np.concatenate((sensorBits,memoryBits),axis=1))
+  totalInts = bitsToInts(np.concatenate((sensorBits,environmentBits,memoryBits),axis=1))
+
+  for (S,SE,SM,SEM) in zip(sensorInts,sensorAndEnvironmentInts,sensorAndMemoryInts,totalInts):
+    sensor_observations[S] += 1
+    sensor_environment_observations[SE] += 1
+    sensor_memory_observations[SM] += 1
+    total_observations[SEM] += 1
   if progress_width:
     screen_progress = ceil((float(t)/float(maxt)) * progress_width)
     print('['+('.'*screen_progress)+' '*(progress_width-screen_progress)+']',end='\n') ## (\n)ewline
-  # R = H(S,E) + H(S,M) - H(S) - H(E,M,S)
-  H_SE = calcEntropy(environment_sensor_observations, resolution)
-  H_SM = calcEntropy(memory_sensor_observations, resolution)
+  ## R = H(S,E) + H(S,M) - H(S) - H(E,M,S)
+  H_SE = calcEntropy(sensor_environment_observations, resolution)
+  H_SM = calcEntropy(sensor_memory_observations, resolution)
   H_S = calcEntropy(sensor_observations, resolution)
-  H_EMS = calcEntropy(total_observations, resolution)
-  return H_SE + H_SM - H_S - H_EMS
+  H_SEM = calcEntropy(total_observations, resolution)
+  return H_SE + H_SM - H_S - H_SEM
+
+def bitsToInts(d):
+  import numpy as np
+  import math
+  '''d can be numpy 2-d array, or 1-d array'''
+  if len(d.shape) == 1:
+    # assume d is 1-dimensional
+    multiple_of_8 = math.ceil(d.size/8)
+    pad_width = multiple_of_8*8 - d.size
+    u8ints = np.pad(d, (pad_width,0), 'constant')
+    num = 0
+    for n in np.packbits(u8ints):
+      num = np.bitwise_or(np.left_shift(num,8),n)
+    return num
+  # assume d is 2-dimensional
+  multiple_of_8 = math.ceil(d[0].size/8)
+  pad_width = multiple_of_8*8 - d[0].size
+  fullbits = np.pad(d, ((0,0),(pad_width,0)), 'constant')
+  ints = np.packbits(fullbits,axis=1)
+  nums = np.zeros((len(d),1),dtype=np.int64)
+  for i in range(ints[0].size):
+    nums = np.bitwise_or(np.left_shift(nums,8),ints[:,i].reshape(len(ints),1))
+  return nums.reshape(len(ints))
 
 def calcEntropy(observations_map, resolution):
   ## observations_list: map[int,int]
@@ -59,16 +96,21 @@ def calcEntropy(observations_map, resolution):
     entropy_summation += p * log2(p)
   return -1 * entropy_summation
 
-def concat_bit_lists(*bitlists):
-  ## mask is a bitmask selecting the associated nums of the list
-  ## then those selected nums are bit-wise concatenated
-  numitems = len(bitlists)
-  newint = 0
-  # loop through all bits of the bitmask
-  for each_bitlist in bitlists:
-    for each_bit in each_bitlist:
-      newint = (newint << 1) + each_bit
-  return newint
+def _testBitsToInts():
+    import numpy as np
+    a = np.array([[1,0,0,0,0,0,1,1,0],[1,0,0,0,1,0,0,0,1]])
+    print("testing with vec =",a)
+    print(bitsToInts(a))
+
+def _testR():
+    import numpy as np
+    import numpy as np
+    a = np.array([[1,0,0,0,0,0,1,1,0],[1,0,0,0,1,0,0,0,1]])
+    print("testing with vec =",a)
+    res = R( state_time_series=a, sensorBitMask=list(range(3)), environmentBitMask=list(range(3)), memoryBitMask=list(range(3)) )
+    print(res)
 
 if __name__ == '__main__':
+  #_testBitsToInts()
+  #_testR()
   main()
