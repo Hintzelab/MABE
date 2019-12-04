@@ -45,7 +45,7 @@ parser.add_argument('-imageSize', type=float, default = [10,10], help='size of i
 parser.add_argument('-pltStyle', type=str, choices=('line','point','randomLine','randomPoint'), default = 'line', help='plot style. Random is useful if plotting multiple data on the same plot - default : line', required=False)
 parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','barXY'), default = 'region', help='how error is ploted - default : region', required=False)
 parser.add_argument('-numCol', type=str, metavar='#', default = '3', help='if ploting a multi plot (default), how many columns in plot - default : 3', required=False)
-parser.add_argument('-legendLocation', type=str, choices=('ur','ul','lr','ll','cr','cl','lc','uc','c'), default = 'lr', help='if legends are needed this is determins placement (first letter u = upper, c = center, l = lower. second letter l = left, c = center, r = right) - default : lr (lower right)', required=False)
+parser.add_argument('-legendLocation', type=str, choices=('ur','ul','lr','ll','cr','cl','lc','uc','c','off'), default = 'lr', help='if legends are needed this is determins placement (first letter u = upper, c = center, l = lower. second letter l = left, c = center, r = right, off = off) - default : lr (lower right)', required=False)
 parser.add_argument('-legendLineWeight', type=int, default = -1, help='changes line thickness in legend - default : lineWeight', required=False)
 parser.add_argument('-lineWeight', type=int, default = 1, help='changes line thickness of lines in plots - default : 1', required=False)
 parser.add_argument('-grid', action='store_true', default = False, help='if set, this flag cause a grid to be displayed on plots - default : OFF', required=False)
@@ -212,7 +212,7 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
                     for integrateName in integrateNames: # remove all integrateName columns
                         VARNAME = name[0:-4]+integrateName
                         if VARNAME in allNamesList:
-                            if args.verbose: print('     '+VARNAME+'  found, adding to plot for data: ' + name + ' condition: ' + con)
+                            if args.verbose: print('     '+VARNAME+'  found, adding to plot for data: ' + name + ' condition: ' + con,flush=True)
                             errorLineY = df_mean.loc[:, VARNAME]
                             plt.fill_between(x_axis_values, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15) 
                 if 'std' in PltWhat:
@@ -311,10 +311,10 @@ def get_data_names(args, condition_folder_names, replicates):
         user_names = args.data
         for u_name in user_names:
             if '*' in u_name or '[' in u_name or ']' in u_name:
-                if args.verbose: print("found column name with wildcard: " + u_name)
+                if args.verbose: print("found column name with wildcard: " + u_name,flush=True)
                 for f_name in names_from_file:
                     if fnmatchcase(f_name,u_name):
-                        if args.verbose: print("   ... found match, adding " + f_name + " to data.")
+                        if args.verbose: print("   ... found match, adding " + f_name + " to data.",flush=True)
                         namesList.append(f_name)
             else:
                 namesList.append(u_name)
@@ -326,10 +326,10 @@ def get_data_names(args, condition_folder_names, replicates):
 
     for u_name in args.ignoreData:
         if '*' in u_name or '[' in u_name or ']' in u_name:
-            if args.verbose: print("found ignore data with wildcard: " + u_name)
+            if args.verbose: print("found ignore data with wildcard: " + u_name,flush=True)
             for f_name in namesList:
                 if fnmatchcase(f_name,u_name):
-                    if args.verbose: print("   ... found match, removing " + f_name + ".")
+                    if args.verbose: print("   ... found match, removing " + f_name + ".",flush=True)
                     namesList.remove(f_name)
     return namesList
 
@@ -340,11 +340,11 @@ def find_alternate_data_names(search_from, match_to):
         if name in search_from:
             alternate_names.append(name)
         else:
-            if args.verbose: print("  can't find: '" + name + "'")
+            if args.verbose: print("  can't find: '" + name + "'",flush=True)
             if name[-4:]=="_AVE":
                 short_name = name[0:-4]
                 if short_name in search_from:
-                    if args.verbose: print("         but I did find: '" + short_name + "'")
+                    if args.verbose: print("         but I did find: '" + short_name + "'",flush=True)
                     alternate_names.append(short_name)
     return alternate_names
 
@@ -359,12 +359,12 @@ def load_data(args, condition_folder_names, condition_user_names, replicates, fi
         for c_f, c_u in zip(condition_folder_names, condition_user_names):
             for r in replicates:
                 complete_path = args.path + c_f + r + f
-                if args.verbose: print ("loading file: " + complete_path)
+                if args.verbose: print ("loading file: " + complete_path,flush=True)
                 df_all = read_csv(complete_path)
                 last_x_value = df_all[args.xAxis].iat[-1]
                 if (last_x_value < updateMin):
                     updateMin = last_x_value
-                    if args.verbose: print(c_u + " " + r + " has data until: " + str(last_x_value) + " new shortest!")
+                    if args.verbose: print(c_u + " " + r + " has data until: " + str(last_x_value) + " new shortest!",flush=True)
                 
                 if f == "pop.csv":
                     df_keep = df_all[[data_name for data_name in data_names]+["update"]]
@@ -384,8 +384,8 @@ def main(args):
 
     integrateNames = args.integrate
     imageSize = args.imageSize
-    realLegendList = ['upper right','upper left','lower right','lower left','center right','center left','lower center','upper center','center']
-    abrvLegendList = ['ur','ul','lr','ll','cr','cl','lc','uc','c']
+    realLegendList = ['upper right','upper left','lower right','lower left','center right','center left','lower center','upper center','center','']
+    abrvLegendList = ['ur','ul','lr','ll','cr','cl','lc','uc','c','off']
     args.legendLocation = realLegendList[abrvLegendList.index(args.legendLocation)]
 
     # ---Load Data -------------------------
@@ -422,13 +422,13 @@ def main(args):
 
     if args.combineConditions:
         for file in files:
-            if args.verbose: print ("generating plot for: " + file)
+            if args.verbose: print ("generating plot for: " + file,flush=True)
             thisNamesList = find_alternate_data_names(isolate_condition(godFrames[file], conUserNames[0]).columns, dataColumnNames)
             allGraphs[file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = conUserNames, CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)
     else:
         for con in conUserNames:
             for file in files:
-                if args.verbose: print ("generating plot for: " + con + "__" + file)
+                if args.verbose: print ("generating plot for: " + con + "__" + file,flush=True)
                 thisNamesList = find_alternate_data_names(isolate_condition(godFrames[file], conUserNames[0]).columns, dataColumnNames)
                 allGraphs[con+'__'+file] = MultiPlot(data = godFrames[file], PltWhat = args.pltWhat, ConditionsList = [con], CombineData = args.combineData, PltStyle = args.pltStyle, ErrorStyle = args.errorStyle, Reps = reps, NamesList = thisNamesList, XCoordinateName = args.xAxis, dataIndex = args.dataIndex, Columns = args.numCol, title = con + "__" + file,legendLocation = args.legendLocation, xRange = args.xRange, yRange = args.yRange, integrateNames = integrateNames, imageSize = imageSize)
 
