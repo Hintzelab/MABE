@@ -79,14 +79,72 @@ def makeQsubFile(realDisplayName, conditionDirectoryName, rep, slurmFileName, ex
             includeFileString += fileName + ' '
 
     if HPCC_LONGJOB:
-        print('LONGJOB currently unsupported')
-        sys.exit(0)
         #outFile.write('# 4 hours * 60 minutes * 6 seconds - 60 seconds * 20 minutes\n' +
         #              'export BLCR_WAIT_SEC=$(( 4 * 60 * 60 - 60 * 20 ))\n' +
         #              #'export BLCR_WAIT_SEC=$( 30 * 60 )\n'+
         #              'export PBS_JOBSCRIPT="$0"\n' +
         #              '\n' +
         #              'longjob ' +  executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
+        local_dir = conditionDirectoryName + '/' + str(rep).zfill(padSizeReps)
+        mabe_call = executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + local_dir + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions
+        longjob_contents = '''
+ulimit -s 8192
+cd ${{SLURM_SUBMIT_DIR}}
+export SLURM_JOBSCRIPT="{FILE_NAME}" # used for resubmission
+######################## start dmtcp_coordinator #######################
+fname=port.$SLURM_JOBID # store port number
+dmtcp_coordinator --daemon --exit-on-last -p 0 --port-file $fname $@ 1>/dev/null 2>&1   # start coordinater
+h=`hostname` # get coordinator's host name
+p=`cat $fname` # get coordinator's port number
+export DMTCP_COORD_HOST=$h # save coordinators host info in an environment variable
+export DMTCP_COORD_PORT=$p # save coordinators port info in an environment variable
+export DMTCP_CHECKPOINT_DIR="./" # save ckpt files into unique locations
+####################### BODY of the JOB ######################
+# prepare work environment of the job
+# if first time launch, use "dmtcp_launch" otherwise use "dmtcp_restart"
+export CKPT_WAIT_SEC=$(( 4 * 60 * 60 - 10 * 60 )) # when to ckpt, in seconds (just under 4 hrs)
+# Launch or restart the execution
+if [ ! -f ${{DMTCP_CHECKPOINT_DIR}}/ckpt_*.dmtcp ] # if no ckpt file exists, it is first time run, use dmtcp_launch
+then
+  # first time run, use dmtcp_launch to start the job and run on background
+  dmtcp_launch -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --rm --ckpt-open-files {MABE_CALL} &
+  #wait for an inverval of checkpoint seconds to start checkpointing
+  sleep $CKPT_WAIT_SEC
+  # start checkpointing
+  dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files --bcheckpoint
+  # kill the running job after checkpointing
+  dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
+  # clean up any generated mabe files that have been checkpointed
+  rm {LOCAL_DIR}/*.csv
+  # resubmit the job
+  sbatch $SLURM_JOBSCRIPT
+else            # it is a restart run
+  # restart job with checkpoint files ckpt_*.dmtcp and run in background
+  dmtcp_restart -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT ckpt_*.dmtcp &
+  # wait for a checkpoint interval to start checkpointing
+  sleep $CKPT_WAIT_SEC
+  # if program is still running, do the checkpoint and resubmit
+  if dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT -s 1>/dev/null 2>&1
+  #if dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT -s 1>/dev/null
+  then  
+    # clean up old ckpt files before start checkpointing
+    rm -r ckpt_*.dmtcp
+    # checkpointing the job
+    dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files -bc
+    # kill the running program and quit
+    dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
+    # clean up any generated mabe files that have been checkpointed
+    rm {LOCAL_DIR}/*.csv
+    # resubmit this script to slurm
+    sbatch $SLURM_JOBSCRIPT
+  else
+    echo "job finished"
+  fi
+fi
+# show the job status info
+#scontrol show job $SLURM_JOB_ID
+'''.format(FILE_NAME=slurmFileName, MABE_CALL=mabe_call, LOCAL_DIR=local_dir)
+        outFile.write(longjob_contents)
     else:
         outFile.write(executable + ' ' + includeFileString + '-p GLOBAL-outputPrefix ' + conditionDirectoryName + '/' + str(rep).zfill(padSizeReps) + '/ GLOBAL-randomSeed ' + str(rep) + ' ' + conditions + '\n')
     outFile.write('ret=$?\n\n' +
@@ -107,6 +165,8 @@ parser.add_argument('-d', '--runHPCC', action='store_true', default=False,
                     help='if set, will deploy jobs with qsub on HPCC - default : false(no action)', required=False)
 parser.add_argument('-f', '--file', type=str, metavar='FILE_NAME', default='mq_conditions.txt',
                     help='file which defines conditions - default: mq_conditions.txt', required=False)
+parser.add_argument('-i', '--indefinite', action='store_true', default=False,
+                    help='run jobs until they self-terminate (longjob) - default : false', required=False)
 args = parser.parse_args()
 
 variables = {}
@@ -228,8 +288,8 @@ with open(args.file) as openfileobject:
                     if not(os.path.isfile(f)) and f.find('{{rep}}')==-1:
                         print('other file: "' + f + '" seems to be missing!')
                         exit()
-            if line[0] == "HPCC_LONGJOB":
-                HPCC_LONGJOB = (line[2] == "TRUE")
+            #if line[0] == "HPCC_LONGJOB":
+            #    HPCC_LONGJOB = (line[2] == "TRUE")
             if line[0] == "HPCC_PARAMETERS":
                 newParameter = ""
                 for i in line[2:]:
@@ -470,7 +530,9 @@ for i in range(len(combinations)):
                 params = combinations[i][1:].split()
                 params = [e.strip('"') for e in params]
                 call([executable, "-f"] + cfg_files + ["-p", "GLOBAL-outputPrefix" , conditionDirectoryName + "/" + str(rep).zfill(padSizeReps) + "/" , "GLOBAL-randomSeed" , str(rep)] + params + replacedConstantDefs.split())
-        if args.runHPCC:
+        if args.runHPCC or args.indefinite:
+            if args.indefinite:
+                HPCC_LONGJOB = True
             # go to the local directory (after each job is launched, we are in the work directory)
             os.chdir(absLocalDir)
             if (displayName == ""):
