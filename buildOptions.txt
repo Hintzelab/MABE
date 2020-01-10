@@ -30,3 +30,9 @@
   + SSwD
   * LODwAP
 
+# additional cmake configurations may be passed here
+# as a space separated list of files
+# they will be concatenated into 'cmake_auto_injection.txt'
+# and read during the configuration process
+
+additional_cmake_configs
