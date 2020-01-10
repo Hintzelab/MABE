@@ -17,11 +17,12 @@ if platform.system() == 'Windows':
 
 # Need to make sure winreg import works before trying to import the buildlibs
 from libmbuild.modulewriter import write_modules_h
-from libmbuild.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project
+from libmbuild.projectwriter import make_visual_studio_project, make_x_code_project, make_make_project, make_cmake_project, make_codeblocks_project, make_dev_cpp_project, make_cmake_injection
 
 parser = argparse.ArgumentParser()
 
-SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks, cm,cmake'
+SUPPORTED_PROJECT_FILES='mk,make, vs,visual_studio, xc,x_code, dc,dev_cpp, cb,code_blocks, cm,cmake, ij,injection'
+# kind of undocumented: type: 'ij,injection' for cmake injection workflow (not complete project output)
 
 parser.add_argument('-b','--buildOptions', metavar='FILE', default = 'buildOptions.txt',  help=' name of file with build options - default : buildOptions.txt')
 parser.add_argument('-c','--cleanup', action='store_true', default = False, help='add this flag if you want build files (including make) removed after building')
@@ -58,7 +59,9 @@ if (args.gprof):
 options = {'World':[],'Genome':[],'Brain':[],'Optimizer':[],'Archivist':[],}
 currentOption = ""
 
-ptrnBuildOptions = re.compile(r'([+\-*%])\s*(\w+)') # ex: gets ["%","WORLD"] from " %  WORLD", gets ["*","BerryWorld"] from " * BerryWorld"
+additional_cmake_configs_list = []
+
+ptrnBuildOptions = re.compile(r'([+\-*%]|additional_cmake_configs)[ \t]*([ \-\w=\+\./]+)') # ex: gets ["%","WORLD"] from " %  WORLD", gets ["*","BerryWorld"] from " * BerryWorld"
 if args.init:
     ## fill options dict with the subdirs names {'World':['Berry','Xor']}
     for eachTopDir in options.keys():
@@ -86,7 +89,11 @@ if args.init:
         line = line.strip()
         if len(line) == 0: continue
         for a,b in ptrnBuildOptions.findall(line):
+            ## read section
             if a == '%': currentSection = b
+            ## read and add include dirs space sep values (ex: ../src/inclcude)
+            elif a == 'additional_cmake_configs':
+                additional_cmake_configs_list.append(b)
             else:
                 if b in options[currentSection]: ## if also in filesystem discovered (options var)
                     oldopts[currentSection][OPS].append(a) ## add to new structure
@@ -111,6 +118,18 @@ if args.init:
                 print(line,end='')
             newbopts.write("\n")
             print()
+
+        line = "additional_cmake_configs "+" ".join(additional_cmake_configs_list)+"\n"
+        print(line,end='')
+        newbopts.write("# additional cmake configurations may be passed here\n")
+        newbopts.write("# as a space separated list of files\n")
+        newbopts.write("# they will be concatenated into 'cmake_auto_injection.txt'\n")
+        newbopts.write("# and read during the configuration process\n")
+        newbopts.write("\n")
+        newbopts.write(line)
+
+        print()
+
     print("buildOptions.txt created")
     print()
     sys.exit()
@@ -118,7 +137,7 @@ if args.init:
 if args.generate:
     args.noCompile = True
 else:
-    args.generate = 'make'
+    args.generate = 'injection'
 
 if posixpath.exists(args.buildOptions) is False:
     print()
@@ -140,11 +159,24 @@ for linenum,line in enumerate(lines):
     if len(line)==0:
         continue
     linenum+=1 ## sane line numbering starting at 1
-    if len(line) != 2:
+    if line[0] == '#': ## ignore comments
+        continue
+    ## check for custom line commands here
+    ## speed up checking by checking only first letter for
+    ## any of custom commands matching
+    ## can include more in tuple
+    elif line[0][0] in ('a',):
+        if line[0] == 'additional_cmake_configs':
+            if len(line) == 1: continue ## ignore empty include/lib commands
+            additional_cmake_configs_list.extend(line[1:])
+        else:
+            print("unrecognized line in buildoptions (line {0}): {1}".format(linenum,' '.join(line)))
+            unrecognizedLinesFound=True
+    elif len(line) != 2:
         print("Line "  + str(linenum) + " is incorrectly formatted. The line's contents are: ")
         print(line)
         exit()
-    if line[0] == '%': ## set current category
+    elif line[0] == '%': ## set current category
         currentOption = line[1]
     elif line[0] == '*': ## include and make default the module
         options[currentOption].append(line[1])
@@ -271,8 +303,10 @@ with open(os.path.join("Utilities","gitversion.h"),'w') as file:
         file.write('const char *gitversion = "";\n')
 if gitExists: touch("main.cpp") ## IDE-independent signal to recompile main.o (only do so if we can use git to get a version number though)
 
-# Create a make file if requested (default)
-if args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
+# Create a project file
+if args.generate == 'injection' or args.generate == 'ij': ## GENERATE cmake injection:
+    make_cmake_injection(getSourceFilesByBuildOptions(sep='/'), additional_cmake_configs_list)
+elif args.generate == 'make' or args.generate == 'mk': ## GENERATE make:
     make_make_project(options, moduleSources, pathToMABE, alwaysSources, objects, product, compiler, compFlags)
 elif  args.generate == 'dev_cpp' or args.generate == 'dc': ## GENERATE devcpp
     make_dev_cpp_project(getSourceFilesByBuildOptions(sep='\\'))

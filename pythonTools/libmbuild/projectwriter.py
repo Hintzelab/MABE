@@ -717,3 +717,43 @@ def make_cmake_project(units):
     # Write output string to file
     with open('CMakeLists.txt', 'w') as outfile:
         outfile.write(output)
+
+def make_cmake_injection(units,additional_cmake_configs_list):
+    '''Used as middle step in new cmake workflow; not a project
+    generates the include files based on buildOptions, and also
+    includes the file contents from cmake fragment files
+    specified in buildOptions (if any).'''
+
+    # generate cmake config fragment
+    directories = []
+    files = []
+    for u in units:
+        if u['folder'] not in directories:
+            directories.append(u['folder'])
+        if u['filename'] not in files:
+            files.append(u['filename'])
+    fragment = ''
+    for d in directories:
+        fragment += "include_directories({})\n".format(d if d != "" else ".")
+    for f in files:
+        fragment += "\ntarget_sources(${{EXE}} PRIVATE {})".format(f)
+    fragment += "\n\n"
+
+    # append to fragment the contents of other fragment files
+    for config_file in additional_cmake_configs_list:
+        titlestr = '#### FROM {} ####'.format(config_file)
+        fragment += '#'*len(titlestr)+'\n'
+        fragment += titlestr+'\n'
+        fragment += '#'*len(titlestr)+'\n'
+        fragment += '\n'
+        with open(config_file, 'r') as file:
+            fragment += file.read()
+        fragment += '\n\n'
+
+    # write out the fragment file
+    with open('cmake_auto_injection.txt', 'w') as outfile:
+        outfile.write('# this file was created by pythonTools/mbuild.py\n')
+        outfile.write('# do NOT edit by hand\n')
+        outfile.write('# use buildOptions.txt and cmake fragment configs instead\n')
+        outfile.write('\n')
+        outfile.write(fragment)
