@@ -34,6 +34,7 @@ std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCount
 
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRate", 0.0, "per site point offset mutation rate (site changes in range (+/-)mutationPointOffsetRange)");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRangePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRange", 1.0, "range of PointOffset mutation");
+std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationPointOffsetUniformPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetUniform", true, "if true, offset will be from a uniform distribution, if false, from a normal distribution (mean = 0, std_dev = range)");
 
 
 // constructor
@@ -540,11 +541,16 @@ void CircularGenome<T>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-		sites[siteIndex] =
-			std::max(0,std::min((int)alphabetSize-1,
-				sites[siteIndex] +
-			(((Random::getIndex(2)*2)-1) * // sign (((0 or 1) * 2) - 1)
-				Random::getInt(1,std::max(1,(int)range))))); // value (will be 1 or more)
+		int offsetValue;
+		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
+			offsetValue = Random::getInt(1, range) * ((Random::getIndex(2) * 2.0) - 1.0);
+			// note! if range < 1 then all offsetValues will be 0, if range >= 1 offsetValues
+			// will always be either >= 1 or <= -1
+		}
+		else { //normal/gaussian
+			offsetValue = (int)Random::getNormal(0, range);
+		}
+		sites[siteIndex] = std::max(0, std::min((int)alphabetSize - 1, sites[siteIndex] + offsetValue));
 	}
 }
 
@@ -555,10 +561,16 @@ void CircularGenome<double>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-		double offsetMagnitude = Random::getDouble(0, range);
-		double offsetDirection = (Random::getIndex(2) * 2.0) - 1.0;
+		bool pointOffsetUniform = false;
+		double offsetValue;
+		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
+			offsetValue = Random::getDouble(-range, range);
+		}
+		else { //normal/gaussian
+			offsetValue = Random::getNormal(0, range);
+		}
 		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
-		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetDirection*offsetMagnitude)));
+		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetValue)));
 	}
 }
 
