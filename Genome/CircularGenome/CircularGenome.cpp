@@ -680,16 +680,37 @@ void CircularGenome<T>::mutate() {
 		if (copyFirst) {
 			// if copy before delete
 			// copy a portion of the genome into segment
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize); // where to copy from
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			int segmentStart = Random::getInt((int)sites.size() - segmentSize); // where to copy from
+			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			segment.clear();
 			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
+
+/*
+            std::cout << "\ncopyFirst\ngenome: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+			std::cout << "   size: " << segmentSize << "    segmentStart: " << segmentStart << "    deleteStart: " << deleteStart << std::endl;
+			std::cout << std::endl << "segment: ";
+			for (auto s : segment) {
+				std::cout << s << " ";
+			}
+			std::cout << std::endl;
+*/
+
 			// delete a portion of the genome of the same size
 			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
+
+/*
+			std::cout << "\ngenome after delete: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+*/
 			// insert the copied sites back into genome
 			if (insertMethod == 0) {
 				// copy to random location
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment
@@ -702,22 +723,33 @@ void CircularGenome<T>::mutate() {
 				}
 				sites.insert(it + segmentStart, segment.begin(), segment.end());
 			}
+/*
+			std::cout << "\ngenome after insert: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+*/
 		}
 		else {
 			// delete before copy (deleted sites cannot be copied)
 			// delete a portion of the genome
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
 
+            if (segmentSize > sites.size()){
+                std::cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for indel is > then sites.size() after deletion!\nUse a larger genome relitive to Indel min/max.\nExiting!" << std::endl;
+                std::cout << "segmentSize = " << segmentSize << "  sites.size() after indel delete = " << (int)sites.size() << std::endl;
+                exit(1);
+            }
 			// copy a portion of the genome into segment
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize);
+			int segmentStart = Random::getInt((int)sites.size() - segmentSize);
 			segment.clear();
 			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
 
 			// insert the copied sites back into genome
 			if (insertMethod == 0) {
 				// copy to random location
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment
