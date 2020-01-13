@@ -34,7 +34,7 @@ std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCount
 
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRate", 0.0, "per site point offset mutation rate (site changes in range (+/-)mutationPointOffsetRange)");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRangePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRange", 1.0, "range of PointOffset mutation");
-std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationPointOffsetUniformPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetUniform", true, "if true, offset will be from a uniform distribution, if false, from a normal distribution (mean = 0, std_dev = range)");
+std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationPointOffsetUniformPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetUniform", true, "if true, offset will be from a uniform distribution, if false, from a normal distribution (where mean is 0 and std_dev is mutationPointOffsetRange)");
 
 
 // constructor
