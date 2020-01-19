@@ -182,7 +182,7 @@ cfg_files = []
 other_files = []
 executable = "./mabe"
 HPCC_parameters = []
-HPCC_LONGJOB = True
+HPCC_LONGJOB = False
 using_conditions = False ## either use VAR/EXCEPT or CONDITIONS, but not both. Use of condition values overrides VAR values.
 
 def hasMatchedSymbols(rawString,sym1,sym2):

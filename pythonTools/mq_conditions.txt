@@ -49,8 +49,7 @@ EXECUTABLE = ./mabe
 -----
 # comma separate the mail type list ex: FAIL,END,REQUEUE
 
-# HPCC
-HPCC_LONGJOB = FALSE
+# HPCC (not used for indefinite mode)
 HPCC_PARAMETERS = #SBATCH -C intel18|intel16|intel14
 HPCC_PARAMETERS = #SBATCH --ntasks=1
 HPCC_PARAMETERS = #SBATCH --cpus-per-task=1
