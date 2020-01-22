@@ -34,6 +34,7 @@ std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCount
 
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRate", 0.0, "per site point offset mutation rate (site changes in range (+/-)mutationPointOffsetRange)");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRangePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRange", 1.0, "range of PointOffset mutation");
+std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationPointOffsetUniformPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetUniform", true, "if true, offset will be from a uniform distribution, if false, from a normal distribution (where mean is 0 and std_dev is mutationPointOffsetRange)");
 
 
 // constructor
@@ -540,11 +541,16 @@ void CircularGenome<T>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-		sites[siteIndex] =
-			std::max(0,std::min((int)alphabetSize-1,
-				sites[siteIndex] +
-			(((Random::getIndex(2)*2)-1) * // sign (((0 or 1) * 2) - 1)
-				Random::getInt(1,std::max(1,(int)range))))); // value (will be 1 or more)
+		int offsetValue;
+		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
+			offsetValue = Random::getInt(1, range) * ((Random::getIndex(2) * 2.0) - 1.0);
+			// note! if range < 1 then all offsetValues will be 0, if range >= 1 offsetValues
+			// will always be either >= 1 or <= -1
+		}
+		else { //normal/gaussian
+			offsetValue = (int)Random::getNormal(0, range);
+		}
+		sites[siteIndex] = std::max(0, std::min((int)alphabetSize - 1, sites[siteIndex] + offsetValue));
 	}
 }
 
@@ -555,10 +561,16 @@ void CircularGenome<double>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-		double offsetMagnitude = Random::getDouble(0, range);
-		double offsetDirection = (Random::getIndex(2) * 2.0) - 1.0;
+		bool pointOffsetUniform = false;
+		double offsetValue;
+		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
+			offsetValue = Random::getDouble(-range, range);
+		}
+		else { //normal/gaussian
+			offsetValue = Random::getNormal(0, range);
+		}
 		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
-		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetDirection*offsetMagnitude)));
+		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetValue)));
 	}
 }
 
@@ -680,16 +692,37 @@ void CircularGenome<T>::mutate() {
 		if (copyFirst) {
 			// if copy before delete
 			// copy a portion of the genome into segment
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize); // where to copy from
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			int segmentStart = Random::getInt((int)sites.size() - segmentSize); // where to copy from
+			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			segment.clear();
 			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
+
+/*
+            std::cout << "\ncopyFirst\ngenome: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+			std::cout << "   size: " << segmentSize << "    segmentStart: " << segmentStart << "    deleteStart: " << deleteStart << std::endl;
+			std::cout << std::endl << "segment: ";
+			for (auto s : segment) {
+				std::cout << s << " ";
+			}
+			std::cout << std::endl;
+*/
+
 			// delete a portion of the genome of the same size
 			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
+
+/*
+			std::cout << "\ngenome after delete: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+*/
 			// insert the copied sites back into genome
 			if (insertMethod == 0) {
 				// copy to random location
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment
@@ -702,22 +735,33 @@ void CircularGenome<T>::mutate() {
 				}
 				sites.insert(it + segmentStart, segment.begin(), segment.end());
 			}
+/*
+			std::cout << "\ngenome after insert: ";
+			for (auto s : sites) {
+				std::cout << s << " ";
+			}
+*/
 		}
 		else {
 			// delete before copy (deleted sites cannot be copied)
 			// delete a portion of the genome
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
+			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
 
+            if (segmentSize > sites.size()){
+                std::cout << "ERROR: in curlarGenome<T>::mutate(), segmentSize for indel is > then sites.size() after deletion!\nUse a larger genome relitive to Indel min/max.\nExiting!" << std::endl;
+                std::cout << "segmentSize = " << segmentSize << "  sites.size() after indel delete = " << (int)sites.size() << std::endl;
+                exit(1);
+            }
 			// copy a portion of the genome into segment
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize);
+			int segmentStart = Random::getInt((int)sites.size() - segmentSize);
 			segment.clear();
 			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
 
 			// insert the copied sites back into genome
 			if (insertMethod == 0) {
 				// copy to random location
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
+				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment

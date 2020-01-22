@@ -32,6 +32,7 @@ public:
 	static std::shared_ptr<ParameterLink<double>> mutationPointRatePL;
 	static std::shared_ptr<ParameterLink<double>> mutationPointOffsetRatePL;
 	static std::shared_ptr<ParameterLink<double>> mutationPointOffsetRangePL;
+    static std::shared_ptr<ParameterLink<bool>> mutationPointOffsetUniformPL;
 	static std::shared_ptr<ParameterLink<double>> mutationCopyRatePL;
 	static std::shared_ptr<ParameterLink<int>> mutationCopyMinSizePL;
 	static std::shared_ptr<ParameterLink<int>> mutationCopyMaxSizePL;
