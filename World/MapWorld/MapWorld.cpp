@@ -13,23 +13,27 @@
 // Map info
 std::shared_ptr<ParameterLink<std::string>> MapWorld::inputFilesPL =
   Parameters::register_parameter("WORLD_MAP-inputFiles", (std::string) "World/MapWorld/maps/geo.txt, World/MapWorld/maps/geo2.txt",
-                                 "number of times the organism can move");
+                                 "number of times   the organism can move");
 
 // evaluation info
-std::shared_ptr<ParameterLink<int>> MapWorld::movesPerOrganismPL =
-  Parameters::register_parameter("WORLD_MAP-movesPerOrganism", 20,
+std::shared_ptr<ParameterLink<int>> MapWorld::movesMultiplierPL =
+  Parameters::register_parameter("WORLD_MAP-movesMultiplier", 2,
                                  "number of times the organism can move");
 
 // organism info
 std::shared_ptr<ParameterLink<double>> MapWorld::rewardForSensorPL =
-  Parameters::register_parameter("WORLD_MAP-rewardForSensor", 0.5,
+  Parameters::register_parameter("WORLD_MAP-rewardForSensor", 1.0,
                                  "reward for getting sensor correct");
 std::shared_ptr<ParameterLink<double>> MapWorld::rewardForDirectionPL =
-  Parameters::register_parameter("WORLD_MAP-rewardForDirection", 1.0,
+  Parameters::register_parameter("WORLD_MAP-rewardForDirection", 0.0,
                                  "reward for getting sensor correct");
                                  
 std::shared_ptr<ParameterLink<int>> MapWorld::rewardForGoalPL =
-  Parameters::register_parameter("WORLD_MAP-rewardForGoal", 5,
+  Parameters::register_parameter("WORLD_MAP-rewardForGoal", 2,
+                                 "reward for getting to destination");
+
+std::shared_ptr<ParameterLink<double>> MapWorld::hitWallDeductionPL =
+  Parameters::register_parameter("WORLD_MAP-hitWallDeduction", 1.0,
                                  "reward for getting to destination");
 
 // mandatory info
@@ -57,10 +61,11 @@ std::shared_ptr<ParameterLink<std::string>> MapWorld::brainNamePL =
 MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
 {
   // create global variables from registered Parameters
+  movesMultiplier = MapWorld::movesMultiplierPL->get(PT);
   rewardForSensor = MapWorld::rewardForSensorPL->get(PT);
   rewardForDirection = MapWorld::rewardForDirectionPL->get(PT);
   rewardForGoal = MapWorld::rewardForGoalPL->get(PT);
-
+  hitWallDeduction = MapWorld::hitWallDeductionPL->get(PT);
 
 
   std::vector<std::string> listFiles;
@@ -86,6 +91,7 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
   popFileColumns.push_back("score_direction"); // score correct answers to direction of object
   popFileColumns.push_back("score_move"); // score for moving in correct direction
   popFileColumns.push_back("score_goal"); // score for got to destination
+  popFileColumns.push_back("score_hit"); // score for moving in correct direction
 }
 
 
@@ -140,6 +146,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
   double totalCompass = 0; // direction
   double totalDist = 0; // mantahhan distance from point
   double totalScore = 0;
+  double totalHit = 0;
   double goal = 0;
 
   double roundCounter = 0;
@@ -158,7 +165,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
     int startDist = car.getGeo()->getStartDist(); 
     aveStartDist += startDist;
-    movesPerOrganism = startDist;
+    int movesPerOrganism = startDist*2;
 
 
     // adding wall and destination to visualizer
@@ -192,6 +199,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
         int moves = 1; // organism move count per evaluation 
         bool done = 0; 
+        bool hit = 0;
      
       
         /**************             MOVES             **************/
@@ -212,7 +220,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           }
       
 
-          // INPUT to brain 0-7: grid sensors
+          // INPUT to brain 0-: grid sensors
           int counter_input = 0; // input node number
           for(auto grid_sensor : car.getSensors()){
             brain->setInput(counter_input, grid_sensor); // input to brain
@@ -231,9 +239,19 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           brain->update();
       
       
-          // OUTPUT from brain 0-2: open or not sides
+          // OUTPUT: open or not sides
           int output_counter = 0;
-          for(auto grid_sensor : car.getSideSensors()){
+          // for(auto grid_sensor : car.getSideSensors()){
+          //   if (Bit(brain->readOutput(output_counter)) == grid_sensor)
+          //   {
+          //     totalSensor += 1;
+
+          //     if (debug)
+          //       std::cout << "Sensor Correct" << std::endl;
+          //   }      
+          //   output_counter += 1;
+          // }
+          for(auto grid_sensor : car.getFront()){
             if (Bit(brain->readOutput(output_counter)) == grid_sensor)
             {
               totalSensor += 1;
@@ -244,7 +262,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
             output_counter += 1;
           }
       
-          // OUTPUT from brain 3-6: which direction
+          // OUTPUT: which direction
           for(auto check_side : car.getCompass()){
             if (Bit(brain->readOutput(output_counter)) == check_side)
             {
@@ -257,23 +275,29 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           }
       
       
-          // OUTPUT from brain 7: turn right 90 degrees
+          // OUTPUT: turn right 90 degrees
           if (Bit(brain->readOutput(output_counter)) == 1){
             car.turn("right");
           }
           output_counter += 1;
       
       
-          // OUTPUT from brain 8: turn left 90 degrees
+          // OUTPUT: turn left 90 degrees
           if (Bit(brain->readOutput(output_counter)) == 1){
             car.turn("left");
           }
           output_counter += 1;
       
       
-          // OUTPUT from brain 9: move forward
+          // OUTPUT: move forward
           if (Bit(brain->readOutput(output_counter)) == 1){
-            car.move();
+            int moved = car.move();
+            if (!moved)
+            {
+              hit = 1;
+              if (debug)
+                std::cout << "DEDUCTION: Hit wall" << std::endl;
+            }
           }
       
       
@@ -290,6 +314,8 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           moves += 1;
 
         } // end move
+        if (hit)
+          totalHit -= 1;
 
         if (done)
         {
@@ -339,13 +365,14 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
 
   // scoring
-  totalScore += (rewardForGoal*goal) + totalSensor + totalCompass;
+  totalScore += (rewardForGoal*goal) + totalSensor + totalCompass + totalHit;
 
   org->dataMap.append("score", totalScore);
   org->dataMap.append("score_sensor", totalSensor);
   org->dataMap.append("score_direction", totalCompass);
   org->dataMap.append("score_move", totalDist);
   org->dataMap.append("score_goal", goal);
+  org->dataMap.append("score_hit", totalHit);
 
 }
 
@@ -360,7 +387,7 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   **/
 
   return {{groupNamePL->get(PT), {"B:" + brainNamePL->get(PT) +
-          ",12" + ",10"}}}; // setting number of outputs
+          ",23" + ",8"}}}; // setting number of outputs
   // requires a root group and a brain (in root namespace) and no addtional
   // genome,
   // the brain must have 1 input, and the variable list_nbacks outputs
@@ -392,7 +419,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
 
     // parsing file
     if (myfile.is_open()){
-      std::cout << "File" << std::endl;
       while (std::getline(myfile, line)){
         std::vector<std::string> parsed_line;
 
@@ -724,15 +750,25 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   cCar::cCar()
   {
     // gettting offset coordinates for sensors
+    std::vector< std::pair<int, int> > sLeft2;
+    sLeft2.push_back(std::make_pair(-2, 0));
+    sLeft2.push_back(std::make_pair(-2, 1));
+    sLeft2.push_back(std::make_pair(-2, 2));
+    sLeft2.push_back(std::make_pair(-2, 3));
+    mGridSensor.push_back(sLeft2);
+
+    // gettting offset coordinates for sensors
     std::vector< std::pair<int, int> > sLeft;
     sLeft.push_back(std::make_pair(-1, 0));
     sLeft.push_back(std::make_pair(-1, 1));
     sLeft.push_back(std::make_pair(-1, 2));
+    sLeft.push_back(std::make_pair(-1, 3));
     mGridSensor.push_back(sLeft);
     
     std::vector< std::pair<int, int> > sFront;
     sFront.push_back(std::make_pair(0, 1));
     sFront.push_back(std::make_pair(0, 2));
+    sFront.push_back(std::make_pair(0, 3));
     mGridSensor.push_back(sFront);
     
     
@@ -740,7 +776,15 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     sRight.push_back(std::make_pair(1, 0));
     sRight.push_back(std::make_pair(1, 1));
     sRight.push_back(std::make_pair(1, 2));
+    sRight.push_back(std::make_pair(1, 3));
     mGridSensor.push_back(sRight);
+
+    std::vector< std::pair<int, int> > sRight2;
+    sRight2.push_back(std::make_pair(2, 0));
+    sRight2.push_back(std::make_pair(2, 1));
+    sRight2.push_back(std::make_pair(2, 2));
+    sRight2.push_back(std::make_pair(2, 3));
+    mGridSensor.push_back(sRight2);
 
     // // getting mCompass sensors
     // configure_mCompass();
@@ -837,19 +881,44 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     std::vector<int> ret_sensors;
 
     for(int side = 0; side < mGridSensor.size(); side++){ // for grid sensor side
-      int object = 0;
+      int object = 1;
 
       for(int sensor = 0; sensor < mGridSensor[side].size(); sensor++){ // for every sensor in the side
         std::pair<int, int> offset = mGridSensor[side][sensor];// offset from current position
         std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
-        if (mGeo->getCoordString(actual_location) != " "){
-          object = 1;
+        if (mGeo->getCoordString(actual_location) == "w"){
+          object = 0;
           break;
         }
       }
       // std::cout << std::to_string(object) << ", ";
       ret_sensors.push_back(object);// add if side is open or not
     }
+
+    // std::cout << std::endl;
+    return ret_sensors;
+  }
+
+  std::vector<int> cCar::getFront()
+  {
+    /**
+    * returns if the side sensor has object or not
+    *
+    * @return: vecotr of if left, front, or right have objects
+    **/
+    // std::cout << "side sensors: ";
+    std::vector<int> ret_sensors;
+
+    int object = 1;
+
+    std::pair<int, int> offset = mGridSensor[2][0];// offset from current position
+    std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
+    if (mGeo->getCoordString(actual_location) == "w"){
+      object = 0;
+    }
+    // std::cout << std::to_string(object) << ", ";
+    ret_sensors.push_back(object);// add if side is open or not
+
 
     // std::cout << std::endl;
     return ret_sensors;

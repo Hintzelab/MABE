@@ -97,6 +97,7 @@ public:
   std::vector<int> getCompass();
   std::vector<int> getSensors();
   std::vector<int> getSideSensors();
+  std::vector<int> getFront();  
 
   // setter functions
   void setGeo(std::shared_ptr<cGeo>);
@@ -127,12 +128,13 @@ class MapWorld : public AbstractWorld {
     static std::shared_ptr<ParameterLink<std::string>> inputFilesPL;
 
     // evaluation info
-    static std::shared_ptr<ParameterLink<int>> movesPerOrganismPL;
+    static std::shared_ptr<ParameterLink<int>> movesMultiplierPL;
 
     // organism info
     static std::shared_ptr<ParameterLink<double>> rewardForSensorPL;
     static std::shared_ptr<ParameterLink<double>> rewardForDirectionPL;
     static std::shared_ptr<ParameterLink<int>> rewardForGoalPL;
+    static std::shared_ptr<ParameterLink<double>> hitWallDeductionPL;
 
     // mandatory info
     static std::shared_ptr<ParameterLink<std::string>> groupNamePL;
@@ -148,10 +150,11 @@ class MapWorld : public AbstractWorld {
     std::string destinationChar;
 
     //  registered parameters
-    int movesPerOrganism;
+    int movesMultiplier;
     double rewardForSensor;
     double rewardForDirection;
     int rewardForGoal;
+    double hitWallDeduction;
 
     // brain input, output counters
     int input_num;

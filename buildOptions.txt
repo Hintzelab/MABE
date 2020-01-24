@@ -1,10 +1,11 @@
 % World
-  + Berry
-  + Xor
-  * Test
-  + Logic16
+  - Berry
+  - Xor
+  - Test
+  - Logic16
   - BlockCatch
   - TPM
+  * Map
 
 % Genome
   + Multi
