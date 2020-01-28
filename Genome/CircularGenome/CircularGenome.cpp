@@ -261,9 +261,9 @@ void CircularGenome<T>::Handler::writeDouble(double value, double valueMin, doub
 		exit(1);
 	}
 	// old version: value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
-	std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
+	//std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
 	value = ((value - valueMin) / (valueMax - valueMin)) * (genome->alphabetSize - 1.0);
-	std::cout << value << std::endl;
+	//std::cout << value << std::endl;
 	genome->sites[siteIndex] = (T)value;
 	advanceIndex();
 }
