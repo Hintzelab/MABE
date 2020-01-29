@@ -79,6 +79,7 @@ private:
   //variables
   std::pair<int,int> mPos;
   int mFacing;
+  int mSensorRange;
 
   std::shared_ptr<cGeo> mGeo;
   std::vector< std::vector<std::pair<int, int>> > mGridSensor;
@@ -86,7 +87,7 @@ private:
 
 public:
   // constructors
-  cCar();
+  cCar(int);
 
   // getter functions
   std::shared_ptr<cGeo> getGeo();
@@ -96,8 +97,8 @@ public:
   int getFacing();
   std::vector<int> getCompass();
   std::vector<int> getSensors();
-  std::vector<int> getSideSensors();
-  std::vector<int> getFront();  
+  std::vector<int> getSideSensors(int);
+  std::vector<int> getImmediate();  
 
   // setter functions
   void setGeo(std::shared_ptr<cGeo>);
@@ -131,6 +132,10 @@ class MapWorld : public AbstractWorld {
     static std::shared_ptr<ParameterLink<int>> movesMultiplierPL;
 
     // organism info
+    static std::shared_ptr<ParameterLink<int>> sensorRangePL;
+    static std::shared_ptr<ParameterLink<int>> sensorOutputRangePL;
+    static std::shared_ptr<ParameterLink<int>> outputCompassSensorPL;
+
     static std::shared_ptr<ParameterLink<double>> rewardForSensorPL;
     static std::shared_ptr<ParameterLink<double>> rewardForDirectionPL;
     static std::shared_ptr<ParameterLink<int>> rewardForGoalPL;
@@ -150,6 +155,10 @@ class MapWorld : public AbstractWorld {
     std::string destinationChar;
 
     //  registered parameters
+    int sensorRange;
+    int sensorOutputRange;
+    int outputCompassSensor;
+
     int movesMultiplier;
     double rewardForSensor;
     double rewardForDirection;

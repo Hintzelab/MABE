@@ -22,9 +22,9 @@
   - BiLog
 
 % Optimizer
-  * Simple
+  + Simple
   - Islands
-  - Lexicase
+  * Lexicase
 
 % Archivist
   + Default
