@@ -78,16 +78,25 @@ class cCar{
 private:
   //variables
   std::pair<int,int> mPos;
-  int mFacing;
-  int mSensorRange;
+  int mFacing = 0;
+  int mSensorInputRange;
+  int mSensorOutputRange;
 
   std::shared_ptr<cGeo> mGeo;
   std::vector< std::vector<std::pair<int, int>> > mGridSensor;
   std::vector< int > mCompass;
 
+  std::vector<std::pair<int,int>> mRemoveOutputSensors = {};
+  const std::vector<std::pair<int,int>> mRemoveOutputSensorsCopy;
+
+
 public:
   // constructors
-  cCar(int);
+  cCar(int sensorInputRange, int sensorOutputRange, std::vector<std::pair<int,int>> originalSensor) 
+  : mSensorInputRange(sensorInputRange), mSensorOutputRange(sensorOutputRange),
+  mRemoveOutputSensors(originalSensor), mRemoveOutputSensorsCopy(originalSensor){
+    resetOffsets();
+  }
 
   // getter functions
   std::shared_ptr<cGeo> getGeo();
@@ -97,13 +106,15 @@ public:
   int getFacing();
   std::vector<int> getCompass();
   std::vector<int> getSensors();
+  std::vector<int> getSensorsOutput();
   std::vector<int> getSideSensors(int);
-  std::vector<int> getImmediate();  
+
 
   // setter functions
   void setGeo(std::shared_ptr<cGeo>);
   void setPos(std::pair<int,int>);
   void setFacing(int);
+  void resetOffsets();
   
 
   // updating FUNCTIONS organism
@@ -132,9 +143,10 @@ class MapWorld : public AbstractWorld {
     static std::shared_ptr<ParameterLink<int>> movesMultiplierPL;
 
     // organism info
-    static std::shared_ptr<ParameterLink<int>> sensorRangePL;
+    static std::shared_ptr<ParameterLink<int>> sensorInputRangePL;
     static std::shared_ptr<ParameterLink<int>> sensorOutputRangePL;
     static std::shared_ptr<ParameterLink<int>> outputCompassSensorPL;
+    static std::shared_ptr<ParameterLink<std::string>> turnOffSensorsPL;
 
     static std::shared_ptr<ParameterLink<double>> rewardForSensorPL;
     static std::shared_ptr<ParameterLink<double>> rewardForDirectionPL;
@@ -154,8 +166,11 @@ class MapWorld : public AbstractWorld {
     std::string carChar;
     std::string destinationChar;
 
+
+    std::vector<std::pair<int,int>> removeOutputSensors;
+
     //  registered parameters
-    int sensorRange;
+    int sensorInputRange;
     int sensorOutputRange;
     int outputCompassSensor;
 

@@ -1,0 +1,27 @@
+STEP 1: 
+
+World edits
+1.
+XXX			 X
+X^X sides vs only 	X^X three spots he can travel
+
+2.
+More maps with deceptive landscapes
+
+Tests
+sides vs spots test
+
+STEP 2: 
+World edits
+New obstacles: moving
+- moving slower than the agent
+- predictive 10% chance of turning if no wall
+  100% change of turning if there is a wall
+
+
+Tests
+TBD
+
+
+
+

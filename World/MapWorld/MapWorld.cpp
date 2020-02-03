@@ -21,17 +21,21 @@ std::shared_ptr<ParameterLink<int>> MapWorld::movesMultiplierPL =
                                  "number of times the organism can move");
 
 // organism info for inputs and outputs
-std::shared_ptr<ParameterLink<int>> MapWorld::sensorRangePL =
-  Parameters::register_parameter("WORLD_MAP-sensorRange", 1,
+std::shared_ptr<ParameterLink<int>> MapWorld::sensorInputRangePL =
+  Parameters::register_parameter("WORLD_MAP-sensorInputRange", 1,
                                  "range around organism for sensors (0-2)");
 
 std::shared_ptr<ParameterLink<int>> MapWorld::sensorOutputRangePL =
-  Parameters::register_parameter("WORLD_MAP-sensorOutputRange", 0,
-                                 "asks about which sensor range -1: none, 0: front, 1: front+sides, 2:front+2sides");
+  Parameters::register_parameter("WORLD_MAP-sensorOutputRange", 1,
+                                 "range around organism for sensors (0-2)");
 
 std::shared_ptr<ParameterLink<int>> MapWorld::outputCompassSensorPL =
   Parameters::register_parameter("WORLD_MAP-outputCompassSensor", 0,
                                  "range around organism for sensors (1 or 0)");
+
+std::shared_ptr<ParameterLink<std::string>> MapWorld::turnOffSensorsPL =
+  Parameters::register_parameter("WORLD_MAP-turnOffSensorsPL", (std::string) "-1,1:1,1",
+                                 "ass cooredinates to turn off");
 
 
 // evaluation info
@@ -77,7 +81,7 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
 {
   // create global variables from registered Parameters
   sensorOutputRange = MapWorld::sensorOutputRangePL->get(PT);
-  sensorRange = MapWorld::sensorRangePL->get(PT);
+  sensorInputRange = MapWorld::sensorInputRangePL->get(PT);
   outputCompassSensor = MapWorld::outputCompassSensorPL->get(PT);
 
   movesMultiplier = MapWorld::movesMultiplierPL->get(PT);
@@ -86,19 +90,39 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
   rewardForGoal = MapWorld::rewardForGoalPL->get(PT);
   hitWallDeduction = MapWorld::hitWallDeductionPL->get(PT);
 
+  // getting sensors to turn off
+  std::vector<std::string> stringSensors;
+  convertCSVListToVector(MapWorld::turnOffSensorsPL->get(PT), stringSensors, ':'); // get input file names to parse
 
+  for (auto sensor: stringSensors)
+  {
+    int comma = sensor.find(",");
+    int x = std::stoi(sensor.substr(0,comma));
+    int y = std::stoi(sensor.substr(comma+1));
+
+    removeOutputSensors.push_back(std::make_pair(x,y));
+  }
+
+
+
+  // Getting geomaps
   std::vector<std::string> listFiles;
   convertCSVListToVector(MapWorld::inputFilesPL->get(PT), listFiles, ','); // get input file names to parse
 
-  // printing which files are being parsed
-  for (int i=0; i < listFiles.size(); i++){
-    std::cout << "files " << listFiles[i] << std::endl;
+  if (debugPL->get())
+  {
+    // printing which files are being parsed
+    for (int i=0; i < listFiles.size(); i++)
+    {
+      std::cout << "files " << listFiles[i] << std::endl;
+    }
   }
 
+
   // generates geos and adds to m_list
-  for (int i=0; i < listFiles.size(); i++){
+  for (int i=0; i < listFiles.size(); i++)
+  {
       cGeo newGeo = cGeo(listFiles[i]);
-      std::cout << std::endl << newGeo.stringGeo() << std::endl;
 
       mMapList.push_back(newGeo);
   }
@@ -124,27 +148,20 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
 void MapWorld::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
                         int analyze, int visualize, int debug)
 {
-  // // visualize
-  // if (visualize){
-  //   FileManager::writeToFile("MapWorldData.txt", "START");
-  // }
 
   // Initialize information for map with random destination coord
-  for (int i = 0; i < mMapList.size(); i++){
+  for (int i = 0; i < mMapList.size(); i++)
+  {
     mMapList[i].resetMap();
   }
 
   int popSize = groups[groupNamePL->get(PT)]->population.size();
 
-  for (int i = 0; i < popSize; i++) {
+  for (int i = 0; i < popSize; i++) 
+  {
     evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
                  visualize, debug);
   }
-
-  // // visualize
-  // if (visualize){
-  //   FileManager::writeToFile("MapWorldData.txt", "EOF");
-  // }
 }
 
 
@@ -161,7 +178,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
   auto brain = org->brains[brainNamePL->get(PT)];
 
   // initialize score and organism
-  cCar car = cCar(sensorRange);
+  cCar car = cCar(sensorInputRange, sensorOutputRange, removeOutputSensors);
   double totalSensor = 0;
   double totalCompass = 0; // direction
   double totalDist = 0; // mantahhan distance from point
@@ -214,6 +231,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
         // setting organism facing direction
         car.setFacing(90*r);
+
         // setting organism position
         car.setPos(listStartPos[pos]); 
 
@@ -259,9 +277,9 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           brain->update();
       
       
-          // OUTPUT: open or not sides
+
           int output_counter = 0;
-          for(auto grid_sensor : car.getSideSensors(sensorOutputRange)){
+          for(auto grid_sensor : car.getSensorsOutput()){
             if (Bit(brain->readOutput(output_counter)) == grid_sensor)
             {
               totalSensor += 1;
@@ -412,10 +430,10 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
 
   int sensorInputs = 4; // start with compass
   // add sensorRange for how many sensors they're given
-  if (sensorRange > 0)
+  if (sensorInputRange > 0)
     sensorInputs += 5;
 
-  if (sensorRange > 1)
+  if (sensorInputRange > 1)
     sensorInputs += 9;
 
   std::string inputs = std::to_string(sensorInputs);
@@ -424,10 +442,12 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   int sensorOutputs = 3; // 3 outputs for turn right, left, and move
   // optiontional grade sensor ouputs 
   if (sensorOutputRange > 0)
-    sensorOutputs += 3;
+    sensorOutputs += 5;
 
   if (sensorOutputRange > 1)
-    sensorOutputs += 2;
+    sensorOutputs += 9;
+
+  sensorOutputs -= removeOutputSensors.size();
 
   // optional grade compass outputs
   if (outputCompassSensor)
@@ -797,69 +817,12 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     - vector< vector< pair<int,int> > > grid_sensor: sensors on the mGeoGrid
     - vector< int> mCompass: mCompass directions of where the destination is
   **/
-  cCar::cCar(int sensorRange)
-  {
-    mSensorRange = sensorRange;
-    // gettting offset coordinates for sensors
-    if (sensorRange > 1)
-    {
-      std::vector< std::pair<int, int> > sLeft2;
-      sLeft2.push_back(std::make_pair(-2, 0));
-      sLeft2.push_back(std::make_pair(-2, 1));
-      sLeft2.push_back(std::make_pair(-2, 2));
-      mGridSensor.push_back(sLeft2);
-    }
+  // cCar::cCar(int sensorInputRange, int sensorOutputRange, std::vector<std::pair<int,int>> removeOutputSensors)
+  // {
 
-    // gettting offset coordinates for sensors
-    std::vector< std::pair<int, int> > sLeft;
-    if (sensorRange > 0)
-    {
-      sLeft.push_back(std::make_pair(-1, 0));
-      sLeft.push_back(std::make_pair(-1, 1));
-
-      if (sensorRange > 1)
-        sLeft.push_back(std::make_pair(-1, 2));
-
-      mGridSensor.push_back(sLeft);
-    }
-    
-    std::vector< std::pair<int, int> > sFront;
-    if (sensorRange > 0)
-    {
-      sFront.push_back(std::make_pair(0, 1));
-
-      if (sensorRange > 1)
-          sFront.push_back(std::make_pair(0, 2));
-        
-      mGridSensor.push_back(sFront);
-    }
-    
-    std::vector< std::pair<int, int> > sRight;
-    if (sensorRange > 0)
-    {
-      sRight.push_back(std::make_pair(1, 0));
-      sRight.push_back(std::make_pair(1, 1));
-
-      if (sensorRange > 1)
-        sRight.push_back(std::make_pair(1, 2));
-
-      mGridSensor.push_back(sRight);
-    }
-
-    if (sensorRange > 1)
-    {
-      std::vector< std::pair<int, int> > sRight2;
-      sRight2.push_back(std::make_pair(2, 0));
-      sRight2.push_back(std::make_pair(2, 1));
-      sRight2.push_back(std::make_pair(2, 2));
-
-      mGridSensor.push_back(sRight2);
-    }
-
-
-    // // getting mCompass sensors
-    // configure_mCompass();
-  }
+  //   // // getting mCompass sensors
+  //   // configure_mCompass();
+  // }
 
 /******************** GETTER FUNCTIONS *****************/
   /**
@@ -923,9 +886,55 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
 
         std::pair<int, int> offset = mGridSensor[side][sensor]; // offset from current position
         std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
-        // std::cout << std::to_string(actual_location.first) << ", " << std::to_string(actual_location.second) << std::endl;
-        if (std::abs(offset.first) <= mSensorRange && std::abs(offset.second) <= mSensorRange)
+
+        if (std::abs(offset.first) <= mSensorInputRange && std::abs(offset.second) <= mSensorInputRange)
         {
+          // std::cout << std::to_string(offset.first) << ", " << std::to_string(offset.second) << std::endl;
+
+          if (mGeo->getCoordString(actual_location) != "w")  // if spot is open
+          {
+            retSensors.push_back(1);
+            // std::cout << "1," << std::endl;
+          }
+          else
+          {  
+            retSensors.push_back(0);
+            // std::cout << "0," << std::endl;
+          }
+        }
+
+      }
+    }
+
+    // std::cout << std::endl;
+
+    return retSensors;
+  }
+
+  std::vector<int> cCar::getSensorsOutput()
+  {
+    /*
+    *
+    * returns all positions in grid_sensors
+    *
+    * @return: vector of ints cooresponding to if coordinate is open or not
+    * has object = 1, open = 0
+    **/
+    // std::cout << "sensors: ";
+    std::vector< int > retSensors;
+
+    for(int side = 0; side < mGridSensor.size(); side++){ // for grid sensor side
+      for(int sensor = 0; sensor < mGridSensor[side].size(); sensor++){ // for every sensor in the side
+
+        std::pair<int, int> offset = mGridSensor[side][sensor]; // offset from current position
+        std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
+
+        auto it = std::find(mRemoveOutputSensors.begin(), mRemoveOutputSensors.end(), offset);
+
+        if (it == mRemoveOutputSensors.end() && std::abs(offset.first) <= mSensorOutputRange && std::abs(offset.second) <= mSensorOutputRange)
+        {
+          // std::cout << std::to_string(offset.first) << ", " << std::to_string(offset.second) << std::endl;
+
           if (mGeo->getCoordString(actual_location) != "w")  // if spot is open
           {
             retSensors.push_back(1);
@@ -977,57 +986,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     return ret_sensors;
   }
 
-  std::vector<int> cCar::getImmediate()
-  {
-    /**
-    * returns if the side sensor has object or not
-    *
-    * @return: vecotr of if left, front, or right have objects
-    **/
-    // std::cout << "side sensors: ";
-    std::vector<int> ret_sensors;
-
-    int open = 1;
-
-    std::pair<int, int> offset = mGridSensor[1][0];// offset from current position
-    std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
-    if (mGeo->getCoordString(actual_location) == "w"){
-      open = 0;
-    }
-    ret_sensors.push_back(open);// add if side is open or not
-
-    offset = mGridSensor[1][1];// offset from current position
-    actual_location = std::make_pair(mPos.first+offset.first, mPos.second+offset.second);
-    if (mGeo->getCoordString(actual_location) == "w"){
-      open = 0;
-    }
-    ret_sensors.push_back(open);// add if side is open or not
-
-    offset = mGridSensor[2][0];// offset from current position
-    actual_location = std::make_pair(mPos.first+offset.first, mPos.second+offset.second);
-    if (mGeo->getCoordString(actual_location) == "w"){
-      open = 0;
-    }
-    ret_sensors.push_back(open);// add if side is open or not
-
-    offset = mGridSensor[3][0];// offset from current position
-    actual_location = std::make_pair(mPos.first+offset.first, mPos.second+offset.second);
-    if (mGeo->getCoordString(actual_location) == "w"){
-      open = 0;
-    }
-    ret_sensors.push_back(open);// add if side is open or not
-
-    offset = mGridSensor[3][1];// offset from current position
-    actual_location = std::make_pair(mPos.first+offset.first, mPos.second+offset.second);
-    if (mGeo->getCoordString(actual_location) == "w"){
-      open = 0;
-    }
-    ret_sensors.push_back(open);// add if side is open or not
-
-
-    // std::cout << std::endl;
-    return ret_sensors;
-  }
 
 /************************* SETTER FUNCTIONS ************************/
 /*
@@ -1051,7 +1009,81 @@ void cCar::setPos(std::pair<int,int> pos)
 */
 void cCar::setFacing(int facing)
 {
-  mFacing = facing;
+  resetOffsets();
+  for (int i = 0; i < (facing/90); i++)
+  {
+    turn("right");
+  }
+}
+
+void cCar::resetOffsets()
+{
+    mFacing = 0;
+
+    mRemoveOutputSensors.clear();
+    mRemoveOutputSensors.insert(mRemoveOutputSensors.end(),mRemoveOutputSensorsCopy.begin(),mRemoveOutputSensorsCopy.end());
+
+    mGridSensor.clear();
+
+    // gettting offset coordinates for sensors
+    if (mSensorInputRange > 1)
+    {
+      std::vector< std::pair<int, int> > sLeft2;
+      sLeft2.push_back(std::make_pair(-2, 0));
+      sLeft2.push_back(std::make_pair(-2, 1));
+      sLeft2.push_back(std::make_pair(-2, 2));
+      mGridSensor.push_back(sLeft2);
+    }
+
+    // gettting offset coordinates for sensors
+    std::vector< std::pair<int, int> > sLeft;
+    if (mSensorInputRange > 0)
+    {
+      sLeft.push_back(std::make_pair(-1, 0));
+      sLeft.push_back(std::make_pair(-1, 1));
+
+      if (mSensorInputRange > 1)
+        sLeft.push_back(std::make_pair(-1, 2));
+
+      mGridSensor.push_back(sLeft);
+    }
+    
+    std::vector< std::pair<int, int> > sFront;
+    if (mSensorInputRange > 0)
+    {
+      sFront.push_back(std::make_pair(0, 1));
+
+      if (mSensorInputRange > 1)
+          sFront.push_back(std::make_pair(0, 2));
+        
+      mGridSensor.push_back(sFront);
+    }
+    
+    std::vector< std::pair<int, int> > sRight;
+    if (mSensorInputRange > 0)
+    {
+      sRight.push_back(std::make_pair(1, 0));
+      sRight.push_back(std::make_pair(1, 1));
+
+      if (mSensorInputRange > 1)
+        sRight.push_back(std::make_pair(1, 2));
+
+      mGridSensor.push_back(sRight);
+    }
+
+    if (mSensorInputRange > 1)
+    {
+      std::vector< std::pair<int, int> > sRight2;
+      sRight2.push_back(std::make_pair(2, 0));
+      sRight2.push_back(std::make_pair(2, 1));
+      sRight2.push_back(std::make_pair(2, 2));
+
+      mGridSensor.push_back(sRight2);
+    }
+
+
+
+
 }
 
 
@@ -1117,7 +1149,8 @@ void cCar::setFacing(int facing)
     * @parameter: direction (left or right) to turn
     **/
 
-    if (direction == "left"){// turning left
+    if (direction == "left")
+    {// turning left
       //update facing position
       mFacing = (mFacing-90)%360;
 
@@ -1133,9 +1166,20 @@ void cCar::setFacing(int facing)
           mGridSensor[side][sensor] = new_sensor;
         }
       }
+
+      // update remove output sensor coordinates
+      for(int sensor = 0; sensor < mRemoveOutputSensors.size(); sensor++)
+      {
+        std::pair<int, int> coord = mRemoveOutputSensors[sensor];
+        std::pair<int, int> new_sensor = std::make_pair((coord.second*-1), coord.first);
+
+        mRemoveOutputSensors[sensor] = new_sensor;
+      }
+
     }
 
-    if (direction == "right"){// turning right
+    if (direction == "right")
+    {// turning right
       // update facing position
       mFacing = (mFacing+90)%360;
 
@@ -1148,7 +1192,18 @@ void cCar::setFacing(int facing)
           mGridSensor[side][sensor] = newSensor;
         }
       }
+
+      // update remove output sensor coordinates
+      for(int sensor = 0; sensor < mRemoveOutputSensors.size(); sensor++)
+      {
+        std::pair<int, int> coord = mRemoveOutputSensors[sensor];
+        std::pair<int, int> new_sensor = std::make_pair(coord.second, (coord.first*-1));
+
+        mRemoveOutputSensors[sensor] = new_sensor;
+      }
+
     }
+
   }
 
 
