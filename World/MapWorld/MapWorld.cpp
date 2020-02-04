@@ -34,8 +34,13 @@ std::shared_ptr<ParameterLink<int>> MapWorld::outputCompassSensorPL =
                                  "range around organism for sensors (1 or 0)");
 
 std::shared_ptr<ParameterLink<std::string>> MapWorld::turnOffSensorsPL =
-  Parameters::register_parameter("WORLD_MAP-turnOffSensorsPL", (std::string) "-1,1:1,1",
-                                 "ass cooredinates to turn off");
+  Parameters::register_parameter("WORLD_MAP-turnOffSensors", (std::string) "-1,1:1,1",
+                                 "output coordinates to turn off");
+
+// obstacle info
+std::shared_ptr<ParameterLink<std::string>> MapWorld::obstaclesPL =
+  Parameters::register_parameter("WORLD_MAP-obstacles", (std::string) "1,0.5",
+                                 "number of obstacles (int), velocity of obstacle (double)");
 
 
 // evaluation info
@@ -513,55 +518,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     
   }
 
-
-/****************** getter FUNCTIONS ****************************/
-  /**
-  * @return: destination position pair
-  **/
-  int cGeo::mapSize()
-  {
-    return mGeoGrid.size();
-  }
-
-  /**
-  * @return: destination position pair
-  **/
-  std::pair<int, int> cGeo::getDestPos()
-  {
-    return mDestination;
-  }
-
-  /**
-  * Gets characerter at pos from mGeoGrid
-  *
-  * @param: pair position (x,y)
-  * @return: character from mGeoGrid
-  **/
-  std::string cGeo::getCoordString(std::pair<int, int> pos)
-  {
-    return mGeoGrid[pos.second][pos.first];
-  }
-
-  int cGeo::getStartDist()
-  {
-    return ((mPossiblePositions.size()-1)/2);
-  }
-
-  /**
-  * Gets characerter at pos from mGeoGrid
-  *
-  * @param: pair position (x,y)
-  * @return: character from mGeoGrid
-  **/
-
-    std::vector< std::pair<int, int> > cGeo::getStartPositions()
-  {
-    return mStartPositions;
-  }
-
-  
-
-
 /************************  HELPER FUNCTIONS ************************/
   /**
   * Pick random open spot
@@ -600,21 +556,21 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   {
     std::string open = ".";
 
-    std::vector<std::pair<int, int> > curr_arr = {mDestination};
-    std::vector<std::pair<int, int> > next_arr;
+    std::vector<std::pair<int, int> > currArr = {mDestination};
+    std::vector<std::pair<int, int> > nextArr;
     int counter = 0;
 
-    // loop until the next_arr has the coordinates of all the possible starting poitns
-    while (curr_arr.size() != 0)
+    // loop until the nextArr has the coordinates of all the possible starting poitns
+    while (currArr.size() != 0)
     {
       // add possible starting position list to array
-      mPossiblePositions.push_back(curr_arr);
+      mPossiblePositions.push_back(currArr);
 
       // iterate through all of current positions
-      for (int i = 0; i < curr_arr.size(); i ++)
+      for (int i = 0; i < currArr.size(); i ++)
       {
         // label on grid
-        std::pair<int,int> pos = curr_arr[i];
+        std::pair<int,int> pos = currArr[i];
         int x = pos.first;
         int y = pos.second;
         mGeoGrid[y][x] = std::to_string(counter);
@@ -624,22 +580,34 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
         std::pair<int,int> right = std::make_pair(x, y+1);
         std::pair<int,int> left = std::make_pair(x, y-1);
 
-        if ((getCoordString(front) == open) && !(findPos(next_arr, front)))
-          next_arr.push_back(front);
+        // if ((getCoordString(front) == open) && !(findPos(nextArr, front)))
+        //   nextArr.push_back(front);
 
-        if ((getCoordString(back) == open) && !(findPos(next_arr, back)))
-          next_arr.push_back(back);
+        // if ((getCoordString(back) == open) && !(findPos(nextArr, back)))
+        //   nextArr.push_back(back);
 
-        if ((getCoordString(right) == open) && !(findPos(next_arr, right)))
-          next_arr.push_back(right);
+        // if ((getCoordString(right) == open) && !(findPos(nextArr, right)))
+        //   nextArr.push_back(right);
 
-        if ((getCoordString(left) == open) && !(findPos(next_arr, left)))
-          next_arr.push_back(left);
+        // if ((getCoordString(left) == open) && !(findPos(nextArr, left)))
+        //   nextArr.push_back(left);
+
+        if ((getCoordString(front) == open) && std::find(nextArr.begin(), nextArr.end(), front) == nextArr.end())
+          nextArr.push_back(front);
+
+        if ((getCoordString(back) == open) && std::find(nextArr.begin(), nextArr.end(), back) == nextArr.end())
+          nextArr.push_back(back);
+
+        if ((getCoordString(right) == open) && std::find(nextArr.begin(), nextArr.end(), right) == nextArr.end())
+          nextArr.push_back(right);
+
+        if ((getCoordString(left) == open) && std::find(nextArr.begin(), nextArr.end(), left) == nextArr.end())
+          nextArr.push_back(left);
 
       }
 
-      curr_arr = next_arr;
-      next_arr.clear();
+      currArr = nextArr;
+      nextArr.clear();
       counter += 1;
     }
 
@@ -650,13 +618,10 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     catch (std::out_of_range& invalid){
       // pass
     }
-
-    // printStarting();
   }
 
   /**
   * clears manhattan distance from geo grid
-  *
   **/
   void cGeo::clear(){
     mPossiblePositions.clear();
@@ -671,20 +636,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
             mGeoGrid[i][j] = ".";
       }
     }
-  }
-
-  /**
-  * clears manhattan distance from geo grid
-  *
-  **/
-  bool cGeo::findPos(std::vector<std::pair<int,int>> arr, std::pair<int,int> ele)
-  {
-    for (int i = 0; i < arr.size(); i++){
-      if ((arr[i].first == ele.first) and (arr[i].second == ele.second))
-        return true;
-    }
-
-    return false;
   }
 
 
@@ -768,25 +719,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     return world;
   }
 
-  // std::pair<double, double> cGeo::get_mid(){
-  //   /**
-  //   * returns: pair for size of grid
-  //   **/
-  //
-  //   return std::make_pair((double)mGeoGrid[0].size()/2, (double)mGeoGrid.size()/2);
-  // }
-  //
-  // std::string cGeo::get_offset(int x, int y){
-  //   /**
-  //   * returns the offset from the center
-  //   *
-  //   * @return: coordinate pair
-  //   **/
-  //   double x_len = get_mid().first-x;
-  //   double y_len = get_mid().second-y;
-  //   return std::to_string(x_len) + "," + std::to_string(y_len);
-  // }
-  //
   std::string cGeo::dimensions(){
     return std::to_string(mGeoGrid.size()) + "," + std::to_string(mGeoGrid[0].size()) + "\n";
   }
@@ -800,39 +732,38 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   
     return std::to_string(mWallNum) + "\n" + mWallList;
   }
-  
 
+  /**************************************************************************************
+*
+*                                OBJECT FUNCTIONS
+*
+***************************************************************************************/
+  
+/******************* visualizer information ****************/
+
+std::string cObject::getPosString()
+{
+  std::string x = std::to_string(getPos().first);
+  std::string y = std::to_string(getPos().second);
+  std::string rot;
+
+  if (mFacing % 180 == 0){
+    int temp = (mFacing+180)%360;
+    rot = std::to_string(temp);
+  }
+  else
+    rot = std::to_string(mFacing);
+
+  std::string posString = "\npositional\n" + x + "," + y + "," + rot;
+  return posString;
+}
 
 /**************************************************************************************
 *
-*                                ORGANISM FUNCTIONS
+*                                CAR FUNCTIONS
 *
 ***************************************************************************************/
-
-  /**
-  * parameters:
-    - pair<int,int> curr_pos: current position of ORGANISM
-    - int facing: facing direction in degrees
-    - geo curr_grid: current grid the organism is on
-    - vector< vector< pair<int,int> > > grid_sensor: sensors on the mGeoGrid
-    - vector< int> mCompass: mCompass directions of where the destination is
-  **/
-  // cCar::cCar(int sensorInputRange, int sensorOutputRange, std::vector<std::pair<int,int>> removeOutputSensors)
-  // {
-
-  //   // // getting mCompass sensors
-  //   // configure_mCompass();
-  // }
-
 /******************** GETTER FUNCTIONS *****************/
-  /**
-  * @return: current position pair
-  **/
-  std::shared_ptr<cGeo> cCar::getGeo()
-  {
-    return mGeo;
-  }
-
   /**
   * @return: current position pair
   **/
@@ -841,43 +772,22 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     return mGeo->stringGeo(mPos, mFacing);
   }
 
-  /**
-  * @return: current position pair
-  **/
-  std::pair<int, int> cCar::getPos()
-  {
-    return mPos;
-  }
-
-  /**
-  * @return: facing direction
-  **/
-  int cCar::getFacing(){
-    return mFacing;
-  }
-
   std::vector<int> cCar::getCompass()
   {
     /**
     * @return: mCompass variable
     **/
-    // std::cout << "mCompass";
-    // for (int i = 0; i < mCompass.size(); i++){
-    //   std::cout << std::to_string(mCompass[i]) << ", ";
-    // }
-    // std::cout << std::endl;
     return mCompass;
   }
 
+  /*
+  * returns all positions in grid_sensors
+  *
+  * @return: vector of ints cooresponding to if coordinate is open or not
+  * has object = 1, open = 0
+  **/
   std::vector<int> cCar::getSensors()
   {
-    /*
-    *
-    * returns all positions in grid_sensors
-    *
-    * @return: vector of ints cooresponding to if coordinate is open or not
-    * has object = 1, open = 0
-    **/
     // std::cout << "sensors: ";
     std::vector< int > retSensors;
 
@@ -911,15 +821,15 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     return retSensors;
   }
 
+  /*
+  *
+  * returns all positions in grid_sensors
+  *
+  * @return: vector of ints cooresponding to if coordinate is open or not
+  * has object = 1, open = 0
+  **/
   std::vector<int> cCar::getSensorsOutput()
   {
-    /*
-    *
-    * returns all positions in grid_sensors
-    *
-    * @return: vector of ints cooresponding to if coordinate is open or not
-    * has object = 1, open = 0
-    **/
     // std::cout << "sensors: ";
     std::vector< int > retSensors;
 
@@ -955,13 +865,13 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     return retSensors;
   }
 
+  /**
+  * returns if the side sensor has object or not
+  *
+  * @return: vecotr of if left, front, or right have objects
+  **/
   std::vector<int> cCar::getSideSensors(int sensorColumns)
   {
-    /**
-    * returns if the side sensor has object or not
-    *
-    * @return: vecotr of if left, front, or right have objects
-    **/
     // std::cout << "side sensors: ";
     std::vector<int> ret_sensors;
 
@@ -988,22 +898,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
 
 
 /************************* SETTER FUNCTIONS ************************/
-/*
-* Sets member variable pointer mGeo to geoAddr
-*/
-void cCar::setGeo(std::shared_ptr<cGeo> geoAddr)
-{
-  mGeo = geoAddr;
-}
-
-/*
-* Sets member variable current position to pos
-*/
-void cCar::setPos(std::pair<int,int> pos)
-{
-  mPos = pos;
-}
-
 /*
 * Sets member variable facing direction to facing
 */
@@ -1080,22 +974,17 @@ void cCar::resetOffsets()
 
       mGridSensor.push_back(sRight2);
     }
-
-
-
-
 }
 
-
-
 /************************* ALTERING FUNCTIONS ************************/
+
+  /**
+  * Resets the mCompass for current position
+  *
+  **/
+  // clear mCompass
   void cCar::configureCompass()
   {
-    /**
-    * Resets the mCompass for current position
-    *
-    **/
-    // clear mCompass
     mCompass.clear();
 
     int front, right, back, left;
@@ -1140,15 +1029,14 @@ void cCar::resetOffsets()
     mCompass.push_back(left); // #3
   }
 
+  /**
+  * turns organism
+  * UPDATES: grid_sensors, mCompass, and facing
+  *
+  * @parameter: direction (left or right) to turn
+  **/
   void cCar::turn(std::string direction)
   {
-    /**
-    * turns organism
-    * UPDATES: grid_sensors, mCompass, and facing
-    *
-    * @parameter: direction (left or right) to turn
-    **/
-
     if (direction == "left")
     {// turning left
       //update facing position
@@ -1206,15 +1094,14 @@ void cCar::resetOffsets()
 
   }
 
-
+  /**
+  * moves organism
+  * UPDATES: current position
+  *
+  * @return: 1 if valid move, 0 if not
+  **/
   int cCar::move()
   {
-    /**
-    * moves organism
-    * UPDATES: current position
-    *
-    * @return: 1 if valid move, 0 if not
-    **/
     std::pair<int,int> newPos;
     int x = mPos.first;
     int y = mPos.second;
@@ -1241,28 +1128,3 @@ void cCar::resetOffsets()
       return 0;
     
   }
-
-
-
-
-/******************* visualizer information ****************/
-
-std::string cCar::getPosString()
-{
-  std::string x = std::to_string(getPos().first);
-  std::string y = std::to_string(getPos().second);
-  std::string rot;
-
-  if (mFacing % 180 == 0){
-    int temp = (mFacing+180)%360;
-    rot = std::to_string(temp);
-  }
-  else
-    rot = std::to_string(mFacing);
-
-  std::string posString = "\npositional\n" + x + "," + y + "," + rot;
-  return posString;
-}
-
-
-  

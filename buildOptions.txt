@@ -15,10 +15,10 @@
   - Markov
   * CGP
   - LSTM
-  + ConstantValues
-  + Human
+  - ConstantValues
+  - Human
   - Wire
-  + ANN
+  - ANN
   - BiLog
 
 % Optimizer

@@ -1,3 +1,2 @@
 update,timeToCoalescence,ID,alive,countCopy,countDelete,countIndel,countPoint,countPointOffset,genomeLength,optimizeValue_0,score_AVE,score_LIST,score_direction_AVE,score_direction_LIST,score_dist_AVE,score_dist_LIST,score_goal_AVE,score_goal_LIST,score_hit_AVE,score_hit_LIST,score_moves_AVE,score_moves_LIST,score_sensor_AVE,score_sensor_LIST,timeOfBirth
-0,0,42,1,0,0,0,0,0,5000,5.066667,5.066667,"5.066667",0.000000,"0.000000",0.000000,"0.000000",5.000000,"5.000000",-1.100000,"-1.100000",1.166667,"1.166667",0.000000,"0.000000",-1
-100,0,10097,1,13,9,0,2700,0,6915,41.166667,41.166667,"41.166667",0.000000,"0.000000",0.000000,"0.000000",22.000000,"22.000000",-0.500000,"-0.500000",19.666667,"19.666667",0.000000,"0.000000",99
+0,0,42,1,0,0,0,0,0,5000,6.056831,6.056831,"6.056831",0.000000,"0.000000",0.000000,"0.000000",5.000000,"5.000000",-1.100000,"-1.100000",1.166667,"1.166667",0.990164,"0.990164",-1
