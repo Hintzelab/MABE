@@ -104,7 +104,20 @@ void LODwAPArchivist::writeLODDataFile(
              effective_MRCA->timeOfBirth,
              Global::updatesPL->get())) { // if there is convergence before the
                                           // next data interval
-    auto current = LOD[(next_data_write_ - last_prune_) - 1];
+
+    // old version does not allow for overlapping generations
+    //auto current = LOD[(next_data_write_ - last_prune_) - 1];
+
+    // new version
+    std::shared_ptr<Organism> current;
+    int currentIndex = 0;
+    while (LOD[currentIndex]->timeOfBirth < next_data_write_) {
+        currentIndex++;
+    }
+    currentIndex--;
+    current = LOD[currentIndex];
+    // end new version
+
     current->dataMap.set("update", next_data_write_);
     current->dataMap.setOutputBehavior("update", DataMap::FIRST);
     time_to_coalescence =
@@ -132,7 +145,19 @@ void LODwAPArchivist::writeLODOrganismFile(
              Global::updatesPL->get())) { // if there is convergence before the
                                           // next data interval
 
-    auto current = LOD[(next_organism_write_ - last_prune_) - 1];
+    // old version does not allow for overlapping generations
+    //auto current = LOD[(next_organism_write_ - last_prune_) - 1];
+
+    // new version
+    std::shared_ptr<Organism> current;
+    int currentIndex = 0;
+    while (LOD[currentIndex]->timeOfBirth < next_organism_write_) {
+        currentIndex++;
+    }
+    currentIndex--;
+    current = LOD[currentIndex];
+    // end new version
+
     DataMap OrgMap;
     OrgMap.set("ID", current->ID);
     OrgMap.set("update", next_organism_write_);
