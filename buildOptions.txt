@@ -1,10 +1,11 @@
 % World
-  + Berry
-  + Xor
-  * Test
-  + Logic16
+  - Berry
+  - Xor
+  - Test
+  - Logic16
   - BlockCatch
   - TPM
+  * DAG
 
 % Genome
   + Multi
@@ -12,12 +13,12 @@
 
 % Brain
   - Markov
-  * CGP
+  - CGP
   - LSTM
-  + ConstantValues
-  + Human
+  * ConstantValues
+  - Human
   - Wire
-  + ANN
+  - ANN
   - BiLog
 
 % Optimizer
@@ -26,7 +27,7 @@
   - Lexicase
 
 % Archivist
-  + Default
-  + SSwD
-  * LODwAP
+  * Default
+  - SSwD
+  - LODwAP
 

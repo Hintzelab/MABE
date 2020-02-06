@@ -4,8 +4,17 @@ modules.h
 # Ignore xcode project file:
 mabe.xcodeproj
 
+# Ignore vs project files:
+mabe.vcxproj
+mabe.vcxproj.user
+
 # Ingore intermediate objects:
 objectFiles/
 
 # Ignore python's cache:
 __pycache__/
+
+x64/
+.vs/
+Debug/
+*.csv
