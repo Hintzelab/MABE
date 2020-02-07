@@ -42,7 +42,9 @@ class MapWorld : public AbstractWorld {
     static std::shared_ptr<ParameterLink<std::string>> brainNamePL;
 
   // global variables
+    int serialNumber = 0;
     std::vector<cGeo> mMapList;
+    std::vector<cObject> mObstacleList;
 
     // geo variables
     // string openChar;

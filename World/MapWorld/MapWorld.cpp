@@ -39,7 +39,7 @@ std::shared_ptr<ParameterLink<std::string>> MapWorld::turnOffSensorsPL =
 
 // obstacle info
 std::shared_ptr<ParameterLink<std::string>> MapWorld::obstaclesPL =
-  Parameters::register_parameter("WORLD_MAP-obstacles", (std::string) "1,0.5",
+  Parameters::register_parameter("WORLD_MAP-obstacles", (std::string) "3,0.5",
                                  "number of obstacles (int), velocity of obstacle (double)");
 
 
@@ -109,7 +109,6 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
   }
 
 
-
   // Getting geomaps
   std::vector<std::string> listFiles;
   convertCSVListToVector(MapWorld::inputFilesPL->get(PT), listFiles, ','); // get input file names to parse
@@ -123,13 +122,30 @@ MapWorld::MapWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_)
     }
   }
 
-
   // generates geos and adds to m_list
   for (int i=0; i < listFiles.size(); i++)
   {
       cGeo newGeo = cGeo(listFiles[i]);
-
       mMapList.push_back(newGeo);
+  }
+
+  // Creating obstacles
+  std::vector<std::string> stringObstacles;
+  convertCSVListToVector(MapWorld::obstaclesPL->get(PT), stringObstacles, ':'); // get input file names to parse
+
+  for (auto command: stringObstacles)
+  {
+    int comma = command.find(",");
+    int num = std::stoi(command.substr(0,comma));
+    double speed = std::stod(command.substr(comma+1));
+
+    for (int obstacle = 0; obstacle < num; obstacle++ )
+    {
+      cObstacle newObstacle = cObstacle(serialNumber, speed);
+      mObstacleList.push_back(newObstacle);      
+      serialNumber++;
+
+    }
   }
 
 
@@ -183,7 +199,9 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
   auto brain = org->brains[brainNamePL->get(PT)];
 
   // initialize score and organism
-  cCar car = cCar(sensorInputRange, sensorOutputRange, removeOutputSensors);
+  cCar car = cCar(serialNumber, sensorInputRange, sensorOutputRange, removeOutputSensors);
+  serialNumber++;
+
   double totalSensor = 0;
   double totalCompass = 0; // direction
   double totalDist = 0; // mantahhan distance from point
@@ -203,10 +221,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
     std::shared_ptr<cGeo> currGeo = std::make_shared<cGeo> (mMapList[i]); 
     std::vector< std::pair<int, int> > listStartPos = currGeo->getStartPositions();
 
-    
-    car.setGeo(currGeo);
-
-    int startDist = car.getGeo()->getStartDist(); 
+    int startDist = currGeo->getStartDist(); 
     aveStartDist += startDist;
     int movesPerOrganism = startDist*movesMultiplier;
 
@@ -214,9 +229,6 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
     // adding wall and destination to visualizer
     if (visualize)
     {
-      // std::string dimension = "dimension\n" + currGeo->dimensions();
-      // FileManager::writeToFile("MapWorldData.csv", dimension);
-
       std::string wall_string = "wall\n" + currGeo->walls();
       FileManager::writeToFile("MapWorldData.csv", wall_string);
 
@@ -249,7 +261,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
         while((moves <= movesPerOrganism) &&   !done)
         {
           roundCounter += 1;
-          car.configureCompass();
+          car.configureCompass(currGeo);
      
           // adding coordinates to visualizer organism position (x,y,radians rotation)
           if (visualize)
@@ -259,13 +271,13 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
           if (debug)
           {
-            std::cout << car.stringGeo() << std::endl;
+            std::cout << currGeo->stringGeo(car.getPos(), car.getFacing(), mObstacleList) << std::endl;
           }
       
 
           // INPUT to brain 0-: grid sensors
           int counter_input = 0; // input node number
-          for(auto grid_sensor : car.getSensors()){
+          for(auto grid_sensor : car.getSensors(currGeo)){
             brain->setInput(counter_input, grid_sensor); // input to brain
             counter_input += 1;
           }
@@ -284,7 +296,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
       
 
           int output_counter = 0;
-          for(auto grid_sensor : car.getSensorsOutput()){
+          for(auto grid_sensor : car.getSensorsOutput(currGeo)){
             if (Bit(brain->readOutput(output_counter)) == grid_sensor)
             {
               totalSensor += 1;
@@ -327,7 +339,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
       
           // OUTPUT: move forward
           if (Bit(brain->readOutput(output_counter)) == 1){
-            int moved = car.move();
+            int moved = car.move(currGeo, mObstacleList);
             if (!moved)
             {
               hit = 1;
@@ -339,7 +351,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
           moves += 1;
 
           //** scoring valid moves **//
-          std::pair<int, int> dPos = car.getGeo()->getDestPos();
+          std::pair<int, int> dPos = currGeo->getDestPos();
           std::pair<int, int> cPos = car.getPos();
       
           if (cPos == dPos) // if at destination
@@ -365,7 +377,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
 
         else
         {
-          int currDist = std::stoi(car.getGeo()->getCoordString(car.getPos()));
+          int currDist = std::stoi(currGeo->getCoordString(car.getPos()));
           totalDist += (startDist-currDist)/startDist;
 
           totalScore += ((startDist-currDist)/startDist)/evalCounter;
@@ -527,25 +539,27 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   void cGeo::resetMap()
   {
     clear();
-    pickDestCoord();
+    mDestination = pickRandomCoord();
     manhattanDistance();
   }
 
-  void cGeo::pickDestCoord()
+  std::pair<int,int> cGeo::pickRandomCoord()
   {
-    std::string open = ".";
+    std::string open = "w";
     int x = Random::getInt(0, mGeoGrid[0].size()-1);
     int y = Random::getInt(0, mGeoGrid.size()-1);
 
-    mDestination = std::make_pair(x,y);
+    std::pair<int,int> randomPos = std::make_pair(x,y);
 
     // if at wall, repick coordinate
-    while (getCoordString(mDestination) != open){
+    while (getCoordString(randomPos) == "w"){
       x = Random::getInt(0, mGeoGrid[0].size()-1);
       y = Random::getInt(0, mGeoGrid.size()-1);
 
-      mDestination = std::make_pair(x, y);
+      randomPos = std::make_pair(x, y);
     }
+
+    return randomPos;
   }
 
   /**
@@ -579,18 +593,6 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
         std::pair<int,int> back = std::make_pair(x-1, y);
         std::pair<int,int> right = std::make_pair(x, y+1);
         std::pair<int,int> left = std::make_pair(x, y-1);
-
-        // if ((getCoordString(front) == open) && !(findPos(nextArr, front)))
-        //   nextArr.push_back(front);
-
-        // if ((getCoordString(back) == open) && !(findPos(nextArr, back)))
-        //   nextArr.push_back(back);
-
-        // if ((getCoordString(right) == open) && !(findPos(nextArr, right)))
-        //   nextArr.push_back(right);
-
-        // if ((getCoordString(left) == open) && !(findPos(nextArr, left)))
-        //   nextArr.push_back(left);
 
         if ((getCoordString(front) == open) && std::find(nextArr.begin(), nextArr.end(), front) == nextArr.end())
           nextArr.push_back(front);
@@ -684,8 +686,15 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   /**
   * Prints current geo grid
   **/
-  std::string cGeo::stringGeo(std::pair<int,int> pos, int facing)
+  std::string cGeo::stringGeo(std::pair<int,int> pos, int facing, std::vector<cObject> listObjects)
   {
+    std::vector<std::pair<int,int>> obCoords;
+    for (auto obstacle: listObjects)
+    {
+      obCoords.push_back(obstacle.getPos());
+      std::cout << "obstacle " << obstacle.getPosString() << std::endl;
+    }
+
     std::string world;
 
     for(int i=mGeoGrid.size()-1; i>-1; i--){
@@ -703,6 +712,9 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
           if(facing == 270)
             world += "< ";
         }
+
+        if (std::find(obCoords.begin(), obCoords.end(), std::make_pair(k,i)) != obCoords.end() )
+          world += "#";
 
         else // print destination
         { 
@@ -738,7 +750,79 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
 *                                OBJECT FUNCTIONS
 *
 ***************************************************************************************/
+  /**
+  * moves organism
+  * UPDATES: current position
+  *
+  * @return: 1 if valid move, 0 if not
+  **/
+  int cObject::move(std::shared_ptr<cGeo> geo, std::vector<cObject> objectList)
+  {
+    std::pair<int,int> newPos;
+    int x = mPos.first;
+    int y = mPos.second;
+
+    if(mFacing == 0)// move for mFacing north
+      newPos = std::make_pair(x, y+1);
+
+    if(mFacing == 90)// move for mFacing east
+      newPos = std::make_pair(x+1, y);
+
+    if(mFacing == 180)// move for mFacing south
+      newPos = std::make_pair(x, y-1);
+
+    if(mFacing == 270)// move for mFacing west
+      newPos = std::make_pair(x-1,y);
+
+    // if grid coord is integer, change position, else return false
+
+    if (std::isdigit(geo->getCoordString(newPos)[0]) && this->checkPosition(newPos, objectList)){
+      mPos = newPos;
+      return 1;
+    }
+    else
+      return 0;
+    
+  }
   
+  /**
+  * turns organism
+  * UPDATES: grid_sensors, mCompass, and facing
+  *
+  * @parameter: direction (left or right) to turn
+  **/
+  void cObject::turn(std::string direction)
+  {
+    if (direction == "left")
+    {// turning left
+      mFacing = (mFacing-90)%360;
+
+      if (mFacing < 0)
+        mFacing += 360;
+    }
+
+    if (direction == "right")
+    {// turning right
+      mFacing = (mFacing+90)%360;
+    }
+
+  }
+
+  bool cObject::checkPosition(std::pair<int,int> newPos, std::vector<cObject> listObjects)
+  {
+    bool validMove = 1;
+    for (auto object: listObjects)
+    {
+      if (object != *this && object.getPos() == newPos)
+      {
+        validMove = 0;
+        break;
+      }
+
+    }
+    return validMove;
+  }
+
 /******************* visualizer information ****************/
 
 std::string cObject::getPosString()
@@ -764,14 +848,6 @@ std::string cObject::getPosString()
 *
 ***************************************************************************************/
 /******************** GETTER FUNCTIONS *****************/
-  /**
-  * @return: current position pair
-  **/
-  std::string cCar::stringGeo()
-  {
-    return mGeo->stringGeo(mPos, mFacing);
-  }
-
   std::vector<int> cCar::getCompass()
   {
     /**
@@ -786,7 +862,7 @@ std::string cObject::getPosString()
   * @return: vector of ints cooresponding to if coordinate is open or not
   * has object = 1, open = 0
   **/
-  std::vector<int> cCar::getSensors()
+  std::vector<int> cCar::getSensors(std::shared_ptr<cGeo> geo)
   {
     // std::cout << "sensors: ";
     std::vector< int > retSensors;
@@ -801,7 +877,7 @@ std::string cObject::getPosString()
         {
           // std::cout << std::to_string(offset.first) << ", " << std::to_string(offset.second) << std::endl;
 
-          if (mGeo->getCoordString(actual_location) != "w")  // if spot is open
+          if (geo->getCoordString(actual_location) != "w")  // if spot is open
           {
             retSensors.push_back(1);
             // std::cout << "1," << std::endl;
@@ -828,7 +904,7 @@ std::string cObject::getPosString()
   * @return: vector of ints cooresponding to if coordinate is open or not
   * has object = 1, open = 0
   **/
-  std::vector<int> cCar::getSensorsOutput()
+  std::vector<int> cCar::getSensorsOutput(std::shared_ptr<cGeo> geo)
   {
     // std::cout << "sensors: ";
     std::vector< int > retSensors;
@@ -845,7 +921,7 @@ std::string cObject::getPosString()
         {
           // std::cout << std::to_string(offset.first) << ", " << std::to_string(offset.second) << std::endl;
 
-          if (mGeo->getCoordString(actual_location) != "w")  // if spot is open
+          if (geo->getCoordString(actual_location) != "w")  // if spot is open
           {
             retSensors.push_back(1);
             // std::cout << "1," << std::endl;
@@ -870,7 +946,7 @@ std::string cObject::getPosString()
   *
   * @return: vecotr of if left, front, or right have objects
   **/
-  std::vector<int> cCar::getSideSensors(int sensorColumns)
+  std::vector<int> cCar::getSideSensors(int sensorColumns, std::shared_ptr<cGeo> geo)
   {
     // std::cout << "side sensors: ";
     std::vector<int> ret_sensors;
@@ -882,7 +958,7 @@ std::string cObject::getPosString()
         std::pair<int, int> offset = mGridSensor[side][sensor];// offset from current position
         std::pair<int, int> actual_location(mPos.first+offset.first, mPos.second+offset.second);
 
-        if (offset.first <= sensorColumns && mGeo->getCoordString(actual_location) == "w")
+        if (offset.first <= sensorColumns && geo->getCoordString(actual_location) == "w")
         {
           object = 0;
           break;
@@ -983,12 +1059,12 @@ void cCar::resetOffsets()
   *
   **/
   // clear mCompass
-  void cCar::configureCompass()
+  void cCar::configureCompass(std::shared_ptr<cGeo> geo)
   {
     mCompass.clear();
 
     int front, right, back, left;
-    std::pair<int,int> dest = mGeo->getDestPos();
+    std::pair<int,int> dest = geo->getDestPos();
     // get mCompass directions from facing position
     if (mFacing == 0)
     {
@@ -1094,37 +1170,8 @@ void cCar::resetOffsets()
 
   }
 
-  /**
-  * moves organism
-  * UPDATES: current position
-  *
-  * @return: 1 if valid move, 0 if not
-  **/
-  int cCar::move()
-  {
-    std::pair<int,int> newPos;
-    int x = mPos.first;
-    int y = mPos.second;
-
-    if(mFacing == 0)// move for mFacing north
-      newPos = std::make_pair(x, y+1);
-
-    if(mFacing == 90)// move for mFacing east
-      newPos = std::make_pair(x+1, y);
-
-    if(mFacing == 180)// move for mFacing south
-      newPos = std::make_pair(x, y-1);
-
-    if(mFacing == 270)// move for mFacing west
-      newPos = std::make_pair(x-1,y);
-
-    // if grid coord is integer, change position, else return false
-
-    if (std::isdigit(mGeo->getCoordString(newPos)[0])){
-      mPos = newPos;
-      return 1;
-    }
-    else
-      return 0;
-    
-  }
+/**************************************************************************************
+*
+*                                OBSTACLE FUNCTIONS
+*
+***************************************************************************************/

@@ -13,14 +13,14 @@
 class cCar : public cObject{
 private:
   // variables
-  int mSensorInputRange;
-  int mSensorOutputRange;
+  int mSensorInputRange = 0;
+  int mSensorOutputRange = 0;
 
-  std::vector< std::vector<std::pair<int, int>> > mGridSensor;
-  std::vector< int > mCompass;
+  std::vector< std::vector<std::pair<int, int>> > mGridSensor = {};
+  std::vector< int > mCompass = {};
 
   std::vector<std::pair<int,int>> mRemoveOutputSensors = {};
-  const std::vector<std::pair<int,int>> mRemoveOutputSensorsCopy;
+  std::vector<std::pair<int,int>> mRemoveOutputSensorsCopy = {};
 
 
 public:
@@ -30,28 +30,33 @@ public:
     - vector< int> mCompass: mCompass directions of where the destination is
   **/
 
-  cCar(int sensorInputRange, int sensorOutputRange, std::vector<std::pair<int,int>> originalSensor) 
-  : mSensorInputRange(sensorInputRange), mSensorOutputRange(sensorOutputRange),
-  mRemoveOutputSensors(originalSensor), mRemoveOutputSensorsCopy(originalSensor){
+  cCar() = delete;
+  cCar(int serialNumber) = delete;
+
+  cCar(int serialNumber, int sensorInputRange, int sensorOutputRange, std::vector<std::pair<int,int>> originalSensor) 
+  {
+    mSerialNumber = serialNumber;
+
+    mSensorInputRange = sensorInputRange;
+    mSensorOutputRange = sensorOutputRange;
+    mRemoveOutputSensors = originalSensor;
+    mRemoveOutputSensorsCopy = originalSensor;
     resetOffsets();
   }
 
   // getter functions
-  std::string stringGeo();
-
   std::vector<int> getCompass();
-  std::vector<int> getSensors();
-  std::vector<int> getSensorsOutput();
-  std::vector<int> getSideSensors(int);
+  std::vector<int> getSensors(std::shared_ptr<cGeo>);
+  std::vector<int> getSensorsOutput(std::shared_ptr<cGeo>);
+  std::vector<int> getSideSensors(int, std::shared_ptr<cGeo>);
 
 
   // setter functions
-  void setFacing(int);
+  void setFacing(int) override;
   void resetOffsets();
   
 
   // updating FUNCTIONS organism
-  void configureCompass();
-  void turn(std::string);
-  int move();
+  void configureCompass(std::shared_ptr<cGeo> geo);
+  void turn(std::string) override;
 };

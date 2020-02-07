@@ -7,10 +7,11 @@
 #include <vector>
 #include <string>
 
+class cObject;
 
 class cGeo{
 private:
-  // grid vairables
+  // grid variables
   std::vector< std::vector<std::string> > mGeoGrid;
   std::vector< std::vector<std::pair<int, int> > > mPossiblePositions;
   std::vector< std::pair<int, int> > mStartPositions;
@@ -43,7 +44,7 @@ public:
   
   // Helper functions
   void resetMap();
-  void pickDestCoord();
+  std::pair<int,int> pickRandomCoord();
   void manhattanDistance();
   void clear();
   void printStarting();
@@ -55,6 +56,6 @@ public:
   std::string walls();
   
   //PRINTING
-  std::string stringGeo(std::pair<int,int> pos = std::make_pair(-1,-1), int facing = -1);
+  std::string stringGeo(std::pair<int,int> pos = std::make_pair(-1,-1), int facing = -1, std::vector<cObject> listObjects = {});
 
 };

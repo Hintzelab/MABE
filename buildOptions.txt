@@ -13,10 +13,10 @@
 
 % Brain
   - Markov
-  * CGP
+  - CGP
   - LSTM
   - ConstantValues
-  - Human
+  * Human
   - Wire
   - ANN
   - BiLog

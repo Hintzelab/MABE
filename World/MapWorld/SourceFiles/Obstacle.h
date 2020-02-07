@@ -9,12 +9,14 @@
 #include <vector>
 #include <string>
 
-
 class cObstacle : public cObject{
 private:
     double mVelocity = 0.5;
 
 public:
-    void turn(std::string);
-    int move();
+    // constructor
+    cObstacle() = delete;
+    cObstacle(int serialNum, double vel) {mSerialNumber = serialNum; mVelocity = vel;};
+
+    int turn() { return int(1/mVelocity); }
 };
