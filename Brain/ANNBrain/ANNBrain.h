@@ -81,8 +81,25 @@ public:
 	virtual std::unordered_set<std::string> requiredGenomes() override {
 		return {genomeNamePL->get(PT)};
 	}
-    inline void setInput(const int& inputAddress, const double& value);
-    inline double readInput(const int& inputAddress);
+	inline void setInput(const int& inputAddress, const double& value);
+
+
+	inline virtual void setAllInputs(const std::vector<double>& values) {
+		if (values.size() == nrInputValues) {
+			nodes[0] = values;
+		}
+		else {
+			std::cout << "in ANNBrain::setAllInputs() : Size of provided vector (" << values.size() << ") does not match number of brain inputs (" << nrInputValues << ").\nExiting"
+				<< std::endl;
+			exit(1);
+		}
+	}
+
+	inline virtual std::vector<double> readAllOutputs() {
+		return nodes[(int)nodes.size() - 1];
+	}
+
+	inline double readInput(const int& inputAddress);
     inline void setOutput(const int& outputAddress, const double& value);
     inline double readOutput(const int& outputAddress);
     virtual void getAllBrainStates(std::vector<double> &I, std::vector<double> &O, std::vector<double> &H) {

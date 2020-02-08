@@ -171,6 +171,17 @@ public:
     }
   }
 
+  inline virtual void setAllInputs(const std::vector<double>& values) {
+      if (values.size() == nrInputValues) {
+          inputValues = values;
+      }
+      else {
+          std::cout << "in Brain::setAllInputs() : Size of provided vector ("<< values.size()<<") does not match number of brain inputs (" << nrInputValues << ").\nExiting"
+              << std::endl;
+          exit(1);
+      }
+  }
+
   inline virtual double readInput(const int &inputAddress) {
     if (inputAddress < nrInputValues) {
       return inputValues[inputAddress];
@@ -202,6 +213,10 @@ public:
            << std::endl;
       exit(1);
     }
+  }
+
+  inline virtual std::vector<double> readAllOutputs() {
+      return outputValues;
   }
 
   //	// converts the value of each value in nodes[] to bit and converts the

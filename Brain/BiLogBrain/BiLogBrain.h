@@ -44,6 +44,27 @@ public:
 
     inline double readOutput(const int &outputAddress) override;
 
+	inline virtual void setAllInputs(const std::vector<double>& values) {
+		if (values.size() == nrInputValues) {
+			for (int i = 0; i < nrInputValues; i++) {
+				nodes[N_Ins][i] = Bit(values[i]);
+			}
+		}
+		else {
+			std::cout << "in Brain::setAllInputs() : Size of provided vector (" << values.size() << ") does not match number of brain inputs (" << nrInputValues << ").\nExiting"
+				<< std::endl;
+			exit(1);
+		}
+	}
+
+	inline virtual std::vector<double> readAllOutputs() {
+		std::vector<double> returnVector;
+		for (auto v : nodes[N_Outs]) {
+			returnVector.push_back(static_cast<double>(v));
+		}
+		return returnVector;
+	}
+
     virtual void update() override;
 
 	////////////////////////////////////
