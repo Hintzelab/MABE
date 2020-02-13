@@ -156,6 +156,7 @@ public:
   virtual void copyFrom(std::shared_ptr<AbstractGenome> from) = 0;
 
   virtual void fillRandom() = 0;
+  virtual void fillConstant(int value) = 0;
 
   //// gets data about genome which can be added to a data map
   //// data is in pairs of strings (key, value)

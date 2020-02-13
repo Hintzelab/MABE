@@ -15,6 +15,7 @@
 // by 'mode'.
 
 #include "DAGWorld.h"
+#include "../../Genome/CircularGenome/CircularGenome.h"
 
 std::shared_ptr<ParameterLink<int>> DAGWorld::modePL =
 Parameters::register_parameter(
@@ -48,45 +49,41 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 }
 
 void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
-	int visualize, int debug) {
-	auto brain = org->brains[brainNamePL->get(PT)];
-	for (int r = 0; r < evaluationsPerGenerationPL->get(PT); r++) {
-		brain->resetBrain();
-		brain->setInput(0, 1); // give the brain a constant 1 (for wire brain)
-		brain->update();
-		double score = 0.0;
-		for (int i = 0; i < brain->nrOutputValues; i++) {
-			if (modePL->get(PT) == 0)
-				score += Bit(brain->readOutput(i));
-			else
-				score += brain->readOutput(i);
+	int visualize, int debug, int update) {
+		if (update == 0) {
+			// Define new genome
+			org->genomes["root::"] = std::make_shared<CircularGenome<int>>(2, 100, PT);
+			org->genomes["root::"]->fillConstant(0);
 		}
-		if (score < 0.0)
-			score = 0.0;
+		
+		auto genome = std::dynamic_pointer_cast<CircularGenome<int>>(org->genomes["root::"]);
+		
+		//Calculate score for genome and store in data map
+		int score = std::accumulate(genome->sites.begin(),genome->sites.end(),0.0);
+
 		org->dataMap.append("score", score);
+		
 		if (visualize)
 			std::cout << "organism with ID " << org->ID << " scored " << score
 			<< std::endl;
-	}
 }
 
 void DAGWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,
 	int analyze, int visualize, int debug) {
+	int update = Global::update;
 	int popSize = groups[groupNamePL->get(PT)]->population.size();
 	for (int i = 0; i < popSize; i++) {
 		evaluateSolo(groups[groupNamePL->get(PT)]->population[i], analyze,
-			visualize, debug);
+			visualize, debug, update);
 	}
+
 }
 
 std::unordered_map<std::string, std::unordered_set<std::string>>
 DAGWorld::requiredGroups() {
 	return { {groupNamePL->get(PT),
-		  {"B:" + brainNamePL->get(PT) + ",1," +
-			  std::to_string(numberOfOutputsPL->get(PT))}} };
-	// requires a root group and a brain (in root namespace) and no addtional
-	// genome,
-	// the brain must have 1 input, and the variable numberOfOutputs outputs
+		  {"G:root::"}} };
+	// requires a single genome
 }
 
 

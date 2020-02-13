@@ -115,7 +115,7 @@ public:
                              double valueMax) override;
 
     virtual std::shared_ptr<AbstractGenome::Handler> makeCopy() override;
-
+	
     // copy contents of this handler to "to"
     virtual void copyTo(std::shared_ptr<AbstractGenome::Handler> to) override;
     // true if handler is within length sites from end of a chromosome
@@ -156,6 +156,7 @@ public:
 
   // randomize this genomes contents
   virtual void fillRandom() override;
+  virtual void fillConstant(int value) override;
 
   // fill all sites of this genome with ascending values
   // This function is to make testing easy.

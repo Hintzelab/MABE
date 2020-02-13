@@ -36,7 +36,7 @@ public:
 	virtual ~DAGWorld() = default;
 
 	void evaluateSolo(std::shared_ptr<Organism> org, int analyze,
-		int visualize, int debug);
+		int visualize, int debug, int update);
 	void evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,
 		int analyze, int visualize, int debug);
 

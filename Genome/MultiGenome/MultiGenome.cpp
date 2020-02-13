@@ -361,6 +361,13 @@ void MultiGenome::fillRandom() {
 	}
 }
 
+void MultiGenome::fillConstant(int value)
+{
+	for (auto chromosome : chromosomes) {
+		chromosome->fillConstant(value);
+	}
+}
+
 // fill all sites of this genome with ascending values
 // This function is to make testing easy.
 void MultiGenome::fillAcending() {
