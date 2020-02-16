@@ -45,7 +45,7 @@ public:
 
 
   // Helper functions
-  void resetMap();
+  void resetMap(int walls=0);
   void pickDestCoord();
   void manhattanDistance();
   void clear();
@@ -147,6 +147,7 @@ class MapWorld : public AbstractWorld {
     static std::shared_ptr<ParameterLink<int>> sensorOutputRangePL;
     static std::shared_ptr<ParameterLink<int>> outputCompassSensorPL;
     static std::shared_ptr<ParameterLink<std::string>> turnOffSensorsPL;
+    static std::shared_ptr<ParameterLink<int>> insertWallsPL;
 
     static std::shared_ptr<ParameterLink<double>> rewardForSensorPL;
     static std::shared_ptr<ParameterLink<double>> rewardForDirectionPL;

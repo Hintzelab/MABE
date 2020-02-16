@@ -34,13 +34,15 @@ std::shared_ptr<ParameterLink<std::string>> NeuronGate::record_behavior_file_nam
 
 void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 	bool fire = false;
+	currentCharge = std::max(-4.0, std::min(4.0, currentCharge));
 	currentCharge += -1 * Trit(currentCharge) * decayRate;
 	for (auto i : inputs) {
 		currentCharge += nodes[i];
 	}
 
 	if (thresholdFromNode != -1) {
-		thresholdValue = nodes[thresholdFromNode];
+        double thresholdChangeRange = (defaultThresholdMax-defaultThresholdMin) * .05;
+		thresholdValue += max((thresholdChangeRange*-1.0), min(thresholdChangeRange, nodes[thresholdFromNode])); // range of change is 10% max range
 		thresholdValue = max(defaultThresholdMin, min(defaultThresholdMax, thresholdValue));
 	}
 
@@ -232,6 +234,7 @@ shared_ptr<AbstractGate> NeuronGate::makeCopy(shared_ptr<ParametersTable> _PT)
 	newGate->outputs = outputs;
 	newGate->dischargeBehavior = dischargeBehavior;
 	newGate->thresholdValue = thresholdValue;
+    newGate->resetThresholdValue = resetThresholdValue;
 	newGate->thresholdActivates = thresholdActivates;
 	newGate->decayRate = decayRate;
 	newGate->deliveryCharge = deliveryCharge;

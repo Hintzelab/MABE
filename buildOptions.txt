@@ -12,14 +12,14 @@
   * Circular
 
 % Brain
-  - Markov
-  * CGP
+  * Markov
+  + CGP
   - LSTM
-  + ConstantValues
+  - ConstantValues
   + Human
   - Wire
   + ANN
-  - BiLog
+  + BiLog
 
 % Optimizer
   + Simple

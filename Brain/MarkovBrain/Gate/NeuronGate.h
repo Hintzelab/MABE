@@ -37,6 +37,7 @@ public:
 	string record_behavior_file_name;
 
 	int dischargeBehavior;  // what to do when the gate delivers a charge
+	double resetThresholdValue;  // threshold when this gate will fire (if negative, then fire when currentCharge < threshold)
 	double thresholdValue;  // threshold when this gate will fire (if negative, then fire when currentCharge < threshold)
 	bool thresholdActivates;  // if true, fire when currentCharge is >= threshold, if false, fire unless currentCharge >
 	double decayRate;  // every brain update reduce currentCharge by decayRate
@@ -84,6 +85,7 @@ public:
 		outputs.push_back(out);
 		dischargeBehavior = _dischargeBehavior;
 		thresholdValue = _thresholdValue;
+        resetThresholdValue = _thresholdValue;
 		thresholdActivates = _thresholdActivates;
 		decayRate = _decayRate;
 		deliveryCharge = _deliveryCharge;
@@ -139,6 +141,7 @@ public:
 
 	void resetGate() override {
 		currentCharge = 0;
+        thresholdValue = resetThresholdValue;
 	}
 
 	virtual pair<vector<int>,vector<int>> getConnectionsLists() override{

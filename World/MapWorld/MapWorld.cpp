@@ -37,6 +37,9 @@ std::shared_ptr<ParameterLink<std::string>> MapWorld::turnOffSensorsPL =
   Parameters::register_parameter("WORLD_MAP-turnOffSensorsPL", (std::string) "-1,1:1,1",
                                  "ass cooredinates to turn off");
 
+std::shared_ptr<ParameterLink<int>> MapWorld::insertWallsPL =
+  Parameters::register_parameter("WORLD_MAP-insertWallsPL", 30,
+                                 "ass cooredinates to turn off");
 
 // evaluation info
 std::shared_ptr<ParameterLink<double>> MapWorld::rewardForSensorPL =
@@ -568,9 +571,14 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   *
   * @return: coordinate pair
   **/
-  void cGeo::resetMap()
+  void cGeo::resetMap(int walls)
   {
     clear();
+    for (int i = 0; i < walls; i++)
+    {
+
+
+    }
     pickDestCoord();
     manhattanDistance();
   }
@@ -591,6 +599,8 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
       mDestination = std::make_pair(x, y);
     }
   }
+
+
 
   /**
   * Manhattan distance on geo grid
