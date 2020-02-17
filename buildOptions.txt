@@ -12,6 +12,7 @@
   * Circular
 
 % Brain
+<<<<<<< HEAD
   - Markov
   - CGP
   - LSTM
@@ -20,6 +21,16 @@
   - Wire
   - ANN
   - BiLog
+=======
+  * Markov
+  + CGP
+  - LSTM
+  - ConstantValues
+  + Human
+  - Wire
+  + ANN
+  + BiLog
+>>>>>>> 4625cf059184b59ed220f8571844fcb9a9b19eaa
 
 % Optimizer
   + Simple
