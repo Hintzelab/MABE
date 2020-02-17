@@ -155,7 +155,7 @@ void MapWorld::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
   // Initialize information for map with random destination coord
   for (int i = 0; i < mMapList.size(); i++)
   {
-    mMapList[i].resetMap();
+    mMapList[i].resetMap(insertWallsPL->get(PT));
   }
 
   int popSize = groups[groupNamePL->get(PT)]->population.size();
@@ -244,7 +244,7 @@ void MapWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visu
      
       
         /**************             MOVES             **************/
-        while((moves <= movesPerOrganism) &&   !done)
+        while((moves <= movesPerOrganism) &&  !done)
         {
           roundCounter += 1;
           car.configureCompass();
@@ -574,30 +574,51 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   void cGeo::resetMap(int walls)
   {
     clear();
+
     for (int i = 0; i < walls; i++)
     {
-
-
+      auto newWall = pickRandomCoord();
+      addedWalls.push_back(newWall);
+      mAddedWallList += std::to_string(newWall.first) + "," + std::to_string(newWall.second) + "\n"; 
+      mGeoGrid[newWall.second][newWall.first] = "w";
     }
+
     pickDestCoord();
     manhattanDistance();
   }
 
   void cGeo::pickDestCoord()
   {
-    std::string open = ".";
     int x = Random::getInt(0, mGeoGrid[0].size()-1);
     int y = Random::getInt(0, mGeoGrid.size()-1);
 
     mDestination = std::make_pair(x,y);
 
     // if at wall, repick coordinate
-    while (getCoordString(mDestination) != open){
+    while (getCoordString(mDestination) == "w"){
       x = Random::getInt(0, mGeoGrid[0].size()-1);
       y = Random::getInt(0, mGeoGrid.size()-1);
 
       mDestination = std::make_pair(x, y);
     }
+  }
+
+  std::pair<int,int> cGeo::pickRandomCoord()
+  {
+    int x = Random::getInt(0, mGeoGrid[0].size()-1);
+    int y = Random::getInt(0, mGeoGrid.size()-1);
+
+    std::pair<int,int> randomPos = std::make_pair(x,y);
+
+    // if at wall, repick coordinate
+    while (getCoordString(randomPos) == "w"){
+      x = Random::getInt(0, mGeoGrid[0].size()-1);
+      y = Random::getInt(0, mGeoGrid.size()-1);
+
+      randomPos = std::make_pair(x, y);
+    }
+
+    return randomPos;
   }
 
 
@@ -671,8 +692,15 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
   void cGeo::clear(){
     mPossiblePositions.clear();
     mStartPositions.clear();
+    mAddedWallList = "";
 
+    // clear added walls
+    for (auto coord : addedWalls)
+    {
+      mGeoGrid[coord.second][coord.first] = ".";
+    }
 
+    // clear manhattan distance
     for (int i = 0; i < mGeoGrid.size(); i++)
     {
       for (int j = 0; j < mGeoGrid[i].size(); j++)
@@ -807,8 +835,8 @@ std::unordered_map<std::string, std::unordered_set<std::string>> MapWorld::requi
     *
     * @return: string list
     **/
-  
-    return std::to_string(mWallNum) + "\n" + mWallList;
+    
+    return std::to_string(mWallNum+addedWalls.size()) + "\n" + mWallList + mAddedWallList;
   }
   
 

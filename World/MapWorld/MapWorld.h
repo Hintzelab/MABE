@@ -21,11 +21,13 @@ class cGeo{
 private:
   // grid vairables
   std::vector< std::vector<std::string> > mGeoGrid;
+  std::vector<std::pair<int, int>> addedWalls;
   std::vector< std::vector<std::pair<int, int> > > mPossiblePositions;
   std::vector< std::pair<int, int> > mStartPositions;
   std::pair<int, int> mDestination;
 
   std::string mWallList = "";
+  std::string mAddedWallList = "";
   int mWallNum = 0;
 
   const std::string mDestString = "X";
@@ -46,6 +48,8 @@ public:
 
   // Helper functions
   void resetMap(int walls=0);
+  std::pair<int,int> pickRandomCoord();
+
   void pickDestCoord();
   void manhattanDistance();
   void clear();
