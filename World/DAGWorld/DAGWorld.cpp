@@ -17,6 +17,7 @@
 
 #include "DAGWorld.h"
 #include "Graph.h"
+#include "../../Global.h"
 #include <stdlib.h>
 #include <string>
 #include "../../Genome/CircularGenome/CircularGenome.h"
@@ -140,13 +141,14 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 
 void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 	int visualize, int debug, int update) {
-		if (update == 0) {
+		if (Global::update == 0) {
 			//Read the weight-map
 			std::cout <<  "Node 1: " << node_weights[0][0] + node_weights[0][1] << std::endl;
 			std::cout <<  "Node 2: " << node_weights[1][0] + node_weights[1][1] << std::endl;
 			std::cout << "Edge 0:1 : " << edge_weights["0:1"] << std::endl;
 			// Define new genome
-			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(2, 2, PT);
+			// Constructor(alp_size, genome_size ,PT)
+			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, 6, PT);
 			org->genomes["mapping::"]->fillConstant(0);
 			org->genomes["order::"] = std::make_shared<CircularGenome<int>>(2, 2, PT);
 			org->genomes["order::"]->fillConstant(0);
@@ -159,11 +161,14 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		//Get the genome size
 		int numTasks = genome_map->size();
 
-		//Get the task weights
+		std::cout << "NumTasks: " << numTasks << std::endl;
+		//Get the task weights and mappings into vectors
 		std::vector<int> taskWeights = {};
-		
+		std::vector<int> taskMapping = {};
+
 		for(int i = 0; i < numTasks; i++) {
 			taskWeights.push_back(node_weights[i][genome_map->sites[i]]);
+			taskMapping.push_back(genome_map->sites[i]);
 		}
 		Graph g(numTasks, taskWeights, edge_weights);
 
@@ -171,12 +176,17 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		
 		//int score_order = std::accumulate(genome_order->sites.begin(),genome_order->sites.end(),0.0);
 
-		vector<int> res = g.longestPath(0);
-		std::cout << "Longest Path: " << res[1] << std::endl;
-		double score_map = res[1];
-		double score = 1/score_map;
-		org->dataMap.append("score", score);
+		vector<int> res = g.longestPath(0, taskMapping);
+		std::cout << "Longest Path: " << res[5] << std::endl;
 		
+		double score_map = res[5]; //get the distance from the Final node in the DAG
+		double score = 1/score_map;
+		
+		org->dataMap.append("score", score);
+		if(Global::update == 700) {
+			std::cout << "Final Genome: " << std::endl;
+			genome_map->printGenome();
+		}
 		if (visualize)
 			std::cout << "organism with ID " << org->ID << " scored " << score
 			<< std::endl;

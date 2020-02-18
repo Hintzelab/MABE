@@ -59,7 +59,7 @@ void Graph::topologicalSortUtil(int v, bool visited[],
 // The function to find longest distances from a given vertex. 
 // It uses recursive topologicalSortUtil() to get topological 
 // sorting. 
-vector<int> Graph::longestPath(int s) 
+vector<int> Graph::longestPath(int s, vector<int> taskMapping) 
 { 
 	stack<int> Stack; 
 	//int dist[V];
@@ -91,9 +91,20 @@ vector<int> Graph::longestPath(int s)
 		// Update distances of all adjacent vertices 
 		list<AdjListNode>::iterator i; 
 		if (dist[u] != NINF) { 
-			for (i = adj[u].begin(); i != adj[u].end(); ++i) 
-				if (dist[i->getV()] < dist[u] + nodeWeights[i->getV()] + i->getWeight()) 
-					dist[i->getV()] = dist[u] + nodeWeights[i->getV()] + i->getWeight(); 
+			for (i = adj[u].begin(); i != adj[u].end(); ++i) {
+				//If the two tasks are assigned to different processors
+				if(taskMapping[u] == taskMapping[i->getV()]) {
+					if (dist[i->getV()] < dist[u] + nodeWeights[i->getV()] ){ 
+						dist[i->getV()] = dist[u] + nodeWeights[i->getV()]; 
+					}
+				}
+				else {
+					if (dist[i->getV()] < dist[u] + nodeWeights[i->getV()] + i->getWeight()){ 
+						dist[i->getV()] = dist[u] + nodeWeights[i->getV()] + i->getWeight(); 
+					}
+				}
+				
+			}
 		} 
 	} 
 	

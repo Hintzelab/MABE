@@ -55,5 +55,5 @@ public:
 	void addEdge(int u, int v, int weight); 
 	
 	// Finds longest distances from given source vertex 
-	vector<int> longestPath(int s); 
+	vector<int> longestPath(int s, vector<int> taskMapping); 
 }; 
