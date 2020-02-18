@@ -17,14 +17,14 @@
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeInitialPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeInitial", 5000, "starting size for genome");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointRate", 0.005, "per site point mutation rate");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationCopyRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyRate", 0.00002, "per site insertion rate");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMinSize", 128, "minimum size of insertion mutation");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMinSize", 1, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCopyMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationCopyMaxSize", 10, "maximum size of insertion mutation");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationDeleteRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteRate", 0.00002, "per site deletion rate");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMinSize", 128, "minimum size of insertion mutation");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMaxSize", 512, "maximum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMinSize", 1, "minimum size of insertion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationDeleteMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationDeleteMaxSize", 10, "maximum size of insertion mutation");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationIndelRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelRate", 0.0, "per site insertion+deletion (indel) rate. This mutation copies a segment of the genome and deletes a segment of the same size so genome size remains fixed).");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMinSize", 128, "minimum size of insertion-deletion mutation");
-std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMaxSize", 512, "maximum size of insertion-deletion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMinSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMinSize", 1, "minimum size of insertion-deletion mutation");
+std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelMaxSizePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelMaxSize", 10, "maximum size of insertion-deletion mutation");
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationIndelInsertMethodPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelInsertMethod", 0, "where is copied material inserted?\n0 = place random, 1 = replace deleted sites, 2 = insert just before copied material");
 std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationIndelCopyFirstPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationIndelCopyFirst", true, "whether copy or deletion happens first (0 = delete first, 1 = copy first)");
 std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::sizeMinPL = Parameters::register_parameter("GENOME_CIRCULAR-sizeMin", 2000, "if genome is smaller then this, mutations will only increase chromosome size");
@@ -353,6 +353,8 @@ std::vector<std::vector<int>> CircularGenome<T>::Handler::readTable(std::pair<in
 template<class T>
 void CircularGenome<T>::setupCircularGenome(int _size, double _alphabetSize) {
 	sites.resize(_size);
+
+	
 	alphabetSize = _alphabetSize;
 	// define columns to be written to genome files
 	genomeFileColumns.clear();

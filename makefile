@@ -1,7 +1,7 @@
-all: mabe.exe
+all: mabe
 
-mabe.exe: objectFiles/main.o objectFiles/Analyze_neurocorrelates.o objectFiles/Archivist_DefaultArchivist.o objectFiles/Brain_AbstractBrain.o objectFiles/Genome_AbstractGenome.o objectFiles/Global.o objectFiles/Group_Group.o objectFiles/Optimizer_AbstractOptimizer.o objectFiles/Organism_Organism.o objectFiles/Utilities_Data.o objectFiles/Utilities_MTree.o objectFiles/Utilities_Parameters.o objectFiles/Utilities_Loader.o objectFiles/Utilities_Filesystem.o objectFiles/Utilities_CSV.o objectFiles/World_AbstractWorld.o objectFiles/World_DAGWorld_DAGWorld.o objectFiles/Genome_CircularGenome_CircularGenome.o objectFiles/Genome_MultiGenome_MultiGenome.o objectFiles/Genome_MultiGenome_Chromosome_AbstractChromosome.o objectFiles/Genome_MultiGenome_Chromosome_TemplatedChromosome.o objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o
-	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread objectFiles/main.o objectFiles/Analyze_neurocorrelates.o objectFiles/Archivist_DefaultArchivist.o objectFiles/Brain_AbstractBrain.o objectFiles/Genome_AbstractGenome.o objectFiles/Global.o objectFiles/Group_Group.o objectFiles/Optimizer_AbstractOptimizer.o objectFiles/Organism_Organism.o objectFiles/Utilities_Data.o objectFiles/Utilities_MTree.o objectFiles/Utilities_Parameters.o objectFiles/Utilities_Loader.o objectFiles/Utilities_Filesystem.o objectFiles/Utilities_CSV.o objectFiles/World_AbstractWorld.o objectFiles/World_DAGWorld_DAGWorld.o objectFiles/Genome_CircularGenome_CircularGenome.o objectFiles/Genome_MultiGenome_MultiGenome.o objectFiles/Genome_MultiGenome_Chromosome_AbstractChromosome.o objectFiles/Genome_MultiGenome_Chromosome_TemplatedChromosome.o objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o -o mabe.exe
+mabe: objectFiles/main.o objectFiles/Analyze_neurocorrelates.o objectFiles/Archivist_DefaultArchivist.o objectFiles/Brain_AbstractBrain.o objectFiles/Genome_AbstractGenome.o objectFiles/Global.o objectFiles/Group_Group.o objectFiles/Optimizer_AbstractOptimizer.o objectFiles/Organism_Organism.o objectFiles/Utilities_Data.o objectFiles/Utilities_MTree.o objectFiles/Utilities_Parameters.o objectFiles/Utilities_Loader.o objectFiles/Utilities_Filesystem.o objectFiles/Utilities_CSV.o objectFiles/World_AbstractWorld.o objectFiles/World_DAGWorld_Graph.o objectFiles/World_DAGWorld_DAGWorld.o objectFiles/Genome_CircularGenome_CircularGenome.o objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o
+	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread objectFiles/main.o objectFiles/Analyze_neurocorrelates.o objectFiles/Archivist_DefaultArchivist.o objectFiles/Brain_AbstractBrain.o objectFiles/Genome_AbstractGenome.o objectFiles/Global.o objectFiles/Group_Group.o objectFiles/Optimizer_AbstractOptimizer.o objectFiles/Organism_Organism.o objectFiles/Utilities_Data.o objectFiles/Utilities_MTree.o objectFiles/Utilities_Parameters.o objectFiles/Utilities_Loader.o objectFiles/Utilities_Filesystem.o objectFiles/Utilities_CSV.o objectFiles/World_AbstractWorld.o objectFiles/World_DAGWorld_Graph.o objectFiles/World_DAGWorld_DAGWorld.o objectFiles/Genome_CircularGenome_CircularGenome.o objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o -o mabe
 
 objectFiles/main.o: ./main.cpp
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./main.cpp -o objectFiles/main.o
@@ -51,20 +51,14 @@ objectFiles/Utilities_CSV.o: ./Utilities/CSV.cpp ./Utilities/CSV.h
 objectFiles/World_AbstractWorld.o: ./World/AbstractWorld.cpp ./World/AbstractWorld.h
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./World/AbstractWorld.cpp -o objectFiles/World_AbstractWorld.o
 
+objectFiles/World_DAGWorld_Graph.o: ./World/DAGWorld/Graph.cpp ./World/DAGWorld/Graph.h
+	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./World/DAGWorld/Graph.cpp -o objectFiles/World_DAGWorld_Graph.o
+
 objectFiles/World_DAGWorld_DAGWorld.o: ./World/DAGWorld/DAGWorld.cpp ./World/DAGWorld/DAGWorld.h
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./World/DAGWorld/DAGWorld.cpp -o objectFiles/World_DAGWorld_DAGWorld.o
 
 objectFiles/Genome_CircularGenome_CircularGenome.o: ./Genome/CircularGenome/CircularGenome.cpp ./Genome/CircularGenome/CircularGenome.h
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Genome/CircularGenome/CircularGenome.cpp -o objectFiles/Genome_CircularGenome_CircularGenome.o
-
-objectFiles/Genome_MultiGenome_MultiGenome.o: ./Genome/MultiGenome/MultiGenome.cpp ./Genome/MultiGenome/MultiGenome.h
-	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Genome/MultiGenome/MultiGenome.cpp -o objectFiles/Genome_MultiGenome_MultiGenome.o
-
-objectFiles/Genome_MultiGenome_Chromosome_AbstractChromosome.o: ./Genome/MultiGenome/Chromosome/AbstractChromosome.cpp ./Genome/MultiGenome/Chromosome/AbstractChromosome.h
-	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Genome/MultiGenome/Chromosome/AbstractChromosome.cpp -o objectFiles/Genome_MultiGenome_Chromosome_AbstractChromosome.o
-
-objectFiles/Genome_MultiGenome_Chromosome_TemplatedChromosome.o: ./Genome/MultiGenome/Chromosome/TemplatedChromosome.cpp ./Genome/MultiGenome/Chromosome/TemplatedChromosome.h
-	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Genome/MultiGenome/Chromosome/TemplatedChromosome.cpp -o objectFiles/Genome_MultiGenome_Chromosome_TemplatedChromosome.o
 
 objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o: ./Brain/ConstantValuesBrain/ConstantValuesBrain.cpp ./Brain/ConstantValuesBrain/ConstantValuesBrain.h
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Brain/ConstantValuesBrain/ConstantValuesBrain.cpp -o objectFiles/Brain_ConstantValuesBrain_ConstantValuesBrain.o
@@ -73,7 +67,7 @@ objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o: ./Optimizer/SimpleOptim
 	c++ -Wno-c++98-compat -w -Wall -std=c++14 -O3 -lpthread -pthread -c ./Optimizer/SimpleOptimizer/SimpleOptimizer.cpp -o objectFiles/Optimizer_SimpleOptimizer_SimpleOptimizer.o
 
 clean:
-	rm -r objectFiles/* mabe.exe
+	rm -r objectFiles/* mabe
 
 cleanup:
 	rm -r objectFiles/*

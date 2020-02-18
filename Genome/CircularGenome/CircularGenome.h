@@ -107,6 +107,7 @@ public:
 		virtual std::vector<std::vector<int>> readTable(std::pair<int, int> tableSize, std::pair<int, int> tableMaxSize, std::pair<int, int> valueRange, int code = -1, int CodingRegionIndex = 0) override;
 
 	};
+	
 
 	std::vector<T> sites;
 	double alphabetSize;

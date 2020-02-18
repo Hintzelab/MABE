@@ -191,7 +191,8 @@ alwaysSources=['main.cpp',
                'Utilities/Loader.cpp',
                'Utilities/Filesystem.cpp',
                'Utilities/CSV.cpp',
-               'World/AbstractWorld.cpp'
+               'World/AbstractWorld.cpp',
+               'World/DAGWorld/Graph.cpp'
                ]
 moduleSources = []
 objects = []

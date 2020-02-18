@@ -1,33 +1,15 @@
 % World
-  - Berry
-  - Xor
-  - Test
-  - Logic16
-  - BlockCatch
-  - TPM
-  * DAG
+ * DAG
 
 % Genome
-  + Multi
-  * Circular
+ * Circular
 
 % Brain
-  - Markov
-  - CGP
-  - LSTM
-  * ConstantValues
-  - Human
-  - Wire
-  - ANN
-  - BiLog
+ * ConstantValues
 
 % Optimizer
   * Simple
-  - Islands
-  - Lexicase
 
 % Archivist
   * Default
-  - SSwD
-  - LODwAP
 

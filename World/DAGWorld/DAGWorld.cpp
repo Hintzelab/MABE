@@ -14,8 +14,14 @@
 // Each correct '1' confers 1.0 point to score, or the decimal output determined
 // by 'mode'.
 
+
 #include "DAGWorld.h"
+#include "Graph.h"
+#include <stdlib.h>
+#include <string>
 #include "../../Genome/CircularGenome/CircularGenome.h"
+
+
 
 std::shared_ptr<ParameterLink<int>> DAGWorld::modePL =
 Parameters::register_parameter(
@@ -40,6 +46,89 @@ Parameters::register_parameter(
 DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	: AbstractWorld(PT_) {
 
+	FILE* fp = fopen("/Users/dogadikbayir/Coursework/CSE845/MABE/World/DAGWorld/node_weights.txt", "r");
+	if (fp == NULL) {
+		std::cout << "FAILED LOADING NODE_WEIGHTS FILE" << std::endl;
+    	exit(EXIT_FAILURE);
+    }
+    FILE* fp2 = fopen("/Users/dogadikbayir/Coursework/CSE845/MABE/World/DAGWorld/edge_weights.txt", "r");
+	if (fp2 == NULL) {
+		std::cout << "FAILED LOADING EDGE_WEIGHTS FILE" << std::endl;
+    	exit(EXIT_FAILURE);
+    }
+
+    std::cout << "Loaded weights fileS" << std::endl;
+    char* line = NULL;
+	size_t len = 0;
+	//LOAD THE NODE WEIGHTS (TASK EXECUTION TIMES INTO MEMORY)
+	while ((getline(&line, &len, fp)) != -1) {
+    	// using printf() in all tests for consistency
+    	//printf("%s\n", line);
+    	std::vector<std::string> tokens;
+		//std::cout << "Here is the line: " << line << std::endl;
+		std::stringstream st(line);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		node_weights[atoi(tokens[0].c_str())] = {};
+		
+		for (int i = 1; i < tokens.size(); ++i)
+		{
+			(node_weights[atoi(tokens[0].c_str())]).push_back(atoi(tokens[i].c_str())); 
+		}
+	}
+	line = NULL;
+	len = 0;
+	//LOAD EDGE WEIGHTS INTO MEMORY (COMMUNICATION COST)
+	while ((getline(&line, &len, fp2)) != -1) {
+    	// using printf() in all tests for consistency
+    	//printf("%s\n", line);
+    	std::vector<std::string> tokens;
+		//std::cout << "Here is the line: " << line << std::endl;
+		std::stringstream st(line);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		edge_weights[tokens[0]] = atoi(tokens[1].c_str());
+		
+		
+	}
+	fclose(fp2);
+
+	if (line)
+    	free(line);
+
+	
+
+	std::cout << "Loaded weights file" << std::endl;
+	int key, val;
+	/*
+	for(std::string str; getline(&line, &len, fp);) {
+		//parse the line 
+		std::vector<std::string> tokens;
+		std::cout << "Here is the line: " << str << std::endl;
+		std::stringstream st(str);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		weights[atoi(tokens[0].c_str())] = {};
+		
+		for (int i = 1; i < tokens.size(); ++i)
+		{
+			(weights[atoi(tokens[0].c_str())]).push_back(atoi(tokens[i].c_str())); 
+		}
+
+	}
+	*/
 	// columns to be added to ave file
 	popFileColumns.clear();
 	popFileColumns.push_back("score");
@@ -48,19 +137,44 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 										   // because _VAR)
 }
 
+
 void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 	int visualize, int debug, int update) {
 		if (update == 0) {
+			//Read the weight-map
+			std::cout <<  "Node 1: " << node_weights[0][0] + node_weights[0][1] << std::endl;
+			std::cout <<  "Node 2: " << node_weights[1][0] + node_weights[1][1] << std::endl;
+			std::cout << "Edge 0:1 : " << edge_weights["0:1"] << std::endl;
 			// Define new genome
-			org->genomes["root::"] = std::make_shared<CircularGenome<int>>(2, 100, PT);
-			org->genomes["root::"]->fillConstant(0);
+			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(2, 2, PT);
+			org->genomes["mapping::"]->fillConstant(0);
+			org->genomes["order::"] = std::make_shared<CircularGenome<int>>(2, 2, PT);
+			org->genomes["order::"]->fillConstant(0);
 		}
 		
-		auto genome = std::dynamic_pointer_cast<CircularGenome<int>>(org->genomes["root::"]);
+		auto genome_map = std::dynamic_pointer_cast<CircularGenome<int>>(org->genomes["mapping::"]);
+		//auto genome_order = std::dynamic_pointer_cast<CircularGenome<int>>(org->genomes["order::"]);
 		
-		//Calculate score for genome and store in data map
-		int score = std::accumulate(genome->sites.begin(),genome->sites.end(),0.0);
 
+		//Get the genome size
+		int numTasks = genome_map->size();
+
+		//Get the task weights
+		std::vector<int> taskWeights = {};
+		
+		for(int i = 0; i < numTasks; i++) {
+			taskWeights.push_back(node_weights[i][genome_map->sites[i]]);
+		}
+		Graph g(numTasks, taskWeights, edge_weights);
+
+		//Calculate score for genome and store in data map
+		
+		//int score_order = std::accumulate(genome_order->sites.begin(),genome_order->sites.end(),0.0);
+
+		vector<int> res = g.longestPath(0);
+		std::cout << "Longest Path: " << res[1] << std::endl;
+		double score_map = res[1];
+		double score = 1/score_map;
 		org->dataMap.append("score", score);
 		
 		if (visualize)
@@ -82,7 +196,7 @@ void DAGWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups,
 std::unordered_map<std::string, std::unordered_set<std::string>>
 DAGWorld::requiredGroups() {
 	return { {groupNamePL->get(PT),
-		  {"G:root::"}} };
+		  {"G:mapping::", "G:order::"} }};
 	// requires a single genome
 }
 

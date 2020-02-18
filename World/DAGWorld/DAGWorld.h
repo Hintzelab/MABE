@@ -14,6 +14,7 @@
 
 #include <cstdlib>
 #include <thread>
+#include <fstream>
 #include <vector>
 
 class DAGWorld : public AbstractWorld {
@@ -29,6 +30,9 @@ public:
 
 	static std::shared_ptr<ParameterLink<std::string>> groupNamePL;
 	static std::shared_ptr<ParameterLink<std::string>> brainNamePL;
+
+	std::unordered_map<int,std::vector<int>> node_weights; // taskID -> perf_i where i is the processorID
+	std::unordered_map<std::string, int> edge_weights;
 	// string groupName;
 	// string brainName;
 
