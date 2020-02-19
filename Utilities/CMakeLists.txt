@@ -1,0 +1,6 @@
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/CSV.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Data.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Filesystem.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Loader.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/MTree.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Parameters.cpp)
