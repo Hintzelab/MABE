@@ -9,7 +9,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include <modules.h>
+#include <module_factories.h>
 #include <Global.h>
 #include <Group/Group.h>
 #include <Organism/Organism.h>
