@@ -18,6 +18,7 @@ if (APPLE)
   message(STATUS "detected platform: apple")
 endif()
 
+### OLD CODE CALLING PYTHON MBUILD
 # read buildOptions
 # produce modules.h, cmake_auto_injection.txt
 #message(STATUS "building modules.h...")
@@ -31,6 +32,25 @@ endif()
 #  OUTPUT_QUIET
 #  )
 
+## write version information to c file (for ./mabe --version)
+## but only if this is a git repo, and git exists
+find_package(Git)
+if ( (EXISTS ${PROJECT_SOURCE_DIR}/.git/) AND (Git_FOUND) )
+  execute_process(
+    COMMAND ${GIT_EXECUTABLE} rev-parse HEAD
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}
+    OUTPUT_VARIABLE COMMIT_HASH
+    )
+  # remove newline from end of command output
+  string(STRIP ${COMMIT_HASH} COMMIT_HASH)
+  file(WRITE ${CMAKE_CURRENT_LIST_DIR}/Utilities/gitversion.h "const char *gitversion = \"${COMMIT_HASH}\";\n")
+else()
+  file(WRITE ${CMAKE_CURRENT_LIST_DIR}/Utilities/gitversion.h "const char *gitversion = \"\";\n")
+endif()
+
+#
+# Add the executable (entrypoint)
+#
 add_executable(${EXE} ${CMAKE_CURRENT_LIST_DIR}/main.cpp)
 
 ## set standard to c++17
