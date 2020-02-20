@@ -1,4 +1,5 @@
-option(ENABLE_Brain_ConstantValuesBrain "Enable Module ConstantValuesBrain" OFF)
-if (ENABLE_Brain_ConstantValuesBrain)
+option(enable_Brain_ConstantValues "Enable Module ConstantValuesBrain" OFF)
+if (enable_Brain_ConstantValues)
+  register_module(Brain ConstantValues)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/ConstantValuesBrain.cpp)
 endif()

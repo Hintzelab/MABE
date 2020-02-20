@@ -1,7 +1,5 @@
-#option(ENABLE_SimpleOptimizer "Enable Module SimpleOptimizer" OFF)
-#if (ENABLE_SimpleOptimizer)
-
-## SimpleOptimizer is required, so don't give the user an option
-  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/SimpleOptimizer.cpp)
-
+#option(enable_Optimizer_Simple "Enable Module SimpleOptimizer" OFF)
+#if (enable_Optimizer_Simple)
+#register_module(Optimizer Simple)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/SimpleOptimizer.cpp)
 #endif()

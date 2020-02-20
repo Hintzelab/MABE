@@ -8,7 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../ConstantValuesBrain/ConstantValuesBrain.h"
+#include "ConstantValuesBrain.h"
 
 std::shared_ptr<ParameterLink<double>> ConstantValuesBrain::valueMinPL =
     Parameters::register_parameter("BRAIN_CONSTANT-valueMin", 0.0,

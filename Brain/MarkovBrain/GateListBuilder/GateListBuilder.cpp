@@ -8,7 +8,6 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-
 #include "GateListBuilder.h"
 
 vector<shared_ptr<AbstractGate>> ClassicGateListBuilder::buildGateListAndGetAllValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, vector<int> &genomeHeadValues, int genomeHeadValuesCount, vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT) {

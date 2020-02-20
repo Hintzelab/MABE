@@ -16,11 +16,9 @@
 #include <set>
 #include <vector>
 
-//#include "Gate/GateBuilder.h"
-//#include "GateListBuilder/GateListBuilder.h"
-#include "../Genome/AbstractGenome.h"
-#include "../Utilities/Parameters.h"
-#include "../Global.h"
+#include <Genome/AbstractGenome.h>
+#include <Utilities/Parameters.h>
+#include <Global.h>
 
 class AbstractBrain {
 public:

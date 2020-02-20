@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 class DeterministicGate: public AbstractGate {
 public:
 	

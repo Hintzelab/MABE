@@ -8,8 +8,8 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../../Global.h"
 #include "MultiGenome.h"
+#include <Global.h>
 
 // Initialize Parameters
 

@@ -1,4 +1,5 @@
-option(ENABLE_World_TestWorld "Enable Module TestWorld" OFF)
-if (ENABLE_World_TestWorld)
+option(enable_World_Test "Enable Module TestWorld" ON)
+if (enable_World_Test)
+  register_module(World Test)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/TestWorld.cpp)
 endif()

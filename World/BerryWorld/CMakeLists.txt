@@ -1,4 +1,5 @@
-option(ENABLE_World_BerryWorld "Enable Module BerryWorld" OFF)
-if (ENABLE_World_BerryWorld)
+option(enable_World_Berry "Enable Module BerryWorld" OFF)
+if (enable_World_Berry)
+  register_module(World Berry)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BerryWorld.cpp)
 endif()

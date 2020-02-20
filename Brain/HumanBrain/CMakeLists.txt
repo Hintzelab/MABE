@@ -1,4 +1,5 @@
-option(ENABLE_Brain_HumanBrain "Enable Module HumanBrain" OFF)
-if (ENABLE_Brain_HumanBrain)
+option(enable_Brain_Human "Enable Module HumanBrain" OFF)
+if (enable_Brain_Human)
+  register_module(Brain Human)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/HumanBrain.cpp)
 endif()

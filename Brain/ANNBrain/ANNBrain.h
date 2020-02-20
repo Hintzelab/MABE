@@ -18,11 +18,9 @@
 #include <string>
 #include <algorithm>
 
-#include "../../Genome/AbstractGenome.h"
-
-#include "../../Utilities/Random.h"
-
-#include "../AbstractBrain.h"
+#include <Genome/AbstractGenome.h>
+#include <Utilities/Random.h>
+#include <Brain/AbstractBrain.h>
 
 
 //using namespace std;

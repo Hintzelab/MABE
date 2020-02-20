@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
-#include "../Global.h"
-#include "../Organism/Organism.h"
-#include "../Utilities/MTree.h"
+#include <Global.h>
+#include <Organism/Organism.h>
+#include <Utilities/MTree.h>
 
 class DefaultArchivist {
 //protected:

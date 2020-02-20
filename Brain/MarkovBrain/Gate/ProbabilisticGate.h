@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 class ProbabilisticGate: public AbstractGate {  //conventional probabilistic gate
 public:
 

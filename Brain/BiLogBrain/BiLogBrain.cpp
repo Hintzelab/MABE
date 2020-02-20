@@ -11,9 +11,9 @@
 // see bottom of this file for python scripts used to generated logic table mutations
 
 #include "BiLogBrain.h"
-#include "../../Utilities/Utilities.h" //convertCSVListToVector
-#include "../../Utilities/CSV.h" //parseLine
-#include "../../Utilities/Random.h" //random
+#include <Utilities/Utilities.h> //convertCSVListToVector
+#include <Utilities/CSV.h> //parseLine
+#include <Utilities/Random.h> //random
 #include <utility> //std::pair
 #include <iostream> //std::cout
 

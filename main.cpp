@@ -9,19 +9,19 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "modules.h"
-#include "Global.h"
-#include "Group/Group.h"
-#include "Organism/Organism.h"
-#include "Utilities/Utilities.h"
-#include "Utilities/Data.h"
-#include "Utilities/Loader.h"
-#include "Utilities/MTree.h"
-#include "Utilities/Parameters.h"
-#include "Utilities/Random.h"
-#include "Utilities/Utilities.h"
-#include "Utilities/gitversion.h"
-#include "Utilities/Filesystem.h"
+#include <modules.h>
+#include <Global.h>
+#include <Group/Group.h>
+#include <Organism/Organism.h>
+#include <Utilities/Utilities.h>
+#include <Utilities/Data.h>
+#include <Utilities/Loader.h>
+#include <Utilities/MTree.h>
+#include <Utilities/Parameters.h>
+#include <Utilities/Random.h>
+#include <Utilities/Utilities.h>
+#include <Utilities/gitversion.h>
+#include <Utilities/Filesystem.h>
 
 #include <algorithm>
 #include <csignal> // sigint

@@ -12,12 +12,12 @@
 
 #include <cctype>
 
-#include "../../Utilities/Utilities.h"
+#include <Utilities/Utilities.h>
 #include "Utilities/VectorNd.h"
 #include "Utilities/TurnTable.h"
 #include "Utilities/SensorArcs.h"
 
-#include "../../World/AbstractWorld.h" // AbstractWorld defines all the basic function templates for worlds
+#include <World/AbstractWorld.h> // AbstractWorld defines all the basic function templates for worlds
 
 class BerryWorld : public AbstractWorld {
 

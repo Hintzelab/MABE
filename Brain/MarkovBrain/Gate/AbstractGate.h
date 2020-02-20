@@ -18,11 +18,11 @@
 #include <vector>
 #include <iostream>
 
-#include "../../../Genome/AbstractGenome.h"
-#include "../../../Global.h"
+#include <Genome/AbstractGenome.h>
+#include <Global.h>
 
-#include "../../../Utilities/Parameters.h"
-#include "../../../Utilities/Random.h"
+#include <Utilities/Parameters.h>
+#include <Utilities/Random.h>
 
 using namespace std;
 

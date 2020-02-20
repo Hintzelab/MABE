@@ -9,7 +9,7 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 #include "TPMWorld.h"
-#include "../../Brain/MarkovBrain/MarkovBrain.h"
+#include <Brain/MarkovBrain/MarkovBrain.h>
 
 std::shared_ptr<ParameterLink<int>> TPMWorld::numberOfInputsPL = Parameters::register_parameter("WORLD_TPM-numberOfInputs", 1, "number of inputs in this world");
 std::shared_ptr<ParameterLink<int>> TPMWorld::numberOfOutputsPL = Parameters::register_parameter("WORLD_TPM-numberOfOutputs", 10, "number of outputs in this world");

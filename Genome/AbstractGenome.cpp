@@ -10,7 +10,6 @@
 
 #include "AbstractGenome.h"
 
-
 ////// GENOME-genomeType is actually set by Modules.h //////
 std::shared_ptr<ParameterLink<std::string>> AbstractGenome::genomeTypeStrPL =
     Parameters::register_parameter(

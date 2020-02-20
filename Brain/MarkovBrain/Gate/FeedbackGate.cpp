@@ -10,8 +10,8 @@
 
 #include "FeedbackGate.h"
 
-#include "../../../Utilities/Random.h"
-#include "../../../Utilities/Utilities.h"
+#include <Utilities/Random.h>
+#include <Utilities/Utilities.h>
 
 bool FeedbackGate::feedbackON = true;
 shared_ptr<ParameterLink<string>> FeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");

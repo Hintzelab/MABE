@@ -14,7 +14,6 @@
 
 using namespace std;
 
-
 class DecomposableDirectGate: public AbstractGate {  //conventional probabilistic gate
 public:
 

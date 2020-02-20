@@ -1,4 +1,4 @@
-#include "../Utilities/graycode.h"
+#include <Utilities/graycode.h>
 
 using namespace Graycode;
 TEST(getHighestBitPosition, GetHighestBitSetPosition) {

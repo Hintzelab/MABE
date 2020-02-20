@@ -1,4 +1,5 @@
-option(ENABLE_Brain_ANNBrain "Enable Module ANNBrain" OFF)
-if (ENABLE_Brain_ANNBrain)
+option(enable_Brain_ANN "Enable Module ANNBrain" OFF)
+if (enable_Brain_ANN)
+  register_module(Brain ANN)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/ANNBrain.cpp)
 endif()

@@ -10,10 +10,11 @@
 
 #include "DecomposableFeedbackGate.h"
 
-#include "../../../Utilities/Random.h"
-#include "../../../Utilities/Utilities.h"
 #include <numeric> // for accumulate
 #include <bitset>
+
+#include <Utilities/Random.h>
+#include <Utilities/Utilities.h>
 
 bool DecomposableFeedbackGate::feedbackON = true;
 shared_ptr<ParameterLink<string>> DecomposableFeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_FEEDBACK-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");

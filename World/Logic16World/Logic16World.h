@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../AbstractWorld.h"
+#include <World/AbstractWorld.h>
 
 #include <cstdlib>
 #include <thread>

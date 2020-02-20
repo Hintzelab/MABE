@@ -11,19 +11,18 @@
 #pragma once
 
 #include <bitset>
-#include "../../../Utilities/Parameters.h"
-#include "../Gate/DeterministicGate.h"
-#include "../Gate/EpsilonGate.h"
-#include "../Gate/FeedbackGate.h"
-#include "../Gate/GPGate.h"
-#include "../Gate/NeuronGate.h"
-#include "../Gate/ProbabilisticGate.h"
-//#include "../Gate/ThresholdGate.h"
-#include "../Gate/TritDeterministicGate.h"
-#include "../Gate/VoidGate.h"
-#include "../Gate/DecomposableGate.h"
-#include "../Gate/DecomposableDirectGate.h"
-#include "../Gate/DecomposableFeedbackGate.h"
+#include <Utilities/Parameters.h>
+#include <Brain/MarkovBrain/Gate/DeterministicGate.h>
+#include <Brain/MarkovBrain/Gate/EpsilonGate.h>
+#include <Brain/MarkovBrain/Gate/FeedbackGate.h>
+#include <Brain/MarkovBrain/Gate/GPGate.h>
+#include <Brain/MarkovBrain/Gate/NeuronGate.h>
+#include <Brain/MarkovBrain/Gate/ProbabilisticGate.h>
+#include <Brain/MarkovBrain/Gate/TritDeterministicGate.h>
+#include <Brain/MarkovBrain/Gate/VoidGate.h>
+#include <Brain/MarkovBrain/Gate/DecomposableGate.h>
+#include <Brain/MarkovBrain/Gate/DecomposableDirectGate.h>
+#include <Brain/MarkovBrain/Gate/DecomposableFeedbackGate.h>
 
 class Gate_Builder {  // manages what kinds of gates can be built
 public:

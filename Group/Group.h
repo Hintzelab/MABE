@@ -10,10 +10,10 @@
 
 #pragma once
 
-#include "../Archivist/DefaultArchivist.h"
-#include "../Global.h"
-#include "../Optimizer/AbstractOptimizer.h"
-#include "../Organism/Organism.h"
+#include <Archivist/DefaultArchivist.h>
+#include <Global.h>
+#include <Optimizer/AbstractOptimizer.h>
+#include <Organism/Organism.h>
 
 class Group {
 public:

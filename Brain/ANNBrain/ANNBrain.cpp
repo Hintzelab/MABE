@@ -8,7 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../ANNBrain/ANNBrain.h"
+#include "ANNBrain.h"
 
 std::shared_ptr<ParameterLink<std::string>> ANNBrain::genomeNamePL = Parameters::register_parameter("BRAIN_ANN-genomeName", (std::string)"root::", "namespace for parameters used to define this brain");
 std::shared_ptr<ParameterLink<int>> ANNBrain::nrOfRecurringNodesPL = Parameters::register_parameter("BRAIN_ANN-nrOfRecurringNodes", 10, "number of recurring nodes");

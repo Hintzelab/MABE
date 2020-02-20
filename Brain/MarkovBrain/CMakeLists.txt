@@ -1,5 +1,6 @@
-option(ENABLE_Brain_MarkovBrain "Enable Module MarkovBrain" OFF)
-if (ENABLE_Brain_MarkovBrain)
+option(enable_Brain_Markov "Enable Module MarkovBrain" OFF)
+if (enable_Brain_Markov)
+  register_module(Brain Markov)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/MarkovBrain.cpp)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Gate/AbstractGate.cpp)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Gate/DecomposableDirectGate.cpp)

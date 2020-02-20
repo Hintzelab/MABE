@@ -1,4 +1,5 @@
-option(ENABLE_Brain_WireBrain "Enable Module WireBrain" OFF)
-if (ENABLE_Brain_WireBrain)
+option(enable_Brain_Wire "Enable Module WireBrain" OFF)
+if (enable_Brain_Wire)
+  register_module(Brain Wire)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/WireBrain.cpp)
 endif()

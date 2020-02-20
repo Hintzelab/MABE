@@ -13,7 +13,7 @@
 // it receives 1.0 point for each correct computation.
 
 #include "Logic16World.h"
-#include "../../Utilities/Utilities.h"
+#include <Utilities/Utilities.h>
 #include <cmath>
 
 std::shared_ptr<ParameterLink<std::string>> Logic16World::groupNamePL =

@@ -18,13 +18,13 @@
 #include <sstream>
 #include <utility>
 
-#include "../../Utilities/Utilities.h"
-#include "../../Utilities/Data.h"
-#include "../../Utilities/Parameters.h"
-#include "../../Utilities/Random.h"
+#include <Utilities/Utilities.h>
+#include <Utilities/Data.h>
+#include <Utilities/Parameters.h>
+#include <Utilities/Random.h>
 #include "Chromosome/AbstractChromosome.h"
 #include "Chromosome/TemplatedChromosome.h"
-#include "../AbstractGenome.h"
+#include <Genome/AbstractGenome.h>
 
 class MultiGenome : public AbstractGenome {
 public:

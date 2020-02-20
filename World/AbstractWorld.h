@@ -14,10 +14,10 @@
 #include <thread>
 #include <vector>
 
-#include "../Group/Group.h"
-#include "../Utilities/Utilities.h"
-#include "../Utilities/Data.h"
-#include "../Utilities/Parameters.h"
+#include <Group/Group.h>
+#include <Utilities/Utilities.h>
+#include <Utilities/Data.h>
+#include <Utilities/Parameters.h>
 
 class AbstractWorld {
 public:

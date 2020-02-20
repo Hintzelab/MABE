@@ -12,12 +12,12 @@
 
 #pragma once
 
-#include "../AbstractWorld.h"
+#include <World/AbstractWorld.h>
 
 #include <stdlib.h>
 #include <thread>
 #include <vector>
-#include "../../Genome/CircularGenome/CircularGenome.h"
+#include <Genome/CircularGenome/CircularGenome.h>
 
 class BlockCatchWorld : public AbstractWorld {
     

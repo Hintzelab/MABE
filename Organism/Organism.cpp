@@ -10,12 +10,12 @@
 
 #include <algorithm>
 
-#include "../Global.h"
-#include "../Organism/Organism.h"
+#include <Global.h>
+#include <Organism/Organism.h>
 
-#include "../Genome/AbstractGenome.h"
-#include "../Utilities/Random.h"
-#include "../Utilities/Utilities.h"
+#include <Genome/AbstractGenome.h>
+#include <Utilities/Random.h>
+#include <Utilities/Utilities.h>
 
 /* Organism class (the one we expect to be used most of the time
  * has a genome, a brain, tools for lineage and ancestor tracking (for snapshot

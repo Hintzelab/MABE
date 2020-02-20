@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../DefaultArchivist.h"
+#include <Archivist/DefaultArchivist.h>
 
 
 class SSwDArchivist : public DefaultArchivist { // SnapShot with Delay

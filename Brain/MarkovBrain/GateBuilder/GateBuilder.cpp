@@ -9,6 +9,7 @@
 //         github.com/Hintzelab/MABE/wiki/License
 
 #include "GateBuilder.h"
+
 #include <cmath>
 
 shared_ptr<ParameterLink<bool>> Gate_Builder::usingProbGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_PROBABILISTIC-allow", false, "set to true to enable probabilistic gates");

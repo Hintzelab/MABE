@@ -17,10 +17,9 @@
 #include <set>
 #include <vector>
 
-#include "../GateBuilder/GateBuilder.h"
-#include "../../../Genome/AbstractGenome.h"
-
-#include "../../../Utilities/Parameters.h"
+#include <Brain/MarkovBrain/GateBuilder/GateBuilder.h>
+#include <Genome/AbstractGenome.h>
+#include <Utilities/Parameters.h>
 
 using namespace std;
 class AbstractGateListBuilder {

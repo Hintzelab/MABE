@@ -14,11 +14,11 @@
 #include <vector>
 #include <unordered_set>
 
-#include "../Brain/AbstractBrain.h"
-#include "../Genome/AbstractGenome.h"
+#include <Brain/AbstractBrain.h>
+#include <Genome/AbstractGenome.h>
 
-#include "../Utilities/Data.h"
-#include "../Utilities/Parameters.h"
+#include <Utilities/Data.h>
+#include <Utilities/Parameters.h>
 
 class Organism {
 private:

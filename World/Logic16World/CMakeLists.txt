@@ -1,4 +1,5 @@
-option(ENABLE_World_Logic16World "Enable Module Logic16World" OFF)
-if (ENABLE_World_Logic16World)
+option(enable_World_Logic16 "Enable Module Logic16World" OFF)
+if (enable_World_Logic16)
+  register_module(World Logic16)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Logic16World.cpp)
 endif()

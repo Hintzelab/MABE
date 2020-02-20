@@ -10,8 +10,8 @@
 
 #pragma once
 
-#include "../AbstractOptimizer.h"
-#include "../../Utilities/MTree.h"
+#include <Optimizer/AbstractOptimizer.h>
+#include <Utilities/MTree.h>
 
 #include <iostream>
 #include <sstream>

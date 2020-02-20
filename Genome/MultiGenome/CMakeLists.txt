@@ -1,5 +1,6 @@
-option(ENABLE_Genome_MultiGenome "Enable Module MultiGenome" OFF)
-if (ENABLE_Genome_MultiGenome)
+option(enable_Genome_Multi "Enable Module MultiGenome" OFF)
+if (enable_Genome_Multi)
+  register_module(Genome Multi)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/MultiGenome.cpp)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Chromosome/AbstractChromosome.cpp)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Chromosome/TemplatedChromosome.cpp)

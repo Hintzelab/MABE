@@ -9,6 +9,7 @@
 //         github.com/ahnt/MABE/wiki/License
 
 #include "DecomposableDirectGate.h"
+
 shared_ptr<ParameterLink<string>> DecomposableDirectGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_DIRECT-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 DecomposableDirectGate::DecomposableDirectGate(pair<vector<int>, vector<int>> addresses, vector<vector<double>> newFactorsList, int _ID, shared_ptr<ParametersTable> _PT) :

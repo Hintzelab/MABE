@@ -8,7 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../Group/Group.h"
+#include "Group.h"
 
 Group::Group() { // create an empty Group
 }

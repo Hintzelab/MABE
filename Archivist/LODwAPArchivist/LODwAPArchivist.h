@@ -10,7 +10,7 @@
 
 #pragma once
 
-#include "../DefaultArchivist.h"
+#include <Archivist/DefaultArchivist.h>
 
 class LODwAPArchivist
     : public DefaultArchivist { // Line of Decent with Active Pruning

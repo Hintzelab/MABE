@@ -8,7 +8,7 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "../LSTMBrain/LSTMBrain.h"
+#include "LSTMBrain.h"
 
 std::shared_ptr<ParameterLink<std::string>> LSTMBrain::genomeNamePL =
     Parameters::register_parameter("BRAIN_LSTM_NAMES-genomeNameSpace",

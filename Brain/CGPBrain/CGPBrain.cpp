@@ -10,7 +10,7 @@
 
 #define CGPBRAIN_DEBUG 0
 
-#include "../CGPBrain/CGPBrain.h"
+#include "CGPBrain.h"
 
 std::shared_ptr<ParameterLink<int>> CGPBrain::hiddenNodesPL =
     Parameters::register_parameter("BRAIN_CGP-hiddenNodes", 3,

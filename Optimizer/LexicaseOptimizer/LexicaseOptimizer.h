@@ -10,8 +10,8 @@
 
 #pragma once // directive to insure that this .h file is only included one time
 
-#include "../AbstractOptimizer.h"
-#include "../../Utilities/MTree.h"
+#include <Optimizer/AbstractOptimizer.h>
+#include <Utilities/MTree.h>
 
 #include <iostream>
 #include <numeric>

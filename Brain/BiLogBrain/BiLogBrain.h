@@ -12,10 +12,11 @@
 
 #include <vector> //std::vector
 #include <memory> //std::shared_ptr, std::make_shared
-#include "../AbstractBrain.h"
 #include <unordered_map> //std::unordered_map
 #include <string> //std::string
 #include <unordered_set> //std::unordered_set
+
+#include <Brain/AbstractBrain.h>
 
 class BiLogBrain : public AbstractBrain {
 
