@@ -34,10 +34,7 @@ std::shared_ptr<ParameterLink<int>> CircularGenomeParameters::mutationCrossCount
 
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRatePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRate", 0.0, "per site point offset mutation rate (site changes in range (+/-)mutationPointOffsetRange)");
 std::shared_ptr<ParameterLink<double>> CircularGenomeParameters::mutationPointOffsetRangePL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetRange", 1.0, "range of PointOffset mutation");
-<<<<<<< HEAD
 std::shared_ptr<ParameterLink<bool>> CircularGenomeParameters::mutationPointOffsetUniformPL = Parameters::register_parameter("GENOME_CIRCULAR-mutationPointOffsetUniform", true, "if true, offset will be from a uniform distribution, if false, from a normal distribution (where mean is 0 and std_dev is mutationPointOffsetRange)");
-=======
->>>>>>> finished modular cmake and better includes in all files
 
 
 // constructor
@@ -264,15 +261,9 @@ void CircularGenome<T>::Handler::writeDouble(double value, double valueMin, doub
 		exit(1);
 	}
 	// old version: value = ((value - valueMin) / (valueMax - valueMin)) * genome->alphabetSize;
-<<<<<<< HEAD
 	//std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
 	value = ((value - valueMin) / (valueMax - valueMin)) * (genome->alphabetSize - 1.0);
 	//std::cout << value << std::endl;
-=======
-	std::cout << value << "   " << valueMax << "   " << valueMin << " = ";
-	value = ((value - valueMin) / (valueMax - valueMin)) * (genome->alphabetSize - 1.0);
-	std::cout << value << std::endl;
->>>>>>> finished modular cmake and better includes in all files
 	genome->sites[siteIndex] = (T)value;
 	advanceIndex();
 }
@@ -550,7 +541,6 @@ void CircularGenome<T>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-<<<<<<< HEAD
 		int offsetValue;
 		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
 			offsetValue = Random::getInt(1, range) * ((Random::getIndex(2) * 2.0) - 1.0);
@@ -561,13 +551,6 @@ void CircularGenome<T>::pointMutate(double range) {
 			offsetValue = (int)Random::getNormal(0, range);
 		}
 		sites[siteIndex] = std::max(0, std::min((int)alphabetSize - 1, sites[siteIndex] + offsetValue));
-=======
-		sites[siteIndex] =
-			std::max(0,std::min((int)alphabetSize-1,
-				sites[siteIndex] +
-			(((Random::getIndex(2)*2)-1) * // sign (((0 or 1) * 2) - 1)
-				Random::getInt(1,std::max(1,(int)range))))); // value (will be 1 or more)
->>>>>>> finished modular cmake and better includes in all files
 	}
 }
 
@@ -578,7 +561,6 @@ void CircularGenome<double>::pointMutate(double range) {
 	}
 	else {
 		int siteIndex = Random::getIndex((int)sites.size());
-<<<<<<< HEAD
 		bool pointOffsetUniform = false;
 		double offsetValue;
 		if (CircularGenomeParameters::mutationPointOffsetUniformPL->get(PT) == true) {
@@ -589,12 +571,6 @@ void CircularGenome<double>::pointMutate(double range) {
 		}
 		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
 		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetValue)));
-=======
-		double offsetMagnitude = Random::getDouble(0, range);
-		double offsetDirection = (Random::getIndex(2) * 2.0) - 1.0;
-		double maxValue = alphabetSize - (std::nextafter(alphabetSize, DBL_MAX) - alphabetSize); // next smallest double value for alphabetSize
-		sites[siteIndex] = std::max(0.0, std::min(maxValue, sites[siteIndex] + (offsetDirection*offsetMagnitude)));
->>>>>>> finished modular cmake and better includes in all files
 	}
 }
 
@@ -716,7 +692,6 @@ void CircularGenome<T>::mutate() {
 		if (copyFirst) {
 			// if copy before delete
 			// copy a portion of the genome into segment
-<<<<<<< HEAD
 			int segmentStart = Random::getInt((int)sites.size() - segmentSize); // where to copy from
 			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			segment.clear();
@@ -748,18 +723,6 @@ void CircularGenome<T>::mutate() {
 			if (insertMethod == 0) {
 				// copy to random location
 				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
-=======
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize); // where to copy from
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
-			segment.clear();
-			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
-			// delete a portion of the genome of the same size
-			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
-			// insert the copied sites back into genome
-			if (insertMethod == 0) {
-				// copy to random location
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
->>>>>>> finished modular cmake and better includes in all files
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment
@@ -772,20 +735,16 @@ void CircularGenome<T>::mutate() {
 				}
 				sites.insert(it + segmentStart, segment.begin(), segment.end());
 			}
-<<<<<<< HEAD
 /*
 			std::cout << "\ngenome after insert: ";
 			for (auto s : sites) {
 				std::cout << s << " ";
 			}
 */
-=======
->>>>>>> finished modular cmake and better includes in all files
 		}
 		else {
 			// delete before copy (deleted sites cannot be copied)
 			// delete a portion of the genome
-<<<<<<< HEAD
 			int deleteStart = Random::getInt((int)sites.size() - segmentSize); // where to delete from
 			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
 
@@ -796,24 +755,13 @@ void CircularGenome<T>::mutate() {
             }
 			// copy a portion of the genome into segment
 			int segmentStart = Random::getInt((int)sites.size() - segmentSize);
-=======
-			int deleteStart = Random::getIndex((int)sites.size() - segmentSize); // where to delete from
-			sites.erase(it + deleteStart, it + deleteStart + segmentSize);
-
-			// copy a portion of the genome into segment
-			int segmentStart = Random::getIndex((int)sites.size() - segmentSize);
->>>>>>> finished modular cmake and better includes in all files
 			segment.clear();
 			segment.insert(segment.begin(), it + segmentStart, it + segmentStart + segmentSize);
 
 			// insert the copied sites back into genome
 			if (insertMethod == 0) {
 				// copy to random location
-<<<<<<< HEAD
 				sites.insert(it + Random::getInt((int)sites.size()), segment.begin(), segment.end());
-=======
-				sites.insert(it + Random::getIndex((int)sites.size()), segment.begin(), segment.end());
->>>>>>> finished modular cmake and better includes in all files
 			}
 			else if (insertMethod == 1) {
 				// replace deleted segment

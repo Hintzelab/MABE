@@ -20,7 +20,7 @@ public:
 	static shared_ptr<ParameterLink<string>> IO_RangesPL;
 
 	vector<vector<double>> table;
-        vector<vector<double>> factorList;
+  vector<vector<double>> factorList;
 	DecomposableGate() = delete;
 	DecomposableGate(shared_ptr<ParametersTable> _PT = nullptr) :
 		AbstractGate(_PT) {
@@ -75,4 +75,3 @@ public:
           return "{\"type\":\"decomposable\","+S+"]}";
         }
 };
-

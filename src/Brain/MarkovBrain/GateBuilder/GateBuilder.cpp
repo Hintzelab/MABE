@@ -146,9 +146,9 @@ void Gate_Builder::setupGates() {
 	int TritDeterministicCode     = 47;
 	int NeuronCode                = 48;
 	int FeedbackCode              = 49;
-        int DecomposableCode          = 50;
-        int DecomposableFeedbackCode  = 51;
-  	int DecomposableDirectCode    = 52;
+  int DecomposableCode          = 50;
+  int DecomposableFeedbackCode  = 51;
+  int DecomposableDirectCode    = 52;
 
 	int bitsPerCodon = bitsPerCodonPL->get(PT);
 	makeGate.resize(1 << bitsPerCodon);
