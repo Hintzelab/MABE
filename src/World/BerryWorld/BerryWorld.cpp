@@ -93,7 +93,7 @@ std::shared_ptr<ParameterLink<bool>> BerryWorld::usePerfectSensorPL =
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::perfectSensorFilePL =
     Parameters::register_parameter(
         "WORLD_BERRY_SENSORS_PERFECT-perfectSensorFile",
-        (std::string) "World/BerryWorld/perfectSensors/smallFront.txt",
+        (std::string) "perfectSensors/smallFront.txt",
         "file which defines perfect sensor?");
 
 std::shared_ptr<ParameterLink<bool>> BerryWorld::perfectDetectsFoodPL =
