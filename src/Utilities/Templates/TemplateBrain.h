@@ -18,8 +18,17 @@
 
 // AbstractBrain defines all the basic function templates for brains
 #include <Brain/AbstractBrain.h>
+#include <string>
+#include <memory> // shared_ptr
+#include <map>
 
-using namespace std;
+using std::shared_ptr;
+using std::make_shared;
+using std::string;
+using std::map;
+using std::unordered_map;
+using std::unordered_set;
+using std::to_string;
 
 class {{MODULE_NAME}}Brain : public AbstractBrain {
 public:

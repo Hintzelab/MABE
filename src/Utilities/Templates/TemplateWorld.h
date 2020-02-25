@@ -11,8 +11,16 @@
 #pragma once					// directive to insure that this .h file is only included one time
 
 #include <World/AbstractWorld.h> // AbstractWorld defines all the basic function templates for worlds
+#include <string>
+#include <memory> // shared_ptr
+#include <map>
 
-using namespace std;
+using std::shared_ptr;
+using std::string;
+using std::map;
+using std::unordered_map;
+using std::unordered_set;
+using std::to_string;
 
 class {{MODULE_NAME}}World : public AbstractWorld {
 
