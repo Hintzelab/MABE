@@ -1,3 +1,6 @@
+
+# mbuild convenience installation script
+
 SCRIPT_DIR="$( cd "$( dirname "$0" )" && pwd )"
 if [ "$(uname)" = 'Darwin' ]; then
   echo "darwin"
