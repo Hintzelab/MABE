@@ -3,6 +3,7 @@ src/module_factories.h
 src/module_factories.cpp
 modules.txt
 build/
+bin/
 
 # Ignore python's cache:
 __pycache__/
