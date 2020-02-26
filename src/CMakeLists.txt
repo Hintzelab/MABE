@@ -58,6 +58,9 @@ set(CMAKE_CXX_STANDARD 17)
 target_compile_features(${EXE} PRIVATE cxx_std_17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+## This sets the xcode output directory
+set_target_properties(${EXE} PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "work")
+set_target_properties(${EXE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../work")
 
 ## Useful directory-crawling macro
 ## example:
