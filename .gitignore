@@ -1,6 +1,6 @@
-src/Utilities/gitversion.h
-src/module_factories.h
-src/module_factories.cpp
+code/Utilities/gitversion.h
+code/module_factories.h
+code/module_factories.cpp
 modules.txt
 mbuild
 build/
