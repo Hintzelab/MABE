@@ -43,7 +43,7 @@ if ( (EXISTS ${PROJECT_SOURCE_DIR}/.git/) AND (Git_FOUND) )
     )
   # remove newline from end of command output
   string(STRIP ${COMMIT_HASH} COMMIT_HASH)
-  message(STATUS "Updating src/Utilities/gitversion.h")
+  message(STATUS "Updating code/Utilities/gitversion.h")
   file(WRITE ${CMAKE_CURRENT_LIST_DIR}/Utilities/gitversion.h "const char *gitversion = \"${COMMIT_HASH}\";\n")
 else()
   file(WRITE ${CMAKE_CURRENT_LIST_DIR}/Utilities/gitversion.h "const char *gitversion = \"\";\n")
@@ -355,7 +355,7 @@ include(${CMAKE_CURRENT_LIST_DIR}/Organism/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/Utilities/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/World/CMakeLists.txt)
 
-include_directories(src)
+include_directories(code)
 
 list(LENGTH list_archivists num_archivists)
 list(LENGTH list_brains num_brains)
@@ -401,7 +401,7 @@ endif()
 
 # if we have sufficient information, then continue and build modules.h
 if( (num_brains GREATER 0) AND (num_genomes GREATER 0) AND (num_worlds GREATER 0) )
-  message(STATUS "Updating src/module_factories.h src/module_factories.cpp")
+  message(STATUS "Updating code/module_factories.h code/module_factories.cpp")
   write_module_factories()
   #else()
   #  message(FATAL_ERROR "You must enable at least 1 of each modules: Brain, Genome, World")
