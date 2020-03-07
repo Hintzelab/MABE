@@ -1,5 +1,7 @@
 set(CMAKE_BUILD_TYPE ${BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Options are: Debug or Release (case sensitive)")
+## force VS to set release mode by default
+set(CMAKE_CONFIGURATION_TYPES "Release" CACHE STRING "config types" FORCE)
 
 # OS-specific alterations
 if (MSYS OR MINGW)
@@ -17,20 +19,6 @@ endif()
 if (APPLE)
   message(STATUS "detected platform: apple")
 endif()
-
-### OLD CODE CALLING PYTHON MBUILD
-# read buildOptions
-# produce modules.h, cmake_auto_injection.txt
-#message(STATUS "building modules.h...")
-#find_package(Python3 COMPONENTS Interpreter)
-#if (NOT Python3_FOUND)
-#  message(FATAL_ERROR " Python3 required for pythonTools/mbuild.py functionality")
-#endif()
-#execute_process(
-#  COMMAND ${Python3_EXECUTABLE} pythonTools/mbuild.py -nc
-#  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-#  OUTPUT_QUIET
-#  )
 
 ## write version information to c file (for ./mabe --version)
 ## but only if this is a git repo, and git exists
@@ -62,6 +50,10 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 ## This sets the xcode output directory
 set_target_properties(${EXE} PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "work")
 set_target_properties(${EXE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../work")
+set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+set_property(GLOBAL PROPERTY CMAKE_SKIP_INSTALL_ALL_DEPENDENCY ON)
+set_property(GLOBAL PROPERTY CMAKE_SKIP_PACKAGE_ALL_DEPENDENCY ON)
+set_property(GLOBAL PROPERTY CMAKE_STARTUP_PROJECT mabe)
 
 ## Useful directory-crawling macro
 ## example:
