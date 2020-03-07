@@ -399,3 +399,9 @@ if( (num_brains GREATER 0) AND (num_genomes GREATER 0) AND (num_worlds GREATER 0
   #  message(FATAL_ERROR "You must enable at least 1 of each modules: Brain, Genome, World")
 endif()
 
+## make files appear in proper directory structure in Visual Studio
+file(GLOB_RECURSE _headers ${CMAKE_CURRENT_LIST_DIR}/*.h)
+file(GLOB_RECURSE _altheaders ${CMAKE_CURRENT_LIST_DIR}/*.hpp)
+file(GLOB_RECURSE _cpps ${CMAKE_CURRENT_LIST_DIR}/*.cpp)
+file(GLOB_RECURSE _altcpps ${CMAKE_CURRENT_LIST_DIR}/*.c)
+source_group(TREE ${CMAKE_CURRENT_LIST_DIR} PREFIX "MABE" FILES ${_headers} ${_altheaders} ${_cpps} ${_altcpps})
