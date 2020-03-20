@@ -22,6 +22,8 @@ if (enable_{{MODULE_TYPE}}_{{MODULE_NAME}})
   ## your module, so you should always use this
   ## to reference files in your module.
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/{{MODULE_NAME}}{{MODULE_TYPE}}.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/{{MODULE_NAME}}{{MODULE_TYPE}}.h)
+  ## it will still work if you don't list the .h file, but the file won't show up in some IDE projects
 
   ## exapmle of a direct header include
   ## PPRINT

@@ -335,7 +335,9 @@ endfunction()
 # include other main-level cpp files
 #
 target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Global.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/Global.h)
 target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/module_factories.cpp)
+target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/module_factories.h)
 
 include(${CMAKE_CURRENT_LIST_DIR}/Analyze/CMakeLists.txt)
 include(${CMAKE_CURRENT_LIST_DIR}/Archivist/CMakeLists.txt)
