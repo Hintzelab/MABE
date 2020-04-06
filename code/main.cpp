@@ -376,7 +376,7 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
         if (orgData.first < 0) { // if this org is not loaded...
           newGenomes[genome.first] = genome.second->makeLike();
         } else { // if this file is loaded ...
-          auto name = genome.first;
+          auto name = "GENOME_" + genome.first;
           genome.second->deserialize(genome.second->PT, orgData.second, name);
           newGenomes[genome.first] = genome.second;
         }
@@ -388,7 +388,7 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
 		}
 		else { // if this brain is loaded
 	      newBrains[brain.first] = brain.second->makeBrain(newGenomes);
-		  auto name = brain.first;
+		  auto name = "BRAIN_" + brain.first;
 		  newBrains[brain.first]->deserialize(brain.second->PT, orgData.second, name);
 		}
       }

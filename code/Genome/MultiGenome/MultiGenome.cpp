@@ -559,15 +559,15 @@ DataMap MultiGenome::serialize(std::string& name) {
 // given a DataMap and PT, return genome [name] from the DataMap
 void MultiGenome::deserialize(std::shared_ptr<ParametersTable> PT, std::unordered_map<std::string, std::string>& orgData, std::string& name) {
 	// make sure that data has needed columns
-	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_chromosomeLengths") == orgData.end()) {
-		std::cout << "  In MultiGenome::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << std::endl;
+	if (orgData.find(name + "_sites") == orgData.end() || orgData.find(name + "_chromosomeLengths") == orgData.end()) {
+		std::cout << "  In MultiGenome::deserialize :: can not find either " + name + "_sites or " + name + "_chromosomeLengths in orgData (passed to function).\n  exiting" << std::endl;
 		exit(1);
 	}
 
 	std::vector<int> _chromosomeLengths;
-	convertCSVListToVector(orgData["GENOME_" + name + "_chromosomeLengths"], _chromosomeLengths);
+	convertCSVListToVector(orgData[name + "_chromosomeLengths"], _chromosomeLengths);
 	std::string sitesType = AbstractGenome::genomeSitesTypePL->get(PT);
-	std::string allSites = orgData["GENOME_" + name + "_sites"];
+	std::string allSites = orgData[name + "_sites"];
 	std::stringstream ss(allSites);
 
 	char nextChar;

@@ -900,14 +900,14 @@ void CircularGenome<T>::deserialize(std::shared_ptr<ParametersTable> PT, std::un
 	std::string nextString;
 	T value;
 	// make sure that data has needed columns
-	if (orgData.find("GENOME_" + name + "_sites") == orgData.end() || orgData.find("GENOME_" + name + "_genomeLength") == orgData.end()) {
-		std::cout << "  In CircularGenome<T>::deserialize :: can not find either GENOME_" + name + "_sites or GENOME_" + name + "_genomeLength.\n  exiting" << std::endl;
+	if (orgData.find(name + "_sites") == orgData.end() || orgData.find(name + "_genomeLength") == orgData.end()) {
+		std::cout << "  In CircularGenome<T>::deserialize :: can not find either " + name + "_sites or " + name + "_genomeLength.\n  exiting" << std::endl;
 		exit(1);
 	}
 	int genomeLength;
-	convertString(orgData["GENOME_" + name + "_genomeLength"], genomeLength);
+	convertString(orgData[name + "_genomeLength"], genomeLength);
 
-	std::string allSites = orgData["GENOME_" + name + "_sites"];
+	std::string allSites = orgData[name + "_sites"];
 	std::stringstream ss(allSites);
 
   bool streamNotEmpty(true);
