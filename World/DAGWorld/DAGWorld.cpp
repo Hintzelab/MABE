@@ -21,6 +21,9 @@
 #include <stdlib.h>
 #include <string>
 #include <sstream>
+#include <iostream>
+#include <fstream>
+#include <vector>
 #include "../../Genome/CircularGenome/CircularGenome.h"
 
 
@@ -47,18 +50,22 @@ Parameters::register_parameter(
 
 DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	: AbstractWorld(PT_) {
-	
-	FILE* fp = fopen("/Users/dogadikbayir/Coursework/CSE845/MABE/World/DAGWorld/node_weights.csv", "r");
+
+	std::ifstream nwfile("./data/node_weights.csv");
+	std::ifstream ewfile("./data/edge_weights.csv");
+	std::ifstream bwfile("./data/badnwidth.csv");
+
+	FILE* fp = fopen("./data/node_weights.csv", "r");
 	if (fp == NULL) {
 		std::cout << "FAILED LOADING NODE_WEIGHTS FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
-    FILE* fp2 = fopen("/Users/dogadikbayir/Coursework/CSE845/MABE/World/DAGWorld/edge_weights.csv", "r");
+    FILE* fp2 = fopen("./data/edge_weights.csv", "r");
 	if (fp2 == NULL) {
 		std::cout << "FAILED LOADING EDGE_WEIGHTS FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
-    FILE* fp3 = fopen("/Users/dogadikbayir/Coursework/CSE845/MABE/World/DAGWorld/bw.csv", "r");
+    FILE* fp3 = fopen("./data/bandwidth.csv", "r");
 	if (fp3 == NULL) {
 		std::cout << "FAILED LOADING BW FILE" << std::endl;
     	exit(EXIT_FAILURE);
@@ -91,9 +98,10 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	len = 0;
 	*/
 	int row_counter = 0;
-	char* line = NULL;
+	string line;
 	size_t len = 0;
-	while((getline(&line, &len, fp)) != -1) {
+
+	while((std::getline(nwfile, line))) {
 		//cout << "Inside node wg loop" << endl;
 		std::vector<std::string> row;
 		std::stringstream st(line);
@@ -117,12 +125,11 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
    			//cout << "Weight/" << i << ": " << node_weights[i][j] << endl;
    		}
    	}
-   	free(line);
-   	fclose(fp);
+ 
    	row_counter = 0;
-    char* line2 = NULL;
+    string line2;
 	len = 0;
-	while((getline(&line2, &len, fp2)) != -1) {
+	while((std::getline(ewfile, line2))) {
 		//cout << "inside edge loop" << endl;
 		std::vector<std::string> row;
 		std::stringstream st(line2);
@@ -146,12 +153,12 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	//}
 
 	//cout << "Read edge weights" << endl;
-	free(line2);
+
 	fclose(fp2);
 	row_counter = 0;
-	char* line3 = NULL;
+	string line3;
 	len = 0;
-	while((getline(&line3, &len, fp3)) != -1) {
+	while((std::getline(bwfile, line3))) {
 		//cout << "Inside bw loop" << endl;
 		std::vector<std::string> row;
 		std::stringstream st(line3);
@@ -168,7 +175,6 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
     	
     	row_counter++;
 	}
-    free(line3);
     fclose(fp3);
     //std::cout << "Loaded weights fileS" << std::endl;
     /*
