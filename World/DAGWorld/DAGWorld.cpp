@@ -51,17 +51,49 @@ Parameters::register_parameter(
 DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	: AbstractWorld(PT_) {
 
-	std::ifstream nwfile("./data/node_weights.csv");
-	std::ifstream ewfile("./data/edge_weights.csv");
-	std::ifstream bwfile("./data/badnwidth.csv");
+	//Read the DAG settings
+	std::ifstream settingsfile("./DAG_settings.cfg");
+	int row_counter = 0;
+	string line;
+	size_t len = 0;
+	std::string nw_filename = "./data/";
+	std::string ew_filename = "./data/";
+	std::string bw_filename = "./data/";
+	std::vector<std::string> filenames = {};
+	int num_tasks = -1;
 
+	while((std::getline(settingsfile, line))) {
+		//cout << "Inside node wg loop" << endl;
+		std::vector<std::string> row;
+		std::stringstream st(line);
+		std::string word;
+		//cout << "Line: " << line << endl;
+		while(getline(st, word, '=')) {
+			//cout << "w: " << word << endl;
+			row.push_back(word);
+		}
+
+		filenames.push_back(row[1]);
+		
+		row_counter++;
+	}
+	nw_filename = nw_filename + filenames[0] + ".csv";
+	std::ifstream nwfile(nw_filename); // ./data/node_weights.csv
+	
+	ew_filename = ew_filename + filenames[1] + ".csv";
+	std::ifstream ewfile(ew_filename); // ./data/edge_weights.csv
+
+	bw_filename = bw_filename + filenames[2] + ".csv";
+	std::ifstream bwfile(bw_filename); // "./data/bandwidth.csv"
+
+	num_tasks = atoi(filenames[3].c_str());
 	FILE* fp = fopen("./data/node_weights.csv", "r");
 	if (fp == NULL) {
 		std::cout << "FAILED LOADING NODE_WEIGHTS FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
     FILE* fp2 = fopen("./data/edge_weights.csv", "r");
-	if (fp2 == NULL) {
+if (fp2 == NULL) {
 		std::cout << "FAILED LOADING EDGE_WEIGHTS FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
@@ -97,9 +129,9 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	line = NULL;
 	len = 0;
 	*/
-	int row_counter = 0;
-	string line;
-	size_t len = 0;
+	row_counter = 0;
+	line;
+	len = 0;
 
 	while((std::getline(nwfile, line))) {
 		//cout << "Inside node wg loop" << endl;
@@ -163,7 +195,7 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 		std::vector<std::string> row;
 		std::stringstream st(line3);
 		std::string word;
-		//cout << "bwline: " << line3 << endl;
+		cout << "bwline: " << line3 << endl;
 		while(getline(st, word, ',')) {
 
 			row.push_back(word);
@@ -250,7 +282,7 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 
 	}
 	*/
-	g = new Graph(100, node_weights, edge_weights, bwMat);
+	g = new Graph(num_tasks, node_weights, edge_weights, bwMat);
 	g->compPreds();
 	g->ranku();
 	//g->scheduleLength();
@@ -278,7 +310,7 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 			//std::cout << "Edge 0:1 : " << edge_weights["0:1"] << std::endl;
 			// Define new genome
 			// Constructor(alp_size, genome_size ,PT)
-			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, 100, PT);
+			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, 10, PT);
 			org->genomes["mapping::"]->fillConstant(0);
 			
 		}
@@ -307,21 +339,23 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		
 		//int score_order = std::accumulate(genome_order->sites.begin(),genome_order->sites.end(),0.0);
 		//cout << "Just Before longestpath" << endl;
-		vector<double> res = g->longestPath(0, taskMapping);
+		//vector<double> res = g->longestPath(0, taskMapping);
 		//cout << "TaskMapping0" << taskMapping[0];
 		//taskMapping = {0, 0, 1, 0, 1, 0, 1, 0, 0, 1 };
 		g->setProcMap(taskMapping);
 		double testSL = g->scheduleLength();
 		//std::cout << "Longest Path: " << res[5] << std::endl;
-		cout << "ST: " << testSL << endl; 
+		//cout << "ST: " << testSL << endl; 
 
-		double score_map = res[5]; //get the distance from the Final node in the DAG
+		//double score_map = res[5]; //get the distance from the Final node in the DAG
 		double score = 1/testSL;
 		
 		//cout << score << endl;
 		org->dataMap.append("score", score);
-		if(Global::update % 100 == 0) {
-			//std::cout << "Final Genome: " << std::endl;
+		if(Global::update % 500 == 0) {
+			std::cout << "Schedule Length: " << std::endl;
+			std::cout << testSL << std::endl;
+			std::cout << "Final Genome: " << std::endl;
 			genome_map->printGenome();
 		}
 		if (visualize)

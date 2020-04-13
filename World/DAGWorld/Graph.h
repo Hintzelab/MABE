@@ -105,5 +105,6 @@ public:
 	double scheduleLength();
 
 	ScheduleEvent computeEFT(int node, int proc);
+	int get_v(){return this->V;}
 	//double compAvgBW();
 }; 

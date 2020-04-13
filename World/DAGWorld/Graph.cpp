@@ -1,6 +1,4 @@
 #include "Graph.h"
-#include <algorithm>
-#include <vector>
 	
 Graph::Graph(int V, vector<vector<double>> nodeWeights) // Constructor 
 { 
@@ -46,14 +44,14 @@ Graph::Graph(int V, vector<vector<double>> nodeWeights, unordered_map<string, do
 		cout << "ScheduleEvent: " << events[i].v << events[i].start << endl;
 	}
 	//cout << "Passed the average bw loop" << endl;
+	cout << "BW mat size: " << bwMat.size() << endl;
+	cout << "AvgBW: " << avgbw << endl;
 	this->avgBW = avgbw / (bwMat.size() * bwMat.size());
 
 	//Assign edge weights (data size)
-	for(pair<string, double> el : edgeWeights) 
-
-
+	for(pair<string, double> el : edgeWeights) {
 		vector<string> tokens;
-		//cout << "el.first:" << el.first << endl;
+		cout << "el.first:" << el.first << endl;
 		stringstream st(el.first);
 		string tok;
 		while(getline(st, tok, ':')) {
@@ -98,25 +96,23 @@ ScheduleEvent Graph::computeEFT(int v, int proc) {
 // Computes the ranku of all nodes using BFS
 double Graph::ranku() {
 	//Initialize the terminal node's ranku with its avg comp cost
-
-	int term_node = this->V;
-	for(int i=0; i < this->V; i++) {
+	int term_node = V;
+	for(int i=0; i < V; i++) {
 		if(adj[i].empty()) {
 			term_node = i;
 		}
-
 	}
 	cout << "Term Node: " << term_node << endl;
-	cout << "Avg BW: " << this->avgBW << endl;
+	cout << "Avg BW: " << avgBW << endl;
 	double term_ranku = accumulate(nodeWeights[term_node].begin(), nodeWeights[term_node].end(), 0.0) / nodeWeights[term_node].size(); 
     rankus[term_node] = term_ranku;
-    cout << "Ranku/TERMNODE: " << rankus[term_node] << endl;
+    //cout << "Ranku/TERMNODE: " << rankus[term_node] << endl;
 	vector<int> visit_queue =  {};
 
 	visit_queue = this->preds[term_node];			//initialize the processing queue
-	for(int q : preds[term_node]){
-		visit_queue.push_back(q);
-	}
+	//for(int q : preds[term_node]){
+	//	visit_queue.push_back(q);
+	//}
 
 	while (!visit_queue.empty()) {
 		int cur_node = visit_queue[visit_queue.size()-1];
@@ -134,7 +130,8 @@ double Graph::ranku() {
 		list<AdjListNode>::iterator i;
 		for (i = adj[cur_node].begin(); i != adj[cur_node].end(); i++) {
 			AdjListNode succ_node = *i;
-			cout << "NodeID: " << i->getV() << " ";
+			//cout << "NodeID: " << i->getV() << " ";
+			//string edge_str = to_string(cur_node) + "-" + to_string(succ_id);
 			temp_ranku = succ_node.getWeight()/avgBW + rankus[succ_node.getV()];			//here succ_node.getWeight() returns the edge weight
 																					// between cur_node and succ_node
 			//cout << "Temp Ranku: " << temp_ranku << " ";
