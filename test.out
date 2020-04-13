@@ -16,7 +16,7 @@
 	for help run MABE with the "-h" flag (i.e. ./mabe -h).
 
 Generating Random Seed
-  -1015810609
+  -965000672
 bwline: 0,1,1
 bwline: 1,0,1
 bwline: 1,1,0
@@ -58,16 +58,16 @@ el.first:6:9
 1 3 4 
 6 7 8 
 Term Node: 9
-Avg BW: 0.666667
-Ranku 0: 131.5
-Ranku 1: 91.5
-Ranku 2: 100
-Ranku 3: 98
-Ranku 4: 82
-Ranku 5: 76.3333
-Ranku 6: 51.1667
-Ranku 7: 41.1667
-Ranku 8: 50.8333
+Avg BW: -2.33333
+Ranku 0: 40.8571
+Ranku 1: 35.5714
+Ranku 2: 22.8571
+Ranku 3: 28.5714
+Ranku 4: 31.8571
+Ranku 5: 26.1905
+Ranku 6: 18.381
+Ranku 7: 19.9524
+Ranku 8: 25.7619
 Ranku 9: 14.6667
 
 Running World DAG
@@ -592,505 +592,505 @@ Final Genome:
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 update: 0   max = 0.007874   ave = 0.007874
-update: 1   max = 0.008403   ave = 0.007875
-update: 2   max = 0.009174   ave = 0.008314
-update: 3   max = 0.010000   ave = 0.008954
-update: 4   max = 0.010000   ave = 0.009690
-update: 5   max = 0.010000   ave = 0.009969
-update: 6   max = 0.010000   ave = 0.009988
-update: 7   max = 0.010000   ave = 0.009984
-update: 8   max = 0.010526   ave = 0.010011
-update: 9   max = 0.010526   ave = 0.010448
-update: 10   max = 0.010526   ave = 0.010509
-update: 11   max = 0.010526   ave = 0.010508
-update: 12   max = 0.010526   ave = 0.010504
-update: 13   max = 0.010526   ave = 0.010513
-update: 14   max = 0.010526   ave = 0.010502
-update: 15   max = 0.010526   ave = 0.010510
-update: 16   max = 0.010526   ave = 0.010521
-update: 17   max = 0.010526   ave = 0.010495
-update: 18   max = 0.012195   ave = 0.010543
-update: 19   max = 0.012195   ave = 0.011588
-update: 20   max = 0.012195   ave = 0.012173
-update: 21   max = 0.012195   ave = 0.012192
-update: 22   max = 0.012195   ave = 0.012129
-update: 23   max = 0.012195   ave = 0.012178
-update: 24   max = 0.012195   ave = 0.012151
-update: 25   max = 0.012195   ave = 0.012157
-update: 26   max = 0.012195   ave = 0.012127
-update: 27   max = 0.012195   ave = 0.012109
-update: 28   max = 0.012195   ave = 0.012177
-update: 29   max = 0.012195   ave = 0.012176
-update: 30   max = 0.012195   ave = 0.012173
-update: 31   max = 0.012195   ave = 0.012098
-update: 32   max = 0.012195   ave = 0.012180
-update: 33   max = 0.012195   ave = 0.012163
-update: 34   max = 0.012195   ave = 0.012164
-update: 35   max = 0.012195   ave = 0.012182
-update: 36   max = 0.012195   ave = 0.012143
-update: 37   max = 0.012195   ave = 0.012153
-update: 38   max = 0.012195   ave = 0.012176
-update: 39   max = 0.012346   ave = 0.012118
-update: 40   max = 0.012346   ave = 0.012275
-update: 41   max = 0.012346   ave = 0.012317
-update: 42   max = 0.012346   ave = 0.012274
-update: 43   max = 0.012346   ave = 0.012293
-update: 44   max = 0.012346   ave = 0.012311
-update: 45   max = 0.012346   ave = 0.012288
-update: 46   max = 0.012500   ave = 0.012280
-update: 47   max = 0.012500   ave = 0.012452
-update: 48   max = 0.012500   ave = 0.012467
-update: 49   max = 0.012500   ave = 0.012474
-update: 50   max = 0.012500   ave = 0.012394
-update: 51   max = 0.012500   ave = 0.012451
-update: 52   max = 0.012500   ave = 0.012500
-update: 53   max = 0.012500   ave = 0.012446
-update: 54   max = 0.012500   ave = 0.012467
-update: 55   max = 0.012500   ave = 0.012453
-update: 56   max = 0.012500   ave = 0.012500
-update: 57   max = 0.012500   ave = 0.012487
-update: 58   max = 0.012500   ave = 0.012464
-update: 59   max = 0.012500   ave = 0.012460
-update: 60   max = 0.012500   ave = 0.012469
-update: 61   max = 0.012500   ave = 0.012465
-update: 62   max = 0.012500   ave = 0.012487
-update: 63   max = 0.012500   ave = 0.012500
-update: 64   max = 0.012500   ave = 0.012485
-update: 65   max = 0.012500   ave = 0.012483
-update: 66   max = 0.012500   ave = 0.012417
-update: 67   max = 0.012500   ave = 0.012486
-update: 68   max = 0.012500   ave = 0.012448
-update: 69   max = 0.012500   ave = 0.012476
-update: 70   max = 0.012500   ave = 0.012455
-update: 71   max = 0.012500   ave = 0.012479
-update: 72   max = 0.012500   ave = 0.012461
-update: 73   max = 0.012500   ave = 0.012426
-update: 74   max = 0.012500   ave = 0.012483
-update: 75   max = 0.012500   ave = 0.012397
-update: 76   max = 0.012500   ave = 0.012475
-update: 77   max = 0.012500   ave = 0.012476
-update: 78   max = 0.012500   ave = 0.012500
-update: 79   max = 0.013158   ave = 0.012404
-update: 80   max = 0.013158   ave = 0.012905
-update: 81   max = 0.013158   ave = 0.013073
-update: 82   max = 0.013158   ave = 0.013144
-update: 83   max = 0.013158   ave = 0.013115
-update: 84   max = 0.013158   ave = 0.013127
-update: 85   max = 0.013699   ave = 0.013121
-update: 86   max = 0.013699   ave = 0.013435
-update: 87   max = 0.013699   ave = 0.013637
-update: 88   max = 0.013699   ave = 0.013699
-update: 89   max = 0.013699   ave = 0.013673
-update: 90   max = 0.013699   ave = 0.013627
-update: 91   max = 0.013699   ave = 0.013570
-update: 92   max = 0.013699   ave = 0.013647
-update: 93   max = 0.013699   ave = 0.013555
-update: 94   max = 0.013699   ave = 0.013637
-update: 95   max = 0.013699   ave = 0.013610
-update: 96   max = 0.013699   ave = 0.013591
-update: 97   max = 0.013699   ave = 0.013677
-update: 98   max = 0.013699   ave = 0.013609
-update: 99   max = 0.013699   ave = 0.013582
-update: 100   max = 0.013699   ave = 0.013618
-update: 101   max = 0.013699   ave = 0.013584
-update: 102   max = 0.013699   ave = 0.013605
-update: 103   max = 0.013699   ave = 0.013642
-update: 104   max = 0.013699   ave = 0.013664
-update: 105   max = 0.013699   ave = 0.013607
-update: 106   max = 0.013699   ave = 0.013619
-update: 107   max = 0.013699   ave = 0.013605
-update: 108   max = 0.013699   ave = 0.013675
-update: 109   max = 0.013699   ave = 0.013552
-update: 110   max = 0.013699   ave = 0.013608
-update: 111   max = 0.013699   ave = 0.013638
-update: 112   max = 0.013699   ave = 0.013666
-update: 113   max = 0.013699   ave = 0.013699
-update: 114   max = 0.013699   ave = 0.013670
-update: 115   max = 0.013699   ave = 0.013587
-update: 116   max = 0.013699   ave = 0.013610
-update: 117   max = 0.013699   ave = 0.013549
-update: 118   max = 0.013699   ave = 0.013690
-update: 119   max = 0.013699   ave = 0.013673
-update: 120   max = 0.013699   ave = 0.013573
-update: 121   max = 0.013699   ave = 0.013664
-update: 122   max = 0.013699   ave = 0.013588
-update: 123   max = 0.013699   ave = 0.013638
-update: 124   max = 0.013699   ave = 0.013503
-update: 125   max = 0.013699   ave = 0.013598
-update: 126   max = 0.013699   ave = 0.013648
-update: 127   max = 0.013699   ave = 0.013644
-update: 128   max = 0.013699   ave = 0.013671
-update: 129   max = 0.013699   ave = 0.013494
-update: 130   max = 0.013699   ave = 0.013593
-update: 131   max = 0.013699   ave = 0.013566
-update: 132   max = 0.013699   ave = 0.013608
-update: 133   max = 0.013699   ave = 0.013616
-update: 134   max = 0.013699   ave = 0.013651
-update: 135   max = 0.013699   ave = 0.013495
-update: 136   max = 0.013699   ave = 0.013652
-update: 137   max = 0.013699   ave = 0.013644
-update: 138   max = 0.013699   ave = 0.013642
-update: 139   max = 0.013699   ave = 0.013601
-update: 140   max = 0.013699   ave = 0.013563
-update: 141   max = 0.013699   ave = 0.013587
-update: 142   max = 0.013699   ave = 0.013598
-update: 143   max = 0.013699   ave = 0.013535
-update: 144   max = 0.013699   ave = 0.013653
-update: 145   max = 0.013699   ave = 0.013618
-update: 146   max = 0.013699   ave = 0.013699
-update: 147   max = 0.013699   ave = 0.013558
-update: 148   max = 0.013699   ave = 0.013590
-update: 149   max = 0.013699   ave = 0.013632
-update: 150   max = 0.013699   ave = 0.013612
-update: 151   max = 0.013699   ave = 0.013643
-update: 152   max = 0.013699   ave = 0.013575
-update: 153   max = 0.013699   ave = 0.013547
-update: 154   max = 0.013699   ave = 0.013632
-update: 155   max = 0.013699   ave = 0.013664
-update: 156   max = 0.013699   ave = 0.013635
-update: 157   max = 0.013699   ave = 0.013529
-update: 158   max = 0.013699   ave = 0.013532
-update: 159   max = 0.013699   ave = 0.013624
-update: 160   max = 0.013699   ave = 0.013646
-update: 161   max = 0.013699   ave = 0.013621
-update: 162   max = 0.013699   ave = 0.013639
-update: 163   max = 0.013699   ave = 0.013599
-update: 164   max = 0.013699   ave = 0.013673
-update: 165   max = 0.013699   ave = 0.013565
-update: 166   max = 0.013699   ave = 0.013525
-update: 167   max = 0.013699   ave = 0.013634
-update: 168   max = 0.013699   ave = 0.013623
-update: 169   max = 0.013699   ave = 0.013611
-update: 170   max = 0.013699   ave = 0.013575
-update: 171   max = 0.013699   ave = 0.013674
-update: 172   max = 0.013699   ave = 0.013644
-update: 173   max = 0.013699   ave = 0.013552
-update: 174   max = 0.013699   ave = 0.013548
-update: 175   max = 0.013699   ave = 0.013596
-update: 176   max = 0.013699   ave = 0.013574
-update: 177   max = 0.013699   ave = 0.013566
-update: 178   max = 0.013699   ave = 0.013525
-update: 179   max = 0.013699   ave = 0.013651
-update: 180   max = 0.013699   ave = 0.013606
-update: 181   max = 0.013699   ave = 0.013618
-update: 182   max = 0.013699   ave = 0.013563
-update: 183   max = 0.013699   ave = 0.013611
-update: 184   max = 0.013699   ave = 0.013610
-update: 185   max = 0.013699   ave = 0.013663
-update: 186   max = 0.013699   ave = 0.013630
-update: 187   max = 0.013699   ave = 0.013638
-update: 188   max = 0.013699   ave = 0.013648
-update: 189   max = 0.013699   ave = 0.013626
-update: 190   max = 0.013699   ave = 0.013677
-update: 191   max = 0.013699   ave = 0.013540
-update: 192   max = 0.013699   ave = 0.013638
-update: 193   max = 0.013699   ave = 0.013631
-update: 194   max = 0.013699   ave = 0.013635
-update: 195   max = 0.013699   ave = 0.013617
-update: 196   max = 0.013699   ave = 0.013619
-update: 197   max = 0.013699   ave = 0.013586
-update: 198   max = 0.013699   ave = 0.013667
+update: 1   max = 0.008475   ave = 0.007880
+update: 2   max = 0.009009   ave = 0.008246
+update: 3   max = 0.009259   ave = 0.008758
+update: 4   max = 0.009524   ave = 0.009170
+update: 5   max = 0.009524   ave = 0.009407
+update: 6   max = 0.010753   ave = 0.009536
+update: 7   max = 0.010753   ave = 0.010238
+update: 8   max = 0.011494   ave = 0.010685
+update: 9   max = 0.011494   ave = 0.011105
+update: 10   max = 0.011494   ave = 0.011455
+update: 11   max = 0.011494   ave = 0.011469
+update: 12   max = 0.011494   ave = 0.011469
+update: 13   max = 0.011494   ave = 0.011485
+update: 14   max = 0.011494   ave = 0.011480
+update: 15   max = 0.011494   ave = 0.011454
+update: 16   max = 0.011494   ave = 0.011415
+update: 17   max = 0.011494   ave = 0.011454
+update: 18   max = 0.011494   ave = 0.011473
+update: 19   max = 0.011494   ave = 0.011494
+update: 20   max = 0.011494   ave = 0.011462
+update: 21   max = 0.012658   ave = 0.011489
+update: 22   max = 0.012658   ave = 0.012189
+update: 23   max = 0.012658   ave = 0.012553
+update: 24   max = 0.013158   ave = 0.012599
+update: 25   max = 0.013333   ave = 0.012916
+update: 26   max = 0.013333   ave = 0.013187
+update: 27   max = 0.013333   ave = 0.013201
+update: 28   max = 0.013333   ave = 0.013302
+update: 29   max = 0.013333   ave = 0.013282
+update: 30   max = 0.013333   ave = 0.013313
+update: 31   max = 0.013333   ave = 0.013273
+update: 32   max = 0.013333   ave = 0.013257
+update: 33   max = 0.013333   ave = 0.013333
+update: 34   max = 0.013333   ave = 0.013200
+update: 35   max = 0.013333   ave = 0.013250
+update: 36   max = 0.013699   ave = 0.013287
+update: 37   max = 0.013699   ave = 0.013444
+update: 38   max = 0.013699   ave = 0.013589
+update: 39   max = 0.013699   ave = 0.013631
+update: 40   max = 0.013699   ave = 0.013616
+update: 41   max = 0.013699   ave = 0.013681
+update: 42   max = 0.013699   ave = 0.013466
+update: 43   max = 0.013699   ave = 0.013601
+update: 44   max = 0.013699   ave = 0.013616
+update: 45   max = 0.013699   ave = 0.013645
+update: 46   max = 0.013699   ave = 0.013654
+update: 47   max = 0.013699   ave = 0.013639
+update: 48   max = 0.013699   ave = 0.013633
+update: 49   max = 0.013699   ave = 0.013536
+update: 50   max = 0.013699   ave = 0.013613
+update: 51   max = 0.013699   ave = 0.013553
+update: 52   max = 0.013699   ave = 0.013603
+update: 53   max = 0.013699   ave = 0.013609
+update: 54   max = 0.013699   ave = 0.013605
+update: 55   max = 0.013699   ave = 0.013523
+update: 56   max = 0.013699   ave = 0.013699
+update: 57   max = 0.013699   ave = 0.013625
+update: 58   max = 0.013699   ave = 0.013460
+update: 59   max = 0.013699   ave = 0.013640
+update: 60   max = 0.013699   ave = 0.013677
+update: 61   max = 0.013699   ave = 0.013627
+update: 62   max = 0.013699   ave = 0.013534
+update: 63   max = 0.013699   ave = 0.013625
+update: 64   max = 0.013699   ave = 0.013592
+update: 65   max = 0.013699   ave = 0.013681
+update: 66   max = 0.013699   ave = 0.013630
+update: 67   max = 0.013699   ave = 0.013585
+update: 68   max = 0.013699   ave = 0.013627
+update: 69   max = 0.013699   ave = 0.013528
+update: 70   max = 0.013699   ave = 0.013499
+update: 71   max = 0.013699   ave = 0.013622
+update: 72   max = 0.013699   ave = 0.013690
+update: 73   max = 0.013699   ave = 0.013560
+update: 74   max = 0.013699   ave = 0.013653
+update: 75   max = 0.013699   ave = 0.013669
+update: 76   max = 0.013699   ave = 0.013647
+update: 77   max = 0.013699   ave = 0.013678
+update: 78   max = 0.013699   ave = 0.013627
+update: 79   max = 0.013699   ave = 0.013626
+update: 80   max = 0.013699   ave = 0.013615
+update: 81   max = 0.013699   ave = 0.013622
+update: 82   max = 0.013699   ave = 0.013610
+update: 83   max = 0.013699   ave = 0.013613
+update: 84   max = 0.013699   ave = 0.013635
+update: 85   max = 0.013699   ave = 0.013641
+update: 86   max = 0.013699   ave = 0.013588
+update: 87   max = 0.013699   ave = 0.013521
+update: 88   max = 0.013699   ave = 0.013494
+update: 89   max = 0.013699   ave = 0.013574
+update: 90   max = 0.013699   ave = 0.013583
+update: 91   max = 0.013699   ave = 0.013578
+update: 92   max = 0.013699   ave = 0.013651
+update: 93   max = 0.013699   ave = 0.013580
+update: 94   max = 0.013699   ave = 0.013557
+update: 95   max = 0.013699   ave = 0.013623
+update: 96   max = 0.013699   ave = 0.013608
+update: 97   max = 0.013699   ave = 0.013625
+update: 98   max = 0.013699   ave = 0.013586
+update: 99   max = 0.013699   ave = 0.013618
+update: 100   max = 0.013699   ave = 0.013568
+update: 101   max = 0.013699   ave = 0.013619
+update: 102   max = 0.013699   ave = 0.013565
+update: 103   max = 0.013699   ave = 0.013567
+update: 104   max = 0.013699   ave = 0.013615
+update: 105   max = 0.013699   ave = 0.013628
+update: 106   max = 0.013699   ave = 0.013580
+update: 107   max = 0.013699   ave = 0.013633
+update: 108   max = 0.013699   ave = 0.013590
+update: 109   max = 0.013699   ave = 0.013669
+update: 110   max = 0.013699   ave = 0.013699
+update: 111   max = 0.013699   ave = 0.013606
+update: 112   max = 0.013699   ave = 0.013653
+update: 113   max = 0.013699   ave = 0.013590
+update: 114   max = 0.013699   ave = 0.013645
+update: 115   max = 0.013699   ave = 0.013481
+update: 116   max = 0.013699   ave = 0.013677
+update: 117   max = 0.013699   ave = 0.013597
+update: 118   max = 0.013699   ave = 0.013548
+update: 119   max = 0.013699   ave = 0.013518
+update: 120   max = 0.013699   ave = 0.013669
+update: 121   max = 0.013699   ave = 0.013644
+update: 122   max = 0.013699   ave = 0.013598
+update: 123   max = 0.013699   ave = 0.013598
+update: 124   max = 0.013699   ave = 0.013612
+update: 125   max = 0.013699   ave = 0.013635
+update: 126   max = 0.013699   ave = 0.013668
+update: 127   max = 0.013699   ave = 0.013641
+update: 128   max = 0.013699   ave = 0.013520
+update: 129   max = 0.013699   ave = 0.013570
+update: 130   max = 0.013699   ave = 0.013665
+update: 131   max = 0.013699   ave = 0.013631
+update: 132   max = 0.013699   ave = 0.013699
+update: 133   max = 0.013699   ave = 0.013642
+update: 134   max = 0.013699   ave = 0.013695
+update: 135   max = 0.013699   ave = 0.013629
+update: 136   max = 0.013699   ave = 0.013507
+update: 137   max = 0.013699   ave = 0.013638
+update: 138   max = 0.013699   ave = 0.013622
+update: 139   max = 0.013699   ave = 0.013545
+update: 140   max = 0.013699   ave = 0.013686
+update: 141   max = 0.013699   ave = 0.013500
+update: 142   max = 0.013699   ave = 0.013552
+update: 143   max = 0.013699   ave = 0.013540
+update: 144   max = 0.013699   ave = 0.013563
+update: 145   max = 0.013699   ave = 0.013632
+update: 146   max = 0.013699   ave = 0.013626
+update: 147   max = 0.013699   ave = 0.013665
+update: 148   max = 0.013699   ave = 0.013596
+update: 149   max = 0.013699   ave = 0.013567
+update: 150   max = 0.013699   ave = 0.013614
+update: 151   max = 0.013699   ave = 0.013622
+update: 152   max = 0.013699   ave = 0.013669
+update: 153   max = 0.013699   ave = 0.013499
+update: 154   max = 0.013699   ave = 0.013629
+update: 155   max = 0.013699   ave = 0.013547
+update: 156   max = 0.013699   ave = 0.013619
+update: 157   max = 0.013699   ave = 0.013592
+update: 158   max = 0.013699   ave = 0.013482
+update: 159   max = 0.013699   ave = 0.013622
+update: 160   max = 0.013699   ave = 0.013619
+update: 161   max = 0.013699   ave = 0.013505
+update: 162   max = 0.013699   ave = 0.013628
+update: 163   max = 0.013699   ave = 0.013503
+update: 164   max = 0.013699   ave = 0.013464
+update: 165   max = 0.013699   ave = 0.013522
+update: 166   max = 0.013699   ave = 0.013664
+update: 167   max = 0.013699   ave = 0.013660
+update: 168   max = 0.013699   ave = 0.013504
+update: 169   max = 0.013699   ave = 0.013641
+update: 170   max = 0.013699   ave = 0.013557
+update: 171   max = 0.013699   ave = 0.013543
+update: 172   max = 0.013699   ave = 0.013673
+update: 173   max = 0.013699   ave = 0.013603
+update: 174   max = 0.013699   ave = 0.013638
+update: 175   max = 0.013699   ave = 0.013587
+update: 176   max = 0.013699   ave = 0.013644
+update: 177   max = 0.013699   ave = 0.013662
+update: 178   max = 0.013699   ave = 0.013599
+update: 179   max = 0.013699   ave = 0.013575
+update: 180   max = 0.013699   ave = 0.013642
+update: 181   max = 0.013699   ave = 0.013612
+update: 182   max = 0.013699   ave = 0.013654
+update: 183   max = 0.013699   ave = 0.013641
+update: 184   max = 0.013699   ave = 0.013582
+update: 185   max = 0.013699   ave = 0.013673
+update: 186   max = 0.013699   ave = 0.013631
+update: 187   max = 0.013699   ave = 0.013664
+update: 188   max = 0.013699   ave = 0.013411
+update: 189   max = 0.013699   ave = 0.013699
+update: 190   max = 0.013699   ave = 0.013554
+update: 191   max = 0.013699   ave = 0.013609
+update: 192   max = 0.013699   ave = 0.013571
+update: 193   max = 0.013699   ave = 0.013493
+update: 194   max = 0.013699   ave = 0.013656
+update: 195   max = 0.013699   ave = 0.013660
+update: 196   max = 0.013699   ave = 0.013638
+update: 197   max = 0.013699   ave = 0.013643
+update: 198   max = 0.013699   ave = 0.013585
 update: 199   max = 0.013699   ave = 0.013582
-update: 200   max = 0.013699   ave = 0.013608
-update: 201   max = 0.013699   ave = 0.013618
-update: 202   max = 0.013699   ave = 0.013631
-update: 203   max = 0.013699   ave = 0.013582
-update: 204   max = 0.013699   ave = 0.013679
-update: 205   max = 0.013699   ave = 0.013618
-update: 206   max = 0.013699   ave = 0.013699
-update: 207   max = 0.013699   ave = 0.013557
-update: 208   max = 0.013699   ave = 0.013642
-update: 209   max = 0.013699   ave = 0.013627
-update: 210   max = 0.013699   ave = 0.013699
-update: 211   max = 0.013699   ave = 0.013622
-update: 212   max = 0.013699   ave = 0.013699
-update: 213   max = 0.013699   ave = 0.013670
-update: 214   max = 0.013699   ave = 0.013611
-update: 215   max = 0.013699   ave = 0.013648
-update: 216   max = 0.013699   ave = 0.013616
-update: 217   max = 0.013699   ave = 0.013614
-update: 218   max = 0.013699   ave = 0.013644
-update: 219   max = 0.013699   ave = 0.013602
-update: 220   max = 0.013699   ave = 0.013662
-update: 221   max = 0.013699   ave = 0.013659
-update: 222   max = 0.013699   ave = 0.013670
-update: 223   max = 0.013699   ave = 0.013463
-update: 224   max = 0.013699   ave = 0.013542
-update: 225   max = 0.013699   ave = 0.013522
-update: 226   max = 0.013699   ave = 0.013647
-update: 227   max = 0.013699   ave = 0.013622
-update: 228   max = 0.013699   ave = 0.013629
-update: 229   max = 0.013699   ave = 0.013643
-update: 230   max = 0.013699   ave = 0.013556
-update: 231   max = 0.013699   ave = 0.013594
-update: 232   max = 0.013699   ave = 0.013642
-update: 233   max = 0.013699   ave = 0.013664
-update: 234   max = 0.013699   ave = 0.013621
-update: 235   max = 0.013699   ave = 0.013640
-update: 236   max = 0.013699   ave = 0.013647
-update: 237   max = 0.013699   ave = 0.013580
-update: 238   max = 0.013699   ave = 0.013699
-update: 239   max = 0.013699   ave = 0.013616
-update: 240   max = 0.013699   ave = 0.013598
-update: 241   max = 0.013699   ave = 0.013619
-update: 242   max = 0.013699   ave = 0.013678
-update: 243   max = 0.013699   ave = 0.013595
-update: 244   max = 0.013699   ave = 0.013576
-update: 245   max = 0.013699   ave = 0.013629
-update: 246   max = 0.013699   ave = 0.013622
-update: 247   max = 0.013699   ave = 0.013619
-update: 248   max = 0.013699   ave = 0.013653
-update: 249   max = 0.013699   ave = 0.013648
-update: 250   max = 0.013699   ave = 0.013634
-update: 251   max = 0.013699   ave = 0.013605
-update: 252   max = 0.013699   ave = 0.013567
-update: 253   max = 0.013699   ave = 0.013537
-update: 254   max = 0.013699   ave = 0.013661
-update: 255   max = 0.013699   ave = 0.013651
-update: 256   max = 0.013699   ave = 0.013682
-update: 257   max = 0.013699   ave = 0.013699
-update: 258   max = 0.013699   ave = 0.013572
-update: 259   max = 0.013699   ave = 0.013597
-update: 260   max = 0.013699   ave = 0.013663
-update: 261   max = 0.013699   ave = 0.013674
-update: 262   max = 0.013699   ave = 0.013653
-update: 263   max = 0.013699   ave = 0.013615
-update: 264   max = 0.013699   ave = 0.013589
-update: 265   max = 0.013699   ave = 0.013693
-update: 266   max = 0.013699   ave = 0.013525
-update: 267   max = 0.013699   ave = 0.013637
-update: 268   max = 0.013699   ave = 0.013566
-update: 269   max = 0.013699   ave = 0.013446
-update: 270   max = 0.013699   ave = 0.013647
-update: 271   max = 0.013699   ave = 0.013615
-update: 272   max = 0.013699   ave = 0.013568
-update: 273   max = 0.013699   ave = 0.013603
-update: 274   max = 0.013699   ave = 0.013658
-update: 275   max = 0.013699   ave = 0.013660
-update: 276   max = 0.013699   ave = 0.013580
-update: 277   max = 0.013699   ave = 0.013647
-update: 278   max = 0.013699   ave = 0.013498
-update: 279   max = 0.013699   ave = 0.013609
-update: 280   max = 0.013699   ave = 0.013590
-update: 281   max = 0.013699   ave = 0.013577
-update: 282   max = 0.013699   ave = 0.013598
-update: 283   max = 0.013699   ave = 0.013568
-update: 284   max = 0.013699   ave = 0.013620
-update: 285   max = 0.013699   ave = 0.013664
-update: 286   max = 0.013699   ave = 0.013570
-update: 287   max = 0.013699   ave = 0.013600
-update: 288   max = 0.013699   ave = 0.013635
-update: 289   max = 0.013699   ave = 0.013545
-update: 290   max = 0.013699   ave = 0.013545
-update: 291   max = 0.013699   ave = 0.013597
-update: 292   max = 0.013699   ave = 0.013481
-update: 293   max = 0.013699   ave = 0.013638
-update: 294   max = 0.013699   ave = 0.013642
-update: 295   max = 0.013699   ave = 0.013568
-update: 296   max = 0.013699   ave = 0.013591
-update: 297   max = 0.013699   ave = 0.013652
-update: 298   max = 0.013699   ave = 0.013537
-update: 299   max = 0.013699   ave = 0.013539
-update: 300   max = 0.013699   ave = 0.013643
-update: 301   max = 0.013699   ave = 0.013669
-update: 302   max = 0.013699   ave = 0.013640
-update: 303   max = 0.013699   ave = 0.013595
-update: 304   max = 0.013699   ave = 0.013624
-update: 305   max = 0.013699   ave = 0.013646
-update: 306   max = 0.013699   ave = 0.013674
-update: 307   max = 0.013699   ave = 0.013673
-update: 308   max = 0.013699   ave = 0.013639
-update: 309   max = 0.013699   ave = 0.013670
-update: 310   max = 0.013699   ave = 0.013607
-update: 311   max = 0.013699   ave = 0.013640
-update: 312   max = 0.013699   ave = 0.013607
-update: 313   max = 0.013699   ave = 0.013604
-update: 314   max = 0.013699   ave = 0.013636
-update: 315   max = 0.013699   ave = 0.013669
-update: 316   max = 0.013699   ave = 0.013673
-update: 317   max = 0.013699   ave = 0.013634
+update: 200   max = 0.013699   ave = 0.013627
+update: 201   max = 0.013699   ave = 0.013601
+update: 202   max = 0.013699   ave = 0.013621
+update: 203   max = 0.013699   ave = 0.013641
+update: 204   max = 0.013699   ave = 0.013587
+update: 205   max = 0.013699   ave = 0.013611
+update: 206   max = 0.013699   ave = 0.013666
+update: 207   max = 0.013699   ave = 0.013576
+update: 208   max = 0.013699   ave = 0.013660
+update: 209   max = 0.013699   ave = 0.013559
+update: 210   max = 0.013699   ave = 0.013583
+update: 211   max = 0.013699   ave = 0.013607
+update: 212   max = 0.013699   ave = 0.013660
+update: 213   max = 0.013699   ave = 0.013469
+update: 214   max = 0.013699   ave = 0.013641
+update: 215   max = 0.013699   ave = 0.013524
+update: 216   max = 0.013699   ave = 0.013664
+update: 217   max = 0.013699   ave = 0.013556
+update: 218   max = 0.013699   ave = 0.013599
+update: 219   max = 0.013699   ave = 0.013610
+update: 220   max = 0.013699   ave = 0.013632
+update: 221   max = 0.013699   ave = 0.013656
+update: 222   max = 0.013699   ave = 0.013605
+update: 223   max = 0.013699   ave = 0.013584
+update: 224   max = 0.013699   ave = 0.013652
+update: 225   max = 0.013699   ave = 0.013606
+update: 226   max = 0.013699   ave = 0.013668
+update: 227   max = 0.013699   ave = 0.013543
+update: 228   max = 0.013699   ave = 0.013500
+update: 229   max = 0.013699   ave = 0.013535
+update: 230   max = 0.013699   ave = 0.013644
+update: 231   max = 0.013699   ave = 0.013672
+update: 232   max = 0.013699   ave = 0.013604
+update: 233   max = 0.013699   ave = 0.013568
+update: 234   max = 0.013699   ave = 0.013609
+update: 235   max = 0.013699   ave = 0.013699
+update: 236   max = 0.013699   ave = 0.013625
+update: 237   max = 0.013699   ave = 0.013548
+update: 238   max = 0.013699   ave = 0.013592
+update: 239   max = 0.013699   ave = 0.013455
+update: 240   max = 0.013699   ave = 0.013630
+update: 241   max = 0.013699   ave = 0.013577
+update: 242   max = 0.013699   ave = 0.013644
+update: 243   max = 0.013699   ave = 0.013594
+update: 244   max = 0.013699   ave = 0.013591
+update: 245   max = 0.013699   ave = 0.013589
+update: 246   max = 0.013699   ave = 0.013579
+update: 247   max = 0.013699   ave = 0.013547
+update: 248   max = 0.013699   ave = 0.013674
+update: 249   max = 0.013699   ave = 0.013658
+update: 250   max = 0.013699   ave = 0.013585
+update: 251   max = 0.013699   ave = 0.013547
+update: 252   max = 0.013699   ave = 0.013695
+update: 253   max = 0.013699   ave = 0.013699
+update: 254   max = 0.013699   ave = 0.013625
+update: 255   max = 0.013699   ave = 0.013631
+update: 256   max = 0.013699   ave = 0.013541
+update: 257   max = 0.013699   ave = 0.013507
+update: 258   max = 0.013699   ave = 0.013568
+update: 259   max = 0.013699   ave = 0.013547
+update: 260   max = 0.013699   ave = 0.013661
+update: 261   max = 0.013699   ave = 0.013622
+update: 262   max = 0.013699   ave = 0.013630
+update: 263   max = 0.013699   ave = 0.013610
+update: 264   max = 0.013699   ave = 0.013632
+update: 265   max = 0.013699   ave = 0.013573
+update: 266   max = 0.013699   ave = 0.013607
+update: 267   max = 0.013699   ave = 0.013563
+update: 268   max = 0.013699   ave = 0.013564
+update: 269   max = 0.013699   ave = 0.013650
+update: 270   max = 0.013699   ave = 0.013614
+update: 271   max = 0.013699   ave = 0.013699
+update: 272   max = 0.013699   ave = 0.013577
+update: 273   max = 0.013699   ave = 0.013614
+update: 274   max = 0.013699   ave = 0.013573
+update: 275   max = 0.013699   ave = 0.013550
+update: 276   max = 0.013699   ave = 0.013635
+update: 277   max = 0.013699   ave = 0.013594
+update: 278   max = 0.013699   ave = 0.013627
+update: 279   max = 0.013699   ave = 0.013695
+update: 280   max = 0.013699   ave = 0.013527
+update: 281   max = 0.013699   ave = 0.013532
+update: 282   max = 0.013699   ave = 0.013699
+update: 283   max = 0.013699   ave = 0.013614
+update: 284   max = 0.013699   ave = 0.013622
+update: 285   max = 0.013699   ave = 0.013540
+update: 286   max = 0.013699   ave = 0.013659
+update: 287   max = 0.013699   ave = 0.013646
+update: 288   max = 0.013699   ave = 0.013604
+update: 289   max = 0.013699   ave = 0.013590
+update: 290   max = 0.013699   ave = 0.013638
+update: 291   max = 0.013699   ave = 0.013664
+update: 292   max = 0.013699   ave = 0.013576
+update: 293   max = 0.013699   ave = 0.013537
+update: 294   max = 0.013699   ave = 0.013609
+update: 295   max = 0.013699   ave = 0.013622
+update: 296   max = 0.013699   ave = 0.013581
+update: 297   max = 0.013699   ave = 0.013607
+update: 298   max = 0.013699   ave = 0.013629
+update: 299   max = 0.013699   ave = 0.013571
+update: 300   max = 0.013699   ave = 0.013522
+update: 301   max = 0.013699   ave = 0.013635
+update: 302   max = 0.013699   ave = 0.013566
+update: 303   max = 0.013699   ave = 0.013492
+update: 304   max = 0.013699   ave = 0.013620
+update: 305   max = 0.013699   ave = 0.013649
+update: 306   max = 0.013699   ave = 0.013553
+update: 307   max = 0.013699   ave = 0.013570
+update: 308   max = 0.013699   ave = 0.013677
+update: 309   max = 0.013699   ave = 0.013662
+update: 310   max = 0.013699   ave = 0.013522
+update: 311   max = 0.013699   ave = 0.013673
+update: 312   max = 0.013699   ave = 0.013615
+update: 313   max = 0.013699   ave = 0.013666
+update: 314   max = 0.013699   ave = 0.013623
+update: 315   max = 0.013699   ave = 0.013642
+update: 316   max = 0.013699   ave = 0.013603
+update: 317   max = 0.013699   ave = 0.013616
 update: 318   max = 0.013699   ave = 0.013606
-update: 319   max = 0.013699   ave = 0.013654
-update: 320   max = 0.013699   ave = 0.013565
-update: 321   max = 0.013699   ave = 0.013679
-update: 322   max = 0.013699   ave = 0.013570
-update: 323   max = 0.013699   ave = 0.013586
-update: 324   max = 0.013699   ave = 0.013647
-update: 325   max = 0.013699   ave = 0.013624
-update: 326   max = 0.013699   ave = 0.013623
-update: 327   max = 0.013699   ave = 0.013557
-update: 328   max = 0.013699   ave = 0.013648
-update: 329   max = 0.013699   ave = 0.013574
-update: 330   max = 0.013699   ave = 0.013569
-update: 331   max = 0.013699   ave = 0.013629
-update: 332   max = 0.013699   ave = 0.013618
-update: 333   max = 0.013699   ave = 0.013577
-update: 334   max = 0.013699   ave = 0.013586
-update: 335   max = 0.013699   ave = 0.013635
-update: 336   max = 0.013699   ave = 0.013597
-update: 337   max = 0.013699   ave = 0.013620
-update: 338   max = 0.013699   ave = 0.013622
-update: 339   max = 0.013699   ave = 0.013627
-update: 340   max = 0.013699   ave = 0.013621
-update: 341   max = 0.013699   ave = 0.013644
-update: 342   max = 0.013699   ave = 0.013542
-update: 343   max = 0.013699   ave = 0.013664
-update: 344   max = 0.013699   ave = 0.013617
-update: 345   max = 0.013699   ave = 0.013486
-update: 346   max = 0.013699   ave = 0.013555
-update: 347   max = 0.013699   ave = 0.013679
-update: 348   max = 0.013699   ave = 0.013654
-update: 349   max = 0.013699   ave = 0.013628
-update: 350   max = 0.013699   ave = 0.013579
-update: 351   max = 0.013699   ave = 0.013582
-update: 352   max = 0.013699   ave = 0.013596
-update: 353   max = 0.013699   ave = 0.013675
-update: 354   max = 0.013699   ave = 0.013550
-update: 355   max = 0.013699   ave = 0.013646
-update: 356   max = 0.013699   ave = 0.013621
-update: 357   max = 0.013699   ave = 0.013479
-update: 358   max = 0.013699   ave = 0.013699
-update: 359   max = 0.013699   ave = 0.013594
-update: 360   max = 0.013699   ave = 0.013699
-update: 361   max = 0.013699   ave = 0.013687
-update: 362   max = 0.013699   ave = 0.013581
-update: 363   max = 0.013699   ave = 0.013653
-update: 364   max = 0.013699   ave = 0.013614
-update: 365   max = 0.013699   ave = 0.013673
-update: 366   max = 0.013699   ave = 0.013635
-update: 367   max = 0.013699   ave = 0.013564
-update: 368   max = 0.013699   ave = 0.013617
-update: 369   max = 0.013699   ave = 0.013630
-update: 370   max = 0.013699   ave = 0.013619
-update: 371   max = 0.013699   ave = 0.013673
-update: 372   max = 0.013699   ave = 0.013636
-update: 373   max = 0.013699   ave = 0.013629
-update: 374   max = 0.013699   ave = 0.013507
-update: 375   max = 0.013699   ave = 0.013646
-update: 376   max = 0.013699   ave = 0.013589
-update: 377   max = 0.013699   ave = 0.013621
-update: 378   max = 0.013699   ave = 0.013612
-update: 379   max = 0.013699   ave = 0.013646
-update: 380   max = 0.013699   ave = 0.013516
-update: 381   max = 0.013699   ave = 0.013627
-update: 382   max = 0.013699   ave = 0.013681
-update: 383   max = 0.013699   ave = 0.013577
-update: 384   max = 0.013699   ave = 0.013667
-update: 385   max = 0.013699   ave = 0.013563
-update: 386   max = 0.013699   ave = 0.013666
-update: 387   max = 0.013699   ave = 0.013656
-update: 388   max = 0.013699   ave = 0.013555
-update: 389   max = 0.013699   ave = 0.013699
-update: 390   max = 0.013699   ave = 0.013699
-update: 391   max = 0.013699   ave = 0.013625
-update: 392   max = 0.013699   ave = 0.013666
-update: 393   max = 0.013699   ave = 0.013541
-update: 394   max = 0.013699   ave = 0.013664
-update: 395   max = 0.013699   ave = 0.013620
-update: 396   max = 0.013699   ave = 0.013670
-update: 397   max = 0.013699   ave = 0.013641
-update: 398   max = 0.013699   ave = 0.013665
-update: 399   max = 0.013699   ave = 0.013664
-update: 400   max = 0.013699   ave = 0.013543
-update: 401   max = 0.013699   ave = 0.013624
-update: 402   max = 0.013699   ave = 0.013602
-update: 403   max = 0.013699   ave = 0.013573
-update: 404   max = 0.013699   ave = 0.013584
-update: 405   max = 0.013699   ave = 0.013597
-update: 406   max = 0.013699   ave = 0.013584
-update: 407   max = 0.013699   ave = 0.013603
-update: 408   max = 0.013699   ave = 0.013610
-update: 409   max = 0.013699   ave = 0.013563
-update: 410   max = 0.013699   ave = 0.013673
-update: 411   max = 0.013699   ave = 0.013655
-update: 412   max = 0.013699   ave = 0.013628
-update: 413   max = 0.013699   ave = 0.013675
-update: 414   max = 0.013699   ave = 0.013664
-update: 415   max = 0.013699   ave = 0.013634
-update: 416   max = 0.013699   ave = 0.013589
-update: 417   max = 0.013699   ave = 0.013664
-update: 418   max = 0.013699   ave = 0.013642
-update: 419   max = 0.013699   ave = 0.013664
-update: 420   max = 0.013699   ave = 0.013677
-update: 421   max = 0.013699   ave = 0.013655
-update: 422   max = 0.013699   ave = 0.013533
-update: 423   max = 0.013699   ave = 0.013635
-update: 424   max = 0.013699   ave = 0.013666
-update: 425   max = 0.013699   ave = 0.013603
-update: 426   max = 0.013699   ave = 0.013595
-update: 427   max = 0.013699   ave = 0.013615
-update: 428   max = 0.013699   ave = 0.013503
-update: 429   max = 0.013699   ave = 0.013536
-update: 430   max = 0.013699   ave = 0.013651
-update: 431   max = 0.013699   ave = 0.013634
-update: 432   max = 0.013699   ave = 0.013588
-update: 433   max = 0.013699   ave = 0.013644
-update: 434   max = 0.013699   ave = 0.013629
-update: 435   max = 0.013699   ave = 0.013649
-update: 436   max = 0.013699   ave = 0.013502
-update: 437   max = 0.013699   ave = 0.013629
-update: 438   max = 0.013699   ave = 0.013622
-update: 439   max = 0.013699   ave = 0.013596
-update: 440   max = 0.013699   ave = 0.013675
-update: 441   max = 0.013699   ave = 0.013635
-update: 442   max = 0.013699   ave = 0.013601
-update: 443   max = 0.013699   ave = 0.013651
-update: 444   max = 0.013699   ave = 0.013664
-update: 445   max = 0.013699   ave = 0.013604
-update: 446   max = 0.013699   ave = 0.013607
-update: 447   max = 0.013699   ave = 0.013638
-update: 448   max = 0.013699   ave = 0.013675
-update: 449   max = 0.013699   ave = 0.013592
-update: 450   max = 0.013699   ave = 0.013649
-update: 451   max = 0.013699   ave = 0.013633
-update: 452   max = 0.013699   ave = 0.013645
-update: 453   max = 0.013699   ave = 0.013670
-update: 454   max = 0.013699   ave = 0.013644
-update: 455   max = 0.013699   ave = 0.013649
-update: 456   max = 0.013699   ave = 0.013667
-update: 457   max = 0.013699   ave = 0.013591
-update: 458   max = 0.013699   ave = 0.013547
-update: 459   max = 0.013699   ave = 0.013564
-update: 460   max = 0.013699   ave = 0.013638
-update: 461   max = 0.013699   ave = 0.013618
-update: 462   max = 0.013699   ave = 0.013648
-update: 463   max = 0.013699   ave = 0.013634
-update: 464   max = 0.013699   ave = 0.013617
-update: 465   max = 0.013699   ave = 0.013645
-update: 466   max = 0.013699   ave = 0.013675
-update: 467   max = 0.013699   ave = 0.013591
-update: 468   max = 0.013699   ave = 0.013638
-update: 469   max = 0.013699   ave = 0.013644
-update: 470   max = 0.013699   ave = 0.013569
-update: 471   max = 0.013699   ave = 0.013617
-update: 472   max = 0.013699   ave = 0.013673
-update: 473   max = 0.013699   ave = 0.013577
-update: 474   max = 0.013699   ave = 0.013674
-update: 475   max = 0.013699   ave = 0.013533
-update: 476   max = 0.013699   ave = 0.013591
-update: 477   max = 0.013699   ave = 0.013528
-update: 478   max = 0.013699   ave = 0.013664
-update: 479   max = 0.013699   ave = 0.013548
-update: 480   max = 0.013699   ave = 0.013625
-update: 481   max = 0.013699   ave = 0.013693
-update: 482   max = 0.013699   ave = 0.013617
-update: 483   max = 0.013699   ave = 0.013670
-update: 484   max = 0.013699   ave = 0.013636
-update: 485   max = 0.013699   ave = 0.013574
-update: 486   max = 0.013699   ave = 0.013666
-update: 487   max = 0.013699   ave = 0.013646
-update: 488   max = 0.013699   ave = 0.013559
-update: 489   max = 0.013699   ave = 0.013638
-update: 490   max = 0.013699   ave = 0.013590
-update: 491   max = 0.013699   ave = 0.013549
-update: 492   max = 0.013699   ave = 0.013612
-update: 493   max = 0.013699   ave = 0.013605
-update: 494   max = 0.013699   ave = 0.013670
-update: 495   max = 0.013699   ave = 0.013518
-update: 496   max = 0.013699   ave = 0.013637
-update: 497   max = 0.013699   ave = 0.013658
-update: 498   max = 0.013699   ave = 0.013604
-update: 499   max = 0.013699   ave = 0.013652
+update: 319   max = 0.013699   ave = 0.013681
+update: 320   max = 0.013699   ave = 0.013605
+update: 321   max = 0.013699   ave = 0.013592
+update: 322   max = 0.013699   ave = 0.013636
+update: 323   max = 0.013699   ave = 0.013531
+update: 324   max = 0.013699   ave = 0.013677
+update: 325   max = 0.013699   ave = 0.013559
+update: 326   max = 0.013699   ave = 0.013678
+update: 327   max = 0.013699   ave = 0.013438
+update: 328   max = 0.013699   ave = 0.013638
+update: 329   max = 0.013699   ave = 0.013609
+update: 330   max = 0.013699   ave = 0.013687
+update: 331   max = 0.013699   ave = 0.013687
+update: 332   max = 0.013699   ave = 0.013520
+update: 333   max = 0.013699   ave = 0.013614
+update: 334   max = 0.013699   ave = 0.013590
+update: 335   max = 0.013699   ave = 0.013593
+update: 336   max = 0.013699   ave = 0.013512
+update: 337   max = 0.013699   ave = 0.013506
+update: 338   max = 0.013699   ave = 0.013651
+update: 339   max = 0.013699   ave = 0.013628
+update: 340   max = 0.013699   ave = 0.013649
+update: 341   max = 0.013699   ave = 0.013521
+update: 342   max = 0.013699   ave = 0.013609
+update: 343   max = 0.013699   ave = 0.013556
+update: 344   max = 0.013699   ave = 0.013598
+update: 345   max = 0.013699   ave = 0.013570
+update: 346   max = 0.013699   ave = 0.013625
+update: 347   max = 0.013699   ave = 0.013563
+update: 348   max = 0.013699   ave = 0.013610
+update: 349   max = 0.013699   ave = 0.013687
+update: 350   max = 0.013699   ave = 0.013604
+update: 351   max = 0.013699   ave = 0.013656
+update: 352   max = 0.013699   ave = 0.013542
+update: 353   max = 0.013699   ave = 0.013652
+update: 354   max = 0.013699   ave = 0.013652
+update: 355   max = 0.013699   ave = 0.013549
+update: 356   max = 0.013699   ave = 0.013505
+update: 357   max = 0.013699   ave = 0.013664
+update: 358   max = 0.013699   ave = 0.013533
+update: 359   max = 0.013699   ave = 0.013557
+update: 360   max = 0.013699   ave = 0.013493
+update: 361   max = 0.013699   ave = 0.013569
+update: 362   max = 0.013699   ave = 0.013699
+update: 363   max = 0.013699   ave = 0.013561
+update: 364   max = 0.013699   ave = 0.013624
+update: 365   max = 0.013699   ave = 0.013621
+update: 366   max = 0.013699   ave = 0.013546
+update: 367   max = 0.013699   ave = 0.013612
+update: 368   max = 0.013699   ave = 0.013588
+update: 369   max = 0.013699   ave = 0.013644
+update: 370   max = 0.013699   ave = 0.013480
+update: 371   max = 0.013699   ave = 0.013666
+update: 372   max = 0.013699   ave = 0.013562
+update: 373   max = 0.013699   ave = 0.013638
+update: 374   max = 0.013699   ave = 0.013560
+update: 375   max = 0.013699   ave = 0.013649
+update: 376   max = 0.013699   ave = 0.013668
+update: 377   max = 0.013699   ave = 0.013630
+update: 378   max = 0.013699   ave = 0.013638
+update: 379   max = 0.013699   ave = 0.013631
+update: 380   max = 0.013699   ave = 0.013651
+update: 381   max = 0.013699   ave = 0.013623
+update: 382   max = 0.013699   ave = 0.013654
+update: 383   max = 0.013699   ave = 0.013543
+update: 384   max = 0.013699   ave = 0.013565
+update: 385   max = 0.013699   ave = 0.013614
+update: 386   max = 0.013699   ave = 0.013561
+update: 387   max = 0.013699   ave = 0.013540
+update: 388   max = 0.013699   ave = 0.013551
+update: 389   max = 0.013699   ave = 0.013658
+update: 390   max = 0.013699   ave = 0.013589
+update: 391   max = 0.013699   ave = 0.013567
+update: 392   max = 0.013699   ave = 0.013610
+update: 393   max = 0.013699   ave = 0.013586
+update: 394   max = 0.013699   ave = 0.013504
+update: 395   max = 0.013699   ave = 0.013535
+update: 396   max = 0.013699   ave = 0.013636
+update: 397   max = 0.013699   ave = 0.013587
+update: 398   max = 0.013699   ave = 0.013479
+update: 399   max = 0.013699   ave = 0.013594
+update: 400   max = 0.013699   ave = 0.013628
+update: 401   max = 0.013699   ave = 0.013625
+update: 402   max = 0.013699   ave = 0.013623
+update: 403   max = 0.013699   ave = 0.013587
+update: 404   max = 0.013699   ave = 0.013421
+update: 405   max = 0.013699   ave = 0.013569
+update: 406   max = 0.013699   ave = 0.013649
+update: 407   max = 0.013699   ave = 0.013672
+update: 408   max = 0.013699   ave = 0.013699
+update: 409   max = 0.013699   ave = 0.013654
+update: 410   max = 0.013699   ave = 0.013687
+update: 411   max = 0.013699   ave = 0.013644
+update: 412   max = 0.013699   ave = 0.013616
+update: 413   max = 0.013699   ave = 0.013658
+update: 414   max = 0.013699   ave = 0.013631
+update: 415   max = 0.013699   ave = 0.013608
+update: 416   max = 0.013699   ave = 0.013675
+update: 417   max = 0.013699   ave = 0.013628
+update: 418   max = 0.013699   ave = 0.013610
+update: 419   max = 0.013699   ave = 0.013687
+update: 420   max = 0.013699   ave = 0.013699
+update: 421   max = 0.013699   ave = 0.013564
+update: 422   max = 0.013699   ave = 0.013519
+update: 423   max = 0.013699   ave = 0.013662
+update: 424   max = 0.013699   ave = 0.013587
+update: 425   max = 0.013699   ave = 0.013588
+update: 426   max = 0.013699   ave = 0.013534
+update: 427   max = 0.013699   ave = 0.013677
+update: 428   max = 0.013699   ave = 0.013644
+update: 429   max = 0.013699   ave = 0.013464
+update: 430   max = 0.013699   ave = 0.013590
+update: 431   max = 0.013699   ave = 0.013620
+update: 432   max = 0.013699   ave = 0.013605
+update: 433   max = 0.013699   ave = 0.013596
+update: 434   max = 0.013699   ave = 0.013598
+update: 435   max = 0.013699   ave = 0.013544
+update: 436   max = 0.013699   ave = 0.013599
+update: 437   max = 0.013699   ave = 0.013522
+update: 438   max = 0.013699   ave = 0.013616
+update: 439   max = 0.013699   ave = 0.013555
+update: 440   max = 0.013699   ave = 0.013627
+update: 441   max = 0.013699   ave = 0.013662
+update: 442   max = 0.013699   ave = 0.013630
+update: 443   max = 0.013699   ave = 0.013616
+update: 444   max = 0.013699   ave = 0.013619
+update: 445   max = 0.013699   ave = 0.013596
+update: 446   max = 0.013699   ave = 0.013666
+update: 447   max = 0.013699   ave = 0.013590
+update: 448   max = 0.013699   ave = 0.013559
+update: 449   max = 0.013699   ave = 0.013593
+update: 450   max = 0.013699   ave = 0.013699
+update: 451   max = 0.013699   ave = 0.013666
+update: 452   max = 0.013699   ave = 0.013699
+update: 453   max = 0.013699   ave = 0.013571
+update: 454   max = 0.013699   ave = 0.013555
+update: 455   max = 0.013699   ave = 0.013460
+update: 456   max = 0.013699   ave = 0.013550
+update: 457   max = 0.013699   ave = 0.013662
+update: 458   max = 0.013699   ave = 0.013699
+update: 459   max = 0.013699   ave = 0.013699
+update: 460   max = 0.013699   ave = 0.013546
+update: 461   max = 0.013699   ave = 0.013683
+update: 462   max = 0.013699   ave = 0.013651
+update: 463   max = 0.013699   ave = 0.013623
+update: 464   max = 0.013699   ave = 0.013654
+update: 465   max = 0.013699   ave = 0.013444
+update: 466   max = 0.013699   ave = 0.013627
+update: 467   max = 0.013699   ave = 0.013612
+update: 468   max = 0.013699   ave = 0.013641
+update: 469   max = 0.013699   ave = 0.013615
+update: 470   max = 0.013699   ave = 0.013640
+update: 471   max = 0.013699   ave = 0.013481
+update: 472   max = 0.013699   ave = 0.013665
+update: 473   max = 0.013699   ave = 0.013628
+update: 474   max = 0.013699   ave = 0.013528
+update: 475   max = 0.013699   ave = 0.013695
+update: 476   max = 0.013699   ave = 0.013632
+update: 477   max = 0.013699   ave = 0.013564
+update: 478   max = 0.013699   ave = 0.013641
+update: 479   max = 0.013699   ave = 0.013669
+update: 480   max = 0.013699   ave = 0.013653
+update: 481   max = 0.013699   ave = 0.013621
+update: 482   max = 0.013699   ave = 0.013635
+update: 483   max = 0.013699   ave = 0.013578
+update: 484   max = 0.013699   ave = 0.013591
+update: 485   max = 0.013699   ave = 0.013617
+update: 486   max = 0.013699   ave = 0.013597
+update: 487   max = 0.013699   ave = 0.013617
+update: 488   max = 0.013699   ave = 0.013572
+update: 489   max = 0.013699   ave = 0.013544
+update: 490   max = 0.013699   ave = 0.013647
+update: 491   max = 0.013699   ave = 0.013511
+update: 492   max = 0.013699   ave = 0.013511
+update: 493   max = 0.013699   ave = 0.013522
+update: 494   max = 0.013699   ave = 0.013578
+update: 495   max = 0.013699   ave = 0.013635
+update: 496   max = 0.013699   ave = 0.013611
+update: 497   max = 0.013699   ave = 0.013640
+update: 498   max = 0.013699   ave = 0.013545
+update: 499   max = 0.013699   ave = 0.013495
 Schedule Length: 
 73
 Final Genome: 
@@ -1197,10 +1197,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-98
+73
 Final Genome: 
 alphabetSize: 3
-2,2,0,0,1,2,0,1,1,1
+2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
 73
 Final Genome: 
@@ -1242,10 +1242,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-88
+73
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,1,1,1,1
+2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
 73
 Final Genome: 
@@ -1277,10 +1277,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-73
+96
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+0,2,0,1,1,2,0,1,1,1
 Schedule Length: 
 73
 Final Genome: 
@@ -1327,10 +1327,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-73
+75
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,2,0,1,0,2,0,1,1,1
 Schedule Length: 
 73
 Final Genome: 
@@ -1532,10 +1532,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-73
+93
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,2,0,1,1,2,0,1,1,2
 Schedule Length: 
 73
 Final Genome: 
@@ -1562,10 +1562,10 @@ Final Genome:
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
 Schedule Length: 
-73
+102
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,2,0,1,1,2,0,1,0,1
 Schedule Length: 
 73
 Final Genome: 
@@ -1591,4 +1591,4 @@ Schedule Length:
 Final Genome: 
 alphabetSize: 3
 2,2,0,1,1,2,0,1,1,1
-update: 500   max = 0.013699   ave = 0.013640
+update: 500   max = 0.013699   ave = 0.013594

@@ -46,7 +46,7 @@ Graph::Graph(int V, vector<vector<double>> nodeWeights, unordered_map<string, do
 	//cout << "Passed the average bw loop" << endl;
 	cout << "BW mat size: " << bwMat.size() << endl;
 	cout << "AvgBW: " << avgbw << endl;
-	this->avgBW = avgbw / (bwMat.size() * bwMat.size());
+	this->avgBW = avgbw / (bwMat.size() * bwMat.size()) - bwMat.size();
 
 	//Assign edge weights (data size)
 	for(pair<string, double> el : edgeWeights) {
