@@ -16,7 +16,7 @@
 	for help run MABE with the "-h" flag (i.e. ./mabe -h).
 
 Generating Random Seed
-  -1890686974
+  131666658
 bwline: 0,1,1
 bwline: 1,0,1
 bwline: 1,1,0
@@ -81,1502 +81,1902 @@ Finished Building Group: root::   Group name space: root::
 
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 Schedule Length: 
 127
+Schedule: 
+{0: [ScheduleEvent(task=0, start=0.000000,end=14.000000,proc=0), ScheduleEvent(task=3, start=14.000000,end=27.000000,proc=0), ScheduleEvent(task=2, start=27.000000,end=38.000000,proc=0), ScheduleEvent(task=1, start=38.000000,end=51.000000,proc=0), ScheduleEvent(task=4, start=51.000000,end=63.000000,proc=0), ScheduleEvent(task=5, start=63.000000,end=76.000000,proc=0), ScheduleEvent(task=8, start=76.000000,end=94.000000,proc=0), ScheduleEvent(task=6, start=94.000000,end=101.000000,proc=0), ScheduleEvent(task=7, start=101.000000,end=106.000000,proc=0), ScheduleEvent(task=9, start=106.000000,end=127.000000,proc=0)], 1: [], 2: []}
 Final Genome: 
 alphabetSize: 3
 0,0,0,0,0,0,0,0,0,0
 update: 0   max = 0.007874   ave = 0.007874
-update: 1   max = 0.008772   ave = 0.007916
-update: 2   max = 0.009346   ave = 0.008757
-update: 3   max = 0.009346   ave = 0.009118
-update: 4   max = 0.009524   ave = 0.009313
-update: 5   max = 0.009524   ave = 0.009456
-update: 6   max = 0.009524   ave = 0.009524
-update: 7   max = 0.010204   ave = 0.009516
-update: 8   max = 0.010204   ave = 0.009910
-update: 9   max = 0.010204   ave = 0.010189
-update: 10   max = 0.010204   ave = 0.010176
-update: 11   max = 0.010204   ave = 0.010192
-update: 12   max = 0.010204   ave = 0.010191
-update: 13   max = 0.010204   ave = 0.010142
-update: 14   max = 0.010526   ave = 0.010203
-update: 15   max = 0.010526   ave = 0.010380
-update: 16   max = 0.010526   ave = 0.010509
-update: 17   max = 0.010638   ave = 0.010504
-update: 18   max = 0.010638   ave = 0.010584
-update: 19   max = 0.010638   ave = 0.010607
-update: 20   max = 0.010638   ave = 0.010638
-update: 21   max = 0.010638   ave = 0.010625
-update: 22   max = 0.010638   ave = 0.010611
-update: 23   max = 0.012195   ave = 0.010661
-update: 24   max = 0.012195   ave = 0.012093
-update: 25   max = 0.012500   ave = 0.012198
-update: 26   max = 0.012500   ave = 0.012320
-update: 27   max = 0.012500   ave = 0.012477
-update: 28   max = 0.012500   ave = 0.012466
-update: 29   max = 0.012500   ave = 0.012460
-update: 30   max = 0.012500   ave = 0.012470
-update: 31   max = 0.012500   ave = 0.012409
-update: 32   max = 0.012500   ave = 0.012473
-update: 33   max = 0.012500   ave = 0.012434
-update: 34   max = 0.012500   ave = 0.012484
-update: 35   max = 0.012500   ave = 0.012456
-update: 36   max = 0.012500   ave = 0.012500
-update: 37   max = 0.012500   ave = 0.012435
-update: 38   max = 0.012500   ave = 0.012443
-update: 39   max = 0.012500   ave = 0.012484
-update: 40   max = 0.012500   ave = 0.012469
-update: 41   max = 0.012500   ave = 0.012434
-update: 42   max = 0.012500   ave = 0.012456
-update: 43   max = 0.012500   ave = 0.012474
-update: 44   max = 0.012500   ave = 0.012436
-update: 45   max = 0.012500   ave = 0.012485
-update: 46   max = 0.012500   ave = 0.012470
-update: 47   max = 0.012500   ave = 0.012473
-update: 48   max = 0.012500   ave = 0.012442
-update: 49   max = 0.012500   ave = 0.012450
-update: 50   max = 0.012500   ave = 0.012458
-update: 51   max = 0.012500   ave = 0.012500
-update: 52   max = 0.012500   ave = 0.012468
-update: 53   max = 0.012500   ave = 0.012435
-update: 54   max = 0.012500   ave = 0.012458
-update: 55   max = 0.012500   ave = 0.012353
-update: 56   max = 0.012500   ave = 0.012447
-update: 57   max = 0.012500   ave = 0.012412
-update: 58   max = 0.012500   ave = 0.012447
-update: 59   max = 0.012500   ave = 0.012435
-update: 60   max = 0.012500   ave = 0.012416
-update: 61   max = 0.012500   ave = 0.012486
-update: 62   max = 0.012500   ave = 0.012423
-update: 63   max = 0.012500   ave = 0.012454
-update: 64   max = 0.012500   ave = 0.012374
-update: 65   max = 0.012500   ave = 0.012500
-update: 66   max = 0.012500   ave = 0.012437
-update: 67   max = 0.012500   ave = 0.012486
-update: 68   max = 0.012500   ave = 0.012471
-update: 69   max = 0.012500   ave = 0.012405
-update: 70   max = 0.012500   ave = 0.012433
-update: 71   max = 0.012500   ave = 0.012473
-update: 72   max = 0.012500   ave = 0.012469
-update: 73   max = 0.012500   ave = 0.012474
-update: 74   max = 0.012500   ave = 0.012409
-update: 75   max = 0.012500   ave = 0.012489
-update: 76   max = 0.012500   ave = 0.012470
-update: 77   max = 0.012500   ave = 0.012493
-update: 78   max = 0.012500   ave = 0.012436
-update: 79   max = 0.012500   ave = 0.012442
-update: 80   max = 0.012500   ave = 0.012465
-update: 81   max = 0.012500   ave = 0.012402
-update: 82   max = 0.012500   ave = 0.012451
-update: 83   max = 0.012500   ave = 0.012484
-update: 84   max = 0.012500   ave = 0.012448
-update: 85   max = 0.012500   ave = 0.012422
-update: 86   max = 0.012500   ave = 0.012490
-update: 87   max = 0.012500   ave = 0.012473
-update: 88   max = 0.012500   ave = 0.012468
-update: 89   max = 0.012500   ave = 0.012401
-update: 90   max = 0.012500   ave = 0.012389
-update: 91   max = 0.012500   ave = 0.012378
-update: 92   max = 0.012500   ave = 0.012445
-update: 93   max = 0.012500   ave = 0.012475
-update: 94   max = 0.012500   ave = 0.012436
-update: 95   max = 0.012500   ave = 0.012449
-update: 96   max = 0.012500   ave = 0.012427
+update: 1   max = 0.008696   ave = 0.007883
+update: 2   max = 0.008696   ave = 0.008581
+update: 3   max = 0.009259   ave = 0.008695
+update: 4   max = 0.009259   ave = 0.009056
+update: 5   max = 0.009259   ave = 0.009258
+update: 6   max = 0.009259   ave = 0.009259
+update: 7   max = 0.010000   ave = 0.009273
+update: 8   max = 0.010417   ave = 0.009860
+update: 9   max = 0.010417   ave = 0.010245
+update: 10   max = 0.010417   ave = 0.010417
+update: 11   max = 0.010417   ave = 0.010379
+update: 12   max = 0.010417   ave = 0.010354
+update: 13   max = 0.010417   ave = 0.010395
+update: 14   max = 0.010417   ave = 0.010411
+update: 15   max = 0.010417   ave = 0.010417
+update: 16   max = 0.010417   ave = 0.010364
+update: 17   max = 0.010417   ave = 0.010397
+update: 18   max = 0.010417   ave = 0.010385
+update: 19   max = 0.010417   ave = 0.010374
+update: 20   max = 0.010638   ave = 0.010380
+update: 21   max = 0.010638   ave = 0.010538
+update: 22   max = 0.012346   ave = 0.010631
+update: 23   max = 0.012346   ave = 0.011659
+update: 24   max = 0.012346   ave = 0.012312
+update: 25   max = 0.012500   ave = 0.012281
+update: 26   max = 0.012500   ave = 0.012407
+update: 27   max = 0.012500   ave = 0.012483
+update: 28   max = 0.012500   ave = 0.012451
+update: 29   max = 0.012500   ave = 0.012471
+update: 30   max = 0.012500   ave = 0.012447
+update: 31   max = 0.012500   ave = 0.012383
+update: 32   max = 0.012500   ave = 0.012461
+update: 33   max = 0.012500   ave = 0.012368
+update: 34   max = 0.012500   ave = 0.012439
+update: 35   max = 0.012500   ave = 0.012435
+update: 36   max = 0.012500   ave = 0.012429
+update: 37   max = 0.012500   ave = 0.012395
+update: 38   max = 0.012500   ave = 0.012429
+update: 39   max = 0.012500   ave = 0.012400
+update: 40   max = 0.012500   ave = 0.012412
+update: 41   max = 0.012500   ave = 0.012481
+update: 42   max = 0.012500   ave = 0.012489
+update: 43   max = 0.012500   ave = 0.012344
+update: 44   max = 0.012500   ave = 0.012478
+update: 45   max = 0.012500   ave = 0.012440
+update: 46   max = 0.012500   ave = 0.012443
+update: 47   max = 0.012500   ave = 0.012478
+update: 48   max = 0.012500   ave = 0.012475
+update: 49   max = 0.012500   ave = 0.012467
+update: 50   max = 0.012500   ave = 0.012433
+update: 51   max = 0.012500   ave = 0.012470
+update: 52   max = 0.012500   ave = 0.012410
+update: 53   max = 0.012500   ave = 0.012483
+update: 54   max = 0.012500   ave = 0.012414
+update: 55   max = 0.012500   ave = 0.012446
+update: 56   max = 0.012500   ave = 0.012433
+update: 57   max = 0.012500   ave = 0.012500
+update: 58   max = 0.012500   ave = 0.012500
+update: 59   max = 0.012500   ave = 0.012456
+update: 60   max = 0.012500   ave = 0.012473
+update: 61   max = 0.012500   ave = 0.012461
+update: 62   max = 0.012500   ave = 0.012470
+update: 63   max = 0.012500   ave = 0.012498
+update: 64   max = 0.012500   ave = 0.012459
+update: 65   max = 0.012500   ave = 0.012466
+update: 66   max = 0.012500   ave = 0.012417
+update: 67   max = 0.012500   ave = 0.012425
+update: 68   max = 0.012500   ave = 0.012486
+update: 69   max = 0.012500   ave = 0.012441
+update: 70   max = 0.012500   ave = 0.012444
+update: 71   max = 0.012500   ave = 0.012420
+update: 72   max = 0.012500   ave = 0.012391
+update: 73   max = 0.012500   ave = 0.012351
+update: 74   max = 0.012500   ave = 0.012443
+update: 75   max = 0.012500   ave = 0.012407
+update: 76   max = 0.012500   ave = 0.012452
+update: 77   max = 0.012500   ave = 0.012457
+update: 78   max = 0.012500   ave = 0.012465
+update: 79   max = 0.012500   ave = 0.012464
+update: 80   max = 0.012500   ave = 0.012439
+update: 81   max = 0.012500   ave = 0.012489
+update: 82   max = 0.012500   ave = 0.012433
+update: 83   max = 0.012500   ave = 0.012435
+update: 84   max = 0.012500   ave = 0.012443
+update: 85   max = 0.012500   ave = 0.012423
+update: 86   max = 0.012500   ave = 0.012469
+update: 87   max = 0.012500   ave = 0.012446
+update: 88   max = 0.012500   ave = 0.012411
+update: 89   max = 0.012500   ave = 0.012462
+update: 90   max = 0.012500   ave = 0.012424
+update: 91   max = 0.012500   ave = 0.012420
+update: 92   max = 0.012500   ave = 0.012478
+update: 93   max = 0.012500   ave = 0.012436
+update: 94   max = 0.012500   ave = 0.012430
+update: 95   max = 0.012500   ave = 0.012407
+update: 96   max = 0.012500   ave = 0.012475
 update: 97   max = 0.012500   ave = 0.012466
-update: 98   max = 0.012500   ave = 0.012468
-update: 99   max = 0.012500   ave = 0.012456
-update: 100   max = 0.012500   ave = 0.012381
-update: 101   max = 0.012500   ave = 0.012489
-update: 102   max = 0.012500   ave = 0.012475
-update: 103   max = 0.012500   ave = 0.012481
-update: 104   max = 0.012500   ave = 0.012476
-update: 105   max = 0.012500   ave = 0.012470
-update: 106   max = 0.012500   ave = 0.012429
-update: 107   max = 0.012500   ave = 0.012450
-update: 108   max = 0.012500   ave = 0.012469
-update: 109   max = 0.012500   ave = 0.012487
-update: 110   max = 0.012500   ave = 0.012467
-update: 111   max = 0.012500   ave = 0.012375
-update: 112   max = 0.012500   ave = 0.012479
-update: 113   max = 0.012500   ave = 0.012465
-update: 114   max = 0.012500   ave = 0.012368
-update: 115   max = 0.012500   ave = 0.012421
-update: 116   max = 0.012500   ave = 0.012490
-update: 117   max = 0.012500   ave = 0.012456
-update: 118   max = 0.012500   ave = 0.012354
-update: 119   max = 0.012500   ave = 0.012463
-update: 120   max = 0.012500   ave = 0.012473
-update: 121   max = 0.012500   ave = 0.012454
-update: 122   max = 0.012500   ave = 0.012449
-update: 123   max = 0.012500   ave = 0.012418
-update: 124   max = 0.012500   ave = 0.012463
-update: 125   max = 0.012500   ave = 0.012453
-update: 126   max = 0.012500   ave = 0.012490
-update: 127   max = 0.012500   ave = 0.012472
-update: 128   max = 0.012500   ave = 0.012454
-update: 129   max = 0.012500   ave = 0.012445
-update: 130   max = 0.012500   ave = 0.012400
-update: 131   max = 0.012500   ave = 0.012440
+update: 98   max = 0.012500   ave = 0.012454
+update: 99   max = 0.012500   ave = 0.012478
+update: 100   max = 0.012500   ave = 0.012481
+update: 101   max = 0.012500   ave = 0.012500
+update: 102   max = 0.012500   ave = 0.012466
+update: 103   max = 0.012500   ave = 0.012362
+update: 104   max = 0.012500   ave = 0.012470
+update: 105   max = 0.012500   ave = 0.012472
+update: 106   max = 0.012500   ave = 0.012397
+update: 107   max = 0.012500   ave = 0.012467
+update: 108   max = 0.012500   ave = 0.012432
+update: 109   max = 0.012500   ave = 0.012383
+update: 110   max = 0.012500   ave = 0.012484
+update: 111   max = 0.012500   ave = 0.012467
+update: 112   max = 0.012500   ave = 0.012441
+update: 113   max = 0.012500   ave = 0.012457
+update: 114   max = 0.012500   ave = 0.012437
+update: 115   max = 0.012500   ave = 0.012443
+update: 116   max = 0.012500   ave = 0.012448
+update: 117   max = 0.012500   ave = 0.012454
+update: 118   max = 0.012500   ave = 0.012440
+update: 119   max = 0.012500   ave = 0.012430
+update: 120   max = 0.012500   ave = 0.012426
+update: 121   max = 0.012500   ave = 0.012442
+update: 122   max = 0.012500   ave = 0.012464
+update: 123   max = 0.012500   ave = 0.012455
+update: 124   max = 0.012500   ave = 0.012387
+update: 125   max = 0.012500   ave = 0.012449
+update: 126   max = 0.012500   ave = 0.012465
+update: 127   max = 0.012500   ave = 0.012433
+update: 128   max = 0.012500   ave = 0.012462
+update: 129   max = 0.012500   ave = 0.012476
+update: 130   max = 0.012500   ave = 0.012478
+update: 131   max = 0.012500   ave = 0.012448
 update: 132   max = 0.012500   ave = 0.012500
-update: 133   max = 0.012500   ave = 0.012396
-update: 134   max = 0.012500   ave = 0.012470
-update: 135   max = 0.012500   ave = 0.012437
-update: 136   max = 0.012500   ave = 0.012468
-update: 137   max = 0.012500   ave = 0.012408
-update: 138   max = 0.012500   ave = 0.012433
-update: 139   max = 0.012500   ave = 0.012461
-update: 140   max = 0.012500   ave = 0.012479
-update: 141   max = 0.012500   ave = 0.012428
-update: 142   max = 0.012500   ave = 0.012490
-update: 143   max = 0.012500   ave = 0.012489
-update: 144   max = 0.012500   ave = 0.012436
-update: 145   max = 0.012500   ave = 0.012461
-update: 146   max = 0.012500   ave = 0.012464
-update: 147   max = 0.012500   ave = 0.012442
-update: 148   max = 0.012500   ave = 0.012473
-update: 149   max = 0.012500   ave = 0.012439
-update: 150   max = 0.012500   ave = 0.012439
-update: 151   max = 0.012500   ave = 0.012414
-update: 152   max = 0.012500   ave = 0.012486
-update: 153   max = 0.012500   ave = 0.012493
-update: 154   max = 0.012500   ave = 0.012457
-update: 155   max = 0.012500   ave = 0.012463
-update: 156   max = 0.012500   ave = 0.012463
-update: 157   max = 0.012500   ave = 0.012477
-update: 158   max = 0.012500   ave = 0.012459
-update: 159   max = 0.012500   ave = 0.012447
-update: 160   max = 0.012500   ave = 0.012404
-update: 161   max = 0.012500   ave = 0.012500
-update: 162   max = 0.012500   ave = 0.012430
-update: 163   max = 0.012500   ave = 0.012389
-update: 164   max = 0.012500   ave = 0.012403
-update: 165   max = 0.012500   ave = 0.012395
-update: 166   max = 0.012500   ave = 0.012392
-update: 167   max = 0.012500   ave = 0.012495
-update: 168   max = 0.012500   ave = 0.012475
-update: 169   max = 0.012500   ave = 0.012418
-update: 170   max = 0.012500   ave = 0.012468
-update: 171   max = 0.012500   ave = 0.012433
-update: 172   max = 0.012500   ave = 0.012414
-update: 173   max = 0.012500   ave = 0.012457
-update: 174   max = 0.012500   ave = 0.012350
-update: 175   max = 0.012500   ave = 0.012485
-update: 176   max = 0.012500   ave = 0.012438
-update: 177   max = 0.012500   ave = 0.012500
-update: 178   max = 0.012500   ave = 0.012422
-update: 179   max = 0.012500   ave = 0.012457
-update: 180   max = 0.012500   ave = 0.012480
-update: 181   max = 0.012500   ave = 0.012494
-update: 182   max = 0.012500   ave = 0.012491
-update: 183   max = 0.012500   ave = 0.012500
-update: 184   max = 0.012500   ave = 0.012418
-update: 185   max = 0.012500   ave = 0.012406
-update: 186   max = 0.012500   ave = 0.012467
-update: 187   max = 0.012500   ave = 0.012500
-update: 188   max = 0.012500   ave = 0.012500
-update: 189   max = 0.012500   ave = 0.012487
-update: 190   max = 0.012500   ave = 0.012426
-update: 191   max = 0.012500   ave = 0.012465
-update: 192   max = 0.012500   ave = 0.012456
-update: 193   max = 0.012500   ave = 0.012460
-update: 194   max = 0.012500   ave = 0.012500
-update: 195   max = 0.012500   ave = 0.012500
-update: 196   max = 0.012500   ave = 0.012461
-update: 197   max = 0.012500   ave = 0.012455
-update: 198   max = 0.012500   ave = 0.012463
-update: 199   max = 0.012500   ave = 0.012464
-update: 200   max = 0.012500   ave = 0.012463
-update: 201   max = 0.012500   ave = 0.012493
-update: 202   max = 0.012500   ave = 0.012488
-update: 203   max = 0.012500   ave = 0.012420
-update: 204   max = 0.012500   ave = 0.012462
-update: 205   max = 0.012500   ave = 0.012485
-update: 206   max = 0.012500   ave = 0.012467
-update: 207   max = 0.012500   ave = 0.012500
-update: 208   max = 0.012500   ave = 0.012455
-update: 209   max = 0.012500   ave = 0.012396
-update: 210   max = 0.012500   ave = 0.012437
-update: 211   max = 0.012500   ave = 0.012464
-update: 212   max = 0.012500   ave = 0.012418
-update: 213   max = 0.012500   ave = 0.012494
-update: 214   max = 0.012500   ave = 0.012482
-update: 215   max = 0.012500   ave = 0.012475
-update: 216   max = 0.012500   ave = 0.012432
-update: 217   max = 0.012500   ave = 0.012475
-update: 218   max = 0.012500   ave = 0.012436
-update: 219   max = 0.012500   ave = 0.012465
-update: 220   max = 0.012500   ave = 0.012450
-update: 221   max = 0.012500   ave = 0.012483
-update: 222   max = 0.012500   ave = 0.012437
-update: 223   max = 0.012500   ave = 0.012432
-update: 224   max = 0.012500   ave = 0.012463
-update: 225   max = 0.012500   ave = 0.012494
-update: 226   max = 0.012500   ave = 0.012464
-update: 227   max = 0.012500   ave = 0.012500
-update: 228   max = 0.012500   ave = 0.012448
-update: 229   max = 0.012500   ave = 0.012441
-update: 230   max = 0.012500   ave = 0.012437
-update: 231   max = 0.012500   ave = 0.012461
-update: 232   max = 0.012500   ave = 0.012492
-update: 233   max = 0.012500   ave = 0.012497
-update: 234   max = 0.012500   ave = 0.012436
-update: 235   max = 0.012500   ave = 0.012448
-update: 236   max = 0.012500   ave = 0.012381
-update: 237   max = 0.012500   ave = 0.012480
-update: 238   max = 0.012500   ave = 0.012454
-update: 239   max = 0.012500   ave = 0.012493
-update: 240   max = 0.012500   ave = 0.012487
-update: 241   max = 0.012500   ave = 0.012421
-update: 242   max = 0.012500   ave = 0.012447
-update: 243   max = 0.012500   ave = 0.012452
-update: 244   max = 0.012500   ave = 0.012487
-update: 245   max = 0.012500   ave = 0.012439
-update: 246   max = 0.012500   ave = 0.012468
-update: 247   max = 0.012500   ave = 0.012469
-update: 248   max = 0.012500   ave = 0.012447
-update: 249   max = 0.012500   ave = 0.012460
-update: 250   max = 0.012500   ave = 0.012414
-update: 251   max = 0.012500   ave = 0.012427
-update: 252   max = 0.012500   ave = 0.012467
-update: 253   max = 0.012500   ave = 0.012485
-update: 254   max = 0.012500   ave = 0.012395
-update: 255   max = 0.012500   ave = 0.012448
-update: 256   max = 0.012500   ave = 0.012413
-update: 257   max = 0.012500   ave = 0.012459
-update: 258   max = 0.012500   ave = 0.012468
-update: 259   max = 0.012500   ave = 0.012465
-update: 260   max = 0.012500   ave = 0.012440
-update: 261   max = 0.012500   ave = 0.012465
-update: 262   max = 0.012500   ave = 0.012474
-update: 263   max = 0.012500   ave = 0.012456
-update: 264   max = 0.012500   ave = 0.012445
-update: 265   max = 0.012500   ave = 0.012428
-update: 266   max = 0.012500   ave = 0.012453
-update: 267   max = 0.012500   ave = 0.012465
-update: 268   max = 0.012500   ave = 0.012456
-update: 269   max = 0.012500   ave = 0.012423
-update: 270   max = 0.012500   ave = 0.012487
-update: 271   max = 0.012500   ave = 0.012498
-update: 272   max = 0.013158   ave = 0.012457
-update: 273   max = 0.013158   ave = 0.012798
-update: 274   max = 0.013699   ave = 0.013139
-update: 275   max = 0.013699   ave = 0.013501
-update: 276   max = 0.013699   ave = 0.013650
-update: 277   max = 0.013699   ave = 0.013699
-update: 278   max = 0.013699   ave = 0.013611
-update: 279   max = 0.013699   ave = 0.013554
-update: 280   max = 0.013699   ave = 0.013673
-update: 281   max = 0.013699   ave = 0.013635
-update: 282   max = 0.013699   ave = 0.013634
-update: 283   max = 0.013699   ave = 0.013587
-update: 284   max = 0.013699   ave = 0.013514
-update: 285   max = 0.013699   ave = 0.013544
-update: 286   max = 0.013699   ave = 0.013615
-update: 287   max = 0.013699   ave = 0.013540
-update: 288   max = 0.013699   ave = 0.013673
-update: 289   max = 0.013699   ave = 0.013638
-update: 290   max = 0.013699   ave = 0.013629
-update: 291   max = 0.013699   ave = 0.013580
-update: 292   max = 0.013699   ave = 0.013673
-update: 293   max = 0.013699   ave = 0.013614
-update: 294   max = 0.013699   ave = 0.013587
-update: 295   max = 0.013699   ave = 0.013570
-update: 296   max = 0.013699   ave = 0.013608
-update: 297   max = 0.013699   ave = 0.013606
-update: 298   max = 0.013699   ave = 0.013644
-update: 299   max = 0.013699   ave = 0.013627
-update: 300   max = 0.013699   ave = 0.013640
-update: 301   max = 0.013699   ave = 0.013660
-update: 302   max = 0.013699   ave = 0.013613
-update: 303   max = 0.013699   ave = 0.013606
-update: 304   max = 0.013699   ave = 0.013552
-update: 305   max = 0.013699   ave = 0.013625
-update: 306   max = 0.013699   ave = 0.013621
-update: 307   max = 0.013699   ave = 0.013623
-update: 308   max = 0.013699   ave = 0.013629
-update: 309   max = 0.013699   ave = 0.013581
-update: 310   max = 0.013699   ave = 0.013536
-update: 311   max = 0.013699   ave = 0.013607
-update: 312   max = 0.013699   ave = 0.013574
-update: 313   max = 0.013699   ave = 0.013638
-update: 314   max = 0.013699   ave = 0.013610
-update: 315   max = 0.013699   ave = 0.013675
-update: 316   max = 0.013699   ave = 0.013669
-update: 317   max = 0.013699   ave = 0.013563
-update: 318   max = 0.013699   ave = 0.013595
-update: 319   max = 0.013699   ave = 0.013655
-update: 320   max = 0.013699   ave = 0.013640
-update: 321   max = 0.013699   ave = 0.013633
-update: 322   max = 0.013699   ave = 0.013581
-update: 323   max = 0.013699   ave = 0.013622
-update: 324   max = 0.013699   ave = 0.013643
-update: 325   max = 0.013699   ave = 0.013586
-update: 326   max = 0.013699   ave = 0.013636
-update: 327   max = 0.013699   ave = 0.013570
-update: 328   max = 0.013699   ave = 0.013647
-update: 329   max = 0.013699   ave = 0.013615
-update: 330   max = 0.013699   ave = 0.013590
-update: 331   max = 0.013699   ave = 0.013577
-update: 332   max = 0.013699   ave = 0.013649
-update: 333   max = 0.013699   ave = 0.013672
-update: 334   max = 0.013699   ave = 0.013588
-update: 335   max = 0.013699   ave = 0.013640
-update: 336   max = 0.013699   ave = 0.013620
-update: 337   max = 0.013699   ave = 0.013521
-update: 338   max = 0.013699   ave = 0.013608
-update: 339   max = 0.013699   ave = 0.013600
-update: 340   max = 0.013699   ave = 0.013652
-update: 341   max = 0.013699   ave = 0.013651
-update: 342   max = 0.013699   ave = 0.013520
-update: 343   max = 0.013699   ave = 0.013632
-update: 344   max = 0.013699   ave = 0.013614
-update: 345   max = 0.013699   ave = 0.013616
-update: 346   max = 0.013699   ave = 0.013570
-update: 347   max = 0.013699   ave = 0.013596
-update: 348   max = 0.013699   ave = 0.013569
-update: 349   max = 0.013699   ave = 0.013627
-update: 350   max = 0.013699   ave = 0.013644
-update: 351   max = 0.013699   ave = 0.013560
-update: 352   max = 0.013699   ave = 0.013594
-update: 353   max = 0.013699   ave = 0.013597
-update: 354   max = 0.013699   ave = 0.013607
-update: 355   max = 0.013699   ave = 0.013620
-update: 356   max = 0.013699   ave = 0.013660
-update: 357   max = 0.013699   ave = 0.013649
-update: 358   max = 0.013699   ave = 0.013582
-update: 359   max = 0.013699   ave = 0.013665
-update: 360   max = 0.013699   ave = 0.013656
-update: 361   max = 0.013699   ave = 0.013546
-update: 362   max = 0.013699   ave = 0.013679
-update: 363   max = 0.013699   ave = 0.013647
-update: 364   max = 0.013699   ave = 0.013623
-update: 365   max = 0.013699   ave = 0.013617
-update: 366   max = 0.013699   ave = 0.013646
-update: 367   max = 0.013699   ave = 0.013675
-update: 368   max = 0.013699   ave = 0.013674
-update: 369   max = 0.013699   ave = 0.013565
-update: 370   max = 0.013699   ave = 0.013598
-update: 371   max = 0.013699   ave = 0.013634
-update: 372   max = 0.013699   ave = 0.013612
-update: 373   max = 0.013699   ave = 0.013526
-update: 374   max = 0.013699   ave = 0.013591
-update: 375   max = 0.013699   ave = 0.013674
-update: 376   max = 0.013699   ave = 0.013670
-update: 377   max = 0.013699   ave = 0.013646
-update: 378   max = 0.013699   ave = 0.013618
-update: 379   max = 0.013699   ave = 0.013628
-update: 380   max = 0.013699   ave = 0.013590
-update: 381   max = 0.013699   ave = 0.013651
-update: 382   max = 0.013699   ave = 0.013693
-update: 383   max = 0.013699   ave = 0.013517
-update: 384   max = 0.013699   ave = 0.013543
-update: 385   max = 0.013699   ave = 0.013674
-update: 386   max = 0.013699   ave = 0.013641
-update: 387   max = 0.013699   ave = 0.013679
-update: 388   max = 0.013699   ave = 0.013635
-update: 389   max = 0.013699   ave = 0.013624
-update: 390   max = 0.013699   ave = 0.013679
-update: 391   max = 0.013699   ave = 0.013596
-update: 392   max = 0.013699   ave = 0.013657
-update: 393   max = 0.013699   ave = 0.013554
-update: 394   max = 0.013699   ave = 0.013640
-update: 395   max = 0.013699   ave = 0.013614
-update: 396   max = 0.013699   ave = 0.013622
-update: 397   max = 0.013699   ave = 0.013699
-update: 398   max = 0.013699   ave = 0.013487
-update: 399   max = 0.013699   ave = 0.013569
-update: 400   max = 0.013699   ave = 0.013613
-update: 401   max = 0.013699   ave = 0.013594
-update: 402   max = 0.013699   ave = 0.013644
-update: 403   max = 0.013699   ave = 0.013592
-update: 404   max = 0.013699   ave = 0.013511
-update: 405   max = 0.013699   ave = 0.013579
-update: 406   max = 0.013699   ave = 0.013642
-update: 407   max = 0.013699   ave = 0.013586
-update: 408   max = 0.013699   ave = 0.013635
-update: 409   max = 0.013699   ave = 0.013572
-update: 410   max = 0.013699   ave = 0.013604
-update: 411   max = 0.013699   ave = 0.013632
-update: 412   max = 0.013699   ave = 0.013645
-update: 413   max = 0.013699   ave = 0.013615
-update: 414   max = 0.013699   ave = 0.013646
-update: 415   max = 0.013699   ave = 0.013604
-update: 416   max = 0.013699   ave = 0.013699
-update: 417   max = 0.013699   ave = 0.013521
-update: 418   max = 0.013699   ave = 0.013616
-update: 419   max = 0.013699   ave = 0.013699
-update: 420   max = 0.013699   ave = 0.013600
-update: 421   max = 0.013699   ave = 0.013644
-update: 422   max = 0.013699   ave = 0.013521
-update: 423   max = 0.013699   ave = 0.013628
-update: 424   max = 0.013699   ave = 0.013605
-update: 425   max = 0.013699   ave = 0.013699
-update: 426   max = 0.013699   ave = 0.013609
-update: 427   max = 0.013699   ave = 0.013625
-update: 428   max = 0.013699   ave = 0.013679
-update: 429   max = 0.013699   ave = 0.013640
-update: 430   max = 0.013699   ave = 0.013655
-update: 431   max = 0.013699   ave = 0.013631
-update: 432   max = 0.013699   ave = 0.013622
-update: 433   max = 0.013699   ave = 0.013601
-update: 434   max = 0.013699   ave = 0.013603
-update: 435   max = 0.013699   ave = 0.013524
-update: 436   max = 0.013699   ave = 0.013524
-update: 437   max = 0.013699   ave = 0.013673
-update: 438   max = 0.013699   ave = 0.013604
-update: 439   max = 0.013699   ave = 0.013542
-update: 440   max = 0.013699   ave = 0.013617
-update: 441   max = 0.013699   ave = 0.013618
-update: 442   max = 0.013699   ave = 0.013637
-update: 443   max = 0.013699   ave = 0.013699
-update: 444   max = 0.013699   ave = 0.013581
-update: 445   max = 0.013699   ave = 0.013516
-update: 446   max = 0.013699   ave = 0.013539
-update: 447   max = 0.013699   ave = 0.013627
-update: 448   max = 0.013699   ave = 0.013617
-update: 449   max = 0.013699   ave = 0.013647
-update: 450   max = 0.013699   ave = 0.013675
-update: 451   max = 0.013699   ave = 0.013660
-update: 452   max = 0.013699   ave = 0.013616
-update: 453   max = 0.013699   ave = 0.013617
-update: 454   max = 0.013699   ave = 0.013582
-update: 455   max = 0.013699   ave = 0.013674
-update: 456   max = 0.013699   ave = 0.013617
-update: 457   max = 0.013699   ave = 0.013639
-update: 458   max = 0.013699   ave = 0.013584
-update: 459   max = 0.013699   ave = 0.013613
-update: 460   max = 0.013699   ave = 0.013587
-update: 461   max = 0.013699   ave = 0.013660
-update: 462   max = 0.013699   ave = 0.013649
-update: 463   max = 0.013699   ave = 0.013608
-update: 464   max = 0.013699   ave = 0.013622
-update: 465   max = 0.013699   ave = 0.013666
-update: 466   max = 0.013699   ave = 0.013624
-update: 467   max = 0.013699   ave = 0.013587
-update: 468   max = 0.013699   ave = 0.013602
-update: 469   max = 0.013699   ave = 0.013615
-update: 470   max = 0.013699   ave = 0.013609
-update: 471   max = 0.013699   ave = 0.013567
-update: 472   max = 0.013699   ave = 0.013670
-update: 473   max = 0.013699   ave = 0.013570
-update: 474   max = 0.013699   ave = 0.013643
-update: 475   max = 0.013699   ave = 0.013687
-update: 476   max = 0.013699   ave = 0.013561
-update: 477   max = 0.013699   ave = 0.013672
-update: 478   max = 0.013699   ave = 0.013630
-update: 479   max = 0.013699   ave = 0.013609
-update: 480   max = 0.013699   ave = 0.013648
-update: 481   max = 0.013699   ave = 0.013599
-update: 482   max = 0.013699   ave = 0.013557
-update: 483   max = 0.013699   ave = 0.013623
-update: 484   max = 0.013699   ave = 0.013643
-update: 485   max = 0.013699   ave = 0.013588
-update: 486   max = 0.013699   ave = 0.013631
-update: 487   max = 0.013699   ave = 0.013643
-update: 488   max = 0.013699   ave = 0.013554
-update: 489   max = 0.013699   ave = 0.013604
-update: 490   max = 0.013699   ave = 0.013635
-update: 491   max = 0.013699   ave = 0.013539
-update: 492   max = 0.013699   ave = 0.013669
-update: 493   max = 0.013699   ave = 0.013573
-update: 494   max = 0.013699   ave = 0.013541
-update: 495   max = 0.013699   ave = 0.013608
-update: 496   max = 0.013699   ave = 0.013699
-update: 497   max = 0.013699   ave = 0.013675
-update: 498   max = 0.013699   ave = 0.013578
-update: 499   max = 0.013699   ave = 0.013566
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-78
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,0,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-93
-Final Genome: 
-alphabetSize: 3
-2,2,1,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-Schedule Length: 
-73
-Final Genome: 
-alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+update: 133   max = 0.012500   ave = 0.012467
+update: 134   max = 0.012500   ave = 0.012446
+update: 135   max = 0.012500   ave = 0.012427
+update: 136   max = 0.012500   ave = 0.012423
+update: 137   max = 0.012500   ave = 0.012454
+update: 138   max = 0.012500   ave = 0.012464
+update: 139   max = 0.012500   ave = 0.012464
+update: 140   max = 0.012500   ave = 0.012406
+update: 141   max = 0.012500   ave = 0.012500
+update: 142   max = 0.012500   ave = 0.012427
+update: 143   max = 0.012500   ave = 0.012457
+update: 144   max = 0.012500   ave = 0.012473
+update: 145   max = 0.012500   ave = 0.012426
+update: 146   max = 0.012500   ave = 0.012483
+update: 147   max = 0.012500   ave = 0.012417
+update: 148   max = 0.012500   ave = 0.012485
+update: 149   max = 0.012500   ave = 0.012466
+update: 150   max = 0.012500   ave = 0.012486
+update: 151   max = 0.012500   ave = 0.012389
+update: 152   max = 0.012500   ave = 0.012483
+update: 153   max = 0.012500   ave = 0.012479
+update: 154   max = 0.012500   ave = 0.012478
+update: 155   max = 0.012500   ave = 0.012424
+update: 156   max = 0.012500   ave = 0.012457
+update: 157   max = 0.012500   ave = 0.012473
+update: 158   max = 0.012500   ave = 0.012414
+update: 159   max = 0.012500   ave = 0.012446
+update: 160   max = 0.012500   ave = 0.012488
+update: 161   max = 0.012500   ave = 0.012463
+update: 162   max = 0.012500   ave = 0.012483
+update: 163   max = 0.012500   ave = 0.012478
+update: 164   max = 0.012500   ave = 0.012478
+update: 165   max = 0.012500   ave = 0.012464
+update: 166   max = 0.012500   ave = 0.012459
+update: 167   max = 0.012500   ave = 0.012390
+update: 168   max = 0.012500   ave = 0.012419
+update: 169   max = 0.012500   ave = 0.012433
+update: 170   max = 0.012500   ave = 0.012445
+update: 171   max = 0.012500   ave = 0.012486
+update: 172   max = 0.012500   ave = 0.012460
+update: 173   max = 0.012500   ave = 0.012419
+update: 174   max = 0.012500   ave = 0.012436
+update: 175   max = 0.012500   ave = 0.012479
+update: 176   max = 0.012500   ave = 0.012453
+update: 177   max = 0.012500   ave = 0.012476
+update: 178   max = 0.012500   ave = 0.012415
+update: 179   max = 0.012500   ave = 0.012441
+update: 180   max = 0.012500   ave = 0.012453
+update: 181   max = 0.012500   ave = 0.012389
+update: 182   max = 0.012500   ave = 0.012458
+update: 183   max = 0.012500   ave = 0.012456
+update: 184   max = 0.012500   ave = 0.012464
+update: 185   max = 0.012500   ave = 0.012387
+update: 186   max = 0.012500   ave = 0.012481
+update: 187   max = 0.012500   ave = 0.012474
+update: 188   max = 0.012500   ave = 0.012479
+update: 189   max = 0.012500   ave = 0.012439
+update: 190   max = 0.012500   ave = 0.012478
+update: 191   max = 0.012500   ave = 0.012454
+update: 192   max = 0.012500   ave = 0.012500
+update: 193   max = 0.012500   ave = 0.012437
+update: 194   max = 0.012500   ave = 0.012436
+update: 195   max = 0.012500   ave = 0.012442
+update: 196   max = 0.012500   ave = 0.012443
+update: 197   max = 0.012500   ave = 0.012498
+update: 198   max = 0.012500   ave = 0.012491
+update: 199   max = 0.012500   ave = 0.012500
+update: 200   max = 0.012500   ave = 0.012476
+update: 201   max = 0.012500   ave = 0.012426
+update: 202   max = 0.012500   ave = 0.012444
+update: 203   max = 0.012500   ave = 0.012478
+update: 204   max = 0.012500   ave = 0.012469
+update: 205   max = 0.012500   ave = 0.012467
+update: 206   max = 0.012500   ave = 0.012465
+update: 207   max = 0.012500   ave = 0.012457
+update: 208   max = 0.012500   ave = 0.012480
+update: 209   max = 0.012500   ave = 0.012454
+update: 210   max = 0.012500   ave = 0.012464
+update: 211   max = 0.012500   ave = 0.012437
+update: 212   max = 0.012500   ave = 0.012419
+update: 213   max = 0.012500   ave = 0.012418
+update: 214   max = 0.012500   ave = 0.012490
+update: 215   max = 0.012500   ave = 0.012461
+update: 216   max = 0.012500   ave = 0.012417
+update: 217   max = 0.012500   ave = 0.012453
+update: 218   max = 0.012500   ave = 0.012400
+update: 219   max = 0.012500   ave = 0.012466
+update: 220   max = 0.012500   ave = 0.012500
+update: 221   max = 0.012500   ave = 0.012463
+update: 222   max = 0.012500   ave = 0.012459
+update: 223   max = 0.012500   ave = 0.012479
+update: 224   max = 0.012500   ave = 0.012453
+update: 225   max = 0.012500   ave = 0.012469
+update: 226   max = 0.012500   ave = 0.012416
+update: 227   max = 0.012500   ave = 0.012483
+update: 228   max = 0.012500   ave = 0.012450
+update: 229   max = 0.012500   ave = 0.012432
+update: 230   max = 0.012500   ave = 0.012445
+update: 231   max = 0.012500   ave = 0.012486
+update: 232   max = 0.012500   ave = 0.012429
+update: 233   max = 0.012500   ave = 0.012486
+update: 234   max = 0.012500   ave = 0.012373
+update: 235   max = 0.012500   ave = 0.012500
+update: 236   max = 0.012500   ave = 0.012409
+update: 237   max = 0.012500   ave = 0.012478
+update: 238   max = 0.012500   ave = 0.012445
+update: 239   max = 0.012500   ave = 0.012441
+update: 240   max = 0.012500   ave = 0.012456
+update: 241   max = 0.012500   ave = 0.012490
+update: 242   max = 0.012500   ave = 0.012393
+update: 243   max = 0.012500   ave = 0.012426
+update: 244   max = 0.012500   ave = 0.012451
+update: 245   max = 0.012500   ave = 0.012383
+update: 246   max = 0.012500   ave = 0.012360
+update: 247   max = 0.012500   ave = 0.012444
+update: 248   max = 0.012500   ave = 0.012389
+update: 249   max = 0.012500   ave = 0.012407
+update: 250   max = 0.012500   ave = 0.012479
+update: 251   max = 0.012500   ave = 0.012458
+update: 252   max = 0.012500   ave = 0.012468
+update: 253   max = 0.012500   ave = 0.012460
+update: 254   max = 0.012500   ave = 0.012484
+update: 255   max = 0.012500   ave = 0.012450
+update: 256   max = 0.012500   ave = 0.012489
+update: 257   max = 0.012500   ave = 0.012433
+update: 258   max = 0.012500   ave = 0.012408
+update: 259   max = 0.012500   ave = 0.012429
+update: 260   max = 0.012500   ave = 0.012500
+update: 261   max = 0.012500   ave = 0.012383
+update: 262   max = 0.012500   ave = 0.012483
+update: 263   max = 0.012500   ave = 0.012372
+update: 264   max = 0.012500   ave = 0.012479
+update: 265   max = 0.012500   ave = 0.012478
+update: 266   max = 0.012500   ave = 0.012462
+update: 267   max = 0.012500   ave = 0.012389
+update: 268   max = 0.012500   ave = 0.012479
+update: 269   max = 0.012500   ave = 0.012447
+update: 270   max = 0.012500   ave = 0.012432
+update: 271   max = 0.012500   ave = 0.012410
+update: 272   max = 0.012500   ave = 0.012423
+update: 273   max = 0.012500   ave = 0.012443
+update: 274   max = 0.012500   ave = 0.012476
+update: 275   max = 0.012500   ave = 0.012423
+update: 276   max = 0.012500   ave = 0.012400
+update: 277   max = 0.012500   ave = 0.012399
+update: 278   max = 0.012500   ave = 0.012484
+update: 279   max = 0.012500   ave = 0.012460
+update: 280   max = 0.012500   ave = 0.012432
+update: 281   max = 0.012500   ave = 0.012411
+update: 282   max = 0.012500   ave = 0.012392
+update: 283   max = 0.012500   ave = 0.012425
+update: 284   max = 0.012500   ave = 0.012449
+update: 285   max = 0.012500   ave = 0.012476
+update: 286   max = 0.012500   ave = 0.012484
+update: 287   max = 0.012500   ave = 0.012436
+update: 288   max = 0.012500   ave = 0.012465
+update: 289   max = 0.012500   ave = 0.012418
+update: 290   max = 0.012500   ave = 0.012462
+update: 291   max = 0.012500   ave = 0.012422
+update: 292   max = 0.012500   ave = 0.012486
+update: 293   max = 0.012500   ave = 0.012402
+update: 294   max = 0.012500   ave = 0.012454
+update: 295   max = 0.012500   ave = 0.012457
+update: 296   max = 0.012500   ave = 0.012443
+update: 297   max = 0.012500   ave = 0.012460
+update: 298   max = 0.012500   ave = 0.012446
+update: 299   max = 0.012500   ave = 0.012478
+update: 300   max = 0.012500   ave = 0.012468
+update: 301   max = 0.012500   ave = 0.012500
+update: 302   max = 0.012500   ave = 0.012402
+update: 303   max = 0.012500   ave = 0.012443
+update: 304   max = 0.012500   ave = 0.012446
+update: 305   max = 0.012500   ave = 0.012421
+update: 306   max = 0.012500   ave = 0.012452
+update: 307   max = 0.012500   ave = 0.012447
+update: 308   max = 0.012500   ave = 0.012440
+update: 309   max = 0.012500   ave = 0.012500
+update: 310   max = 0.012500   ave = 0.012470
+update: 311   max = 0.012500   ave = 0.012423
+update: 312   max = 0.012500   ave = 0.012434
+update: 313   max = 0.012500   ave = 0.012407
+update: 314   max = 0.012500   ave = 0.012500
+update: 315   max = 0.012500   ave = 0.012444
+update: 316   max = 0.012500   ave = 0.012409
+update: 317   max = 0.012500   ave = 0.012442
+update: 318   max = 0.012500   ave = 0.012446
+update: 319   max = 0.012500   ave = 0.012486
+update: 320   max = 0.012500   ave = 0.012478
+update: 321   max = 0.012500   ave = 0.012456
+update: 322   max = 0.012500   ave = 0.012415
+update: 323   max = 0.012500   ave = 0.012398
+update: 324   max = 0.012500   ave = 0.012467
+update: 325   max = 0.012500   ave = 0.012486
+update: 326   max = 0.012500   ave = 0.012473
+update: 327   max = 0.012500   ave = 0.012418
+update: 328   max = 0.012500   ave = 0.012478
+update: 329   max = 0.012500   ave = 0.012473
+update: 330   max = 0.012500   ave = 0.012498
+update: 331   max = 0.012500   ave = 0.012459
+update: 332   max = 0.012500   ave = 0.012459
+update: 333   max = 0.012500   ave = 0.012416
+update: 334   max = 0.012500   ave = 0.012462
+update: 335   max = 0.012500   ave = 0.012460
+update: 336   max = 0.012500   ave = 0.012467
+update: 337   max = 0.012500   ave = 0.012432
+update: 338   max = 0.012500   ave = 0.012443
+update: 339   max = 0.012500   ave = 0.012476
+update: 340   max = 0.012500   ave = 0.012484
+update: 341   max = 0.012500   ave = 0.012401
+update: 342   max = 0.012500   ave = 0.012485
+update: 343   max = 0.012500   ave = 0.012464
+update: 344   max = 0.012500   ave = 0.012448
+update: 345   max = 0.012500   ave = 0.012473
+update: 346   max = 0.012500   ave = 0.012500
+update: 347   max = 0.012500   ave = 0.012422
+update: 348   max = 0.012500   ave = 0.012465
+update: 349   max = 0.012500   ave = 0.012449
+update: 350   max = 0.012500   ave = 0.012427
+update: 351   max = 0.012500   ave = 0.012408
+update: 352   max = 0.012500   ave = 0.012429
+update: 353   max = 0.012500   ave = 0.012433
+update: 354   max = 0.012500   ave = 0.012444
+update: 355   max = 0.012500   ave = 0.012458
+update: 356   max = 0.012500   ave = 0.012479
+update: 357   max = 0.012500   ave = 0.012448
+update: 358   max = 0.012500   ave = 0.012467
+update: 359   max = 0.012500   ave = 0.012438
+update: 360   max = 0.012500   ave = 0.012476
+update: 361   max = 0.012500   ave = 0.012484
+update: 362   max = 0.012500   ave = 0.012453
+update: 363   max = 0.012500   ave = 0.012468
+update: 364   max = 0.012500   ave = 0.012434
+update: 365   max = 0.012500   ave = 0.012348
+update: 366   max = 0.012500   ave = 0.012448
+update: 367   max = 0.012500   ave = 0.012439
+update: 368   max = 0.012500   ave = 0.012483
+update: 369   max = 0.012500   ave = 0.012484
+update: 370   max = 0.012500   ave = 0.012467
+update: 371   max = 0.012500   ave = 0.012486
+update: 372   max = 0.012500   ave = 0.012452
+update: 373   max = 0.012500   ave = 0.012449
+update: 374   max = 0.012500   ave = 0.012416
+update: 375   max = 0.012500   ave = 0.012478
+update: 376   max = 0.012500   ave = 0.012441
+update: 377   max = 0.012500   ave = 0.012455
+update: 378   max = 0.012500   ave = 0.012376
+update: 379   max = 0.012500   ave = 0.012441
+update: 380   max = 0.012500   ave = 0.012413
+update: 381   max = 0.012500   ave = 0.012443
+update: 382   max = 0.012500   ave = 0.012476
+update: 383   max = 0.012500   ave = 0.012421
+update: 384   max = 0.012500   ave = 0.012469
+update: 385   max = 0.012500   ave = 0.012435
+update: 386   max = 0.012500   ave = 0.012330
+update: 387   max = 0.012500   ave = 0.012457
+update: 388   max = 0.012500   ave = 0.012463
+update: 389   max = 0.012500   ave = 0.012461
+update: 390   max = 0.012500   ave = 0.012404
+update: 391   max = 0.012500   ave = 0.012479
+update: 392   max = 0.012500   ave = 0.012450
+update: 393   max = 0.012500   ave = 0.012397
+update: 394   max = 0.012500   ave = 0.012440
+update: 395   max = 0.012500   ave = 0.012439
+update: 396   max = 0.012500   ave = 0.012478
+update: 397   max = 0.012500   ave = 0.012447
+update: 398   max = 0.012500   ave = 0.012450
+update: 399   max = 0.012500   ave = 0.012478
+update: 400   max = 0.012500   ave = 0.012490
+update: 401   max = 0.012500   ave = 0.012451
+update: 402   max = 0.012500   ave = 0.012442
+update: 403   max = 0.012500   ave = 0.012449
+update: 404   max = 0.012500   ave = 0.012475
+update: 405   max = 0.012500   ave = 0.012386
+update: 406   max = 0.012500   ave = 0.012430
+update: 407   max = 0.012500   ave = 0.012443
+update: 408   max = 0.012500   ave = 0.012450
+update: 409   max = 0.012500   ave = 0.012500
+update: 410   max = 0.012500   ave = 0.012420
+update: 411   max = 0.012500   ave = 0.012411
+update: 412   max = 0.012500   ave = 0.012473
+update: 413   max = 0.012500   ave = 0.012451
+update: 414   max = 0.012500   ave = 0.012486
+update: 415   max = 0.012500   ave = 0.012445
+update: 416   max = 0.012500   ave = 0.012498
+update: 417   max = 0.012500   ave = 0.012473
+update: 418   max = 0.012500   ave = 0.012469
+update: 419   max = 0.012500   ave = 0.012426
+update: 420   max = 0.012500   ave = 0.012485
+update: 421   max = 0.012500   ave = 0.012500
+update: 422   max = 0.012500   ave = 0.012398
+update: 423   max = 0.012500   ave = 0.012471
+update: 424   max = 0.012500   ave = 0.012384
+update: 425   max = 0.012500   ave = 0.012415
+update: 426   max = 0.012500   ave = 0.012479
+update: 427   max = 0.012500   ave = 0.012433
+update: 428   max = 0.012500   ave = 0.012350
+update: 429   max = 0.012500   ave = 0.012452
+update: 430   max = 0.012500   ave = 0.012464
+update: 431   max = 0.012500   ave = 0.012453
+update: 432   max = 0.012500   ave = 0.012446
+update: 433   max = 0.012500   ave = 0.012481
+update: 434   max = 0.012500   ave = 0.012417
+update: 435   max = 0.012500   ave = 0.012420
+update: 436   max = 0.012500   ave = 0.012490
+update: 437   max = 0.012500   ave = 0.012470
+update: 438   max = 0.012500   ave = 0.012479
+update: 439   max = 0.012500   ave = 0.012468
+update: 440   max = 0.012500   ave = 0.012460
+update: 441   max = 0.012500   ave = 0.012416
+update: 442   max = 0.012500   ave = 0.012470
+update: 443   max = 0.012500   ave = 0.012432
+update: 444   max = 0.012500   ave = 0.012404
+update: 445   max = 0.012500   ave = 0.012444
+update: 446   max = 0.012500   ave = 0.012434
+update: 447   max = 0.012500   ave = 0.012421
+update: 448   max = 0.013158   ave = 0.012446
+update: 449   max = 0.013158   ave = 0.012883
+update: 450   max = 0.013158   ave = 0.013018
+update: 451   max = 0.013158   ave = 0.013069
+update: 452   max = 0.013158   ave = 0.013023
+update: 453   max = 0.013158   ave = 0.013098
+update: 454   max = 0.013158   ave = 0.013119
+update: 455   max = 0.013158   ave = 0.013077
+update: 456   max = 0.013158   ave = 0.013029
+update: 457   max = 0.013158   ave = 0.013060
+update: 458   max = 0.013158   ave = 0.013071
+update: 459   max = 0.013158   ave = 0.013158
+update: 460   max = 0.013158   ave = 0.013076
+update: 461   max = 0.013158   ave = 0.013066
+update: 462   max = 0.013158   ave = 0.013083
+update: 463   max = 0.013158   ave = 0.013065
+update: 464   max = 0.013158   ave = 0.013002
+update: 465   max = 0.013158   ave = 0.013073
+update: 466   max = 0.013158   ave = 0.013095
+update: 467   max = 0.013158   ave = 0.013133
+update: 468   max = 0.013158   ave = 0.013088
+update: 469   max = 0.013158   ave = 0.013140
+update: 470   max = 0.013158   ave = 0.013102
+update: 471   max = 0.013158   ave = 0.013096
+update: 472   max = 0.013158   ave = 0.013084
+update: 473   max = 0.013158   ave = 0.013059
+update: 474   max = 0.013158   ave = 0.013074
+update: 475   max = 0.013158   ave = 0.013090
+update: 476   max = 0.013158   ave = 0.013103
+update: 477   max = 0.013158   ave = 0.013061
+update: 478   max = 0.013158   ave = 0.013111
+update: 479   max = 0.013158   ave = 0.013038
+update: 480   max = 0.013158   ave = 0.013089
+update: 481   max = 0.013158   ave = 0.013120
+update: 482   max = 0.013158   ave = 0.013085
+update: 483   max = 0.013158   ave = 0.013045
+update: 484   max = 0.013158   ave = 0.013073
+update: 485   max = 0.013158   ave = 0.013088
+update: 486   max = 0.013158   ave = 0.013086
+update: 487   max = 0.013158   ave = 0.013115
+update: 488   max = 0.013158   ave = 0.013084
+update: 489   max = 0.013158   ave = 0.013105
+update: 490   max = 0.013158   ave = 0.013041
+update: 491   max = 0.013158   ave = 0.013107
+update: 492   max = 0.013158   ave = 0.013084
+update: 493   max = 0.013158   ave = 0.013082
+update: 494   max = 0.013158   ave = 0.013145
+update: 495   max = 0.013158   ave = 0.013082
+update: 496   max = 0.013158   ave = 0.013133
+update: 497   max = 0.013158   ave = 0.013050
+update: 498   max = 0.013158   ave = 0.013095
+update: 499   max = 0.013158   ave = 0.013151
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
+Schedule Length: 
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
+Final Genome: 
+alphabetSize: 3
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-84
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,0,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-85
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,2,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
+2,0,2,1,1,0,2,0,1,1
 Schedule Length: 
-73
+76
+Schedule: 
+{0: [ScheduleEvent(task=1, start=27.000000,end=40.000000,proc=0), ScheduleEvent(task=5, start=40.000000,end=53.000000,proc=0), ScheduleEvent(task=7, start=53.000000,end=58.000000,proc=0)], 1: [ScheduleEvent(task=3, start=18.000000,end=26.000000,proc=1), ScheduleEvent(task=4, start=26.000000,end=39.000000,proc=1), ScheduleEvent(task=8, start=56.000000,end=68.000000,proc=1), ScheduleEvent(task=9, start=69.000000,end=76.000000,proc=1)], 2: [ScheduleEvent(task=0, start=0.000000,end=9.000000,proc=2), ScheduleEvent(task=2, start=9.000000,end=28.000000,proc=2), ScheduleEvent(task=6, start=28.000000,end=39.000000,proc=2)]}
 Final Genome: 
 alphabetSize: 3
-2,2,0,1,1,2,0,1,1,1
-update: 500   max = 0.013699   ave = 0.013623
+2,0,2,1,1,0,2,0,1,1
+update: 500   max = 0.013158   ave = 0.013158

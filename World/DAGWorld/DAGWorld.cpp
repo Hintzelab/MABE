@@ -310,7 +310,7 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 			//std::cout << "Edge 0:1 : " << edge_weights["0:1"] << std::endl;
 			// Define new genome
 			// Constructor(alp_size, genome_size ,PT)
-			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, 10, PT);
+			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, g->get_v(), PT);
 			org->genomes["mapping::"]->fillConstant(0);
 			
 		}
@@ -355,6 +355,8 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		if(Global::update % 500 == 0) {
 			std::cout << "Schedule Length: " << std::endl;
 			std::cout << testSL << std::endl;
+			std::cout << "Schedule: " << std::endl;
+			g->printPrcSchd();
 			std::cout << "Final Genome: " << std::endl;
 			genome_map->printGenome();
 		}

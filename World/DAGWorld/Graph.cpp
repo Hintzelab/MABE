@@ -293,7 +293,39 @@ vector<double> Graph::longestPath(int s, vector<int> taskMapping)
 
 	return dist;
 }
+string Graph::printEvent(ScheduleEvent event) {
+	return "ScheduleEvent(task=" + to_string(event.v) + ", start=" + to_string(event.start) + ",end="  + to_string(event.end) + ",proc=" + to_string(event.proc) + ")";
+}
+void Graph::printPrcSchd() {
+	int counter = 0;
+	cout << "{";
+	for(auto proc : proc_sch) {
+		cout << counter << ": " << "[";
+		int count_proc = 0;
+		for(auto ev : proc) {
+			//Print the event
 
+			if (count_proc < proc.size()-1){
+				cout << printEvent(ev) << ", ";
+			}
+			else {
+				cout << printEvent(ev);
+			}
+			count_proc++;
+		}
+		//cout << endl << "Proc" << counter << ": " << proc.size() << endl;
+		if (counter < proc_sch.size()-1) {
+			cout << "], ";
+		}
+		else{
+			cout << "]";
+		}
+		
+		counter++;
+	}
+	cout << "}";
+	cout << endl;
+}
 
 double Graph::scheduleLength() {
 	events = {};
@@ -342,6 +374,9 @@ double Graph::scheduleLength() {
 	}
 
 	//cout << events[V-1].end;
+	//Print processor schedules
+	
+
 	return events[V-1].end;
 }
 
