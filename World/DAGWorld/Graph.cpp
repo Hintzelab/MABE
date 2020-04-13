@@ -40,13 +40,15 @@ Graph::Graph(int V, vector<vector<double>> nodeWeights, unordered_map<string, do
 		sched.proc = -1;
 		events.push_back(sched);
 	}
+	/*
 	for(int i =0; i<V; i++) {
 		cout << "ScheduleEvent: " << events[i].v << events[i].start << endl;
 	}
+	*/
 	//cout << "Passed the average bw loop" << endl;
-	cout << "BW mat size: " << bwMat.size() << endl;
-	cout << "AvgBW: " << avgbw << endl;
-	this->avgBW = avgbw / (bwMat.size() * bwMat.size()) - bwMat.size();
+	//cout << "BW mat size: " << bwMat.size() << endl;
+	//cout << "AvgBW: " << avgbw << endl;
+	this->avgBW = avgbw / ((bwMat.size() * bwMat.size()) - bwMat.size());
 
 	//Assign edge weights (data size)
 	for(pair<string, double> el : edgeWeights) {
