@@ -351,7 +351,8 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		double score = 1/testSL + 1/longestPath;
 		
 		//cout << score << endl;
-		org->dataMap.append("score", score);
+		org->dataMap.append("score", 1/testSL);
+		org->dataMap.append("lp", 1/longestPath);
 		//org->dataMap.append("lp", lp)
 		if(Global::update % 1000 == 0 && org->ID == 150150) {
 			std::cout << "Longest Path: " << longest_paths[g->get_v()-1] << std::endl;

@@ -8,7 +8,7 @@
  * ConstantValues
 
 % Optimizer
-  * Simple
+  * Lexicase
 
 % Archivist
   * Default
