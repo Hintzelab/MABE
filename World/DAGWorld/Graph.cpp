@@ -53,7 +53,7 @@ Graph::Graph(int V, vector<vector<double>> nodeWeights, unordered_map<string, do
 	//Assign edge weights (data size)
 	for(pair<string, double> el : edgeWeights) {
 		vector<string> tokens;
-		cout << "el.first:" << el.first << endl;
+		//cout << "el.first:" << el.first << endl;
 		stringstream st(el.first);
 		string tok;
 		while(getline(st, tok, ':')) {
@@ -104,8 +104,8 @@ double Graph::ranku() {
 			term_node = i;
 		}
 	}
-	cout << "Term Node: " << term_node << endl;
-	cout << "Avg BW: " << avgBW << endl;
+	//cout << "Term Node: " << term_node << endl;
+	//cout << "Avg BW: " << avgBW << endl;
 	double term_ranku = accumulate(nodeWeights[term_node].begin(), nodeWeights[term_node].end(), 0.0) / nodeWeights[term_node].size(); 
     rankus[term_node] = term_ranku;
     //cout << "Ranku/TERMNODE: " << rankus[term_node] << endl;
@@ -115,17 +115,36 @@ double Graph::ranku() {
 	//for(int q : preds[term_node]){
 	//	visit_queue.push_back(q);
 	//}
-
+	vector<int> processed_nodes = {};
 	while (!visit_queue.empty()) {
+
+		//cout << "Visit queue before: ";
+		//for(auto el : visit_queue) {
+			//cout << el << ", ";
+		//}
+		//cout << endl;
 		int cur_node = visit_queue[visit_queue.size()-1];
 		visit_queue.pop_back();
+		//cout << "Visit queue after: ";
+
+		//for(auto el : visit_queue) {
+			//cout << el << ", ";
+		//}
+		//cout << endl;
 		while(!this->canProcessNode(cur_node)) {
+			//cout << "Cur_node_cannotprocess " << cur_node << endl;
 			int temp_node = visit_queue[visit_queue.size()-1];
 			visit_queue.pop_back();
-			visit_queue.push_back(cur_node);	//re-insert for future evaluation
+			visit_queue.insert(visit_queue.begin(), cur_node);
+			//visit_queue.push_back(cur_node);	//re-insert for future evaluation
 			cur_node = temp_node; 			// iterate
 		}
-
+		//cout << "Cur node: " <<  cur_node << endl;
+		//cout << "Processed Nodes: ";
+		//for(auto n : processed_nodes) {
+			//cout << n << ", ";
+		//}
+		//cout << endl;
 		// Get the max ranku among successors
 		double max_succ_ranku = -1.0;
 		double temp_ranku = 0.0;
@@ -149,9 +168,21 @@ double Graph::ranku() {
 			}
 			avgNodeW = avgNodeW / nodeWeights[cur_node].size();
 			rankus[cur_node] = max_succ_ranku + avgNodeW;
+			
 			//rankus[cur_node] = max_succ_ranku + accumulate(nodeWeights[cur_node].begin(), nodeWeights[cur_node].end(), 0.0) / nodeWeights[cur_node].size();
 			//nodes[cur_node].setRanku(max_succ_ranku + nodeWeights[cur_node]);
 		}
+		processed_nodes.push_back(cur_node);
+		
+		
+
+		//cout << "Visit queue: ";
+		//for(auto el : visit_queue) {
+		//	cout << el << ", ";
+		//}
+		//cout << endl << endl;
+
+		
 		//Insert the predeccessors of cur_node to visit_queue
 		
 		for(int pred : preds[cur_node]) {

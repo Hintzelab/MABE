@@ -339,26 +339,30 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		
 		//int score_order = std::accumulate(genome_order->sites.begin(),genome_order->sites.end(),0.0);
 		//cout << "Just Before longestpath" << endl;
-		//vector<double> res = g->longestPath(0, taskMapping);
+		vector<double> longest_paths = g->longestPath(0, taskMapping);
 		//cout << "TaskMapping0" << taskMapping[0];
 		//taskMapping = {0, 0, 1, 0, 1, 0, 1, 0, 0, 1 };
 		g->setProcMap(taskMapping);
 		double testSL = g->scheduleLength();
-		//std::cout << "Longest Path: " << res[5] << std::endl;
+		
 		//cout << "ST: " << testSL << endl; 
 
-		//double score_map = res[5]; //get the distance from the Final node in the DAG
-		double score = 1/testSL;
+		double longestPath = longest_paths[longest_paths.size()-1]; //get the distance from the Final node in the DAG
+		double score = 1/testSL + 1/longestPath;
 		
 		//cout << score << endl;
 		org->dataMap.append("score", score);
-		if(Global::update % 500 == 0) {
+		//org->dataMap.append("lp", lp)
+		if(Global::update % 1000 == 0 && org->ID == 150150) {
+			std::cout << "Longest Path: " << longest_paths[g->get_v()-1] << std::endl;
 			std::cout << "Schedule Length: " << std::endl;
 			std::cout << testSL << std::endl;
 			std::cout << "Schedule: " << std::endl;
 			g->printPrcSchd();
 			std::cout << "Final Genome: " << std::endl;
 			genome_map->printGenome();
+			std::cout << "Organism ID: " << org->ID << endl;
+
 		}
 		if (visualize)
 			std::cout << "organism with ID " << org->ID << " scored " << score

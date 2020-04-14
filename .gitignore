@@ -17,4 +17,5 @@ __pycache__/
 x64/
 .vs/
 Debug/
-#*.csv
+*.csv
+*.out
