@@ -81,6 +81,7 @@ int main(int argc, const char *argv[]) {
         maxLineLength, commentIndent, {"*"},
         {{prefix + "settings_organism.cfg", {"GATE*", "GENOME*", "BRAIN*"}},
          {prefix + "settings_world.cfg", {"WORLD*"}},
+         {prefix + "settings_DAG.cfg", {"WORLD*"}},
          {prefix + "settings.cfg", {""}}});
 
     std::cout << std::endl

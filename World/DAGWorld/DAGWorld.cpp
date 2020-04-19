@@ -102,33 +102,9 @@ if (fp2 == NULL) {
 		std::cout << "FAILED LOADING BW FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
+
+	std::cout << "Successfully loaded graph" << std::endl;
 	
-	 /*
-    char* line = NULL;
-	size_t len = 0;
-	//LOAD THE NODE WEIGHTS (TASK EXECUTION TIMES INTO MEMORY)
-	while ((getline(&line, &len, fp)) != -1) {
-    	// using printf() in all tests for consistency
-    	//printf("%s\n", line);
-    	std::vector<std::string> tokens;
-		//std::cout << "Here is the line: " << line << std::endl;
-		std::stringstream st(line);
-		std::string tok;
-		while(getline(st, tok, ' ')) {
-			//std::cout <<  << std::endl;
-			tokens.push_back(tok);
-		}
-		
-		node_weights[atoi(tokens[0].c_str())] = {};
-		
-		for (int i = 1; i < tokens.size(); ++i)
-		{
-			(node_weights[atoi(tokens[0].c_str())]).push_back(atof(tokens[i].c_str())); 
-		}
-	}
-	line = NULL;
-	len = 0;
-	*/
 	row_counter = 0;
 	line;
 	len = 0;
@@ -138,7 +114,7 @@ if (fp2 == NULL) {
 		std::vector<std::string> row;
 		std::stringstream st(line);
 		std::string word;
-		//cout << "Line: " << line << endl;
+		cout << "Line: " << line << endl;
 		while(getline(st, word, ',')) {
 			//cout << "w: " << word << endl;
 			row.push_back(word);
@@ -179,12 +155,6 @@ if (fp2 == NULL) {
     	row_counter++;
 		
 	}
-	//cout << "Edge Weights:" << endl;
-	//for(auto it = edge_weights.cbegin(); it!= edge_weights.cend(); it++) {
-		//cout << "{" << (*it).first << ": " << (*it).second << "}\n";
-	//}
-
-	//cout << "Read edge weights" << endl;
 
 	fclose(fp2);
 	row_counter = 0;
@@ -208,83 +178,12 @@ if (fp2 == NULL) {
     	row_counter++;
 	}
     fclose(fp3);
-    //std::cout << "Loaded weights fileS" << std::endl;
-    /*
-    char* line = NULL;
-	size_t len = 0;
-	//LOAD THE NODE WEIGHTS (TASK EXECUTION TIMES INTO MEMORY)
-	while ((getline(&line, &len, fp)) != -1) {
-    	// using printf() in all tests for consistency
-    	//printf("%s\n", line);
-    	std::vector<std::string> tokens;
-		//std::cout << "Here is the line: " << line << std::endl;
-		std::stringstream st(line);
-		std::string tok;
-		while(getline(st, tok, ' ')) {
-			//std::cout <<  << std::endl;
-			tokens.push_back(tok);
-		}
-		
-		node_weights[atoi(tokens[0].c_str())] = {};
-		
-		for (int i = 1; i < tokens.size(); ++i)
-		{
-			(node_weights[atoi(tokens[0].c_str())]).push_back(atof(tokens[i].c_str())); 
-		}
-	}
-	line = NULL;
-	len = 0;
-	*/
-	//LOAD EDGE WEIGHTS INTO MEMORY (COMMUNICATION COST)
-	/*
-	while ((getline(&line, &len, fp2)) != -1) {
-    	// using printf() in all tests for consistency
-    	//printf("%s\n", line);
-    	std::vector<std::string> tokens;
-		//std::cout << "Here is the line: " << line << std::endl;
-		std::stringstream st(line);
-		std::string tok;
-		while(getline(st, tok, ' ')) {
-			//std::cout <<  << std::endl;
-			tokens.push_back(tok);
-		}
-		
-		edge_weights[tokens[0]] = atof(tokens[1].c_str());
-		
-		
-	}
-	fclose(fp2);
-	*/
-	
-	
-	
 
-	//std::cout << "Loaded weights file" << std::endl;
 	int key, val;
-	/*
-	for(std::string str; getline(&line, &len, fp);) {
-		//parse the line 
-		std::vector<std::string> tokens;
-		std::cout << "Here is the line: " << str << std::endl;
-		std::stringstream st(str);
-		std::string tok;
-		while(getline(st, tok, ' ')) {
-			//std::cout <<  << std::endl;
-			tokens.push_back(tok);
-		}
-		
-		weights[atoi(tokens[0].c_str())] = {};
-		
-		for (int i = 1; i < tokens.size(); ++i)
-		{
-			(weights[atoi(tokens[0].c_str())]).push_back(atoi(tokens[i].c_str())); 
-		}
 
-	}
-	*/
 	g = new Graph(num_tasks, node_weights, edge_weights, bwMat);
 	g->compPreds();
-	g->ranku();
+	//g->ranku();
 	//g->scheduleLength();
 	// columns to be added to ave file
 	popFileColumns.clear();
