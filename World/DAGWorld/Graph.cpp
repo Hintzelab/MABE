@@ -96,7 +96,7 @@ ScheduleEvent Graph::computeEFT(int v, int proc) {
 }
 */
 // Computes the ranku of all nodes using BFS
-double Graph::ranku() {
+void Graph::ranku() {
 	//Initialize the terminal node's ranku with its avg comp cost
 	int term_node = V;
 	for(int i=0; i < V; i++) {
@@ -190,6 +190,7 @@ double Graph::ranku() {
 				visit_queue.insert(visit_queue.begin(), pred);
 			}
 		}
+		
 		
 	}
 	//Check the ranku values

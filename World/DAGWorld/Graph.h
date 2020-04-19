@@ -10,6 +10,7 @@
 #include <numeric>
 #include <functional>
 #include <sstream>
+#include <algorithm>
 
 #define NINF INT_MIN 
 #define INF INT_MAX
@@ -96,7 +97,7 @@ public:
 	//function to compute the earliest finish time
 	//ScheduleEvent computeEFT(int v, int proc);
 	//compute rankus 
-	double ranku();
+	void ranku();
 	//determine if a node's ranku is ready for computation
 	bool canProcessNode(int node);
 	// Finds longest distances from given source vertex 
