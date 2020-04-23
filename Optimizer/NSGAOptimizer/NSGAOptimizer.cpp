@@ -12,6 +12,7 @@
 #include <iostream>
 #include <numeric>
 #include <algorithm>
+#include <functional>
 #include <vector>
 #include <memory>
 
@@ -161,10 +162,13 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 	std::vector<int> selected;
 	
 	// Fill newParent with initial fronts
-	int frontNum, filled, index = 0;
+	int frontNum = 0;
+	int filled = 0;
+	int index;
 	newParent.clear();
+	std::cout << "front 1 size: " << paretoFronts[0].size() << std::endl;
 	while(filled + paretoFronts[frontNum].size() < population.size()){
-		for(; index < paretoFronts[frontNum].size(); index++){
+		for(index=0; index < paretoFronts[frontNum].size(); index++){
 			int popIndex = paretoFronts[frontNum][index];
 			selected.push_back(popIndex);
 			newParent.push_back(combinedPopulation[popIndex]);
@@ -173,36 +177,51 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 		frontNum += 1;
 	}
 
+	std::cout << "Filled initial fronts, current size: " << filled << std::endl;
 
-		std::map<int, double>cds;
-		for(int i=index; i< paretoFronts[frontNum].size(); i++){
-			int loc = paretoFronts[frontNum][i];
-			double cd = currentCrowdingDistance[loc];
-			cds[loc] = cd;
+	// We know this next front will overfill the new population
+	// Create map of crowding distance for each entry of this front
+	std::map<int, double>cds;
+	for(int i=0; i< paretoFronts[frontNum].size(); i++){
+		int loc = paretoFronts[frontNum][i];
+		double cd = currentCrowdingDistance[loc];
+		cds[loc] = cd;
+		//std::cout << loc << " " << cd << std::endl;
+	}
+
+	std::cout << "Generated cds map of size " << cds.size() << std::endl;
+
+	// Sort cds according to the second value (distance)
+	// Will use a custom comparator and set to store the result
+	typedef std::function<bool(std::pair<int,double>,std::pair<int,double>)>Comparator;
+
+	Comparator cdComp = [](std::pair<int,double> l, std::pair<int,double> r){
+		return l.second >= r.second;
+	};
+
+	std::set<std::pair<int,double>,Comparator> sortedCD(cds.begin(),cds.end(),cdComp);
+	std::cout <<"SORTED CD LENGTH " << sortedCD.size() << std::endl;
+
+	for(std::pair<int,double> entry: sortedCD){
+		//std::cout << entry.first << " " << entry.second << std::endl;
+			
+		if(filled < population.size()){
+			selected.push_back(entry.first);
+			newParent.push_back(combinedPopulation[entry.first]);
+			filled += 1;
 		}
-
-	// This is where crowding distance prioritization takes place
-	while(filled < oldPopulation.size()){
-		double maxD = 0;
-		int locMax;
-		for(auto entry: cds){
-			if((entry.second > maxD) && (find(selected.begin(),selected.end(),entry.first) == selected.end())){
-				locMax = entry.first;
-			}
-		}
-
-		selected.push_back(locMax);
-		newParent.push_back(combinedPopulation[locMax]);
-		filled += 1;
 	}
 
 
+	std::sort(selected.begin(),selected.end());
+	int unique = std::unique(selected.begin(),selected.end()) - selected.begin();
+	std::cout << "Number of unique selected indeces" << unique << std::endl;
+	//std::cout << "unique " << unique << std::endl;
 	std::cout <<"Filled new population with size " << newParent.size() << std::endl;
-
 	// Fill kill population with remaining organisms
 	killPopulation.clear();
 	for(int i=0; i < combinedPopulation.size(); ++i){
-		if (!(std::find(selected.begin(), selected.end(), i) != selected.end())) {
+		if ((std::find(selected.begin(), selected.end(), i) == selected.end())) {
 			killPopulation.push_back(combinedPopulation[i]);
 		}
 	}
