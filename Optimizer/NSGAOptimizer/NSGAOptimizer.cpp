@@ -54,7 +54,7 @@ NSGAOptimizer::NSGAOptimizer(std::shared_ptr<ParametersTable> PT_)
 		convertCSVListToVector(optimizeFormulaNamesPL->get(PT), scoreNames);
 	}
 
-	//optimizeFormula = optimizeFormulasMTs[0];
+	optimizeFormula = optimizeFormulasMTs[0];
 
 	popFileColumns.clear();
 	for (auto &name : scoreNames) {
