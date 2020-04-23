@@ -69,6 +69,7 @@ public:
 	std::vector<int> currentCrowdingDistance;
 	std::vector<int> previousCrowdingDistance;
 	std::vector<int> combinedCrowdingDistance;
+	std::vector<int> newParentCrowdingDistance;
 
 	std::map<int, int> frontMap; 
   
@@ -106,6 +107,23 @@ public:
          //challanger<<"("<<SO->scoresAfterCull[challanger] << "),winner(" <<
          //SO->scoresAfterCull[winner] << ")";
         if (SO->scores[challanger] > SO->scores[winner]) {
+			//std::cout << " *";
+          winner = challanger;
+        }
+         //std::cout << std::endl;
+      }
+      return winner;
+    }
+
+	 int crowdingSelect() {
+      int winner, challanger;
+      winner = Random::getIndex(SO->newParent.size());
+      for (int i = 0; i < tournamentSize - 1; i++) {
+        challanger = Random::getIndex(SO->newParent.size());
+		//std::cout << tournamentSize << " " << i << "  " <<
+         //challanger<<"("<<SO->scoresAfterCull[challanger] << "),winner(" <<
+         //SO->scoresAfterCull[winner] << ")";
+        if (SO->newParentCrowdingDistance[challanger] > SO->newParentCrowdingDistance[winner]) {
 			//std::cout << " *";
           winner = challanger;
         }

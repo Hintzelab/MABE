@@ -70,7 +70,7 @@ NSGAOptimizer::NSGAOptimizer(std::shared_ptr<ParametersTable> PT_)
  **/
 void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population) {
 
-	std::cout << "initial pop size " << population.size() << std::endl;
+	//std::cout << "initial pop size " << population.size() << std::endl;
 
 	// Initialize score vectors
 	std::vector<double> aveScores;
@@ -143,19 +143,19 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 		combinedScores.at(i).insert(combinedScores.at(i).end(), scores.at(i).begin(), scores.at(i).end());
 	}
 	
-	std::cout << "Combined population size " << combinedPopulation.size() <<std::endl;
-	std::cout << "Combined scores size " << combinedScores.size() << std::endl;
+	//std::cout << "Combined population size " << combinedPopulation.size() <<std::endl;
+	//std::cout << "Combined scores size " << combinedScores.size() << std::endl;
 
 	// Generate pareto-optimal fronts using fastNDS
 	fastNDS(combinedPopulation);
-	std::cout << "Number of Pareto Fronts " << paretoFronts.size() << std::endl;
+	//std::cout << "Number of Pareto Fronts " << paretoFronts.size() << std::endl;
 
 	crowdingDistance(population);
 	combinedCrowdingDistance.clear();
 	combinedCrowdingDistance.insert(combinedCrowdingDistance.begin(), previousCrowdingDistance.begin(), previousCrowdingDistance.end());
 	combinedCrowdingDistance.insert(combinedCrowdingDistance.end(), currentCrowdingDistance.begin(), currentCrowdingDistance.end());
 	previousCrowdingDistance = currentCrowdingDistance;
-	std::cout << "Combined crowding distance size " << combinedCrowdingDistance.size() << std::endl;
+	//std::cout << "Combined crowding distance size " << combinedCrowdingDistance.size() << std::endl;
 
 
 	
@@ -166,30 +166,29 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 	int filled = 0;
 	int index;
 	newParent.clear();
-	std::cout << "front 1 size: " << paretoFronts[0].size() << std::endl;
+	newParentCrowdingDistance.clear();
 	while(filled + paretoFronts[frontNum].size() < population.size()){
 		for(index=0; index < paretoFronts[frontNum].size(); index++){
 			int popIndex = paretoFronts[frontNum][index];
 			selected.push_back(popIndex);
 			newParent.push_back(combinedPopulation[popIndex]);
+			newParentCrowdingDistance.push_back(combinedCrowdingDistance[popIndex]);
 			filled += 1;
 		}
 		frontNum += 1;
 	}
-
-	std::cout << "Filled initial fronts, current size: " << filled << std::endl;
 
 	// We know this next front will overfill the new population
 	// Create map of crowding distance for each entry of this front
 	std::map<int, double>cds;
 	for(int i=0; i< paretoFronts[frontNum].size(); i++){
 		int loc = paretoFronts[frontNum][i];
-		double cd = currentCrowdingDistance[loc];
+		double cd = combinedCrowdingDistance[loc];
 		cds[loc] = cd;
 		//std::cout << loc << " " << cd << std::endl;
 	}
 
-	std::cout << "Generated cds map of size " << cds.size() << std::endl;
+	//std::cout << "Generated cds map of size " << cds.size() << std::endl;
 
 	// Sort cds according to the second value (distance)
 	// Will use a custom comparator and set to store the result
@@ -200,7 +199,7 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 	};
 
 	std::set<std::pair<int,double>,Comparator> sortedCD(cds.begin(),cds.end(),cdComp);
-	std::cout <<"SORTED CD LENGTH " << sortedCD.size() << std::endl;
+	//std::cout <<"SORTED CD LENGTH " << sortedCD.size() << std::endl;
 
 	for(std::pair<int,double> entry: sortedCD){
 		//std::cout << entry.first << " " << entry.second << std::endl;
@@ -208,6 +207,7 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 		if(filled < population.size()){
 			selected.push_back(entry.first);
 			newParent.push_back(combinedPopulation[entry.first]);
+			newParentCrowdingDistance.push_back(combinedCrowdingDistance[entry.first]);
 			filled += 1;
 		}
 	}
@@ -215,9 +215,9 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 
 	std::sort(selected.begin(),selected.end());
 	int unique = std::unique(selected.begin(),selected.end()) - selected.begin();
-	std::cout << "Number of unique selected indeces" << unique << std::endl;
+	//std::cout << "Number of unique selected indeces" << unique << std::endl;
 	//std::cout << "unique " << unique << std::endl;
-	std::cout <<"Filled new population with size " << newParent.size() << std::endl;
+	//std::cout <<"Filled new population with size " << newParent.size() << std::endl;
 	// Fill kill population with remaining organisms
 	killPopulation.clear();
 	for(int i=0; i < combinedPopulation.size(); ++i){
@@ -225,9 +225,9 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 			killPopulation.push_back(combinedPopulation[i]);
 		}
 	}
-	std::cout << "Number of selected individuals " << selected.size() << std::endl;
-	std::cout << "Number of unselected individuals " << killPopulation.size() << std::endl;
-	std::cout << "Generating offspring " << std::endl;
+	//std::cout << "Number of selected individuals " << selected.size() << std::endl;
+	//std::cout << "Number of unselected individuals " << killPopulation.size() << std::endl;
+	//std::cout << "Generating offspring " << std::endl;
 
 	// Generate offspring from newParent with crowding distance tournament selection
 
@@ -238,7 +238,7 @@ void NSGAOptimizer::optimize(std::vector<std::shared_ptr<Organism>> &population)
 		std::vector<std::shared_ptr<Organism>> parents;
 		int popSize = 0;
 		while (popSize < population.size()) { 
-				auto parent = newParent[selector->select()]; 
+				auto parent = newParent[selector->crowdingSelect()]; 
 				newPopulation.push_back(parent->makeMutatedOffspringFrom(parent)); // push to population
 			
 			popSize++;
