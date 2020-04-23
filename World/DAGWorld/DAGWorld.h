@@ -21,6 +21,11 @@
 class DAGWorld : public AbstractWorld {
 
 public:
+	static std::shared_ptr<ParameterLink<std::string>> hetFacPL;
+	static std::shared_ptr<ParameterLink<std::string>> ccrPL;
+	static std::shared_ptr<ParameterLink<std::string>> graphHeightPL;
+	static std::shared_ptr<ParameterLink<int>> graphSizePL;
+	static std::shared_ptr<ParameterLink<int>> resCountPL;
 	static std::shared_ptr<ParameterLink<int>> modePL;
 	static std::shared_ptr<ParameterLink<int>> numberOfOutputsPL;
 	static std::shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
@@ -28,6 +33,13 @@ public:
 	// int mode;
 	// int numberOfOutputs;
 	// int evaluationsPerGeneration;
+	
+	// Graph parameters
+	std::string hetFac;
+	std::string ccr;
+	std::string graphHeight;
+	int graphSize;
+	int resCount;
 
 	static std::shared_ptr<ParameterLink<std::string>> groupNamePL;
 	static std::shared_ptr<ParameterLink<std::string>> brainNamePL;

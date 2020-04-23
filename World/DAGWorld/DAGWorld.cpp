@@ -31,6 +31,21 @@
 std::shared_ptr<ParameterLink<int>> DAGWorld::modePL =
 Parameters::register_parameter(
 	"WORLD_DAG-mode", 0, "0 = bit outputs before adding, 1 = add outputs");
+std::shared_ptr<ParameterLink<int>> DAGWorld::resCountPL =
+Parameters::register_parameter(
+	"WORLD_DAG-resCount", 2, "Number of available resources");
+std::shared_ptr<ParameterLink<std::string>> DAGWorld::graphHeightPL =
+Parameters::register_parameter(
+	"WORLD_DAG-graphHeight", (std::string) "10", "Depth of the graph");
+std::shared_ptr<ParameterLink<std::string>> DAGWorld::ccrPL =
+Parameters::register_parameter(
+	"WORLD_DAG-ccr", (std::string) "0.1", "Communication to computation ratio");
+std::shared_ptr<ParameterLink<std::string>> DAGWorld::hetFacPL =
+Parameters::register_parameter(
+	"WORLD_DAG-hetFac", (std::string) "0.5", "Heterogenuity factor");
+std::shared_ptr<ParameterLink<int>> DAGWorld::graphSizePL =
+Parameters::register_parameter(
+	"WORLD_DAG-graphSize", 50, "Number of nodes in the graph");
 std::shared_ptr<ParameterLink<int>> DAGWorld::numberOfOutputsPL =
 Parameters::register_parameter("WORLD_DAG-numberOfOutputs", 10,
 	"number of outputs in this world");
@@ -52,13 +67,22 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 	: AbstractWorld(PT_) {
 
 	//Read the DAG settings
-	std::ifstream settingsfile("./DAG_settings.cfg");
+	
+	resCount = resCountPL->get(PT);
+	graphHeight = graphHeightPL->get(PT);
+	ccr = ccrPL->get(PT);
+	hetFac = hetFacPL->get(PT);
+	graphSize = graphSizePL->get(PT);
+	
+	std::string exp_folder_name = std::to_string(graphSize) + "_" + std::to_string(resCount) + "_" + graphHeight + "_" +ccr + "_" + hetFac;
+	//std::ifstream settingsfile("./DAG_settings.cfg");
 	int row_counter = 0;
 	string line;
 	size_t len = 0;
-	std::string nw_filename = "./data/";
-	std::string ew_filename = "./data/";
-	std::string bw_filename = "./data/";
+	std::string nw_filename = "../data/" + exp_folder_name + "/nw.csv";
+	std::string ew_filename = "../data/" + exp_folder_name + "/ew.csv";
+	std::string bw_filename = "../data/" + exp_folder_name + "/bw.csv";
+        /*
 	std::vector<std::string> filenames = {};
 	int num_tasks = -1;
 
@@ -77,16 +101,19 @@ DAGWorld::DAGWorld(std::shared_ptr<ParametersTable> PT_)
 		
 		row_counter++;
 	}
-	nw_filename = nw_filename + filenames[0] + ".csv";
+	*/
+	//nw_filename = nw_filename + filenames[0] + ".csv";
+	int num_tasks = -1;
 	std::ifstream nwfile(nw_filename); // ./data/node_weights.csv
 	
-	ew_filename = ew_filename + filenames[1] + ".csv";
+	//ew_filename = ew_filename + filenames[1] + ".csv";
 	std::ifstream ewfile(ew_filename); // ./data/edge_weights.csv
 
-	bw_filename = bw_filename + filenames[2] + ".csv";
+	//bw_filename = bw_filename + filenames[2] + ".csv";
 	std::ifstream bwfile(bw_filename); // "./data/bandwidth.csv"
 
-	num_tasks = atoi(filenames[3].c_str());
+	num_tasks = graphSize;
+	/*
 	FILE* fp = fopen("./data/node_weights.csv", "r");
 	if (fp == NULL) {
 		std::cout << "FAILED LOADING NODE_WEIGHTS FILE" << std::endl;
@@ -102,9 +129,35 @@ if (fp2 == NULL) {
 		std::cout << "FAILED LOADING BW FILE" << std::endl;
     	exit(EXIT_FAILURE);
     }
+<<<<<<< HEAD
+	*/
+	 /*
+    char* line = NULL;
+	size_t len = 0;
+	//LOAD THE NODE WEIGHTS (TASK EXECUTION TIMES INTO MEMORY)
+	while ((getline(&line, &len, fp)) != -1) {
+    	// using printf() in all tests for consistency
+    	//printf("%s\n", line);
+    	std::vector<std::string> tokens;
+		//std::cout << "Here is the line: " << line << std::endl;
+		std::stringstream st(line);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		node_weights[atoi(tokens[0].c_str())] = {};
+		
+		for (int i = 1; i < tokens.size(); ++i)
+		{
+			(node_weights[atoi(tokens[0].c_str())]).push_back(atof(tokens[i].c_str())); 
+		}
+	}
+	line = NULL;
+	len = 0;
+	*/
 
-	std::cout << "Successfully loaded graph" << std::endl;
-	
 	row_counter = 0;
 	line;
 	len = 0;
@@ -156,7 +209,7 @@ if (fp2 == NULL) {
 		
 	}
 
-	fclose(fp2);
+	//fclose(fp2);
 	row_counter = 0;
 	string line3;
 	len = 0;
@@ -177,16 +230,68 @@ if (fp2 == NULL) {
     	
     	row_counter++;
 	}
-    fclose(fp3);
+   // fclose(fp3);
+    //std::cout << "Loaded weights fileS" << std::endl;
+    /*
+    char* line = NULL;
+	size_t len = 0;
+	//LOAD THE NODE WEIGHTS (TASK EXECUTION TIMES INTO MEMORY)
+	while ((getline(&line, &len, fp)) != -1) {
+    	// using printf() in all tests for consistency
+    	//printf("%s\n", line);
+    	std::vector<std::string> tokens;
+		//std::cout << "Here is the line: " << line << std::endl;
+		std::stringstream st(line);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		node_weights[atoi(tokens[0].c_str())] = {};
+		
+		for (int i = 1; i < tokens.size(); ++i)
+		{
+			(node_weights[atoi(tokens[0].c_str())]).push_back(atof(tokens[i].c_str())); 
+		}
+	}
+	line = NULL;
+	len = 0;
+	*/
+	//LOAD EDGE WEIGHTS INTO MEMORY (COMMUNICATION COST)
+	/*
+	while ((getline(&line, &len, fp2)) != -1) {
+    	// using printf() in all tests for consistency
+    	//printf("%s\n", line);
+    	std::vector<std::string> tokens;
+		//std::cout << "Here is the line: " << line << std::endl;
+		std::stringstream st(line);
+		std::string tok;
+		while(getline(st, tok, ' ')) {
+			//std::cout <<  << std::endl;
+			tokens.push_back(tok);
+		}
+		
+		edge_weights[tokens[0]] = atof(tokens[1].c_str());
+		
+		
+	}
+	fclose(fp2);
+	*/
+	
+	
+    //fclose(fp3);
+
 
 	int key, val;
 
 	g = new Graph(num_tasks, node_weights, edge_weights, bwMat);
 	g->compPreds();
-	//g->ranku();
+	g->ranku();
 	//g->scheduleLength();
 	// columns to be added to ave file
 	popFileColumns.clear();
+	popFileColumns.push_back("SL");
 	popFileColumns.push_back("score");
 	popFileColumns.push_back("score_VAR"); // specifies to also record the
 										   // variance (performed automatically
@@ -209,7 +314,7 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 			//std::cout << "Edge 0:1 : " << edge_weights["0:1"] << std::endl;
 			// Define new genome
 			// Constructor(alp_size, genome_size ,PT)
-			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(3, g->get_v(), PT);
+			org->genomes["mapping::"] = std::make_shared<CircularGenome<int>>(resCount, graphSize, PT);
 			org->genomes["mapping::"]->fillConstant(0);
 			
 		}
@@ -252,9 +357,11 @@ void DAGWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze,
 		//cout << score << endl;
 		org->dataMap.append("score", 1/testSL);
 		org->dataMap.append("lp", 1/longestPath);
+		org->dataMap.append("SL", testSL);
+		
 		//org->dataMap.append("lp", lp)
 		if(Global::update % 1000 == 0 && org->ID == 150150) {
-			std::cout << "Longest Path: " << longest_paths[g->get_v()-1] << std::endl;
+			std::cout << "Longest Path: " << longest_paths[graphSize-1] << std::endl;
 			std::cout << "Schedule Length: " << std::endl;
 			std::cout << testSL << std::endl;
 			std::cout << "Schedule: " << std::endl;

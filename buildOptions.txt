@@ -8,9 +8,9 @@
  * ConstantValues
 
 % Optimizer
-  + Lexicase
-  + Simple
-  * NSGA
+  - Lexicase
+  - Simple
+  + NSGA
 
 % Archivist
   * Default
