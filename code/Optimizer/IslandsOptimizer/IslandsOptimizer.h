@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <module_factories.h>
+
 #include <Optimizer/AbstractOptimizer.h>
 #include <Utilities/MTree.h>
 

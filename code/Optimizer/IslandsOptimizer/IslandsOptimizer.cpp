@@ -10,13 +10,24 @@
 
 
 #include "IslandsOptimizer.h"
-#include "../SimpleOptimizer/SimpleOptimizer.h"
-#include "../LexicaseOptimizer/LexicaseOptimizer.h"
 
 std::shared_ptr<ParameterLink<std::string>> IslandsOptimizer::IslandNameSpaceListPL =
 Parameters::register_parameter(
-	"OPTIMIZER_ISLANDS-IslandNameSpaceList", static_cast<std::string>("op1::,op2::,op3::,op4::,op5::"),
-	"list of name spaces to use for island optimizers");
+	"OPTIMIZER_ISLANDS-IslandNameSpaceList", static_cast<std::string>("Tmin::,Roul::,Tmin::Ts50::,Tmax::"),
+	"list of name spaces to use for island optimizers\n"
+	"make sure to define the optimzers using namespace prefixes:\n"
+	"example (add this to settings config:\n"
+	"%                                            # close catagory (if one is open)\n"
+	"Tmin::OPTIMIZER-optimizer = Tournament       # set Tmin:: to tournament\n"
+	"Roul::OPTIMIZER-optimizer = Roulette         # set Roul:: to roulette\n"
+	"Tmin::Ts50::OPTIMIZER-optimizer = Tournament # set Tmin::Ts50 to tournament\n"
+	"              # this is redundent, because Tmin:: is already tournament\n"
+	"Tmax::OPTIMIZER-optimizer = Tournament       # set Tmax::to tournament\n"
+	"\n"
+	"Tmin::OPTIMIZER_TOURNAMENT-minimizeError = 1 # set Tmin:: to minimize error\n"
+	"              # by inheritance, this also sets op1::op3::\n"
+	"Tmin::TS50::OPTIMIZER_TOURNAMENT-tournamentSize = 50 # set Tmin::Ts50:: tounamentSize"
+);
 std::shared_ptr<ParameterLink<double>> IslandsOptimizer::migrationRatePL =
 Parameters::register_parameter(
 	"OPTIMIZER_ISLANDS-migrationRate", .02,
@@ -32,27 +43,10 @@ IslandsOptimizer::IslandsOptimizer(std::shared_ptr<ParametersTable> PT_)
 	std::cout << "  setting up IslandOptimizer. Found " << islands << " islands:" << std::endl;
 	for (auto& nameSpace : opNameSpaces) {
 		auto thisPT = Parameters::root->getTable(nameSpace);
+		islandOptimizers.push_back(makeOptimizer(thisPT));
+
 		auto islandType = thisPT->lookupString("OPTIMIZER-optimizer");
 		std::cout << "      namespace: " << nameSpace << " island type: ";
-		if (islandType == "Islands") {
-			std::cout << "not defined, assuming Simple." << std::endl;
-			islandOptimizers.push_back(std::make_shared<SimpleOptimizer>(nameSpace == "root::" ? Parameters::root : Parameters::root->getTable(nameSpace)));
-		}
-		else if (islandType == "Simple") {
-			std::cout << "Simple." << std::endl;
-			islandOptimizers.push_back(std::make_shared<SimpleOptimizer>(nameSpace == "root::" ? Parameters::root : Parameters::root->getTable(nameSpace)));
-		}
-		else if (islandType == "Lexicase") {
-			std::cout << "Lexicase." << std::endl;
-			islandOptimizers.push_back(std::make_shared<LexicaseOptimizer>(nameSpace == "root::" ? Parameters::root : Parameters::root->getTable(nameSpace)));
-		}
-		else {
-			std::cout << islandType << ".\n"
-				"      ERROR:: this type of optimizer is not known to Islands Optimizer.\n"
-				"      You may have a typo, or Islands Optimizer may need to be extended to understand this optimizer type.\n"
-				"      exiting..." << std::endl;
-			exit(1);
-		}
 	}
 
 	migrationRate = migrationRatePL->get(PT);
