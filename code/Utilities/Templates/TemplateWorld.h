@@ -27,10 +27,14 @@ class {{MODULE_NAME}}World : public AbstractWorld {
 public:
 	// parameters for group and brain namespaces
 	static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL;
-	static shared_ptr<ParameterLink<string>> groupNameSpacePL;
-	static shared_ptr<ParameterLink<string>> brainNameSpacePL;
+    
+    // a local variable used for faster access to the ParameterLink value
+    int evaluationsPerGeneration;
 	
-  {{MODULE_NAME}}World(shared_ptr<ParametersTable> /*PT_*/);
+    std::string groupName = "root::";
+    std::string brainName = "root::";
+    
+    {{MODULE_NAME}}World(shared_ptr<ParametersTable> PT_);
 	virtual ~{{MODULE_NAME}}World() = default;
 
 	virtual auto evaluate(map<string, shared_ptr<Group>>& /*groups*/, int /*analyze*/, int /*visualize*/, int /*debug*/) -> void override;
