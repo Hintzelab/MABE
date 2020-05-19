@@ -16,6 +16,7 @@
 #pragma once
 
 #include <random>
+#include <climits> // UINT_MAX
 
 namespace Random {
 
