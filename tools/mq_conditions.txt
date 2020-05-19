@@ -53,6 +53,6 @@ EXECUTABLE = ./mabe
 HPCC_PARAMETERS = #SBATCH --constraint="[intel14|intel16|intel18]"
 HPCC_PARAMETERS = #SBATCH --ntasks=1
 HPCC_PARAMETERS = #SBATCH --cpus-per-task=1
-HPCC_PARAMETERS = #SBATCH --time=03:50:00
+HPCC_PARAMETERS = #SBATCH --time=03:55:00  #WARNING indefinite requires 03:51:00 or greater
 HPCC_PARAMETERS = #SBATCH --mem=2G
 HPCC_PARAMETERS = #SBATCH --mail-type=FAIL
