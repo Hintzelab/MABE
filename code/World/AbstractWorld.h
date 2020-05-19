@@ -26,9 +26,6 @@ public:
 
   const std::shared_ptr<ParametersTable> PT;
 
-  int requiredInputs = 0;
-  int requiredOutputs = 0;
-
   std::vector<std::string> popFileColumns;
 
   AbstractWorld(std::shared_ptr<ParametersTable> PT_) : PT(PT_) {}
