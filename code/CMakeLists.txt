@@ -1,7 +1,8 @@
 set(CMAKE_BUILD_TYPE ${BUILD_TYPE})
 set(CMAKE_BUILD_TYPE Debug CACHE STRING "Options are: Debug or Release (case sensitive)")
-## force VS to set release mode by default
-set(CMAKE_CONFIGURATION_TYPES "Release" CACHE STRING "config types" FORCE)
+
+## force VS to set release mode by default (mbuild provides this instead)
+#set(CMAKE_CONFIGURATION_TYPES "Debug;Release" CACHE STRING "config types" FORCE)
 
 # OS-specific alterations
 if (MSYS OR MINGW)
@@ -37,6 +38,14 @@ else()
   file(WRITE ${CMAKE_CURRENT_LIST_DIR}/Utilities/gitversion.h "const char *gitversion = \"\";\n")
 endif()
 
+## Attempt to set output directory for all projects
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../work )
+set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../work )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_LIST_DIR}/../work )
+set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/../work )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_CURRENT_LIST_DIR}/../work )
+set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_CURRENT_LIST_DIR}/../work )
+
 #
 # Add the executable (entrypoint)
 #
@@ -47,6 +56,9 @@ set(CMAKE_CXX_STANDARD 17)
 target_compile_features(${EXE} PRIVATE cxx_std_17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+## Attempt to set output directory for all projects
+#set_target_properties( ${EXE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../work" )
+#set_target_properties( ${EXE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/work )
 ## This sets the xcode output directory
 set_target_properties(${EXE} PROPERTIES XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "work")
 set_target_properties(${EXE} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "../work")
