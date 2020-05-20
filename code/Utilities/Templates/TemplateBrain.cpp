@@ -10,218 +10,197 @@
 
 #include "{{MODULE_NAME}}Brain.h"
 
-shared_ptr<ParameterLink<string>> {{MODULE_NAME}}Brain::genomeNamePL = Parameters::register_parameter("BRAIN_{{MODULE_NAME_CAPS}}-genomeNameSpace", (string)"root::", "namespace used to set parameters for genome used to encode this brain");
 
-{{MODULE_NAME}}Brain::{{MODULE_NAME}}Brain(int _nrInNodes, int _nrOutNodes, shared_ptr<ParametersTable> PT_) :
-	AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
+{{MODULE_NAME}}Brain::{{MODULE_NAME}}Brain(int ins, int outs, std::shared_ptr<ParametersTable> PT_)
+    : AbstractBrain(ins, outs, PT_) {
+    nrInputValues = ins;
+    nrOutputValues = outs;
+    recordActivity = false;
 
-	// "popFileColumns" provides the DefaultArchivist with values which the world
-	// "thinks are interesting" and therefore should be saved in pop.csv files
-	// (pop.csv tracks population averages).
-	// popFileColumn values will be extracted by DefaultArchivist from each
-	// organisms DataMaps and so, must be written into every organisms DataMap
-	// and must be numeric values which can be averaged.
-	// 
-	// See DataMap: https://github.com/Hintzelab/MABE/wiki/DataMap
-
-	// columns to be added to pop.csv file
-	popFileColumns.clear();
+    inputValues.resize(nrInputValues);
+    outputValues.resize(nrOutputValues);
 }
 
-// makeBrain() is a function which creates a brain. This new brain
-// may be constructed using one or more genomes, or from scratch.
-//
-// Conseptualy, in MABE, we think of brains being build from genomes
-// (that is, genomes probide instructions or a blueprints to build
-// brains). Brains can be build from more then one genome. CGP brains
-// consist of a mathimatical formula for each brain output, and one
-// method to construct CGP brains uses one genome to define each
-// formula.
-//
-// Brains may also be constructed from scratch or by hand in the
-// case of "directly encoded brains" (i.e. brains that are not
-// translated from a genome(s)). Directly Encoded Brains, are a
-// diffrent class of brain, beyond not being constructed from
-// genomes, these brains must provide their own means of mutation
-// (which acts directly on the structures of the brain.)
-//
-// the makeBrain() function is provided with _genomes which is all
-// of the genomes contained in the parent organism. These genomes
-// are stored in a map which associates name space names with genomes.
-// _genomes["sheep::"] will refer to the genome created using paramters
-// associated with the "sheep::" namespace
-//
-// Genomes can be thought of as containers full of data which can
-// only be accessed by using a genome handler. Genome handlers are tools
-// which standardize interactions with genomes.
-//
-
-auto {{MODULE_NAME}}Brain::makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) -> shared_ptr<AbstractBrain> {
-	// to get a genome handler, you call the newHandler function.
-	//auto handler = _genomes[genomeNamePL->get(PT)]->newHandler(_genomes[genomeNamePL->get(PT)]);
-
-	// the process by which you can build a brain is a varied as the types of
-	// brains you can build and will be based on factors such as the operation
-	// of the brain and wether it is geneticly or directly encoded. If you 
-	// are unsure about how to proceed, I suggest that you look at other MABE
-	// brains (Human Brain and ConstantValues Brain are a good place to start).
-	
-	// at a minimum you must return a new brain, and a shared ptr to that brain.
-	shared_ptr<{{MODULE_NAME}}Brain> newBrain = make_shared<{{MODULE_NAME}}Brain>(nrInputValues, nrOutputValues,PT);
-	return newBrain;
+void {{MODULE_NAME}}Brain::update(){
+    // code here to update brain
+    // inputs are in inputValues[inputAddress]
+    // outputs are in outputValues[outputAddress]
+    
+    // example: a brain that outputs 1 if input 0 == input 1 else 0
+    //if (inputValues[0] == inputValues[1]) {
+    //    outputValues[0] = 1;
+    //}
+    //else {
+    //    outputValues[0] = 0;
+    //}
 }
 
-// resetBrain() is used to initialize a brain. Some information in a brain
-// is derived from the genome (or inherited from parent brains directly), but
-// other information may be related to the brains current state. Consider a
-// brain that has inputs, outputs, logic gates, three memory locations and,
-// wires which connect these components. Consider that a genome is used to
-// define the logic gates, and wire the logic gates to inputs, outputs and
-// memory locations. In this brain, resetBrain() would only reset the contents
-// of the memory locations (perhaps to 0).
-// Now consider that this brain has in place of logic gates, threshold gates.
-// These threshold gates sum inputs over time until an internal genteticly
-// determined threshold is reached and they send out some signal.
-// resetBrain() in this new brain would still clear the memory locations,
-// but would also reset the summations on each threshold gate to some default.
-// 
-// In addtion to any user defined reset behavor, a call is also made to 
-// the AbstractBrain::resetBrain() function which clears brain inputs
-// and outputs (those values sent to and read from the world).
-auto {{MODULE_NAME}}Brain::resetBrain() -> void {
-	AbstractBrain::resetBrain();
+// make a copy of the brain that called this
+std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+    
+    // You need to define this function. It needs to return a cop of the brain that called it
+    
+    return(std::make_shared<CleanBrain>(nrInputValues, nrOutputValues, PT));
 }
 
-// the update function() is where the real work of a brain is done.
-// worlds interface with brains by setting brain inputs, calling
-// brain update and reading brain outputs. It is the task of update
-// to execute some process (determined by the brain) to convert
-// inputs to outputs.
-auto {{MODULE_NAME}}Brain::update() -> void {
-	// here is an example of a trivial brain update function which
-	// returns 0 if the first two brain updates sum is zero or less
-	// and 1 otherwise.
-	// This code provides an example of a detail you should be aware
-	// of. The number of inputs and outputs that a brain has will be
-	// determined by the world in which this brain is evaluated.
-	// (see requiredGroups() in world for more).
-	// This code assumes 2 inputs and 1 output. If a brain does
-	// require a certain minimu number of inputs or outputs, you
-	// must check on construction to insure that this requierment
-	// is met. Reading or writing outside of inputValues or
-	// outputValues range will likely result in a seg fault
-	// (a condition which would be costly to test for!)
-	if (inputValues[0] + inputValues[1] <= 0) {
-		outputValues[0] = 0;
-	}
-	else {
-		outputValues[0] = 1;
-	}
+// Make a brain like the brain that called this function, using genomes and initalizing other elements.
+std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeBrain(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> & _genomes) {
+    
+    // You need to define this function. It needs to return a brain, it can use the brain that called this, and _genomes
+
+    return(std::make_shared<CleanBrain>(nrInputValues, nrOutputValues, PT));
 }
 
-// description simply provides a human readable string with
-// the brain type
-auto {{MODULE_NAME}}Brain::description() -> string {
-	string S = "{{MODULE_NAME}} Brain\n";
-	return S;
+std::string {{MODULE_NAME}}Brain::description() {
+    // returns a desription of this brain in it's current state
+    return "no description provided...";
 }
 
-// getStats collects data about this brain into a DataMap.
-// getStats is primarily called by the organism constructor
-// after the brain has been built. The organism constructor
-// collects data from brains and genomes and then adds this
-// data to the organisms data map.
-// See DataMap: https://github.com/Hintzelab/MABE/wiki/DataMap
-auto {{MODULE_NAME}}Brain::getStats(string& prefix) -> DataMap {
-	DataMap dataMap;
-	// since our brain is empty, there is no data to collect.
-	// so an empty DataMap is returned
-	return (dataMap);
-
-	// here is example peice of code from the MarkovBrain
-	// getStats which counts the number of each type of gate in the
-	// brain.
-	
-	// Note that prefix is preceeding the keys being set in the data
-	// map. When getStats is called, organism passes the name space
-	// for this brain, and this must be part of the key (if there
-	// were more then one brain in this organism how else could we
-	// tell which data related to which brain?).
-
-	//map<string, int> gatecounts;
-	//for (auto n : GLB->getInUseGateNames()) {
-	//	gatecounts[n + "Gates"] = 0;
-	//}
-	//for (auto g : gates) {
-	//	gatecounts[g->gateType() + "Gates"]++;
-	//}
-	//
-	//for (auto n : GLB->getInUseGateNames()) {
-	//	dataMap.set(prefix + "markovBrain" + n + "Gates", gatecounts[n + "Gates"]);
-	//}
+DataMap {{MODULE_NAME}}Brain::getStats(std::string& prefix) {
+    // return a vector of DataMap of stats from this brain, this is called just after the brain is constructed
+    // values in this datamap are added to the datamap on the organism that "owns" this brain
+    // all data names must have prefix prepended (i.e. connections would be prefix + "connections"
+    
+    DataMap dataMap;
+    // datamap example:
+    //dataMap.append(prefix + "someStatName", someStat);
+    return dataMap;
 }
 
-// initializeGenomes is used to seed genomes with some preset information.
-// in Markov Brains, initializeGenomes is used to seed some inital random
-// gates. In Wire brains, it can be used to determine an inital ratio of
-// wire to empty space in the brain.
-auto {{MODULE_NAME}}Brain::initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& _genomes) -> void {
-	// if this is a direct encoded brain, do nothing;
-
-	// this function is passed _genomes which provides access to the genomes
-	// of the parent organism. (see makeBrain above)
-	// Using a genome handler, this function and alter a genome(s) to
-	// prepare it for convertion into a brain.
-	// This function is generally only called when a population (or
-	// organism) is being created initally and not durring a run (i.e.
-	// not as a result of reproduction/mutation)
+std::string {{MODULE_NAME}}Brain::getType() {
+    // return the type of this brain
+    return "Undefined";
 }
 
-auto {{MODULE_NAME}}Brain::requiredGenomes() -> unordered_set<string> {
-  return {};
+void {{MODULE_NAME}}Brain::setInput(const int& inputAddress, const double& value) {
+    if (inputAddress < nrInputValues) {
+        inputValues[inputAddress] = value;
+    }
+    else {
+        std::cout << "in Brain::setInput() : Writing to invalid input ("
+            << inputAddress << ") - this brain needs more inputs!\nExiting"
+            << std::endl;
+        exit(1);
+    }
 }
 
-// makeCopy is used to make a copy of a brain. MABE has two conventions
-// for making copies. One is makeCopy (this function) which makes a full
-// (if not perfect copy). makeLike (which you may see in other parts of
-// the code is used to make a new object that is like the object being
-// copied (this is particularly imprtant for genomes, which are large and
-// can be costly to copy. If you need a new genome like an existing genome,
-// but you are going to randomize it's contents, there is no need to spend
-// all that time copying.
-// Above I indicate that this may not be a perfect copy. As you see, you
-// you can pass a PT to make copy. This PT may contain diffrent parameters
-// settings then the brain being copied, and so the resulting brain may
-// be diffrent.
-// makeCopy is related to the processes involved in directly encoded brains,
-// In make copy it is often nessacary to copy structures which were built from
-// a genome (i.e. in Markov Brains, makeCopy must copy all of the brains
-// gates. A may brain have interal states which must also be copied. Obviously
-// the functioning of makeCopy will depend in a great deal on the brain.
-//
-auto {{MODULE_NAME}}Brain::makeCopy(shared_ptr<ParametersTable> PT_) -> shared_ptr<AbstractBrain> {
-	// if no PT is provide, use the PT of the object being copied.
-	if (PT_ == nullptr) {
-		PT_ = PT;
-	}
+double {{MODULE_NAME}}Brain::readInput(const int& inputAddress) {
+    if (inputAddress < nrInputValues) {
+        return inputValues[inputAddress];
+    }
+    else {
+        std::cout << "in Brain::readInput() : Reading from invalid input ("
+            << inputAddress << ") - this brain needs more inputs!\nExiting"
+            << std::endl;
+        exit(1);
+    }
+}
 
-	// at minimum (like in makeBrain() a new brain must be created.
-	auto newBrain = make_shared<{{MODULE_NAME}}Brain>(nrInputValues, nrOutputValues, PT_);
-	return newBrain;
+void {{MODULE_NAME}}Brain::setOutput(const int& outputAddress, const double& value) {
+    if (outputAddress < nrOutputValues) {
+        outputValues[outputAddress] = value;
+    }
+    else {
+        std::cout << "in Brain::setOutput() : Writing to invalid output ("
+            << outputAddress << ") - this brain needs more outputs!\nExiting"
+            << std::endl;
+        exit(1);
+    }
+}
 
-	// This code is from Markov Brains. Here we create a new gate list
-	// (_gates) and populate it with copies of each gate (where each
-	// gate has it's own makeCopy function). Finally a call to a special
-	// Markov Brain constructor which takes a gate list is made.
+double {{MODULE_NAME}}Brain::readOutput(const int& outputAddress) {
+    if (outputAddress < nrOutputValues) {
+        return outputValues[outputAddress];
+    }
+    else {
+        std::cout << "in Brain::readOutput() : Reading from invalid output ("
+            << outputAddress << ") - this brain needs more outputs!\nExiting"
+            << std::endl;
+        exit(1);
+    }
+}
 
-	//vector<shared_ptr<AbstractGate>> _gates;
-	//for (auto gate : gates) {
-	//	_gates.push_back(gate->makeCopy());
-	//}
-	//auto newBrain = make_shared<MarkovBrain>(_gates, nrInputValues, nrOutputValues, PT_);
+void {{MODULE_NAME}}Brain::resetOutputs() {
+    for (int i = 0; i < nrOutputValues; i++) {
+        outputValues[i] = 0.0;
+    }
+}
+
+void {{MODULE_NAME}}Brain::resetInputs() {
+    for (int i = 0; i < nrInputValues; i++) {
+        inputValues[i] = 0.0;
+    }
+}
+
+void {{MODULE_NAME}}Brain::resetBrain() {
+    resetInputs();
+    resetOutputs();
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// these functions need to be filled in if genomes are being used in this brain
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// return a set of namespaces, MABE will insure that genomes with these names are created
+// on organisms with these brains.
+std::unordered_set<std::string> {{MODULE_NAME}}Brain::requiredGenomes() {
+    // note namespace must end with ::, also, if you wish to use default values, then 
+    //    return {"root::"};
+    return {};
+}
+
+void {{MODULE_NAME}}Brain::initializeGenomes(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> & _genomes) {
+    // do nothing by default... if this is a direct encoded brain, then no action is needed.
+    // This can be used to randomize the genome and/or insert start codons
+    // genomes will be found in _genomes[name] where name is the string used in required genomes
+    // example: _genomes["root::"]
 
 }
 
-auto {{MODULE_NAME}}Brain::mutate() -> void {
-	// do nothing by default... if this is not a direct encoded brain, then no action is needed.
+///////////////////////////////////////////////////////////////////////////////////////////
+// these functions need to be filled in if this brain is direct encoded (in part or whole)
+///////////////////////////////////////////////////////////////////////////////////////////
+
+// Make a brain like the brain that called this function, using genomes and
+// inheriting other elements from parent.
+std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeBrainFrom(
+    std::shared_ptr<AbstractBrain> parent,
+    std::unordered_map<std::string, 
+    std::shared_ptr<AbstractGenome>> & _genomes) {
+   
+    // in the default case, we assume geneticly encoded brains, so this just calls
+    // the no parent version (i.e. makeBrain which builds from genomes)
+
+    return makeBrain(_genomes);
+}
+
+// see makeBrainFrom, same thing, but for more then one parent
+std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeBrainFromMany(
+    std::vector<std::shared_ptr<AbstractBrain>> parents,
+    std::unordered_map<std::string,
+    std::shared_ptr<AbstractGenome>> & _genomes) {
+
+    return makeBrain(_genomes);
+}
+
+// apply direct mutations to this brain
+void {{MODULE_NAME}}Brain::mutate() {
+    // do nothing by default...
+    // if this is a direct encoded brain, then this function needs to be filled in to allow for mutations.
+}
+
+// convert a brain into data map with data that can be saved to file so this brain can be reconstructed
+// 'name' here contains the prefix that must be so that deserialize can identify relavent data
+DataMap {{MODULE_NAME}}Brain::serialize(std::string & name) {
+    DataMap dataMap;
+    return dataMap;
+}
+
+// given an unordered_map<string, string> of org data and PT, load data into this brain
+// 'name' here contains the prefix that was used when data was being saved
+void {{MODULE_NAME}}Brain::deserialize(std::shared_ptr<ParametersTable> PT,
+    std::unordered_map<std::string, std::string> & orgData,
+    std::string & name) {
+    // note that the process by which deserialization (including text formatting) depends on
+    // the corisponding serialize process
 }

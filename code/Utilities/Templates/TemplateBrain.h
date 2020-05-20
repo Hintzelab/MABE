@@ -10,89 +10,102 @@
 
 #pragma once					// directive to insure that this .h file is only included one time
 
-#include <World/AbstractWorld.h> 
-
+// AbstractBrain defines all the basic function templates for brains
+#include <Brain/AbstractBrain.h>
 
 // If your brain is (or maybe) constructed using a genome, you must include AbstractGenome.h
 #include <Genome/AbstractGenome.h>
 
-// AbstractBrain defines all the basic function templates for brains
-#include <Brain/AbstractBrain.h>
-#include <string>
-#include <memory> // shared_ptr
-#include <map>
-
-using std::shared_ptr;
-using std::make_shared;
-using std::string;
-using std::map;
-using std::unordered_map;
-using std::unordered_set;
-using std::to_string;
-
 class {{MODULE_NAME}}Brain : public AbstractBrain {
+
 public:
-	// If you are not familiar with parameters, parameters links
-	// and MTree, you can find examples of these in TestWorld_h
-	// and TestWorld_cpp
+    {{MODULE_NAME}}Brain() = delete;
 
-	// Create a PL to indicate the genome to be used to build this brain.
-	// If your brain is a directly encoded brain, then you don't need this.
-	// see the cpp file for more
-	static shared_ptr<ParameterLink<string>> genomeNamePL;
+    {{MODULE_NAME}}Brain(int ins, int outs, std::shared_ptr<ParametersTable> PT_);
 
+    virtual ~{{MODULE_NAME}}Brain() = default;
 
-  {{MODULE_NAME}}Brain() = delete;
-  {{MODULE_NAME}}Brain(int /*_nrInNodes*/, int /*_nrOutNodes*/, shared_ptr<ParametersTable> /*PT_*/);
+    virtual void update();
 
-	virtual ~{{MODULE_NAME}}Brain() = default;
+    // make a copy of the brain that called this
+    virtual std::shared_ptr<AbstractBrain> makeCopy(std::shared_ptr<ParametersTable> PT_);
 
-	// the update function converts inputs into outputs.
-	// more on this in the cpp file
-	virtual auto update() -> void override;
+    // Make a brain like the brain that called this function, using genomes and initalizing other elements.
+    virtual std::shared_ptr<AbstractBrain> makeBrain(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>& _genomes);
 
-	// makeBrain() is a function which creates a brain.
-	// more on this in the cpp file
-	virtual auto makeBrain(unordered_map<string, shared_ptr<AbstractGenome>>& /*_genomes*/) -> shared_ptr<AbstractBrain> override;
-	
-	// make a copy of this brain (sort of, see cpp file)
-	virtual auto makeCopy(shared_ptr<ParametersTable> PT_ = nullptr) -> shared_ptr<AbstractBrain> override;
+    virtual std::string description(); // returns a desription of this brain in it's current state
 
-	// makeMutatedBrainFrom and makeMutatedBrainFromMany are used
-	// to produce offspring by direct encoded brains (brains encoded
-	// from genomes are built from mutated genomes)
-  virtual auto mutate() -> void override;
+    virtual DataMap getStats(std::string& prefix); // return a vector of DataMap of stats from this brain
 
-	// description returns a short description of this brain
-	virtual auto description() -> string override;
+    virtual std::string getType(); // return the type of this brain
 
-	// getStats collects data on this brain
-	virtual auto getStats(string& prefix) -> DataMap override;
-	
-	// return the type of this brain
-	virtual auto getType() -> string override { return "{{MODULE_NAME}}"; }
+    virtual void setInput(const int& inputAddress, const double& value);
 
-	// clear all temporary values
-	virtual auto resetBrain() -> void override;
+    virtual double readInput(const int& inputAddress);
 
-	// set up inital genomes before building brains
-	virtual auto initializeGenomes(unordered_map<string, shared_ptr<AbstractGenome>>& /*_genomes*/) -> void;
+    virtual void setOutput(const int& outputAddress, const double& value);
 
-	// provide a list of genomes that this brain needs
-	virtual auto requiredGenomes() -> unordered_set<string> override;
+    virtual double readOutput(const int& outputAddress);
+
+    virtual void resetOutputs();
+
+    virtual void resetInputs();
+
+    virtual void resetBrain();
+
+    // setRecordActivity and setRecordFileName provide a standard way to set up brain
+    // activity recoding. How and when the brain records activity is up to the brain developer
+    virtual void inline setRecordActivity(bool _recordActivity) {
+        recordActivity = _recordActivity;
+    }
+
+    virtual void inline setRecordFileName(std::string _recordActivityFileName) {
+        recordActivityFileName = _recordActivityFileName;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // these functions need to be filled in if genomes are being used in this brain
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    virtual std::unordered_set<std::string> requiredGenomes(); // does this brain use any genomes
+    
+    // initializeGenomes can be used to randomize the genome and/or insert start codons
+    virtual void initializeGenomes(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>& _genomes);
+
+    ///////////////////////////////////////////////////////////////////////////////////////////
+    // these functions need to be filled in if this brain is direct encoded (in part or whole)
+    ///////////////////////////////////////////////////////////////////////////////////////////
+
+    // Make a brain like the brain that called this function, using genomes and
+    // inheriting other elements from parent.
+    // in the default case, we assume geneticly encoded brains, so this just calls
+    // the no parent version (i.e. makeBrain which builds from genomes)
+    virtual std::shared_ptr<AbstractBrain> makeBrainFrom(
+        std::shared_ptr<AbstractBrain> parent,
+        std::unordered_map<std::string,
+        std::shared_ptr<AbstractGenome>>& _genomes);
+
+    // see makeBrainFrom, this can take more then one parent
+    virtual std::shared_ptr<AbstractBrain> makeBrainFromMany(
+        std::vector<std::shared_ptr<AbstractBrain>> parents,
+        std::unordered_map<std::string,
+        std::shared_ptr<AbstractGenome>>&_genomes);
+
+    // apply direct mutations to this brain
+    virtual void mutate();
+
+    // convert a brain into data map with data that can be saved to file so this brain can be reconstructed
+    // 'name' here contains the prefix that must be so that deserialize can identify relavent data
+    virtual DataMap serialize(std::string& name);
+
+    // given an unordered_map<string, string> of org data and PT, load data into this brain
+    // 'name' here contains the prefix that was used when data was being saved
+    virtual void deserialize(std::shared_ptr<ParametersTable> PT,
+        std::unordered_map<std::string, std::string>& orgData,
+        std::string& name);
 
 };
 
-// This factory function exists to allow for the creation of an exampleBrain
-// it is required in order for modules.h to function and provides a standard
-// function format which can be created easily with MBuild.py
-// Inside of this function, we now know the type of brain being constructed,
-// and so can take addtional actions which may be required before this
-// brains constructor can be called (in the case of multiGenome, this
-// includes creating chromosomes which will be passed into the genome
-// constructor. In Markov Brains, this function creates a GateListBuilder
-// (a tool used to build markov brain gates) which is passed to the
-// Markov Brain constructor.
-inline shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain_brainFactory(int ins, int outs, shared_ptr<ParametersTable> PT = Parameters::root) {
-	return make_shared<{{MODULE_NAME}}Brain>(ins, outs, PT);
+inline std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain_brainFactory(int ins, int outs, std::shared_ptr<ParametersTable> PT) {
+    return std::make_shared<{{MODULE_NAME}}Brain>(ins, outs, PT);
 }
