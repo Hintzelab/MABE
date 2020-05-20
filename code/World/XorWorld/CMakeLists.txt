@@ -1,6 +1,0 @@
-option(enable_World_Xor "Enable Module XorWorld" OFF)
-if (enable_World_Xor)
-  register_module(World Xor)
-  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/XorWorld.cpp)
-  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/XorWorld.h)
-endif()
