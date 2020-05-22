@@ -142,6 +142,8 @@ public:
   static std::shared_ptr<ParameterLink<std::string>> triggerFoodLevelsPL;
   static std::shared_ptr<ParameterLink<std::string>> triggerFoodEventsPL;
 
+  int requiredOutputs, requiredInputs;
+
   class WorldMap {
   public:
     class ResourceGenerator {
