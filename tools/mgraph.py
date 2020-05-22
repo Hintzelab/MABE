@@ -15,13 +15,13 @@ parser = argparse.ArgumentParser()
 #data file specification parameters (change which files are loaded)
 parser.add_argument('-path', type=str, metavar='PATH', default = '',  help='path to files - default : none (will read files in current directory)', required=False)
 parser.add_argument('-conditions', type=str, metavar=('CONDITION'), default = [''],  help='names of condition directories - default: none (will use files in path directly)',nargs='+', required=False)
-parser.add_argument('-files', type=str, metavar='FILE_PREFIX', default = ['pop.csv','max.csv'], help='file name(s) - default: pop.csv dominant.csv', nargs='+', required=False)
+parser.add_argument('-files', type=str, metavar='FILE(s)', default = ['pop.csv'], help='file name(s) - default: pop.csv dominant.csv', nargs='+', required=False)
 parser.add_argument('-repRange', type=int, metavar=('FIRST','LAST'), default = [1,0],  help='replicate range - default: none (will use files in path directly)', nargs=2, required=False)
 parser.add_argument('-repList', type=str, metavar='REP', default = [],  help='replicate list. useful if you are missing a replicate. cannot be used with repRange - default: none (will use files in path directly)', nargs='+', required=False)
 
 #data filtering parameters (change what data is displayed)
 parser.add_argument('-data', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be graphed. Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
-parser.add_argument('-dataFromFile', type=str, metavar='FILE_NAME', default = 'pop.csv',  help='this file will be used to determine with column names of data will be graphed. If this file is not in files, then all data will be plotted - default : pop.csv', required=False)
+parser.add_argument('-dataFromFile', type=str, metavar='FILE_NAME', default = '',  help='this file will be used to determine with column names of data will be graphed. If this file is not in files, then all data will be plotted - default : NONE', required=False)
 parser.add_argument('-ignoreData', type=str, metavar='COLUMN_NAME', default = [''],  help='column names of data to be ignored (this will override data). Can contain wildcards(*) but then arguments should be closed in single quotes(\'\')- default : none (will attempt to graph all columns from first file, and those columns in all other files)',nargs='+', required=False)
 parser.add_argument('-whereValue', type=str, default = 'update', help='only plot data where this column has values defined by whereRange - default : update', required=False)
 parser.add_argument('-whereRange', type=int, default = [], help='only plot data where column with name set by whereValue has values defined this range. Single value, just this value. Two values, inclusive range. Three values, inclusive range with step. - default : none', nargs='+', required=False)
@@ -77,6 +77,7 @@ if args.save != "":
 
 # imports
 from pandas import read_csv, concat
+import pandas
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.backends.backend_pdf import PdfPages
@@ -85,7 +86,7 @@ from fnmatch import fnmatchcase
 
 
 def isolate_condition(df, con):
-    return df.loc[df['con'] == con]
+    return df[df['con'] == con]
 
 
 def add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor):
@@ -96,6 +97,7 @@ def add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor):
 
 
 def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, PltWhat = ['ave','95conf'], PltStyle = 'line', ErrorStyle = 'region', Reps = [''], XCoordinateName = '', Columns = 3, title = '', legendLocation = "lower right", xRange = [], yRange = [], integrateNames = [], imageSize = [10,10]):
+    
     global args
     MajorFontSize = args.fontSizeMajor
     MinorFontSize = args.fontSizeMinor
@@ -153,9 +155,12 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
     Rows = ceil(float(len(NamesList))/float(Columns)) # calculate how many rows we need
     
     for conditionCount, con in enumerate(ConditionsList):
+
         df_cond = isolate_condition(data, con).groupby(dataIndex)
 
-        if any([x in PltWhat for x in ['ave', 'std', 'sem', '95conf', '99conf']]):
+        ### this is a hack. df_cond.mean() removes any columns that can not be averaged (i.e. lists, strings, etc...)
+        ### so, we will run it all the time. That way, invalid columns will be removed.
+        if True:#any([x in PltWhat for x in ['ave', 'std', 'sem', '95conf', '99conf']]):
             df_mean = df_cond.mean()
 
         if 'std' in PltWhat:
@@ -187,75 +192,83 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
             if args.grid:
                 plt.grid(b=True, which='major', color=(0,0,0), linestyle='-', alpha = .25)
             
-            if args.lastOnly:
-                quantity = df_mean.loc[:, name].tail(1).iloc[0]
-                # quantity = quantity.iloc[0]
-                if 'std' in PltWhat:
-                    quantityErr = df_std.loc[:, name].tail(1)
-                    plt.bar([conditionCount], [quantity], yerr=quantityErr) #TODO should allow sem, 95conf, 99conf
-                else:
-                    plt.bar([conditionCount], [quantity])
-            else:
-                if 'reps' in PltWhat:
-                    firstRep = 1
-                    for Rep in Reps:							
-                        if firstRep == 1:
-                            firstRep = 0
-                            plt.plot(data[data["repName"] == Rep][data["con"] == con][XCoordinateName], data[data["repName"] == Rep][data["con"] == con][name], PltStyle, alpha = .25, color = PltColor, label = ThisLabel + "_rep")
-                        else:
-                            plt.plot(data[data["repName"] == Rep][data["con"] == con][XCoordinateName], data[data["repName"] == Rep][data["con"] == con][name], PltStyle, alpha = .25, color = PltColor, label = '_nolegend_')
-
-                # any plot that is dependant on the average line must trigger this 'if' statment
-                if any([x in PltWhat for x in ['ave', 'std', 'sem', '95conf', '99conf']]):
-                    aveLine = df_mean.loc[:, name]
-
-                    for integrateName in integrateNames: # remove all integrateName columns
-                        VARNAME = name[0:-4]+integrateName
-                        if VARNAME in allNamesList:
-                            if args.verbose: print('     '+VARNAME+'  found, adding to plot for data: ' + name + ' condition: ' + con,flush=True)
-                            errorLineY = df_mean.loc[:, VARNAME]
-                            plt.fill_between(x_axis_values, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15) 
-                if 'std' in PltWhat:
-                    errorLineY = df_std.loc[:, name]
-                    add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
-
-                if ('ave' in PltWhat):
-                    plt.plot(x_axis_values, aveLine, PltStyle, markersize = 10, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
-
-                if ('sem' in PltWhat):
-                    errorLineY = df_sem.loc[:, name]
-                    add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
-
-                if ('95conf' in PltWhat):
-                    errorLineY = df_sem.loc[:, name].multiply(1.96)
-                    add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
-
-                if ('99conf' in PltWhat):
-                    errorLineY = df_sem.loc[:, name].multiply(2.58)
-                    add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
             
-            if ((len(ConditionsList) > 1) or (CombineData))and legendLocation != '':
+            if not name in df_mean.columns.values:
+                print('warrning: it appears that ',name,' is non-numeric (perhaps a list) so its values are not being plotted.',flush=True)
+                if not CombineData:
+                   plt.title(name+'   (INVALID DATA FORMAT)', fontsize=MinorFontSize)  # set the title for this plot 
+            else:
+                    
+                
                 if args.lastOnly:
-                    plt.xlabel('Conditions', fontsize=MinorFontSize)
+                    quantity = df_mean.loc[:, name].tail(1).iloc[0]
+                    # quantity = quantity.iloc[0]
+                    if 'std' in PltWhat:
+                        quantityErr = df_std.loc[:, name].tail(1)
+                        plt.bar([conditionCount], [quantity], yerr=quantityErr) #TODO should allow sem, 95conf, 99conf
+                    else:
+                        plt.bar([conditionCount], [quantity])
                 else:
-                    plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
-                leg = plt.legend(fontsize=LegendFontSize,loc=legendLocation)   # add a legend
-                if (args.legendLineWeight > 0):
-                    for legobj in leg.legendHandles:
-                        legobj.set_linewidth(args.legendLineWeight)
-            
-            if args.lastOnly: ## combineConditions
-                plt.xticks(range(len(ConditionsList)), ConditionsList, rotation=45, ha='right')
-            else:
-                plt.ticklabel_format(useOffset=False, style='plain')
-            
-            plt.tick_params(labelsize=TickFontSize)
+                    if 'reps' in PltWhat:
+                        firstRep = 1
+                        for Rep in Reps:							
+                            if firstRep == 1:
+                                firstRep = 0
+                                plt.plot(data[data["repName"] == Rep][data["con"] == con][XCoordinateName], data[data["repName"] == Rep][data["con"] == con][name], PltStyle, alpha = .25, color = PltColor, label = ThisLabel + "_rep")
+                            else:
+                                plt.plot(data[data["repName"] == Rep][data["con"] == con][XCoordinateName], data[data["repName"] == Rep][data["con"] == con][name], PltStyle, alpha = .25, color = PltColor, label = '_nolegend_')
 
-            if len(xRange) == 2:
-                plt.xlim(xRange[0],xRange[1])
+                    # any plot that is dependant on the average line must trigger this 'if' statment
+                    if any([x in PltWhat for x in ['ave', 'std', 'sem', '95conf', '99conf']]):
+                        aveLine = df_mean.loc[:, name]
 
-            if len(yRange) == 2:
-                plt.ylim(yRange[0],yRange[1])
+                        for integrateName in integrateNames: # remove all integrateName columns
+                            VARNAME = name[0:-4]+integrateName
+                            if VARNAME in allNamesList:
+                                if args.verbose: print('     '+VARNAME+'  found, adding to plot for data: ' + name + ' condition: ' + con,flush=True)
+                                errorLineY = df_mean.loc[:, VARNAME]
+                                plt.fill_between(x_axis_values, aveLine - errorLineY,aveLine + errorLineY, color = PltColor, alpha = .15) 
+                    if 'std' in PltWhat:
+                        errorLineY = df_std.loc[:, name]
+                        add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
+
+                    if ('ave' in PltWhat):
+                        plt.plot(x_axis_values, aveLine, PltStyle, markersize = 10, color = PltColor, linewidth = args.lineWeight, label = ThisLabel)
+
+                    if ('sem' in PltWhat):
+                        errorLineY = df_sem.loc[:, name]
+                        add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
+
+                    if ('95conf' in PltWhat):
+                        errorLineY = df_sem.loc[:, name].multiply(1.96)
+                        add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
+
+                    if ('99conf' in PltWhat):
+                        errorLineY = df_sem.loc[:, name].multiply(2.58)
+                        add_error_bars(ErrorStyle, x_axis_values, aveLine, errorLineY, PltColor)
+                
+                if ((len(ConditionsList) > 1) or (CombineData))and legendLocation != '':
+                    if args.lastOnly:
+                        plt.xlabel('Conditions', fontsize=MinorFontSize)
+                    else:
+                        plt.xlabel(XCoordinateName, fontsize=MinorFontSize)
+                    leg = plt.legend(fontsize=LegendFontSize,loc=legendLocation)   # add a legend
+                    if (args.legendLineWeight > 0):
+                        for legobj in leg.legendHandles:
+                            legobj.set_linewidth(args.legendLineWeight)
+                
+                if args.lastOnly: ## combineConditions
+                    plt.xticks(range(len(ConditionsList)), ConditionsList, rotation=45, ha='right')
+                else:
+                    plt.ticklabel_format(useOffset=False, style='plain')
+                
+                plt.tick_params(labelsize=TickFontSize)
+
+                if len(xRange) == 2:
+                    plt.xlim(xRange[0],xRange[1])
+
+                if len(yRange) == 2:
+                    plt.ylim(yRange[0],yRange[1])
             
     return plt.gcf() # gcf = get current figure - return that.		
 
@@ -295,9 +308,12 @@ def get_con_names(args):
 
     return folder_names, user_names
 
-
+if args.dataFromFile == '':
+    args.dataFromFile = args.files[0]
+  
 def get_data_names(args, condition_folder_names, replicates):
     exemplar_path = args.path + condition_folder_names[0] + replicates[0] + args.dataFromFile
+    if args.verbose: print('getting column names from',exemplar_path,flush=True)
     with open(exemplar_path, 'r') as fileReader:
         names_from_file = fileReader.readline().strip().split(",")
     
@@ -366,13 +382,15 @@ def load_data(args, condition_folder_names, condition_user_names, replicates, fi
                     updateMin = last_x_value
                     if args.verbose: print(c_u + " " + r + " has data until: " + str(last_x_value) + " new shortest!",flush=True)
                 
-                if f == "pop.csv":
+                if f == args.dataFromFile:
                     df_keep = df_all[[data_name for data_name in data_names]+["update"]]
                 else:
                     if not alt_names:
                         alt_names = find_alternate_data_names(df_all.columns,data_names)
-                    df_keep = df_all[[alt_name for alt_name in alt_names]+["update"]]
+                    df_keep = pandas.DataFrame(df_all[[alt_name for alt_name in alt_names]+["update"]])
                 
+                df_keep = pandas.DataFrame(df_keep)
+
                 df_keep["repName"] = r
                 df_keep["con"] = c_u
                 df_dict[f].append(df_keep)
