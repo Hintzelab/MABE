@@ -14,7 +14,7 @@ std::shared_ptr<ParameterLink<int>> RouletteOptimizer::numberParentsPL =
 	Parameters::register_parameter("OPTIMIZER_ROULETTE-numberParents", 1, "number of parents used to produce offspring (each parent will be selected by a unique tournament)");
 
 std::shared_ptr<ParameterLink<std::string>> RouletteOptimizer::optimizeValuePL =
-Parameters::register_parameter("OPTIMIZER_ROULETTE-optimizeValue", (std::string) "DM_AVE[score]", "value to optimize (MTree)");
+Parameters::register_parameter("OPTIMIZER_ROULETTE-optimizeValue", (std::string) "POW[1.05,DM_AVE[score]]", "value to optimize (MTree)");
 std::shared_ptr<ParameterLink<std::string>> RouletteOptimizer::remapFunctionPL =
 Parameters::register_parameter("OPTIMIZER_ROULETTE-remapFunction", (std::string) "NONE", "remap optimizeValue to affect strength of selection\n"
 	"uses MTree, but adds the following options that can be used in place of MTree functions:\n"
