@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - master
-      - development
-      - 'feature*'
-      - 'hotfix*'
   pull_request:
     branches:
       - master
@@ -22,21 +19,21 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
-    - uses: lukka/get-cmake@latest
-      name: get cmake
-    - uses: actions/checkout@v2
-    - if: startsWith(matrix.os, 'windows')
-      name: run on windows
-      run: |
-        tools/setup.cmd
-        mbuild.exe
-    - if: startsWith(matrix.os, 'macOS')
-      name: run on mac
-      run: |
-        sh tools/setup.cmd
-        ./mbuild
-    - if: startsWith(matrix.os, 'linux')
-      name: run on linux
-      run: |
-        sh tools/setup.cmd
-        ./mbuild
+      - name: Get latest CMake
+        uses: lukka/get-cmake@latest
+      - uses: actions/checkout@v2
+      - if: startsWith(matrix.os, 'windows')
+        name: run on windows
+        run: |
+          tools/setup.cmd
+          mbuild.exe
+      - if: startsWith(matrix.os, 'macOS')
+        name: run on mac
+        run: |
+          sh tools/setup.cmd
+          ./mbuild
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: run on linux
+        run: |
+          sh tools/setup.cmd
+          ./mbuild
