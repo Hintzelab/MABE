@@ -22,14 +22,22 @@ jobs:
         os: [macos-latest, ubuntu-latest, windows-latest]
 
     steps:
+    - name: Get latest CMake
+      # Using 'latest' branch, the latest CMake is installed.
+      uses: lukka/get-cmake@latest        ⟸ THIS IS THE ONE LINER YOU NEED
     - uses: actions/checkout@v2
     - if: startsWith(matrix.os, 'windows')
       name: run on windows
       run: |
         tools/setup.cmd
         mbuild.exe
-    - if: startsWith(matrix.os, 'macOS') || startsWith(matrix.os, 'linux')
+    - if: startsWith(matrix.os, 'macOS')
       name: run on mac
+      run: |
+        sh tools/setup.cmd
+        ./mbuild
+    - if: startsWith(matrix.os, 'linux')
+      name: run on linux
       run: |
         sh tools/setup.cmd
         ./mbuild
