@@ -1,0 +1,6 @@
+option(enable_Archivist_SSwD "Enable Module SSwDArchivist" OFF)
+if (enable_Archivist_SSwD)
+  register_module(Archivist SSwD)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/SSwDArchivist.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/SSwDArchivist.h)
+endif()

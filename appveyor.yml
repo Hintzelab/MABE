@@ -1,40 +1,43 @@
 image:
-- Visual Studio 2017
+- Visual Studio 2019
 
-stack: python 3
+#stack: python 3
 shallow_clone: false
 clone_depth: 3
 
-environment:
-  PY_DIR: C:\Python37-x64
+#environment:
+#  PY_DIR: C:\Python37-x64
 
 matrix:
   allow_failures:
-    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       arch: 64
-      python: 37
+      #python: 37
       platform: x64
       configuration: Release
     #- platform: x86
     #  configuration: Debug
 
 install:
-  - "SET PATH=C:\\Python37-x64;C:\\Python37-x64\\Scripts;%PATH%"
-  - git submodule update --init --recursive
-  - ps: python -m pip install --upgrade pip
+  - ls
+  #- "SET PATH=C:\\Python37-x64;C:\\Python37-x64\\Scripts;%PATH%"
+  #- git submodule update --init --recursive
+  #- ps: python -m pip install --upgrade pip
   #- ps: python -m pip install winreg
-  - ps: python --version
+  #- ps: python --version
 
-build:
-  project: mabe.vcxproj        # path to Visual Studio solution or project
-  parallel: true                        # enable MSBuild parallel builds
+#build:
+#  project: build/mabe.vcxproj        # path to Visual Studio solution or project
+#  parallel: true                        # enable MSBuild parallel builds
 
 build_script:
-  - cmd: copy .travis.buildOptions.txt buildOptions.txt
-  - cmd: python pythonTools/mbuild.py -g vs
-  - cmd: call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2017\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
-  - cmd: MSBuild mabe.vcxproj /property:Configuration=Release /property:Platform=x64 /m:4
-  - cmd: copy x64\Release\mabe.exe mabe.exe
+  - cmd: copy .travis.modules.txt modules.txt
+  #- cmd: python pythonTools/mbuild.py -g vs
+  - cmd: call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
+  - cmd: tools/setup.cmd
+  - cmd: mbuild.exe
+  #- cmd: MSBuild mabe.vcxproj /property:Configuration=Release /property:Platform=x64 /m:4
+  #- cmd: copy x64\Release\mabe.exe mabe.exe
   - cmd: echo build_script finished
 
   #test_script:

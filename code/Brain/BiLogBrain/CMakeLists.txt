@@ -1,0 +1,6 @@
+option(enable_Brain_BiLog "Enable Module BiLogBrain" OFF)
+if (enable_Brain_BiLog)
+  register_module(Brain BiLog)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BiLogBrain.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BiLogBrain.h)
+endif()

@@ -1,0 +1,6 @@
+option(enable_World_BlockCatch "Enable Module BlockCatchWorld" OFF)
+if (enable_World_BlockCatch)
+  register_module(World BlockCatch)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BlockCatchWorld.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BlockCatchWorld.h)
+endif()

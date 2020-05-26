@@ -1,0 +1,6 @@
+option(enable_Brain_LSTM "Enable Module LSTMBrain" OFF)
+if (enable_Brain_LSTM)
+  register_module(Brain LSTM)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LSTMBrain.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LSTMBrain.h)
+endif()

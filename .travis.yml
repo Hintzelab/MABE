@@ -2,7 +2,7 @@ os:
   - linux
   - osx
 
-dist: trusty
+dist: bionic
 sudo: required
 
 language: cpp
@@ -16,41 +16,42 @@ branches:
 
 matrix:
   allow_failures:
-    - osx_image: xcode10.1
+    - osx_image: xcode10.2
       sudo: required
-      python: 3.6
+      python: 3.7
       env: BADGE=osx
     - os: linux
       language: generic
-      python: 3.6
+      python: 3.7
       env: BADGE=linux
 
 addons:
   apt:
     packages:
       - cmake
-      - g++-6
+      - g++-8
     sources: &sources
       - ubuntu-toolchain-r-test
 
 before_install:
-  - python --version
+  #- python --version
   - |
     if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-      source ~/virtualenv/python3.6/bin/activate
-      eval "CC=gcc-6 && CXX=g++-6"
-      export CC=gcc-6
-      export CXX=g++-6
-      ln -s $(which gcc-6) gcc
-      ln -s $(which g++-6) g++
-      ln -s $(which g++-6) c++
+      #source ~/virtualenv/python3.7/bin/activate
+      eval "CC=gcc-8 && CXX=g++-8"
+      export CC=gcc-8
+      export CXX=g++-8
+      ln -s $(which gcc-8) gcc
+      ln -s $(which g++-8) g++
+      ln -s $(which g++-8) c++
       export PATH=$(pwd):$PATH
     fi
-  - python3 --version
+  #- python3 --version
   - c++ --version
 
 script:
-  - cp .travis.buildOptions.txt buildOptions.txt
+  - cp .travis.modules.txt modules.txt
   - ls
-  - python3 pythonTools/mbuild.py -g make
-  - make -j4
+  - sh tools/setup.cmd
+  #- python3 pythonTools/mbuild.py -g make
+  - ./mbuild

@@ -1,0 +1,10 @@
+option(enable_World_Berry "Enable Module BerryWorld" OFF)
+if (enable_World_Berry)
+  register_module(World Berry)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BerryWorld.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/BerryWorld.h)
+  # copy some premade files to the bin dir for the user's convenience
+  file(COPY ${CMAKE_CURRENT_LIST_DIR}/perfectSensors/smallFront.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${CMAKE_CURRENT_LIST_DIR}/maps/empty.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+  file(COPY ${CMAKE_CURRENT_LIST_DIR}/maps/patch.txt DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+endif()
