@@ -1,0 +1,36 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - master
+      - development
+      - 'feature*'
+      - 'hotfix*'
+  pull_request:
+    branches:
+      - master
+      - development
+      - 'feature*'
+      - 'hotfix*'
+
+jobs:
+  build:
+
+    runs-on:
+      - ubuntu-latest
+      - windows-latest
+      - macos-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - if: startsWith(matrix.os, 'windows')
+      name: run on windows
+      run: |
+        tools/setup.cmd
+        mbuild.exe
+    - if: startsWith(matrix.os, 'macOS') || startsWith(matrix.os, 'linux')
+      name: run on mac
+      run: |
+        sh tools/setup.cmd
+        ./mbuild
