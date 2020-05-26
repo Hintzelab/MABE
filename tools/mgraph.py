@@ -367,7 +367,7 @@ def find_alternate_data_names(search_from, match_to):
 
 def load_data(args, condition_folder_names, condition_user_names, replicates, file_names, data_names):
     df_dict = {}
-    updateMin = 1e10 #BUG this is hard coded to be "big enough"
+    updateMin = 'undefined'
 
     for f in file_names:
         df_dict[f] = []
@@ -378,16 +378,23 @@ def load_data(args, condition_folder_names, condition_user_names, replicates, fi
                 if args.verbose: print ("loading file: " + complete_path,flush=True)
                 df_all = read_csv(complete_path)
                 last_x_value = df_all[args.xAxis].iat[-1]
+                if updateMin == 'undefined':
+                    updateMin = last_x_value
                 if (last_x_value < updateMin):
                     updateMin = last_x_value
                     if args.verbose: print(c_u + " " + r + " has data until: " + str(last_x_value) + " new shortest!",flush=True)
                 
+                if args.xAxis == args.dataIndex:
+                    extraColumns = [args.dataIndex]
+                else:
+                    extraColumns = [args.xAxis]+[args.dataIndex]
+                
                 if f == args.dataFromFile:
-                    df_keep = df_all[[data_name for data_name in data_names]+["update"]]
+                    df_keep = df_all[[data_name for data_name in data_names]+extraColumns]
                 else:
                     if not alt_names:
                         alt_names = find_alternate_data_names(df_all.columns,data_names)
-                    df_keep = pandas.DataFrame(df_all[[alt_name for alt_name in alt_names]+["update"]])
+                    df_keep = pandas.DataFrame(df_all[[alt_name for alt_name in alt_names]+extraColumns])
                 
                 df_keep = pandas.DataFrame(df_keep)
 
@@ -422,8 +429,6 @@ def main(args):
     if len(args.whereRange) >= 2 and args.whereRangeLimitToData:
         args.whereRange[1] = updateMin
 
-    if args.dataIndex == 'undefined':
-        args.dataIndex = args.xAxis
 
     for name in godFrames:
         godFrames[name].reindex(copy=False)
