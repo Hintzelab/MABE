@@ -1,0 +1,6 @@
+option(enable_Optimizer_Lexicase "Enable Module LexicaseOptimizer" OFF)
+if (enable_Optimizer_Lexicase)
+  register_module(Optimizer Lexicase)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LexicaseOptimizer.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LexicaseOptimizer.h)
+endif()

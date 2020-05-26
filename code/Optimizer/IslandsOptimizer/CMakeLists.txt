@@ -1,0 +1,6 @@
+option(enable_Optimizer_Islands "Enable Module IslandsOptimizer" OFF)
+if (enable_Optimizer_Islands)
+  register_module(Optimizer Islands)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/IslandsOptimizer.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/IslandsOptimizer.h)
+endif()

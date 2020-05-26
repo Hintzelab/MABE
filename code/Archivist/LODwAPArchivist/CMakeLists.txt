@@ -1,0 +1,6 @@
+option(enable_Archivist_LODwAP "Enable Module LODwAPArchivist" ON)
+if (enable_Archivist_LODwAP)
+  register_module(Archivist LODwAP)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LODwAPArchivist.cpp)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/LODwAPArchivist.h)
+endif()

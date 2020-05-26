@@ -1,0 +1,5 @@
+option(enable_Optimizer_Tournament "Enable Module TournamentOptimizer" ON)
+if (enable_Optimizer_Tournament)
+  register_module(Optimizer Tournament)
+  target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/TournamentOptimizer.cpp)
+endif()
