@@ -31,9 +31,13 @@ jobs:
         name: run on mac
         run: |
           sh tools/setup.cmd
-          ./mbuild
+          ./mbuild gen make
+          cd build
+          make
       - if: startsWith(matrix.os, 'ubuntu')
         name: run on linux
         run: |
           sh tools/setup.cmd
-          ./mbuild
+          ./mbuild gen make
+          cd build
+          make
