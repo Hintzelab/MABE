@@ -22,18 +22,18 @@ jobs:
       - name: Get latest CMake
         uses: lukka/get-cmake@latest
       - uses: actions/checkout@v2
-      - if: startsWith(matrix.os, 'windows')
-        name: run on windows
-        run: |
-          tools/setup.cmd
-          mbuild.exe
-      - if: startsWith(matrix.os, 'macOS')
-        name: run on mac
-        run: |
-          sh tools/setup.cmd
-          ./mbuild gen make
-          cd build
-          make
+      #- if: startsWith(matrix.os, 'windows')
+      #  name: run on windows
+      #  run: |
+      #    tools/setup.cmd
+      #    mbuild.exe
+      #- if: startsWith(matrix.os, 'macOS')
+      #  name: run on mac
+      #  run: |
+      #    sh tools/setup.cmd
+      #    ./mbuild gen make
+      #    cd build
+      #    make
       - if: startsWith(matrix.os, 'ubuntu')
         name: run on linux
         run: |
