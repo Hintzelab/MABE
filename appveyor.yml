@@ -35,8 +35,8 @@ build_script:
   #- cmd: python pythonTools/mbuild.py -g vs
   - cmd: call "C:\\Program Files (x86)\\Microsoft Visual Studio\\2019\\Community\\VC\\Auxiliary\\Build\\vcvars64.bat"
   - cmd: tools/setup.cmd
-  - cmd: mbuild.exe
-  #- cmd: MSBuild mabe.vcxproj /property:Configuration=Release /property:Platform=x64 /m:4
+  - cmd: mbuild.exe gen vs
+  - cmd: MSBuild "build\\mabe.vcxproj" /property:Configuration=Release /property:Platform=x64 /m:4
   #- cmd: copy x64\Release\mabe.exe mabe.exe
   - cmd: echo build_script finished
 
