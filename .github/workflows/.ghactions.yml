@@ -1,0 +1,57 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+      - development
+      - 'feature*'
+      - 'hotfix*'
+
+# unfortunately, without a paid GithubActions account,
+# then we are limited to 1 thread per build. The mbuild
+# tool was not designed to easily specify how many threads
+# to use, because it assumes it can be greedy and use all.
+# so we have to manually invoke cmake or make and use the
+# default 1 thread configurations.
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest, ubuntu-latest]
+
+    steps:
+      - name: Get latest CMake
+        uses: lukka/get-cmake@latest
+      - uses: actions/checkout@v2
+      - uses: ilammy/msvc-dev-cmd@v1
+      - if: startsWith(matrix.os, 'windows')
+        name: build on windows
+        run: |
+          tools/setup.cmd
+          .\mbuild.exe gen vs -d # produce a debug project
+          cd build
+          cmake --build .
+      - if: startsWith(matrix.os, 'macOS')
+        name: build on mac
+        run: |
+          which cmake
+          cmake --version
+          sh tools/setup.cmd
+          ./mbuild -d
+          #./mbuild gen make -d
+          #cd build
+          #make
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: build on linux
+        run: |
+          sh tools/setup.cmd
+          ./mbuild -d
+          #./mbuild gen make -d # produce a debug project
+          #cd build
+          #make
