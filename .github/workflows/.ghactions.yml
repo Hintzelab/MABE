@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: macos-latest #[windows-latest, macos-latest, ubuntu-latest] 
+        os: [macos-latest,windows-latest] #[windows-latest, macos-latest, ubuntu-latest] 
 
     steps:
       - name: Get latest CMake
