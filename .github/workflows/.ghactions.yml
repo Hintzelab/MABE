@@ -34,17 +34,16 @@ jobs:
         name: build on windows
         run: |
           tools/setup.cmd
-          .\mbuild.exe
-          #.\mbuild.exe gen vs -d # produce a debug project
-          #cd build
-          #cmake --build .
+          .\mbuild.exe gen vs -d # produce a debug project
+          cd build
+          cmake --build .
       - if: startsWith(matrix.os, 'macOS')
         name: build on mac
         run: |
           which cmake
           cmake --version
           sh tools/setup.cmd
-          ./mbuild -b
+          ./mbuild -d
           #./mbuild gen make -d
           #cd build
           #make
@@ -52,7 +51,7 @@ jobs:
         name: build on linux
         run: |
           sh tools/setup.cmd
-          ./mbuild -b
+          ./mbuild -d
           #./mbuild gen make -d # produce a debug project
           #cd build
           #make
