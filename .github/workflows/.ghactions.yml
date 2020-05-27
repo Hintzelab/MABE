@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [windows-latest] #macos-latest, ubuntu-latest, 
+        os: [windows-latest, ubuntu-latest] #macos-latest, ubuntu-latest, 
 
     steps:
       - name: Get latest CMake
@@ -24,10 +24,16 @@ jobs:
       - uses: actions/checkout@v2
       - uses: ilammy/msvc-dev-cmd@v1
       - if: startsWith(matrix.os, 'windows')
+        # unfortunately, without a paid GithubActions account,
+        # then we are limited to 1 thread per build. The mbuild
+        # tool was not designed to easily specify how many threads
+        # to use, because it assumes it can be greedy and use all.
+        # so we have to manually invoke cmake or make and use the
+        # default 1 thread configurations.
         name: run on windows
         run: |
           tools/setup.cmd
-          .\mbuild.exe gen vs -d
+          .\mbuild.exe gen vs -d # produce a debug project
           cd build
           cmake --build .
       #- if: startsWith(matrix.os, 'macOS')
@@ -37,10 +43,10 @@ jobs:
       #    ./mbuild gen make
       #    cd build
       #    make
-      #- if: startsWith(matrix.os, 'ubuntu')
-      #  name: run on linux
-      #  run: |
-      #    sh tools/setup.cmd
-      #    ./mbuild gen make
-      #    cd build
-      #    make
+      - if: startsWith(matrix.os, 'ubuntu')
+        name: run on linux
+        run: |
+          sh tools/setup.cmd
+          ./mbuild gen make -d # produce a debug project
+          cd build
+          make
