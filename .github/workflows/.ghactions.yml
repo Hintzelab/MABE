@@ -16,7 +16,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, ubuntu-latest, windows-latest]
+        os: [windows-latest] #macos-latest, ubuntu-latest, 
 
     steps:
       - name: Get latest CMake
@@ -29,7 +29,7 @@ jobs:
           tools/setup.cmd
           .\mbuild.exe gen vs
           cd build
-          cmake .. --build .
+          cmake --build .
       #- if: startsWith(matrix.os, 'macOS')
       #  name: run on mac
       #  run: |
