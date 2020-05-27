@@ -27,7 +27,9 @@ jobs:
         name: run on windows
         run: |
           tools/setup.cmd
-          mbuild.exe
+          .\mbuild.exe gen vs
+          cd build
+          cmake .. --build .
       #- if: startsWith(matrix.os, 'macOS')
       #  name: run on mac
       #  run: |
