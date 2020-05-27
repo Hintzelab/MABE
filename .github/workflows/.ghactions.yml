@@ -27,7 +27,7 @@ jobs:
         name: run on windows
         run: |
           tools/setup.cmd
-          dir
+          ls
           mbuild.exe
       #- if: startsWith(matrix.os, 'macOS')
       #  name: run on mac
