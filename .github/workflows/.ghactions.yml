@@ -11,12 +11,19 @@ on:
       - 'feature*'
       - 'hotfix*'
 
+# unfortunately, without a paid GithubActions account,
+# then we are limited to 1 thread per build. The mbuild
+# tool was not designed to easily specify how many threads
+# to use, because it assumes it can be greedy and use all.
+# so we have to manually invoke cmake or make and use the
+# default 1 thread configurations.
+
 jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest,windows-latest]
+        os: [macos-latest]
 
     steps:
       - name: Get latest CMake
