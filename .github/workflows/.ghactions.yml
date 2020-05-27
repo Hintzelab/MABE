@@ -40,6 +40,8 @@ jobs:
       - if: startsWith(matrix.os, 'macOS')
         name: build on mac
         run: |
+          which cmake
+          cmake --version
           sh tools/setup.cmd
           ./mbuild gen make -d
           cd build
