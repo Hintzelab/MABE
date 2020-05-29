@@ -17,9 +17,9 @@
 #include <string>
 #include <vector>
 
-#include <Global.h>
-#include <Organism/Organism.h>
-#include <Utilities/MTree.h>
+#include "../Global.h"
+#include "../Organism/Organism.h"
+#include "../Utilities/MTree.h"
 
 class DefaultArchivist {
 //protected:
@@ -88,9 +88,9 @@ public:
 
   void cleanUpParents(std::vector<std::shared_ptr<Organism>> & /*population*/);
 
-  void resolveAncestors(const std::shared_ptr<Organism> &/*org*/,
-                        std::vector<std::shared_ptr<Organism>> & /*save_file*/,
-                        int /*min_birth_time*/);
+  //void resolveAncestors(const std::shared_ptr<Organism> &/*org*/,
+  //                      std::vector<std::shared_ptr<Organism>> & /*save_file*/,
+  //                      int /*min_birth_time*/);
 
   static std::shared_ptr<ParameterLink<std::string>>
       Arch_outputMethodStrPL; // string parameter for outputMethod;
