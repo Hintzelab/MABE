@@ -243,15 +243,6 @@ void DefaultArchivist::saveSnapshotData(
 	files_["snapshotData"].push_back("update");
   }
 
-
-  auto const minBirthTime = // no generic lambdas in c++11 :(
-      (*std::min_element(
-           std::begin(population), std::end(population),
-           [](std::shared_ptr<Organism> lhs, std::shared_ptr<Organism> rhs) {
-             return lhs->timeOfBirth < rhs->timeOfBirth;
-           }))
-          ->timeOfBirth;
-
   // first, determine which orgs in population need to be saved.
   auto saveList = population;
 
@@ -264,32 +255,6 @@ void DefaultArchivist::saveSnapshotData(
 
   // now for each org, update ancestors and save if in saveList
   for (auto const &org : population) {
-
-    if (org->snapshotAncestors.size() != 1 ||
-        org->snapshotAncestors.find(org->ID) == org->snapshotAncestors.end()) {
-
-      org->snapshotAncestors.clear();
-
-	  resolveAncestors(org,saveList,minBirthTime);
-
-
-    } else {                      // org has exactly self for ancestor
-      if (org->timeOfBirth >= Global::update) { // if this is a new org...
-        std::cout
-            << "  WARNING :: in DefaultArchivist::saveSnapshotData(), found "
-               "new org (age < 1) with self as ancestor (with ID: "
-            << org->ID
-            << "... this will result in a new root to the phylogony tree!"
-            << std::endl;
-        if (save_new_orgs_)
-          std::cout << "    this org is being saved" << std::endl;
-        else
-          std::cout
-              << "    this org is not being saved (this may be very bad...)"
-              << std::endl;
-      }
-    }
-
     // now that we know that ancestor list is good for this org...
     if (org->timeOfBirth < Global::update || save_new_orgs_) 
 		saveOrgToFile(org,dataFileName);
@@ -299,34 +264,28 @@ void DefaultArchivist::saveSnapshotData(
                                         // be writting to this file again.
 }
 
-void DefaultArchivist::saveOrgToFile(const std::shared_ptr<Organism> &org,
-                                     const std::string &data_file_name) {
+void DefaultArchivist::saveOrgToFile(const std::shared_ptr<Organism> &org, const std::string &data_file_name) {
 
-  // std::cout << "  is being saved" << std::endl;
   for (auto ancestorID : org->snapshotAncestors) {
-    // std::cout << org->ID << " adding ancestor " << ancestorID << " to
-    // dataMap"
-    // << std::endl;
     org->dataMap.append("snapshotAncestors", ancestorID);
   }
+
   org->dataMap.setOutputBehavior("snapshotAncestors", DataMap::LIST);
 
-  org->snapshotAncestors.clear(); // now that we have saved the ancestor
-                                  // data, set ancestors to self (so that
-                                  // others will inherit correctly)
+  org->snapshotAncestors.clear(); // now that we have saved the ancestor data, set ancestors to self (so that others will inherit correctly)
   org->snapshotAncestors.insert(org->ID);
+
   org->dataMap.set("update", Global::update);
   org->dataMap.setOutputBehavior("update", DataMap::FIRST);
-  org->dataMap.writeToFile(
-      data_file_name, files_["snapshotData"]); // append new data to the file
+  org->dataMap.writeToFile(data_file_name, files_["snapshotData"]); // append new data to the file
   org->dataMap.clear("snapshotAncestors");
   org->dataMap.clear("update");
 }
 
 
-void DefaultArchivist::resolveAncestors(
-    const std::shared_ptr<Organism> &org,
-    std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
+//void DefaultArchivist::resolveAncestors(
+//    const std::shared_ptr<Organism> &org,
+//    std::vector<std::shared_ptr<Organism>> &save_list, int min_birth_time) {
       // if this org does not only contain only itself in snapshotAncestors then
       // it has not been saved before.
       // we must confirm that snapshotAncestors is correct because things may
@@ -347,6 +306,8 @@ void DefaultArchivist::resolveAncestors(
       // if they are at least as old as the oldest org being saved to this file
       // then we can simply append their ancestors
 
+
+    /*
   auto parent_check_list = org->parents;
 
   while (!parent_check_list.empty()) {
@@ -382,7 +343,10 @@ void DefaultArchivist::resolveAncestors(
       parent_check_list.push_back(p);
     }
   }
-}
+  */
+
+
+//}
 
 void DefaultArchivist::saveSnapshotOrganisms(
     std::vector<std::shared_ptr<Organism>> & population) {
@@ -438,7 +402,7 @@ void DefaultArchivist::writeDefArchFiles(
 
 // save data and manage in memory data
 // return true if next save will be > updates + terminate after
-// archive MUST be called on every lobal::updates - ENFORCE 
+// archive MUST be called on every Global::update - ENFORCE 
 bool DefaultArchivist::archive(
     std::vector<std::shared_ptr<Organism>> & population, int flush) {
 
@@ -471,19 +435,19 @@ bool DefaultArchivist::archive(
 void DefaultArchivist::cleanUpParents(
     std::vector<std::shared_ptr<Organism>> &population) {
 
-  auto need_to_clean = population;
-  need_to_clean.clear(); // we haven't cleaned anything yet
+  //auto need_to_clean = population;
+  //need_to_clean.clear(); // we haven't cleaned anything yet
 
   for (auto const &org : population)
     if (org->snapshotAncestors.find(org->ID) != org->snapshotAncestors.end())
       // if ancestors contains self, then this org has been saved
       // and it's ancestor list has been collapsed
       org->parents.clear();
-    else                            // org has not ever been saved to file...
-      need_to_clean.push_back(org); // we will need to check to see if we can do
+    //else                            // org has not ever been saved to file...
+      //need_to_clean.push_back(org); // we will need to check to see if we can do
                                     // clean up related to this org
 
-  auto const minBirthTime = // no generic lambdas in c++11 :(
+/*  auto const minBirthTime = // no generic lambdas in c++11 :(
       (*std::min_element(
            std::begin(population), std::end(population),
            [](std::shared_ptr<Organism> lhs, std::shared_ptr<Organism> rhs) {
@@ -509,6 +473,7 @@ void DefaultArchivist::cleanUpParents(
           logged.push_back(parent); // make a note, so we don't clean twice
         }
   }
+  */
 }
 
 
