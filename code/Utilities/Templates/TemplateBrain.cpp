@@ -40,7 +40,7 @@ std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeCopy(std::shared_ptr<Pa
     
     // You need to define this function. It needs to return a cop of the brain that called it
     
-    return(std::make_shared<CleanBrain>(nrInputValues, nrOutputValues, PT));
+    return(std::make_shared<{{MODULE_NAME}}Brain>(nrInputValues, nrOutputValues, PT));
 }
 
 // Make a brain like the brain that called this function, using genomes and initalizing other elements.
@@ -48,7 +48,7 @@ std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeBrain(std::unordered_ma
     
     // You need to define this function. It needs to return a brain, it can use the brain that called this, and _genomes
 
-    return(std::make_shared<CleanBrain>(nrInputValues, nrOutputValues, PT));
+    return(std::make_shared<{{MODULE_NAME}}Brain>(nrInputValues, nrOutputValues, PT));
 }
 
 std::string {{MODULE_NAME}}Brain::description() {
