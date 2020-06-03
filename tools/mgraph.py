@@ -155,7 +155,6 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
     for integrateName in integrateNames: # remove all integrateName columns
         NamesList = [x for x in NamesList if not integrateName in x]
 
-    print(Columns)
     if len(NamesList) == 1:
         Columns = 1
     if (len(NamesList) == 2) and (int(Columns) > 2):
@@ -435,7 +434,6 @@ def main(args):
     conFolderNames, conUserNames = get_con_names(args) #new
     dataColumnNames = get_data_names(args, conFolderNames, reps) #new
     godFrames, updateMin = load_data(args, conFolderNames, conUserNames, reps, files, dataColumnNames) #new
-    print(godFrames)
     # --------------------------------------
 
     if len(args.whereRange) == 0 and args.whereRangeLimitToData:
@@ -459,7 +457,6 @@ def main(args):
 
     allGraphs = {}
 
-    print(args.dataIndex)
     if args.combineConditions:
         for file in files:
             if args.verbose: print ("generating plot for: " + file,flush=True)
