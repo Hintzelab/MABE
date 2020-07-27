@@ -114,11 +114,12 @@ then
   dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files --bcheckpoint
   # kill the running job after checkpointing
   dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
-  # clean up any generated mabe files that have been checkpointed
-  rm {LOCAL_DIR}/*.csv
   # resubmit the job
   sbatch $SLURM_JOBSCRIPT
 else            # it is a restart run
+  # clean up artifacts (resulting files that could be in the middle of being written to)
+  # clean up any generated mabe files that have been checkpointed
+  rm {LOCAL_DIR}/*.csv
   # restart job with checkpoint files ckpt_*.dmtcp and run in background
   dmtcp_restart -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT ckpt_*.dmtcp &
   # wait for a checkpoint interval to start checkpointing
