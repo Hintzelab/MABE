@@ -134,8 +134,6 @@ else            # it is a restart run
     dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files -bc
     # kill the running program and quit
     dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
-    # clean up any generated mabe files that have been checkpointed
-    rm {LOCAL_DIR}/*.csv
     # resubmit this script to slurm
     sbatch $SLURM_JOBSCRIPT
   else
