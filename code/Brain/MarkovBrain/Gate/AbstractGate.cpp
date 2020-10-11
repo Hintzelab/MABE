@@ -16,7 +16,7 @@
 
 // converts values attained from genome for inputs and outputs to vaild brain state ids
 // uses nodeMap to accomplish the remaping
-void AbstractGate::applyNodeMap(vector<int> nodeMap, int maxNodes) {
+void AbstractGate::applyNodeMap(std::vector<int> nodeMap, int maxNodes) {
 	for (size_t i = 0; i < inputs.size(); i++) {
 		inputs[i] = nodeMap[inputs[i]] % maxNodes;
 	}
@@ -25,8 +25,8 @@ void AbstractGate::applyNodeMap(vector<int> nodeMap, int maxNodes) {
 	}
 }
 
-shared_ptr<AbstractGate> AbstractGate::makeCopy(shared_ptr<ParametersTable> _PT) {
-	cout << "ERROR IN AbstractGate::makeCopy() - You are using the abstract copy constructor for gates. You must define your own" << endl; 
+std::shared_ptr<AbstractGate> AbstractGate::makeCopy(std::shared_ptr<ParametersTable> _PT) {
+	std::cout << "ERROR IN AbstractGate::makeCopy() - You are using the abstract copy constructor for gates. You must define your own" << std::endl;
 	exit(1); 
 }
 
@@ -34,27 +34,27 @@ void AbstractGate::resetGate() {
 	//nothing to reset here!
 }
 
-vector<int> AbstractGate::getIns() {
+std::vector<int> AbstractGate::getIns() {
 	return inputs;
 }
 
-vector<int> AbstractGate::getOuts() {
+std::vector<int> AbstractGate::getOuts() {
 	return outputs;
 }
 
-string AbstractGate::descriptionIO() {
-	string S = "IN:";
+std::string AbstractGate::descriptionIO() {
+	std::string S = "IN:";
 	for (size_t i = 0; i < inputs.size(); i++)
-		S = S + " " + to_string(inputs[i]);
+		S = S + " " + std::to_string(inputs[i]);
 	S = S + "\n";
 	S = S + "OUT:";
 	for (size_t i = 0; i < outputs.size(); i++)
-		S = S + " " + to_string(outputs[i]);
+		S = S + " " + std::to_string(outputs[i]);
 	S = S + "\n";
 	//S = S + getCodingRegions();
 	return S;
 }
 
-string AbstractGate::description() {
-	return "Gate " + to_string(ID) + " is a " + gateType() + "Gate\n" + descriptionIO();
+std::string AbstractGate::description() {
+	return "Gate " + std::to_string(ID) + " is a " + gateType() + "Gate\n" + descriptionIO();
 }

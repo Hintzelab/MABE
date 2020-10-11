@@ -10,29 +10,29 @@
 
 #include "NeuronGate.h"
 
-shared_ptr<ParameterLink<int>> NeuronGate::defaultNumInputsMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-numInputsMin", 1, "min number of inputs to neuronGate");
-shared_ptr<ParameterLink<int>> NeuronGate::defaultNumInputsMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-numInputsMax", 4, "max number of inputs to neuronGate");
-shared_ptr<ParameterLink<int>> NeuronGate::defaultDischargeBehaviorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-dischargeBehavior", -1, "what happens when gate fires (-1: let genome decide, 0: clear charge, 1: 'reduce' by delivery charge, 2: 1/2 charge)");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultThresholdMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdMin", -2.0, "lowest possible value for threshold");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultThresholdMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdMax", 2.0, "highest possible value for threshold");
-shared_ptr<ParameterLink<bool>> NeuronGate::defaultAllowRepressionPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allowRepression", true, "if false, neuronGates only fire if charge exceeds threshold; if true, neuronGates can also exist which always fire, except when charge exceeds threshold");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultDecayRateMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-decayRateMin", 0.0, "min % current charge will decay each time gate update is called (towards 0) per update");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultDecayRateMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-decayRateMax", 1.0, "max % current charge will decay each time gate update is called (towards 0) per update");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryChargeMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeMin", -2.0, "output charge");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryChargeMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeMax", 2.0, "output charge");
-shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryErrorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryError", 0.0, "error in deliveryCharge... charge -= random[0,deliveryError)");
+std::shared_ptr<ParameterLink<int>> NeuronGate::defaultNumInputsMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-numInputsMin", 1, "min number of inputs to neuronGate");
+std::shared_ptr<ParameterLink<int>> NeuronGate::defaultNumInputsMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-numInputsMax", 4, "max number of inputs to neuronGate");
+std::shared_ptr<ParameterLink<int>> NeuronGate::defaultDischargeBehaviorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-dischargeBehavior", -1, "what happens when gate fires (-1: let genome decide, 0: clear charge, 1: 'reduce' by delivery charge, 2: 1/2 charge)");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultThresholdMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdMin", -2.0, "lowest possible value for threshold");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultThresholdMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-thresholdMax", 2.0, "highest possible value for threshold");
+std::shared_ptr<ParameterLink<bool>> NeuronGate::defaultAllowRepressionPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-allowRepression", true, "if false, neuronGates only fire if charge exceeds threshold; if true, neuronGates can also exist which always fire, except when charge exceeds threshold");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultDecayRateMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-decayRateMin", 0.0, "min % current charge will decay each time gate update is called (towards 0) per update");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultDecayRateMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-decayRateMax", 1.0, "max % current charge will decay each time gate update is called (towards 0) per update");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryChargeMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeMin", -2.0, "output charge");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryChargeMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryChargeMax", 2.0, "output charge");
+std::shared_ptr<ParameterLink<double>> NeuronGate::defaultDeliveryErrorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-deliveryError", 0.0, "error in deliveryCharge... charge -= random[0,deliveryError)");
 
 
-shared_ptr<ParameterLink<int>> NeuronGate::defaultThresholdFromNodePL = Parameters::register_parameter(
+std::shared_ptr<ParameterLink<int>> NeuronGate::defaultThresholdFromNodePL = Parameters::register_parameter(
 	"BRAIN_MARKOV_GATES_NEURON-thresholdFromNode", -1, "if 0, genome will determine threshold value within threshold range\nif 1, gate will have additional input, determined by genome, which will be clamped to threshold range and used as threshold value, if -1, genome will decide between options 0 and 1");
-shared_ptr<ParameterLink<int>> NeuronGate::defaultDeliveryChargeFromNodePL = Parameters::register_parameter(
+std::shared_ptr<ParameterLink<int>> NeuronGate::defaultDeliveryChargeFromNodePL = Parameters::register_parameter(
 	"BRAIN_MARKOV_GATES_NEURON-deliveryChargeFromNode", -1, "if 0, genome will determine deliveryCharge value within deliveryCharge range\nif 1, gate will have additional input, determined by genome, which will be clamped to deliveryCharge range and used as deliveryCharge value, if -1, genome will decide between options 0 and 1");
 
 
 std::shared_ptr<ParameterLink<bool>> NeuronGate::record_behaviorPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-record_behavior", false, "if true, record neuron behavior (NOTE: this can generate a lot of data!)");
 std::shared_ptr<ParameterLink<std::string>> NeuronGate::record_behavior_file_namePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_NEURON-record_behavior_fileName", (std::string) "neuron_behavior.csv","Name of file where neron behaviors are saved");
 
-void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
+void NeuronGate::update(std::vector<double> & nodes, std::vector<double> & nextnodes) {
 	bool fire = false;
 	currentCharge += -1 * Trit(currentCharge) * decayRate;
 	for (auto i : inputs) {
@@ -41,7 +41,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 
 	if (thresholdFromNode != -1) {
 		thresholdValue = nodes[thresholdFromNode];
-		thresholdValue = max(defaultThresholdMin, min(defaultThresholdMax, thresholdValue));
+		thresholdValue = std::max(defaultThresholdMin, std::min(defaultThresholdMax, thresholdValue));
 	}
 
 	if (thresholdActivates) {  // fire if currCharge is greater than a positive threshold or less than a negative threshold
@@ -55,31 +55,31 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 		}
 	}
 
-	string stateNow = "";
+	std::string stateNow = "";
 
 	if (record_behavior) {
-		stateNow += to_string(ID);
-		stateNow += "," + to_string(fire);
-		stateNow += "," + to_string(inputs.size());
-		stateNow += "," + to_string(outputs.size()) + ",\"[";
+		stateNow += std::to_string(ID);
+		stateNow += "," + std::to_string(fire);
+		stateNow += "," + std::to_string(inputs.size());
+		stateNow += "," + std::to_string(outputs.size()) + ",\"[";
 		for (int i = 0; i < (int)inputs.size(); i++) {
-			stateNow += to_string(inputs[i]) + ",";
+			stateNow += std::to_string(inputs[i]) + ",";
 		}
 		stateNow.pop_back();
 		stateNow += "]\",\"[";
 		for (int i = 0; i < (int)outputs.size(); i++) {
-			stateNow += to_string(outputs[i]) + ",";
+			stateNow += std::to_string(outputs[i]) + ",";
 		}
 		stateNow.pop_back();
 		stateNow += "]\"";
-		stateNow += "," + to_string(thresholdValue);
-		stateNow += "," + to_string(currentCharge);
-		stateNow += "," + to_string(dischargeBehavior);
-		stateNow += "," + to_string(decayRate);
-		stateNow += "," + to_string(deliveryError);
-		stateNow += "," + to_string(thresholdActivates);
-		stateNow += "," + to_string(thresholdFromNode);
-		stateNow += "," + to_string(deliveryChargeFromNode);
+		stateNow += "," + std::to_string(thresholdValue);
+		stateNow += "," + std::to_string(currentCharge);
+		stateNow += "," + std::to_string(dischargeBehavior);
+		stateNow += "," + std::to_string(decayRate);
+		stateNow += "," + std::to_string(deliveryError);
+		stateNow += "," + std::to_string(thresholdActivates);
+		stateNow += "," + std::to_string(thresholdFromNode);
+		stateNow += "," + std::to_string(deliveryChargeFromNode);
 	}
 
 	double localDeliveryCharge = 0;
@@ -96,7 +96,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 
 		// clip to [min,max]
 		localDeliveryCharge *= (1.0 - Random::getDouble(0, deliveryError));
-		localDeliveryCharge = max(defaultDeliveryChargeMin, min(defaultDeliveryChargeMax, localDeliveryCharge));
+		localDeliveryCharge = std::max(defaultDeliveryChargeMin, std::min(defaultDeliveryChargeMax, localDeliveryCharge));
 
 		nextnodes[outputs[0]] += localDeliveryCharge;
 
@@ -112,7 +112,7 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 		}
 	}
 	if (record_behavior) {
-		stateNow += "," + to_string(localDeliveryCharge);
+		stateNow += "," + std::to_string(localDeliveryCharge);
 		FileManager::writeToFile(record_behavior_file_name, stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode,deliveryCharge");  //fileName, data, header
 	}
 }
@@ -221,12 +221,12 @@ void NeuronGate::update(vector<double> & nodes, vector<double> & nextnodes) {
 //	}
 //}
 
-shared_ptr<AbstractGate> NeuronGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> NeuronGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<NeuronGate>(_PT);
+	auto newGate = std::make_shared<NeuronGate>(_PT);
 	newGate->ID = ID;
 	newGate->inputs = inputs;
 	newGate->outputs = outputs;

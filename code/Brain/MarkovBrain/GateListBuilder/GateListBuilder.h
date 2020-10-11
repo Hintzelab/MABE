@@ -21,15 +21,14 @@
 #include <Genome/AbstractGenome.h>
 #include <Utilities/Parameters.h>
 
-using namespace std;
 class AbstractGateListBuilder {
 
  public:
-	const shared_ptr<ParametersTable> PT;
+	const std::shared_ptr<ParametersTable> PT;
 	Gate_Builder gateBuilder;
 
 
-	AbstractGateListBuilder(shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT), gateBuilder(PT) {
+	AbstractGateListBuilder(std::shared_ptr<ParametersTable> _PT = nullptr) : PT(_PT), gateBuilder(PT) {
 	}
 
 //	AbstractGateListBuilder(shared_ptr<ParametersTable> _PT) : PT(_PT), AbstractGateListBuilder() {
@@ -41,28 +40,28 @@ class AbstractGateListBuilder {
 //	                                               int maxValue, shared_ptr<vector<int>> genomeHeadValues, int genomeHeadValuesCount,
 //	                                               shared_ptr<vector<vector<int>>> genomePerGateValues, int genomePerGateValuesCount) = 0;
 
-	virtual set<string> getInUseGateNames(){
+	virtual std::set<std::string> getInUseGateNames(){
 		return gateBuilder.inUseGateNames;
 	}
-	virtual vector<shared_ptr<AbstractGate>> buildGateList(shared_ptr<AbstractGenome> genome, int nrOfBrainStates, shared_ptr<ParametersTable> gatePT){
-		vector<int> temp1;
-		vector<vector<int>> temp2;
+	virtual std::vector<std::shared_ptr<AbstractGate>> buildGateList(std::shared_ptr<AbstractGenome> genome, int nrOfBrainStates, std::shared_ptr<ParametersTable> gatePT){
+		std::vector<int> temp1;
+		std::vector<std::vector<int>> temp2;
 		return buildGateListAndGetAllValues(genome, nrOfBrainStates, 0, temp1, 0, temp2, 0, gatePT);
 	}
 
-	virtual vector<shared_ptr<AbstractGate>> buildGateListAndGetHeadValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, vector<int> &genomeHeadValues, int genomeHeadValuesCount, shared_ptr<ParametersTable> gatePT){
-		vector<vector<int>> temp;
+	virtual std::vector<std::shared_ptr<AbstractGate>> buildGateListAndGetHeadValues(std::shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, std::vector<int> &genomeHeadValues, int genomeHeadValuesCount, std::shared_ptr<ParametersTable> gatePT){
+		std::vector<std::vector<int>> temp;
 		return buildGateListAndGetAllValues(genome, nrOfBrainStates, maxValue, genomeHeadValues, genomeHeadValuesCount, temp, 0, gatePT);
 	}
 
-	virtual vector<shared_ptr<AbstractGate>> buildGateListAndGetPerGateValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT){
-		vector<int> temp;
+	virtual std::vector<std::shared_ptr<AbstractGate>> buildGateListAndGetPerGateValues(std::shared_ptr<AbstractGenome> genome, int nrOfBrainStates, int maxValue, std::vector<std::vector<int>> &genomePerGateValues, int genomePerGateValuesCount, std::shared_ptr<ParametersTable> gatePT){
+		std::vector<int> temp;
 		return buildGateListAndGetAllValues(genome, nrOfBrainStates, maxValue, temp, 0, genomePerGateValues, genomePerGateValuesCount, gatePT);
 	}
 
-	virtual vector<shared_ptr<AbstractGate>> buildGateListAndGetAllValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates,
-            int maxValue, vector<int> &genomeHeadValues, int genomeHeadValuesCount,
-            vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT) = 0;
+	virtual std::vector<std::shared_ptr<AbstractGate>> buildGateListAndGetAllValues(std::shared_ptr<AbstractGenome> genome, int nrOfBrainStates,
+            int maxValue, std::vector<int> &genomeHeadValues, int genomeHeadValuesCount,
+            std::vector<std::vector<int>> &genomePerGateValues, int genomePerGateValuesCount, std::shared_ptr<ParametersTable> gatePT) = 0;
 
 };
 
@@ -72,13 +71,13 @@ class ClassicGateListBuilder : public AbstractGateListBuilder {
 //	ClassicGateListBuilder() {
 //		gateBuilder.setupGates();
 //	}
-	ClassicGateListBuilder(shared_ptr<ParametersTable> _PT = nullptr) : AbstractGateListBuilder(_PT){
+	ClassicGateListBuilder(std::shared_ptr<ParametersTable> _PT = nullptr) : AbstractGateListBuilder(_PT){
 	}
 
 	virtual ~ClassicGateListBuilder() = default;
 
-	virtual vector<shared_ptr<AbstractGate>> buildGateListAndGetAllValues(shared_ptr<AbstractGenome> genome, int nrOfBrainStates,
-	                                               int maxValue, vector<int> &genomeHeadValues, int genomeHeadValuesCount,
-	                                               vector<vector<int>> &genomePerGateValues, int genomePerGateValuesCount, shared_ptr<ParametersTable> gatePT);
+	virtual std::vector<std::shared_ptr<AbstractGate>> buildGateListAndGetAllValues(std::shared_ptr<AbstractGenome> genome, int nrOfBrainStates,
+	                                               int maxValue, std::vector<int> &genomeHeadValues, int genomeHeadValuesCount,
+	                                               std::vector<std::vector<int>> &genomePerGateValues, int genomePerGateValuesCount, std::shared_ptr<ParametersTable> gatePT);
 };
 

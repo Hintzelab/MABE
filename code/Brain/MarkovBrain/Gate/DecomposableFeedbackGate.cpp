@@ -17,19 +17,19 @@
 #include <Utilities/Utilities.h>
 
 bool DecomposableFeedbackGate::feedbackON = true;
-shared_ptr<ParameterLink<string>> DecomposableFeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_FEEDBACK-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<std::string>> DecomposableFeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE_FEEDBACK-IO_Ranges", (std::string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
-DecomposableFeedbackGate::DecomposableFeedbackGate(pair<vector<int>, vector<int>> addresses, 
-        vector<vector<int>> rawTable, 
-        vector<vector<double>> factors, 
+DecomposableFeedbackGate::DecomposableFeedbackGate(std::pair<std::vector<int>, std::vector<int>> addresses,
+    std::vector<std::vector<int>> rawTable,
+    std::vector<std::vector<double>> factors,
         unsigned int _posFBNode, 
         unsigned int _negFBNode, 
         unsigned char _nrPos, 
         unsigned char _nrNeg, 
-        vector<double> _posLevelOfFB, 
-        vector<double> _negLevelOfFB, 
+    std::vector<double> _posLevelOfFB,
+    std::vector<double> _negLevelOfFB,
         int _ID, 
-        shared_ptr<ParametersTable> _PT) :
+    std::shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT), factors(factors), ins(addresses.first.size()), outs(addresses.second.size()) {
 
   ID = _ID;
@@ -73,10 +73,10 @@ DecomposableFeedbackGate::DecomposableFeedbackGate(pair<vector<int>, vector<int>
   chosenOutNeg.clear();
 }
 
-void DecomposableFeedbackGate::update(vector<double> & states, vector<double> & nextStates) {
+void DecomposableFeedbackGate::update(std::vector<double> & states, std::vector<double> & nextStates) {
   size_t i;
   double mod;
-  bitset<64> bs(0);
+  std::bitset<64> bs(0);
 
   int numFactors(factors[0].size());
   int randomFactori(0);
@@ -91,7 +91,7 @@ void DecomposableFeedbackGate::update(vector<double> & states, vector<double> & 
               factors[chosenInPos[i]][randomFactori] += mod;
           } else {
               factors[chosenInPos[i]][randomFactori] -= mod;
-              factors[chosenInPos[i]][randomFactori] = max(factors[chosenInPos[i]][randomFactori],0.);
+              factors[chosenInPos[i]][randomFactori] = std::max(factors[chosenInPos[i]][randomFactori],0.);
           }
           int rowi(chosenInPos[i]);
           for (int outputi=0; outputi<table[rowi].size(); outputi++) {
@@ -122,7 +122,7 @@ void DecomposableFeedbackGate::update(vector<double> & states, vector<double> & 
           appliedNegFB.push_back(mod);
           if (((chosenOutNeg[i]>>randomFactori)&1) == 1) {
               factors[chosenInNeg[i]][randomFactori] -= mod;
-              factors[chosenInNeg[i]][randomFactori] = max(factors[chosenInNeg[i]][randomFactori],0.);
+              factors[chosenInNeg[i]][randomFactori] = std::max(factors[chosenInNeg[i]][randomFactori],0.);
           } else {
               factors[chosenInNeg[i]][randomFactori] += mod;
           }
@@ -185,25 +185,25 @@ void DecomposableFeedbackGate::update(vector<double> & states, vector<double> & 
   }
 }
 
-string DecomposableFeedbackGate::description() {
-    string S = "pos node:" + to_string((int) posFBNode) + "\n neg node:" + to_string((int) negFBNode);
+std::string DecomposableFeedbackGate::description() {
+    std::string S = "pos node:" + std::to_string((int) posFBNode) + "\n neg node:" + std::to_string((int) negFBNode);
     S=S+"\n#\nI:\t";
     for(int i=0;i<inputs.size();i++)
-        S=S+" "+to_string(inputs[i]);
+        S=S+" "+ std::to_string(inputs[i]);
     S=S+"\nO:\t";
     for(int i=0;i<outputs.size();i++)
-        S=S+" "+to_string(outputs[i]);
+        S=S+" "+ std::to_string(outputs[i]);
     S=S+"\n";
     for(int i=0;i<table.size();i++){
         for(int j=0;j<table[i].size();j++)
-            S=S+"\t"+to_string(table[i][j]);
+            S=S+"\t"+ std::to_string(table[i][j]);
         S=S+"\n";
     }
     S=S+"#\n";
     return "Decomposable Feedback Gate\n " + S + "\n";
 }
 
-void DecomposableFeedbackGate::applyNodeMap(vector<int> nodeMap, int maxNodes) {
+void DecomposableFeedbackGate::applyNodeMap(std::vector<int> nodeMap, int maxNodes) {
   AbstractGate::applyNodeMap(nodeMap, maxNodes);
   posFBNode = nodeMap[posFBNode % maxNodes];
   negFBNode = nodeMap[negFBNode % maxNodes];
@@ -219,11 +219,11 @@ void DecomposableFeedbackGate::resetGate() {
   for (size_t i = 0; i < table.size(); i++)
     for (size_t j = 0; j < table[i].size(); j++)
       table[i][j] = originalTable[i][j];
-    string temp;
+  std::string temp;
 }
 
-vector<int> DecomposableFeedbackGate::getIns() {
-  vector<int> R;
+std::vector<int> DecomposableFeedbackGate::getIns() {
+    std::vector<int> R;
   R.insert(R.begin(), inputs.begin(), inputs.end());
   R.push_back(posFBNode);
   R.push_back(negFBNode);
@@ -272,32 +272,32 @@ vector<int> DecomposableFeedbackGate::getIns() {
 //    return mutualInfo;
 //}
 
-string DecomposableFeedbackGate::getAppliedPosFeedback(){
+std::string DecomposableFeedbackGate::getAppliedPosFeedback(){
 
     //save all positive feedback the gate has used
-    string temp="";
+    std::string temp="";
     for(int i = 0; i<appliedPosFB.size(); i++)
-        temp+=','+to_string(appliedPosFB[i]);
+        temp+=','+ std::to_string(appliedPosFB[i]);
     appliedPosFB.clear();
     return temp;
 }
 
-string DecomposableFeedbackGate::getAppliedNegFeedback(){
+std::string DecomposableFeedbackGate::getAppliedNegFeedback(){
     
     //save all negative feedback the gate has used
-    string temp="";
+    std::string temp="";
     for(int i = 0; i<appliedNegFB.size(); i++)
-        temp+=','+to_string(appliedNegFB[i]);
+        temp+=','+ std::to_string(appliedNegFB[i]);
     appliedNegFB.clear();
     return temp;
 }
 
-shared_ptr<AbstractGate> DecomposableFeedbackGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> DecomposableFeedbackGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<DecomposableFeedbackGate>(_PT);
+	auto newGate = std::make_shared<DecomposableFeedbackGate>(_PT);
 	newGate->table = originalTable; // non-Lamarkian
     originalTable = originalTable;
     feedbackON = feedbackON;

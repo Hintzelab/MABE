@@ -32,21 +32,42 @@ public:
   //many bits are evaluated to determine the brain addresses.
   //	static shared_ptr<ParameterLink<int>> bitsPerCodonPL;
 
+  static std::shared_ptr<ParameterLink<bool>> useGateRegulationPL;
+
+  static std::shared_ptr<ParameterLink<bool>> useOutputThresholdPL;
+  static std::shared_ptr<ParameterLink<double>> outputThresholdPL;
+  static std::shared_ptr<ParameterLink<bool>> useHiddenThresholdPL;
+  static std::shared_ptr<ParameterLink<double>> hiddenThresholdPL;
+
+  static std::shared_ptr<ParameterLink<bool>> recurrentOutputPL;
   static std::shared_ptr<ParameterLink<bool>> randomizeUnconnectedOutputsPL;
   static std::shared_ptr<ParameterLink<bool>> recordIOMapPL;
   static std::shared_ptr<ParameterLink<std::string>> IOMapFileNamePL;
   static std::shared_ptr<ParameterLink<int>> randomizeUnconnectedOutputsTypePL;
-  static std::shared_ptr<ParameterLink<double>>
-      randomizeUnconnectedOutputsMinPL;
-  static std::shared_ptr<ParameterLink<double>>
-      randomizeUnconnectedOutputsMaxPL;
+  static std::shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMinPL;
+  static std::shared_ptr<ParameterLink<double>> randomizeUnconnectedOutputsMaxPL;
+
+  static std::shared_ptr<ParameterLink<int>> evaluationsPreUpdatePL;
+
   static std::shared_ptr<ParameterLink<int>> hiddenNodesPL;
   static std::shared_ptr<ParameterLink<std::string>> genomeNamePL;
+
+  bool useGateRegulation;
+  std::vector<int> gateRegulationAdresses; // values are -2 off, -1 on, 0 and up, on if (nodes[value] > 0)
+
+  bool useOutputThreshold;
+  double outputThreshold;
+  bool useHiddenThreshold;
+  double hiddenThreshold;
+
+  bool recurrentOutput;
 
   bool randomizeUnconnectedOutputs;
   bool randomizeUnconnectedOutputsType;
   double randomizeUnconnectedOutputsMin;
   double randomizeUnconnectedOutputsMax;
+  int evaluationsPreUpdate;
+
   int hiddenNodes;
   std::string genomeName;
 
@@ -137,15 +158,15 @@ public:
   std::vector<std::vector<double>> getTPMforTimepoint() {
     bool fbState=DecomposableFeedbackGate::feedbackON;
     int maxReps=1000;//100;
-    cout << maxReps << endl;
-    vector<double> recoverState=nodes;
-    vector<double> recoverNextNodeStates=nextNodes;
-    vector<double> recoverI=inputValues;
-    vector<double> recoverO=outputValues;
+    std::cout << maxReps << std::endl;
+    std::vector<double> recoverState=nodes;
+    std::vector<double> recoverNextNodeStates=nextNodes;
+    std::vector<double> recoverI=inputValues;
+    std::vector<double> recoverO=outputValues;
     DecomposableFeedbackGate::feedbackON=false;
-    vector<vector<double>> TPM;
+    std::vector<std::vector<double>> TPM;
     for(int state=0;state<(1<<nodes.size());state++){
-      vector<double> nextState=vector<double>(nodes.size(),0.0);
+        std::vector<double> nextState= std::vector<double>(nodes.size(),0.0);
       for(int reps=0;reps<maxReps;reps++){
         for(int i=0;i<nodes.size();i++){
           if(i<nrInputValues)
@@ -174,7 +195,7 @@ public:
   }
   
   std::string getsampledTPM() {
-    vector<vector<double>> TPM=getTPMforTimepoint();
+      std::vector<std::vector<double>> TPM=getTPMforTimepoint();
     std::string S=to_string("[");
     for(int i=0;i<(int)TPM.size();i++){
       if(i!=0)
@@ -183,7 +204,7 @@ public:
       for(int o=0;o<(int)TPM[i].size();o++){
         if(o!=0)
           S+=",";
-        S+=to_string(TPM[i][o]);
+        S+= std::to_string(TPM[i][o]);
       }
       S+="]";
     }
