@@ -10,13 +10,13 @@
 
 #include "EpsilonGate.h"
 
-/* this gate behaves like a deterministic gate with a constant externally set error which may the gate to deliver the wrong set of output values */
+/* this gate behaves like a deterministic gate with a constant externally set error which may cause the gate to deliver the "wrong" output values */
 
-shared_ptr<ParameterLink<double>> EpsilonGate::EpsilonSourcePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-epsilonSource", 0.05, "if value is in ance tha[0,1], cht output will be randomized. if < 1 or < 0, epsilon value is determined by the genome. If positive, then the genome handler will advance int(value) number of sites - 1 from the current location, before reading. If the value is negative, then int(abs(value)) indicates the absolute index of the site to be used i.e.(site at abs(value) in genome)");
-shared_ptr<ParameterLink<string>> EpsilonGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<double>> EpsilonGate::EpsilonSourcePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-epsilonSource", 0.05, "chance output will be randomized. if > 1 or < 0, epsilon value is determined by the genome. If positive, then the genome handler will advance int(value) number of sites - 1 from the current location, before reading. If the value is negative, then int(abs(value)) indicates the absolute index of the site to be used i.e.(site at abs(value) in genome)");
+std::shared_ptr<ParameterLink<std::string>> EpsilonGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_EPSILON-IO_Ranges", (std::string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 
-EpsilonGate::EpsilonGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, double _epsilon, shared_ptr<ParametersTable> _PT) :
+EpsilonGate::EpsilonGate(std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<int>> _table, int _ID, double _epsilon, std::shared_ptr<ParametersTable> _PT) :
 		DeterministicGate(addresses, _table, _ID, _PT) {  // use DeterministicGate constructor to build set up everything (including a table of 0s and 1s)
 	epsilon = _epsilon;  // in case you want to have different epsilon for different gates (who am I to judge?)
 	// now to the specifics of this gate - we convert the table to a list of numbers (i.e. bitstrings) so we can do fast comparisons in the update
@@ -31,7 +31,7 @@ EpsilonGate::EpsilonGate(pair<vector<int>, vector<int>> addresses, vector<vector
 	}
 }
 
-void EpsilonGate::update(vector<double> & nodes, vector<double> & nextNodes) {
+void EpsilonGate::update(std::vector<double> & nodes, std::vector<double> & nextNodes) {
 	int input = vectorToBitToInt(nodes,inputs,true); // converts the input values into an index (true indicates to reverse order)
 	if (Random::P(epsilon)) {  //if chance... then return a different set of output values
 		int output = 0;
@@ -49,12 +49,12 @@ void EpsilonGate::update(vector<double> & nodes, vector<double> & nextNodes) {
 	}
 }
 
-shared_ptr<AbstractGate> EpsilonGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> EpsilonGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<EpsilonGate>(_PT);
+	auto newGate = std::make_shared<EpsilonGate>(_PT);
 	newGate->table = table;
 	newGate->ID = ID;
 	newGate->inputs = inputs;
