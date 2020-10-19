@@ -418,6 +418,12 @@ public:
 			? branches[4]->eval(dataMap, PT, vectorData)[0]
 			: 1;
 
+		// if min and max are the same, return middle of new range
+		// needed to take care of division by 0!
+		if (oldMax == oldMin) {
+			return { ((newMax + newMin) / 2) };
+		}
+
 		return { ((std::max(std::min(v, oldMax), oldMin) - oldMin) * (1 / (oldMax - oldMin)) *
 			(newMax - newMin)) +
 			newMin };
