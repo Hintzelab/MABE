@@ -218,7 +218,7 @@ with open(args.file) as openfileobject:
                     displayName = ""
             if line[0] == "VAR": # VAR = PUN GLOBAL-poisonValue 0.0,1.0,1.5
                 everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
-                if everythingEqualsAndAfterAsList[0] is not '=':
+                if everythingEqualsAndAfterAsList[0] != '=':
                     printError("VARs require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit(1)
                 var,mabeVar = everythingEqualsAndAfterAsList[1:3] # get variable and mabe-variable
@@ -234,7 +234,7 @@ with open(args.file) as openfileobject:
                     using_conditions = True # can't use standard VAR/EXCEPT when you don't specify values
             if line[0] == "EXCEPT": # EXCEPT = UH=1,UI=1
                 everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
-                if everythingEqualsAndAfterAsList[0] is not '=':
+                if everythingEqualsAndAfterAsList[0] != '=':
                     printError("EXCEPT requires an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit(1)
                 new_skip_condition_set = []
@@ -250,7 +250,7 @@ with open(args.file) as openfileobject:
             if line[0] == "CONDITIONS": # CONDITIONS = PUN=0.0,1.0,1.5;UH=1;UI=1
                 using_conditions = True
                 everythingEqualsAndAfterAsList = ptrnSpaceSeparatedEquals.findall(rawline) # 0:'=',1:variable,2:MABE-variable,3:values
-                if everythingEqualsAndAfterAsList[0] is not '=':
+                if everythingEqualsAndAfterAsList[0] != '=':
                     printError("CONDITIONS require an assignment for readability. Ex: CONDITIONS = TSK=1.0")
                     exit(1)
                 new_condition_set = []
