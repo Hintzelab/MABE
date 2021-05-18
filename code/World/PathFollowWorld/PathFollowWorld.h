@@ -27,17 +27,22 @@ using std::unordered_map;
 using std::unordered_set;
 using std::to_string;
 
+#include <Analyze/neurocorrelates.h>
+#include <Analyze/brainTools.h>
+#include <Analyze/fragmentation.h>
+#include <Analyze/smearedness.h>
+
 class PathFollowWorld : public AbstractWorld {
 
 public:
-	// parameters for group and brain namespaces
+	// ParameterLink (PL) declarations
     static shared_ptr<ParameterLink<int>> evaluationsPerGenerationPL; // number of times to test every agent
 
     static shared_ptr<ParameterLink<int>> extraStepsPL; // how many extra steps do the agents get beyond the minimum neccasary
     static shared_ptr<ParameterLink<double>> emptySpaceCostPL; // cost for landing on an empty location
     static shared_ptr<ParameterLink<bool>> clearVistedPL; // are location input values altered when visited
 
-    static shared_ptr<ParameterLink<int>> symbolValueMaxPL; // turn symbols will be values from 1 to signValueMax
+    static shared_ptr<ParameterLink<int>> turnSymbolsCountPL; // turn symbols will be values from 1 to signValueMax
     static shared_ptr<ParameterLink<bool>> useRandomTurnSymbolsPL; // if false, alway use 1 for left and 2 for right
 
     static shared_ptr<ParameterLink<std::string>> inputModePL; // single : 1 input: -1 (off), 0(forward), or [1,signValueMax](turn)
@@ -50,14 +55,14 @@ public:
     static shared_ptr<ParameterLink<bool>> addFlippedMapsPL; // add a flipped version of each map
 
 
-    // a local variable used for faster access to the ParameterLink value
+    // a local variable used for faster access to the ParameterLink values
     int evaluationsPerGeneration;
 
     int extraSteps;
     double emptySpaceCost;
     bool clearVisted;
 
-    int symbolValueMax;
+    int turnSymbolsCount;
     bool useRandomTurnSymbols;
 
     std::string inputMode;
@@ -66,9 +71,6 @@ public:
 
     std::vector<string> mapNames;
     bool addFlippedMaps;
-
-    std::string groupName = "root::";
-    std::string brainName = "root::";
     
     // point2d defines a 2d vector with addtion, subtraction, dot/scalar product(*)
     // and cross product
@@ -171,6 +173,7 @@ public:
         }
     };
 
+    // Vector2d defines a vector that can be addressed as a 2d vector (i.e. with x,y)
     template <typename T> class Vector2d {
         std::vector<T> data;
         int R, C;
@@ -274,6 +277,7 @@ public:
         int y() { return R; }
     };
 
+    // dx and dy map facing directions to movement directions. i.e. direction 0 is (0,-1) or up
     std::array<int, 8> dx = {  0, 1, 1, 1, 0,-1,-1,-1 };
     std::array<int, 8> dy = { -1,-1, 0, 1, 1, 1, 0,-1 };
 
@@ -287,14 +291,13 @@ public:
     std::vector<int> forwardCounts;
     std::vector<int> turnCounts;
     std::vector<int> initalDirections;
-    void loadMaps(std::vector<string>& mapNames, std::vector<Vector2d<int>>& maps, std::vector<std::pair<int, int>>& mapSizes, std::vector<int>& initalDirections, std::vector<std::pair<int, int>>& startLocations);
-    
     std::vector<std::pair<int, int>> randomValues;
-    int currentUpdate = -1;
 
     PathFollowWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~PathFollowWorld() = default;
 
+    void loadMaps(std::vector<string>& mapNames, std::vector<Vector2d<int>>& maps, std::vector<std::pair<int, int>>& mapSizes, std::vector<int>& initalDirections, std::vector<std::pair<int, int>>& startLocations);
+    
 	virtual auto evaluate(map<string, shared_ptr<Group>>& /*groups*/, int /*analyze*/, int /*visualize*/, int /*debug*/) -> void override;
 
 	virtual auto requiredGroups() -> unordered_map<string,unordered_set<string>> override;
