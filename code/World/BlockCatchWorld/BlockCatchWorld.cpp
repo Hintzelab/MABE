@@ -3,9 +3,10 @@
 //  written by Cliff Bohm
 //
 
-#include <algorithm>    // std::rotate
-
 #include "BlockCatchWorld.h"
+
+
+std::shared_ptr<ParameterLink<int>> BlockCatchWorld::testMutantsPL = Parameters::register_parameter("WORLD_BLOCKCATCH-testMutants", 0, "if > 0, this number of mutants of each agent will be tested");
 
 std::shared_ptr<ParameterLink<int>> BlockCatchWorld::visualizeBestPL = Parameters::register_parameter("WORLD_BLOCKCATCH-visualizeBest", -1, "visualize best scoring organism every visualizeBest generations, excluding generation 0.\n"
 	"if -1, do not visualize on steps (this parameter does not effect visualize mode)");
@@ -211,6 +212,7 @@ void BlockCatchWorld::loadPatterns(int& patternCounter, std::vector<std::string>
 }
 
 BlockCatchWorld::BlockCatchWorld(std::shared_ptr<ParametersTable> _PT) : AbstractWorld(_PT) {
+
 	groupName = groupNamePL->get(PT);
 	brainName = brainNamePL->get(PT);
 
@@ -384,6 +386,7 @@ BlockCatchWorld::BlockCatchWorld(std::shared_ptr<ParametersTable> _PT) : Abstrac
 		exit(1);
 	}
 
+	testMutants = testMutantsPL->get(PT);
 	/////////////////////////////////////////////////////////////////
 	// columns to be added to pop file
 	/////////////////////////////////////////////////////////////////
@@ -391,6 +394,9 @@ BlockCatchWorld::BlockCatchWorld(std::shared_ptr<ParametersTable> _PT) : Abstrac
 	popFileColumns.push_back("score");
 	popFileColumns.push_back("correct");
 	popFileColumns.push_back("incorrect");
+	//popFileColumns.push_back("R");
+	//popFileColumns.push_back("rawR");
+
 	for (int i = 0; i < patternsCount; i++) {
 		popFileColumns.push_back("correct_" + std::to_string(i));
 		popFileColumns.push_back("incorrect_" + std::to_string(i));
@@ -399,30 +405,48 @@ BlockCatchWorld::BlockCatchWorld(std::shared_ptr<ParametersTable> _PT) : Abstrac
 
 
 
-void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyse, int visualize, int debug) {
+void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int visualize, int debug) {
+
+	if (analyze) {
+		visualize = 1;
+	}
+
 	int correct = 0; // total number of correct catches/misses
 	int incorrect = 0; // total number of incorrect catches/misses
 	std::vector<int> correctPer(patternsCount, 0); // total number of correct catches/misses per pattern
 	std::vector<int> incorrectPer(patternsCount, 0); // total number of incorrect catches/misses per pattern
 
 	if (visualize) { // save state of world before we get started.
-		FileManager::writeToFile("CatchPassVisualize_"+std::to_string(Global::update)+".txt",
+		FileManager::writeToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt",
 			"reset\n" +
 			std::to_string(worldXMax) + "," + std::to_string(startYMax) + "," +
 			std::to_string(Global::update) + "," + std::to_string(org->ID));
 	}
 
-	double fitness = 1.0;
+	//std::vector<std::vector<int>> inputStateSet;
+	TS::intTimeSeries worldStateSet;
+	//std::vector<std::vector<int>> brainBeforeStateSet;
+	//std::vector<std::vector<int>> brainAfterStateSet;
+	//std::vector<std::vector<int>> outputStateSet;
+
 	auto brain = org->brains[brainName];
+	brain->setRecordActivity(true);
 	int action;
 	for (int patternIndex = 0; patternIndex < patternsCount; patternIndex++) { // for patternIndex in number of patterns
 		int directionCounter = 0;
 
+		int blockSize = 0;
+		for (auto b : allPatterns[patternIndex][0]) {
+			if (b > 0) {
+				blockSize++;
+			}
+		}
 		// determine number of tests for this pattern if patternStartPosiont is ALL_CLEAR
-		if (patternStartPositions == 1){
+		if (patternStartPositions == 1) {
 			repeats = (worldXMax - (patternSizes[patternIndex] + paddleWidth)) + 1;
 		}
-		
+
+
 		for (int repeat = 0; repeat < repeats; repeat++) {
 
 			//get worldX and start height for pattern;
@@ -492,8 +516,14 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyse, i
 
 				brain->update();
 
+				// collect world state
+				bool R_is_catch = patternIndex < catchPatternsCount;
+				bool R_is_left = patternDirections[patternIndex][directionCounter] < 0;
+				worldStateSet.push_back({ R_is_catch, R_is_left, blockSize == 1, blockSize == 2, blockSize == 3, blockSize == 4, R_is_catch && R_is_left, !R_is_catch && R_is_left, R_is_catch && !R_is_left, !R_is_catch && !R_is_left }); // catch?, left?, size2, size3, size4, catch&left, !catch&left, catch&right, !catch&right
+
+				// read action from brain
 				action = Bit(brain->readOutput(0)) + (Bit(brain->readOutput(1)) << 1); // convert 2 bits of brain output to a value in range[0,3]
-				
+
 				switch (action) { // for cases 0 and 3 do nothing (i.e. 0,0 or 1,1)
 				case 1: // left
 					for (int i = 0; i < sensorArray.size(); i++) {
@@ -515,12 +545,12 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyse, i
 				// move all frames in patternBuffer
 				if (patternDirections[patternIndex][directionCounter] < 0) { // if block is moving left
 					for (size_t i = 0; i < patternBuffer.size(); i++) {
-						std::rotate(patternBuffer[i].begin(), patternBuffer[i].begin() + loopMod(std::abs(patternDirections[patternIndex][directionCounter]),worldX), patternBuffer[i].end()); // shift block left. if anything gets cut off, shift it to the other side
+						std::rotate(patternBuffer[i].begin(), patternBuffer[i].begin() + loopMod(std::abs(patternDirections[patternIndex][directionCounter]), worldX), patternBuffer[i].end()); // shift block left. if anything gets cut off, shift it to the other side
 					}
 				}
 				else if (patternDirections[patternIndex][directionCounter] > 0) { // block is moving right
 					for (size_t i = 0; i < patternBuffer.size(); i++) {
-						std::rotate(patternBuffer[i].begin(), patternBuffer[i].begin() + (patternBuffer[i].size() - loopMod(patternDirections[patternIndex][directionCounter],worldX)), patternBuffer[i].end()); // shift block left. if anything gets cut off, shift it to the other side
+						std::rotate(patternBuffer[i].begin(), patternBuffer[i].begin() + (patternBuffer[i].size() - loopMod(patternDirections[patternIndex][directionCounter], worldX)), patternBuffer[i].end()); // shift block left. if anything gets cut off, shift it to the other side
 					}
 				} // else no movement - do nothing
 
@@ -535,7 +565,7 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyse, i
 
 			} // end single pattern evaluation
 
-			//check for hit
+			//if the block has fallen, collect score information
 			int hit = 0;
 			if (scoreMethod <= 2) { // scoreing method is not summing
 				if (scoreMethod == 0) { // ANY_ANY - at least one element in the pattern (visible or invisible) contacts one sensor or non-sensor
@@ -622,42 +652,180 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyse, i
 				// in this mode, correct are accumulated for each hit on a to catch pattern
 				// and incorrect are accumulated for each hit on a to miss pattern 
 				if (patternIndex < catchPatternsCount) { // if patternIndex is < catchPatternsCount we should be catching this
-					correct+= hit;
+					correct += hit;
 					correctPer[patternIndex] += hit;
 				}
 				else { // this is in the set of patterns to miss
-					incorrect+= hit;
-					incorrectPer[patternIndex]+= hit;
+					incorrect += hit;
+					incorrectPer[patternIndex] += hit;
 				}
-			}
-			// else condition (i.e. an undefined score method) is checked for in constructor
-
-
-			if (debug) { // if debug then draw world
-				std::cout << "hit : " << hit << "  score: " << std::pow(1.05, correct - incorrect) << std::endl;
-			}
+			} // end collect score information
 		} // end repeats
 	} // end all patterns
 
-	org->dataMap.set("score", std::pow(1.05,correct - incorrect));
-	org->dataMap.set("correct", correct);
-	org->dataMap.set("incorrect", incorrect);
+	//auto remapRule = TS::RemapRules::BIT;
+	//auto lifeTimes = brain->getLifeTimes();
+	//auto inputStateSet = TS::remapToIntTimeSeries(brain->getInputStates(), remapRule);
+	//auto brainAfterStateSet = TS::trimTimeSeries(TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule), TS::Position::FIRST, lifeTimes);
 	
-	for (int i = 0; i < allPatterns.size(); i++) {
-		org->dataMap.set("correct_" + std::to_string(i), correctPer[i]);
-		org->dataMap.set("incorrect_" + std::to_string(i), incorrectPer[i]);
+	//double R = ENT::ConditionalMutualEntropy(worldStateSet, brainAfterStateSet, inputStateSet);
+	//org->dataMap.append("R", R);
+
+	//double rawR = ENT::MutualEntropy(worldStateSet, brainAfterStateSet);
+	//org->dataMap.append("rawR", rawR);
+	/*
+	double earlyRawR50 = ENT::MutualEntropy(TS::trimTimeSeries(worldStateSet, { 0,.5 }, patternsCount * repeats), TS::trimTimeSeries(brainAfterStateSet, { 0,.5 }, patternsCount * repeats));
+	org->dataMap.append("earlyRawR50", earlyRawR50);
+
+	double earlyRawR20 = ENT::MutualEntropy(TS::trimTimeSeries(worldStateSet, { 0,.2 }, patternsCount * repeats), TS::trimTimeSeries(brainAfterStateSet, { 0,.2 }, patternsCount * repeats));
+	org->dataMap.append("earlyRawR20", earlyRawR20);
+
+	double lateRawR50 = ENT::MutualEntropy(TS::trimTimeSeries(worldStateSet, { .5,1 }, patternsCount * repeats), TS::trimTimeSeries(brainAfterStateSet, { .5,1 }, patternsCount * repeats));
+	org->dataMap.append("lateRawR50", lateRawR50);
+
+	double lateRawR20 = ENT::MutualEntropy(TS::trimTimeSeries(worldStateSet, { .8,1 }, patternsCount * repeats), TS::trimTimeSeries(brainAfterStateSet, { .8,1 }, patternsCount * repeats));
+	org->dataMap.append("lateRawR20", lateRawR20);
+	*/
+
+	/*
+	// save world state fragmentation information
+	// normalized to feature
+	std::vector<int> fragSet = FRAG::getFragmentationSet(worldStateSet, brainAfterStateSet, 1, "feature");
+	for (int i = 0; i < fragSet.size(); i++) {
+		org->dataMap.append("F_" + std::to_string(i), fragSet[i]);
+		//std::cout << "F_" << std::to_string(i) << " = " << fragSet[i] << std::endl;
 	}
+
+	// normalized to shared
+	fragSet = FRAG::getFragmentationSet(worldStateSet, brainAfterStateSet, 1, "shared");
+	for (int i = 0; i < fragSet.size(); i++) {
+		org->dataMap.append("Fn_" + std::to_string(i), fragSet[i]);
+		//std::cout << "Fn_" << std::to_string(i) << " = " << fragSet[i] << std::endl;
+	}
+	*/
+
+	// calculate final scores and correct and incorrect counts
+	double scoreNorm_sum = 0;
+	double correctNorm_sum = 0;
+	double incorrectNorm_sum = 0;
+	for (int i = 0; i < allPatterns.size(); i++) {
+		double tempMaxScore = correctPer[i] + incorrectPer[i]; // this gets a total number of reported values
+		double correctNorm = correctPer[i] / tempMaxScore;
+		double incorrectNorm = incorrectPer[i] / tempMaxScore;
+		org->dataMap.set("correct_" + std::to_string(i), correctNorm);
+		org->dataMap.set("incorrect_" + std::to_string(i), incorrectNorm);
+
+		correctNorm_sum += correctNorm;
+		incorrectNorm_sum += incorrectNorm;
+
+		scoreNorm_sum += (correctNorm - incorrectNorm + 1.0) / 2.0; // 0 == all wrong, 1 = all right
+	}
+
+	org->dataMap.set("score", scoreNorm_sum / allPatterns.size());
+	org->dataMap.set("correct", correctNorm_sum / allPatterns.size());
+	org->dataMap.set("incorrect", incorrectNorm_sum / allPatterns.size());
+
 
 	if (visualize) { // mark end of data... EOD
 		FileManager::writeToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt", "EOD");
 	}
 
+	if (analyze) {
+
+		//auto remapRule = TS::RemapRules::UNIQUE;
+		auto remapRule = TS::RemapRules::BIT;
+		auto lifeTimes = brain->getLifeTimes();
+		auto inputStateSet = TS::remapToIntTimeSeries(brain->getInputStates(), TS::RemapRules::BIT);
+		auto brainAfterStateSet = TS::trimTimeSeries(TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule), TS::Position::FIRST, lifeTimes);
+
+		auto outputStateSet = TS::remapToIntTimeSeries(brain->getOutputStates(), TS::RemapRules::BIT);
+		auto brainBeforeStateSet = TS::trimTimeSeries(TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule), TS::Position::LAST, lifeTimes);
+
+		brain->saveConnectome();
+		brain->saveStructure();
+
+		std::cout << "rawR for worldStateSet { i,j }, brainStateSet, { i,j } " << std::endl;
+		for (double i = 0; i <= 1; i += .1) {
+			std::cout << i << " : ";
+			for (double j = i + .1; j <= 1; j += .1) {
+				std::cout << ENT::MutualEntropy(TS::trimTimeSeries(worldStateSet, { i,j }, patternsCount * repeats), TS::trimTimeSeries(brainAfterStateSet, { i,j }, patternsCount * repeats)) / ENT::Entropy(TS::trimTimeSeries(worldStateSet, { i,j }, patternsCount * repeats)) << " , ";
+			}
+			std::cout << std::endl;
+		}
+
+		auto smearPair = SMR::getSmearednessConceptsNodesPair(inputStateSet, worldStateSet, brainAfterStateSet);
+		std::cout << "smearedness of consepts: " << smearPair.first << "   smearedness of nodes: " << smearPair.second << std::endl;
+                FileManager::writeToFile("smear.txt", std::to_string(smearPair.second));
+                FileManager::writeToFile("smear.txt", std::to_string(smearPair.first));
+
+		//BRAINTOOLS::saveStateToState(brain, "StateToState.txt", TS::RemapRules::UNIQUE);
+		std::string fileName = "StateToState.txt";
+		auto fullHiddenStatesSet = TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule);
+		S2S::saveStateToState({ fullHiddenStatesSet, TS::extendTimeSeries(outputStateSet, lifeTimes, {0}, TS::Position::FIRST) }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
+		S2S::saveStateToState({ fullHiddenStatesSet }, { outputStateSet, inputStateSet }, lifeTimes, "H__O_I_" + fileName);
+		S2S::saveStateToState({ fullHiddenStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
+
+
+		//std::cout << "worldEnt: " << ENT::Entropy(worldStateSet) << "  brainEnt: " << ENT::Entropy(brainAfterStateSet) << "  worldBrainEnt: " << ENT::Entropy(TS::Join(worldStateSet, brainAfterStateSet)) << "  rawR: " << rawR << std::endl;
+		//std::cout << "earlyRawR20: " << earlyRawR20 << "  earlyRawR50: " << earlyRawR50 << "  lateRawR50: " << lateRawR50 << "  lateRawR20: " << lateRawR20 << std::endl;
+
+		std::cout << "organism with ID " << org->ID << " scored " << org->dataMap.getAverage("score") << std::endl;
+
+		FileManager::writeToFile("score.txt", std::to_string(org->dataMap.getAverage("score")));
+
+		// save fragmentation matrix of brain(hidden) predictions of world features
+		std::vector<std::string> RNames = { "catch", "left", "1", "2", "3", "4", "catch & left", "!catch & left", "catch & !left", "!catch & !left" };
+		FRAG::saveFragMatrix(worldStateSet, brainAfterStateSet, "R_FragmentationMatrix.py","feature",RNames);
+
+
+		// save data flow information - 
+		std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
+		FRAG::saveFragMatrixSet(TS::Join(brainAfterStateSet, outputStateSet), TS::Join(brainBeforeStateSet, inputStateSet), lifeTimes, flowRanges, "flowMap.py", "shared", -1);
+
+	}
 }
 
 void BlockCatchWorld::evaluate(std::map<std::string, std::shared_ptr<Group>>& groups, int analyse, int visualize, int debug) {
 	int popSize = groups[groupName]->population.size();
+
 	for (int i = 0; i < popSize; i++) {
-		evaluateSolo(groups[groupName]->population[i], analyse, visualize, debug);
+		evaluateSolo(groups[groupName]->population[i], analyse, visualize, AbstractWorld::debugPL->get(PT));
+
+		if (testMutants > 0) {
+			std::vector<double> mutantScores;
+			double mutantScoreSum = 0;
+			for (int j = 0; j < testMutants; j++) {
+				auto mutantOffspring = groups[groupNamePL->get(PT)]->population[i]->makeMutatedOffspringFrom(groups[groupNamePL->get(PT)]->population[i]);
+				evaluateSolo(mutantOffspring, 0, 0, 0);
+				auto s = mutantOffspring->dataMap.getAverage("score");
+				mutantScores.push_back(s);
+				mutantScoreSum += s;
+			}
+			//std::cout << "score: " << groups[groupNamePL->get(PT)]->population[i]->dataMap.getAverage("score") << "  mutantAveScore(" << testMutants << "): " << mutantScoreSum / testMutants << std::endl;
+			//std::ofstream mutantScoreFile;
+			//mutantScoreFile.open("mutantScoreFile.csv",
+		//		std::ios::out |
+	//			std::ios::app);
+			//mutantScoreFile << mutantScoreSum / testMutants << std::endl;
+			//mutantScoreFile.close();
+
+
+                        std::cout << "score: " << groups[groupNamePL->get(PT)]->population[i]->dataMap.getAverage("score") << "  mutantAveScore(" << testMutants << "): " << mutantScoreSum / testMutants << std::endl;
+                        //std::ofstream mutantScoreFile;
+                        //mutantScoreFile.open("mutantScoreFile.csv",
+                        //        std::ios::out |
+                        //        std::ios::app);
+                        //mutantScoreFile << groups[groupNamePL->get(PT)]->population[i]->dataMap.getAverage("score") << "," << mutantScoreSum / testMutants << std::endl;
+                        //mutantScoreFile.close();
+			FileManager::writeToFile("mutantScoreFile.txt", std::to_string(groups[groupNamePL->get(PT)]->population[i]->dataMap.getAverage("score")) + "," + std::to_string(mutantScoreSum / testMutants));
+
+
+
+
+
+
+		}
+
 	}
 
 	if (visualizeBest > 0 && Global::update % visualizeBest == 0 && Global::update > 0) {

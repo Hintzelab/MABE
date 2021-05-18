@@ -14,14 +14,24 @@
 
 #include <World/AbstractWorld.h>
 
+#include "../../Utilities/Utilities.h"
+//#include "../../Brain/MarkovBrain/MarkovBrain.h"
+//#include "../../Brain/RNNBrain/RNNBrain.h"
+
 #include <stdlib.h>
 #include <thread>
 #include <vector>
 #include <Genome/CircularGenome/CircularGenome.h>
+#include <algorithm>    // std::rotate
+
+#include "../../Analyze/brainTools.h"
+#include "../../Analyze/smearedness.h"
 
 class BlockCatchWorld : public AbstractWorld {
     
 public:
+	static std::shared_ptr<ParameterLink<int>> testMutantsPL;
+
 	static std::shared_ptr<ParameterLink<std::string>> scoreMethodPL;
 	static std::shared_ptr<ParameterLink<std::string>> paddlePL;
 
@@ -58,6 +68,8 @@ public:
 	std::string brainName;
 	std::string groupName;
 	
+	int testMutants = 0;
+
 	double lastMax = 0;
 	int lastMaxCount = 0;
 
@@ -67,7 +79,7 @@ public:
 	int startYMin = 32;
 
 	int patternStartPositions;
-	int repeats = -1; // -1 = determine at runtime based on worldX and maybe paddle width
+	size_t repeats = 0; // -1 = determine at runtime based on worldX and maybe paddle width
 
 	int scoreMethod = 0;
 
@@ -84,4 +96,14 @@ public:
 	void loadPatterns(int& patternCounter, std::vector<std::string> patterns);
 	virtual std::unordered_map<std::string, std::unordered_set<std::string>> requiredGroups() override;
 
+	// given a map and key, if key in map, map[key]++ else map[key] = 1
+	template<typename T>
+	void mapIncrement(std::unordered_map<T, int> & data, T key) {
+		if (data.find(key) == data.end()) { // key is not in map, make a new entry
+			data[key] = 1;
+		}
+		else {
+			data[key] += 1;
+		}
+	}
 };
