@@ -35,6 +35,9 @@ std::shared_ptr<ParameterLink<int>> Gate_Builder::neuronGateInitialCountPL = Par
 std::shared_ptr<ParameterLink<bool>> Gate_Builder::usingIzhikevichGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_IZHIKEVICH-allow", false, "set to true to enable Izhikevich gates");
 std::shared_ptr<ParameterLink<int>> Gate_Builder::izhikevichGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_IZHIKEVICH-initialCount", 20, "seed genome with this many start codons");
 
+std::shared_ptr<ParameterLink<bool>> Gate_Builder::usingAnnGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_ANN-allow", false, "set to true to enable ANN gates");
+std::shared_ptr<ParameterLink<int>> Gate_Builder::annGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_ANN-initialCount", 6, "seed genome with this many start codons");
+
 std::shared_ptr<ParameterLink<bool>> Gate_Builder::usingFeedbackGatePL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-allow", false, "set to true to enable feedback gates");
 std::shared_ptr<ParameterLink<int>> Gate_Builder::feedbackGateInitialCountPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-initialCount", 3, "seed genome with this many start codons");
 
@@ -160,7 +163,8 @@ void Gate_Builder::setupGates() {
 	int DecomposableDirectCode    = 52;
 	int ComparatorCode			  = 53;
 	int PassthroughCode			  = 54;
-	int IzhikevichCode			  = 55;
+	int IzhikevichCode            = 55;
+	int AnnCode                   = 56;
 
 	int bitsPerCodon = bitsPerCodonPL->get(PT);
 	makeGate.resize(1 << bitsPerCodon);
@@ -952,6 +956,69 @@ void Gate_Builder::setupGates() {
 			});
 	}
 
+
+	if (usingAnnGatePL->get(PT)) {
+		inUseGateNames.insert("ANN");
+		int codonOne = AnnCode;
+		inUseGateTypes.insert(codonOne);
+		{
+			gateStartCodes[codonOne].push_back(codonOne);
+			gateStartCodes[codonOne].push_back(((1 << bitsPerCodon) - 1) - codonOne);
+		}
+		intialGateCounts[codonOne] = annGateInitialCountPL->get(PT);
+		AddGate(codonOne, [](std::shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID, std::shared_ptr<ParametersTable> _PT) {
+			std::vector<int> InputMinMax;
+			convertCSVListToVector(AnnGate::I_RangePL->get(_PT), InputMinMax,'-');
+
+			std::vector<double> weightRangeMapping;
+			convertCSVListToVector(AnnGate::weightRangeMappingPL->get(), weightRangeMapping);
+
+			// weightRangeMappingSums is a list of bounderies between the weight ranges [-1,[-1..0],0,[0..1],1]
+			std::vector<double> weightRangeMappingSums;
+			weightRangeMappingSums.push_back(weightRangeMapping[0]);
+			weightRangeMappingSums.push_back(weightRangeMappingSums[0] + weightRangeMapping[1]);
+			weightRangeMappingSums.push_back(weightRangeMappingSums[1] + weightRangeMapping[2]);
+			weightRangeMappingSums.push_back(weightRangeMappingSums[2] + weightRangeMapping[3]);
+			weightRangeMappingSums.push_back(weightRangeMappingSums[3] + weightRangeMapping[4]);
+
+			std::vector<int> inputs;
+			std::vector<double> weights;
+			int numInput = Random::getInt(InputMinMax[0], InputMinMax[1]);
+			for (int i = 0; i < InputMinMax[1]; i++) {
+				if (i < numInput){ // add a value to inputs and to weights
+					inputs.push_back(genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1));
+					double value = genomeHandler->readDouble(0, weightRangeMappingSums[4]);
+					if (value < weightRangeMappingSums[0]) { // first range, map to -1
+						value = -1.0;
+					}
+					else if (value < weightRangeMappingSums[1]) { // second range, map to [-1..0]
+						value = ((value - weightRangeMappingSums[0]) / weightRangeMapping[1]) - 1.0;
+					}
+					else if (value < weightRangeMappingSums[2]) { // third range, map to 0
+						value = 0.0;
+					}
+					else if (value < weightRangeMappingSums[3]) { // fourth range, map to [0..1]
+						value = (value - weightRangeMappingSums[2]) / weightRangeMapping[3];
+					}
+					else { // fifth range, map to 0
+						value = 1.0;
+					}
+					weights.push_back(value);
+				}
+				else {// skip a value for input and a value for weight
+					genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1);
+					genomeHandler->readDouble(0, weightRangeMappingSums[4]);
+				}
+			}
+
+			int output = genomeHandler->readInt(0, (1 << bitsPerBrainAddressPL->get(_PT)) - 1);
+			std::vector<double> biasRange;
+			convertCSVListToVector(AnnGate::biasRangePL->get(_PT), biasRange);
+			double initalValue = genomeHandler->readDouble(biasRange[0], biasRange[1]);
+
+			return std::make_shared<AnnGate>(inputs, output, weights, initalValue, gateID, _PT);
+			});
+	}
 }
 
 /* *** some c++ 11 magic to speed up translation from genome to gates *** */

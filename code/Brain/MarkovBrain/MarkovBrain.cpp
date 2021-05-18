@@ -13,7 +13,7 @@
 
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::recurrentOutputPL =
 Parameters::register_parameter(
-    "BRAIN_MARKOV-recurrentOutput", true,
+    "BRAIN_MARKOV-recurrentOutput", false,
     "if true, outputs will be copied like hidden at the end of each brain updata (or evaluation, if evaluationsPerBrainUpdate > 1) giving the brain access to it's prior outputs");
 
 std::shared_ptr<ParameterLink<bool>> MarkovBrain::useGateRegulationPL =
@@ -208,38 +208,76 @@ std::shared_ptr<AbstractBrain> MarkovBrain::makeBrain(
 }
 
 void MarkovBrain::resetBrain() {
-  AbstractBrain::resetBrain();
-  nodes.assign(nrNodes, 0.0);
-  for (auto &g :gates)
-	  g->resetGate();
+    AbstractBrain::resetBrain();
+    nodes.assign(nrNodes, 0.0);
+    nextNodes.assign(nrNodes, 0.0);
+    for (auto& g : gates) {
+        g->resetGate();
+    }
+    /* done in Abstract::resetBrain
+    resetInputs();
+    resetOutputs();
+    if (recordActivity) {
+        if (lifeTimes.back() != 0) {
+            lifeTimes.push_back(0);
+        }
+    }
+    */
 }
 
 void MarkovBrain::resetInputs() {
-  AbstractBrain::resetInputs(); 
-  for (int i = 0; i < nrInputValues; i++)
-    nodes[i] = 0.0;
+  for (int i = 0; i < nrInputValues; i++) {
+      inputValues[i] = 0.0;
+  }
 }
 
 void MarkovBrain::resetOutputs() {
-  AbstractBrain::resetOutputs();
-  // note nrInputValues+i gets us the index for the node related to each output
-  for (int i = 0; i < nrOutputValues; i++) 
-    nodes[nrInputValues + i] = 0.0;
+  for (int i = 0; i < nrOutputValues; i++) {
+      outputValues[i] = 0.0;
+  }
 }
 
 
 void MarkovBrain::update() {
+    if (checkDet.size() == 0) {
+        checkDet.resize(100);
+    }
+    //std::cout << "  in update..." << std::endl;
+    std::vector<int> currentNextNodesConnections = nextNodesConnections;
     for (int eval = 0; eval < evaluationsPreUpdate; eval++) {
-        nextNodes.assign(nrNodes, 0.0);
-        DataMap IOMap;
 
-        for (int i = 0; i < nrInputValues; i++) {
+        for (int i = 0; i < nrInputValues; i++) { // copy inputs into nodes 
             nodes[i] = inputValues[i];
         }
+        if (recurrentOutput) {
+            for (int o = 0; o < outputValues.size(); o++) { // copy outputs into nodes if recurrent... else leave alone (i.e. they will be 0)
+                nodes[o + nrInputValues] = outputValues[o];
+            }
+        }
+        for (int h = nrInputValues + nrOutputValues; h < nodes.size(); h++) {// copy hidden from prior t+1
+            nodes[h] = nextNodes[h];
+        }
 
-        if (recordIOMapPL->get())
-            for (int i = 0; i < nrInputValues; i++)
-                IOMap.append("input", Bit(nodes[i]));
+        nextNodes.assign(nrNodes, 0.0); // clear t+1 so it's ready to get new values
+
+        if (recordActivity) {
+            InputStates.push_back(std::vector<double>(nrInputValues)); // add space to the input state TS
+            for (int i = 0; i < nrInputValues; i++) {
+                InputStates.back()[i] = nodes[i]; // add input values
+            }
+            if (lifeTimes.back() == 0) { // if it's the first update of a new lifetime we need to add the current hidden and possibly the current output (if recurrent)
+                HiddenStates.push_back(std::vector<double>(nodes.size() - (nrInputValues + nrOutputValues)));
+                for (int i = 0; i < nodes.size() - (nrInputValues + nrOutputValues); i++) {
+                    HiddenStates.back()[i] = nodes[i + nrInputValues + nrOutputValues];
+                }
+                if (recurrentOutput) {
+                    OutputStates.push_back(std::vector<double>(nrOutputValues));
+                    for (int i = 0; i < nrOutputValues; i++) {
+                        OutputStates.back()[i] = nodes[nrInputValues + i];
+                    }
+                }
+            }
+        }
 
         if (!useGateRegulation) {
             for (auto& g : gates) {// update each gate
@@ -247,6 +285,7 @@ void MarkovBrain::update() {
             }
         }
         else { //useGateRegulation
+            std::fill(currentNextNodesConnections.begin(), currentNextNodesConnections.end(), 0);
             int gateCount = 0;
             for (auto& g : gates) {// update each gate
                 // if -2, don't run the gate
@@ -261,6 +300,9 @@ void MarkovBrain::update() {
                         g->update(nodes, nextNodes); // run the gate if the connected node is > 0
                         //std::cout << "* ";
                     }
+                }
+                for (auto out : g->outputs) {
+                    currentNextNodesConnections[out]++;
                 }
                 gateCount++;
             }
@@ -294,48 +336,35 @@ void MarkovBrain::update() {
 
         if (useOutputThreshold) {
             for (int i = 0; i < nrOutputValues; i++) {
-                if (nextNodesConnections[nrInputValues + i] > 0) {
-                    nextNodes[nrInputValues + i] = (nextNodes[nrInputValues + i] / nextNodesConnections[nrInputValues + i]) >= outputThreshold;
+                if (currentNextNodesConnections[nrInputValues + i] > 0) {
+                    nextNodes[nrInputValues + i] = (nextNodes[nrInputValues + i] / currentNextNodesConnections[nrInputValues + i]) >= outputThreshold;
                 }
             }
         }
         if (useHiddenThreshold) {
             for (int i = 0; i < hiddenNodes; i++) {
-                if (nextNodesConnections[nrInputValues + nrOutputValues + i] > 0) {
-                    nextNodes[nrInputValues + nrOutputValues + i] = (nextNodes[nrInputValues + nrOutputValues + i] / nextNodesConnections[nrInputValues + nrOutputValues + i]) >= hiddenThreshold;
+                if (currentNextNodesConnections[nrInputValues + nrOutputValues + i] > 0) {
+                    nextNodes[nrInputValues + nrOutputValues + i] = (nextNodes[nrInputValues + nrOutputValues + i] / currentNextNodesConnections[nrInputValues + nrOutputValues + i]) >= hiddenThreshold;
                 }
             }
         }
 
-        if (recurrentOutput) {
-            for (int h = nrInputValues; h < nodes.size(); h++) { // copy outputs and hidden
-                nodes[h] = nextNodes[h];
-            }
+        //swap(nodes, nextNodes); OLD METHOD - here as a reminder of the old ways
 
-        }
-        else {
-            for (int h = nrInputValues + nrOutputValues; h < nodes.size(); h++) {// copy outputs and hidden
-                nodes[h] = nextNodes[h];
-            }
-        }
-        //swap(nodes, nextNodes);
-
-        if (recordIOMapPL->get()) {
-            
+        // if recordActivity, add output and hidden states
+        if (recordActivity) {
+            OutputStates.push_back(std::vector<double>(nrOutputValues));
             for (int i = 0; i < nrOutputValues; i++) {
-                IOMap.append("output", Bit(nodes[nrInputValues + i]));
+                OutputStates.back()[i] = nextNodes[nrInputValues + i];
             }
 
-            for (int i = nrInputValues + nrOutputValues; i < nodes.size(); i++) {
-                IOMap.append("hidden", Bit(nodes[i]));
+            HiddenStates.push_back(std::vector<double>(nodes.size() - (nrInputValues + nrOutputValues)));
+            for (int i = 0; i < nodes.size() - (nrInputValues + nrOutputValues); i++) {
+                HiddenStates.back()[i] = nextNodes[i + nrInputValues + nrOutputValues];
             }
-
-            IOMap.setOutputBehavior("input", DataMap::LIST);
-            IOMap.setOutputBehavior("output", DataMap::LIST);
-            IOMap.setOutputBehavior("hidden", DataMap::LIST);
-            IOMap.writeToFile(IOMapFileNamePL->get());
-            IOMap.clearMap();
+            lifeTimes.back()++;
         }
+
     }
 
     for (int i = 0; i < nrOutputValues; i++) {
@@ -426,7 +455,7 @@ int MarkovBrain::numGates() { return brainSize(); }
 std::vector<int> MarkovBrain::getHiddenNodes() {
   std::vector<int> temp ;
   for (size_t i = nrInputValues + nrOutputValues; i < nodes.size(); i++) 
-    temp.push_back(Bit(nodes[i]));
+    temp.push_back(Trit(nodes[i]));
   
   return temp;
 }

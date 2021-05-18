@@ -26,6 +26,7 @@
 #include <Brain/MarkovBrain/Gate/ComparatorGate.h>
 #include <Brain/MarkovBrain/Gate/PassthroughGate.h>
 #include <Brain/MarkovBrain/Gate/IzhikevichGate.h>
+#include <Brain/MarkovBrain/Gate/AnnGate.h>
 
 class Gate_Builder {  // manages what kinds of gates can be built
 public:
@@ -62,6 +63,9 @@ public:
 
 	static std::shared_ptr<ParameterLink<bool>> usingIzhikevichGatePL;
 	static std::shared_ptr<ParameterLink<int>> izhikevichGateInitialCountPL;
+
+	static std::shared_ptr<ParameterLink<bool>> usingAnnGatePL;
+	static std::shared_ptr<ParameterLink<int>> annGateInitialCountPL;
 
 	static std::shared_ptr<ParameterLink<bool>> usingComparatorGatePL;
 	static std::shared_ptr<ParameterLink<int>> comparatorGateInitialCountPL;
