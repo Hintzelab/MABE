@@ -30,9 +30,15 @@ std::map<std::string, int> DataMap::knownOutputBehaviors = {
     {"LIST", LIST},     {"AVE", AVE},     {"SUM", SUM}, {"PROD", PROD},
     {"STDERR", STDERR}, {"FIRST", FIRST}, {"VAR", VAR}};
 
+void FileManager::openAndWriteToFile(const std::string &fileName, const std::string &data, const std::string &header) {
+  openFile( fileName, header); // make sure that the file is open and ready to be written to
+  if (!data.empty()) {files[fileName] << data << "\n" << std::flush;}
+}
+
+[[deprecated("Use openAndWriteToFile() instead.")]]
 void FileManager::writeToFile(const std::string &fileName, const std::string &data, const std::string &header) {
   openFile( fileName, header); // make sure that the file is open and ready to be written to
-  files[fileName] << data << "\n" << std::flush;
+  if (!data.empty()) {files[fileName] << data << "\n" << std::flush;}
 }
 
 void FileManager::openFile(const std::string &fileName, const std::string &header) {

@@ -113,7 +113,7 @@ void NeuronGate::update(std::vector<double> & nodes, std::vector<double> & nextn
 	}
 	if (record_behavior) {
 		stateNow += "," + std::to_string(localDeliveryCharge);
-		FileManager::writeToFile(record_behavior_file_name, stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode,deliveryCharge");  //fileName, data, header
+		FileManager::openAndWriteToFile(record_behavior_file_name, stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode,deliveryCharge");  //fileName, data, header
 	}
 }
 
@@ -193,7 +193,7 @@ void NeuronGate::update(std::vector<double> & nodes, std::vector<double> & nextn
 //            stateNow += "," + to_string(thresholdFromNode);
 //            stateNow += "," + to_string(deliveryChargeFromNode);
 //
-//            FileManager::writeToFile("neuron_data.txt", stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
+//            FileManager::openAndWriteToFile("neuron_data.txt", stateNow, "ID,fire,inCount,outCount,inConnections,outConnections,thresholdValue,currentCharge,dischargeBehavior,decayRate,deliveryCharge,deliveryError,thresholdActivates,thresholdFromNode,deliveryChargeFromNode");  //fileName, data, header - used when you want to output formatted data (i.e. genomes)
 //    }
 //
 //	if (fire) {

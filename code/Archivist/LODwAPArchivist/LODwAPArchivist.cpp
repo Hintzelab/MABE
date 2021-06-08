@@ -124,7 +124,7 @@ void LODwAPArchivist::writeLODDataFile(
         std::max(0, current->timeOfBirth - real_MRCA->timeOfBirth);
     current->dataMap.set("timeToCoalescence", time_to_coalescence);
     current->dataMap.setOutputBehavior("timeToCoalescence", DataMap::FIRST);
-    current->dataMap.writeToFile(
+    current->dataMap.openAndWriteToFile(
         data_file_name_,
         files_[data_file_name_]); // append new data to the file
     current->dataMap.clear("update");
@@ -171,7 +171,7 @@ void LODwAPArchivist::writeLODOrganismFile(
       auto name = "BRAIN_" + brain.first;
       OrgMap.merge(brain.second->serialize(name));
     }
-    OrgMap.writeToFile(organism_file_name_); // append new data to the file
+    OrgMap.openAndWriteToFile(organism_file_name_); // append new data to the file
 
     next_organism_write_ = organismSequence[++organism_seq_index];
   }

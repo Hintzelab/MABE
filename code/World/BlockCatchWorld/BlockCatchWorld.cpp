@@ -159,7 +159,7 @@ void BlockCatchWorld::visualizeDisplay(bool catchPattern, int worldX, int startY
 	}
 
 	// save visualization to file
-	FileManager::writeToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt", visualizeData);
+	FileManager::openAndWriteToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt", visualizeData);
 }
 
 void BlockCatchWorld::loadPatterns(int& patternCounter, std::vector<std::string> patterns) {
@@ -417,7 +417,7 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, i
 	std::vector<int> incorrectPer(patternsCount, 0); // total number of incorrect catches/misses per pattern
 
 	if (visualize) { // save state of world before we get started.
-		FileManager::writeToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt",
+		FileManager::openAndWriteToFile("CatchPassVisualize_"+std::to_string(Global::update)+".txt",
 			"reset\n" +
 			std::to_string(worldXMax) + "," + std::to_string(startYMax) + "," +
 			std::to_string(Global::update) + "," + std::to_string(org->ID));
@@ -727,7 +727,7 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, i
 
 
 	if (visualize) { // mark end of data... EOD
-		FileManager::writeToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt", "EOD");
+		FileManager::openAndWriteToFile("CatchPassVisualize_" + std::to_string(Global::update) + ".txt", "EOD");
 	}
 
 	if (analyze) {

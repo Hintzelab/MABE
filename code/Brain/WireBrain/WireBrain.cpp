@@ -1403,7 +1403,7 @@ void WireBrain::SaveBrainState(std::string fileName) {
       stateNow += "D";
     }
   }
-  FileManager::writeToFile(
+  FileManager::openAndWriteToFile(
       fileName, stateNow,
       std::to_string(width) + ',' + std::to_string(height) + ',' +
           std::to_string(depth)); // fileName, data, header - used when you want
