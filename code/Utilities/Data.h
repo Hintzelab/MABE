@@ -33,15 +33,8 @@ public:
 
   static const char separator = ',';
 
-  static void writeToFile(const std::string &fileName, const std::string &data,
-                          const std::string &header = ""); // fileName, data, header
-                                                      // - used when you want to
-                                                      // output formatted data
-                                                      // (i.e. genomes)
-  static void openFile(const std::string &fileName,
-                       const std::string &header = ""); // open file and write header
-                                                   // to file if file is new and
-                                                   // header is provided
+  static void writeToFile(const std::string &fileName, const std::string &data, const std::string &header = ""); // fileName, data, header - used when you want to output formatted data (i.e. genomes)
+  static void openFile(const std::string &fileName, const std::string &header = ""); // open file and write header to file if file is new and header is provided
   static void closeFile(const std::string &fileName);   // close file
 };
 
