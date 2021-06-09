@@ -22,7 +22,7 @@ using std::unordered_map;
 using std::unordered_set;
 using std::to_string;
 
-class {{MODULE_NAME}}World : public AbstractWorld {
+class MyWorld : public AbstractWorld {
 
 public:
 	// parameters for group and brain namespaces
@@ -34,8 +34,8 @@ public:
     std::string groupName = "root::";
     std::string brainName = "root::";
     
-    {{MODULE_NAME}}World(shared_ptr<ParametersTable> PT);
-	virtual ~{{MODULE_NAME}}World() = default;
+    MyWorld(shared_ptr<ParametersTable> PT);
+	virtual ~MyWorld() = default;
 
 	virtual auto evaluate(map<string, shared_ptr<Group>>& /*groups*/, int /*analyze*/, int /*visualize*/, int /*debug*/) -> void override;
 

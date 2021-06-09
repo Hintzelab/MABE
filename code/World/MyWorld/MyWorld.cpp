@@ -8,16 +8,16 @@
 //     to view the full license, visit:
 //         github.com/Hintzelab/MABE/wiki/License
 
-#include "{{MODULE_NAME}}{{MODULE_TYPE}}.h"
+#include "MyWorld.h"
 
 // this is how you setup a parameter in MABE, the function Parameters::register_parameter()takes the
 // name of the parameter (catagory-name), default value (which must conform with the type), a the useage message
-shared_ptr<ParameterLink<int>> {{MODULE_NAME}}World::evaluationsPerGenerationPL =
+shared_ptr<ParameterLink<int>> MyWorld::evaluationsPerGenerationPL =
     Parameters::register_parameter("WORLD_CLEAN-evaluationsPerGeneration", 30,
     "how many times should each organism be tested in each generation?");
 
 // the constructor gets called once when MABE starts up. use this to set things up
-{{MODULE_NAME}}World::{{MODULE_NAME}}World(shared_ptr<ParametersTable> PT) : AbstractWorld(PT) {
+MyWorld::MyWorld(shared_ptr<ParametersTable> PT) : AbstractWorld(PT) {
     
     //localize a parameter value for faster access
     evaluationsPerGeneration = evaluationsPerGenerationPL->get(PT);
@@ -30,7 +30,7 @@ shared_ptr<ParameterLink<int>> {{MODULE_NAME}}World::evaluationsPerGenerationPL 
 
 // the evaluate function gets called every generation. evaluate should set values on organisms datamaps
 // that will be used by other parts of MABE for things like reproduction and archiving
-auto {{MODULE_NAME}}World::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) -> void {
+auto MyWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) -> void {
 
     int popSize = groups[groupName]->population.size(); 
     
@@ -81,7 +81,7 @@ auto {{MODULE_NAME}}World::evaluate(map<string, shared_ptr<Group>>& groups, int 
 }
 
 // the requiredGroups function lets MABE know how to set up populations of organisms that this world needs
-auto {{MODULE_NAME}}World::requiredGroups() -> unordered_map<string,unordered_set<string>> {
+auto MyWorld::requiredGroups() -> unordered_map<string,unordered_set<string>> {
 	return { { groupName, { "B:"+brainName+",2,1" } } };
         
         // this tells MABE to make a group called "root::" with a brain called "root::" that takes 2 inputs and has 1 output
