@@ -34,7 +34,7 @@ public:
     std::string groupName = "root::";
     std::string brainName = "root::";
     
-    {{MODULE_NAME}}World(shared_ptr<ParametersTable> PT_);
+    {{MODULE_NAME}}World(shared_ptr<ParametersTable> PT);
 	virtual ~{{MODULE_NAME}}World() = default;
 
 	virtual auto evaluate(map<string, shared_ptr<Group>>& /*groups*/, int /*analyze*/, int /*visualize*/, int /*debug*/) -> void override;

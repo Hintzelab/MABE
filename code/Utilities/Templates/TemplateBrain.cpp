@@ -11,8 +11,8 @@
 #include "{{MODULE_NAME}}Brain.h"
 
 
-{{MODULE_NAME}}Brain::{{MODULE_NAME}}Brain(int ins, int outs, std::shared_ptr<ParametersTable> PT_)
-    : AbstractBrain(ins, outs, PT_) {
+{{MODULE_NAME}}Brain::{{MODULE_NAME}}Brain(int ins, int outs, std::shared_ptr<ParametersTable> PT)
+    : AbstractBrain(ins, outs, PT) {
     nrInputValues = ins;
     nrOutputValues = outs;
     recordActivity = false;
@@ -36,7 +36,7 @@ void {{MODULE_NAME}}Brain::update(){
 }
 
 // make a copy of the brain that called this
-std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+std::shared_ptr<AbstractBrain> {{MODULE_NAME}}Brain::makeCopy(std::shared_ptr<ParametersTable> PT) {
     
     // You need to define this function. It needs to return a cop of the brain that called it
     

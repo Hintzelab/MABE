@@ -17,7 +17,7 @@ shared_ptr<ParameterLink<int>> {{MODULE_NAME}}World::evaluationsPerGenerationPL 
     "how many times should each organism be tested in each generation?");
 
 // the constructor gets called once when MABE starts up. use this to set things up
-{{MODULE_NAME}}World::{{MODULE_NAME}}World(shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_) {
+{{MODULE_NAME}}World::{{MODULE_NAME}}World(shared_ptr<ParametersTable> PT) : AbstractWorld(PT) {
     
     //localize a parameter value for faster access
     evaluationsPerGeneration = evaluationsPerGenerationPL->get(PT);
