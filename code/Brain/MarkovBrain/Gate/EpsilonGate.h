@@ -12,27 +12,25 @@
 
 #include "DeterministicGate.h"
 
-using namespace std;
-
 class EpsilonGate: public DeterministicGate {
 public:
-	static shared_ptr<ParameterLink<double>> EpsilonSourcePL;
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+	static std::shared_ptr<ParameterLink<double>> EpsilonSourcePL;
+	static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	vector<int> defaultOutput;
+	std::vector<int> defaultOutput;
 	double epsilon;
 	
 	EpsilonGate() = delete;
-	EpsilonGate(shared_ptr<ParametersTable> _PT = nullptr) :
+	EpsilonGate(std::shared_ptr<ParametersTable> _PT = nullptr) :
 		DeterministicGate(_PT) {
 		epsilon = 0;
 	}
-	EpsilonGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, double _epsilon, shared_ptr<ParametersTable> _PT = nullptr);
+	EpsilonGate(std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<int>> _table, int _ID, double _epsilon, std::shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~EpsilonGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual string gateType() override{
+	virtual void update(std::vector<double> & states, std::vector<double> & nextStates) override;
+	virtual std::string gateType() override{
 		return "Epsilon";
 	}
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual std::shared_ptr<AbstractGate> makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr) override;
 
 };

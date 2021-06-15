@@ -6,7 +6,7 @@
 # dark yellow = area seen by paddle sensors
 
 # enter name of visualization file here.
-fileName = 'c:/Users/cliff/Desktop/newWork/CatchPassVisualize_5000.txt'
+fileName = 'c:/Users/cliff/WORK/NBack8_IT/data/CatchPassVisualize_0.txt'
 
 # enter size of window here (block size will be fit to window)
 windowX = 1000

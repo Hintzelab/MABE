@@ -12,39 +12,37 @@
 
 #include "AbstractGate.h"
 
-using namespace std;
-
 class DecomposableDirectGate: public AbstractGate {  //conventional probabilistic gate
 public:
 
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+	static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	vector<vector<double>> factorsList;
-	DecomposableDirectGate() = delete;
-	DecomposableDirectGate(shared_ptr<ParametersTable> _PT = nullptr) :
+    std::vector<std::vector<double>> factorsList;
+    DecomposableDirectGate() = delete;
+	DecomposableDirectGate(std::shared_ptr<ParametersTable> _PT = nullptr) :
 		AbstractGate(_PT) {
 		factorsList = {};
 	}
-	DecomposableDirectGate(pair<vector<int>, vector<int>> addresses, vector<vector<double>> factorsList, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
+	DecomposableDirectGate(std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<double>> factorsList, int _ID, std::shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~DecomposableDirectGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual string gateType() override{
+	virtual void update(std::vector<double> & states, std::vector<double> & nextStates) override;
+	virtual std::string gateType() override{
 		return "DecomposableDirect";
 	}
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual std::shared_ptr<AbstractGate> makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr) override;
   virtual std::string getTPMdescription() {
     std::string S="";
     S+="\"ins\":[";
     for(int i=0;i<inputs.size();i++){
       if(i!=0)
         S+=",";
-      S+=to_string(inputs[i]);
+      S+= std::to_string(inputs[i]);
     }
     S+="],\"outs\":[";
     for(int o=0;o<outputs.size();o++){
       if(o!=0)
         S+=",";
-      S+=to_string(outputs[o]);
+      S+= std::to_string(outputs[o]);
     }
     S+="],\"logic\":[";
     for(int i=0;i<(double)factorsList.size();i++){
@@ -54,7 +52,7 @@ public:
       for(int o=0;o<(double)factorsList[i].size();o++){
         if(o!=0)
           S+=",";
-        S+=to_string(factorsList[i][o]);
+        S+= std::to_string(factorsList[i][o]);
       }
       S+="]";
     }

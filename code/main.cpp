@@ -75,7 +75,9 @@ int main(int argc, const char *argv[]) {
       exit(1);
     }
 
-    std::cout << "Saving settings files ..." << std::flush;
+    if (!Parameters::save_files_stdout) {
+      std::cout << "Saving settings files ..." << std::flush;
+    }
 
     Parameters::saveSettingsFiles(
         maxLineLength, commentIndent, {"*"},
@@ -83,11 +85,13 @@ int main(int argc, const char *argv[]) {
          {prefix + "settings_world.cfg", {"WORLD*"}},
          {prefix + "settings.cfg", {""}}});
 
-    std::cout << std::endl
-              << "Settings files saved in Directory \"" << dir_part
-              << "\" with prefix \""
-              << prefix.substr(prefix.find_last_of('/') + 1) << "\""
-              << std::endl;
+    if (!Parameters::save_files_stdout) {
+      std::cout << std::endl
+          << "Settings files saved in Directory \"" << dir_part
+          << "\" with prefix \""
+          << prefix.substr(prefix.find_last_of('/') + 1) << "\""
+          << std::endl;
+    }
     exit(0);
   }
 

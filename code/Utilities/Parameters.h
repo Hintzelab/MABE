@@ -1354,6 +1354,7 @@ class Parameters {
 public:
   static std::shared_ptr<ParametersTable> root;
   static bool save_files;
+  static bool save_files_stdout;
   static std::string save_file_prefix;
 
   template <typename T>

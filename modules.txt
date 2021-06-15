@@ -3,6 +3,7 @@
   - BlockCatch
   * Test
   - Berry
+  - PathFollow
 
 % Genome
   * Circular

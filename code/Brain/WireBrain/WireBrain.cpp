@@ -143,6 +143,12 @@ std::shared_ptr<ParameterLink<std::string>> WireBrain::genomeNamePL =
                                    "namespace used to set parameters for "
                                    "genome used to encode this brain");
 
+std::shared_ptr<ParameterLink<bool>> WireBrain::recordActivityPL =
+Parameters::register_parameter("BRAIN_WIRE-recordActivity",
+    false,
+    "if true, brain visualization will be saved to wireBrainVisualization.txt");
+
+
 WireBrain::WireBrain(int _nrInNodes, int _nrOutNodes,
                      std::shared_ptr<ParametersTable> PT_)
     : AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
@@ -1279,8 +1285,8 @@ void WireBrain::update() {
         // allCells[0]=CHARGE;
         /////////////////////////////
       }
-      if (recordActivity) {
-        SaveBrainState("wireBrain.run");
+      if (recordActivityPL->get(PT)) {
+        SaveBrainState("wireBrainVisualization.txt");
       }
       for (int count = 0; count < chargeUpdatesPerUpdate; count++) {
         if (!allowNegativeCharge) {
@@ -1288,8 +1294,8 @@ void WireBrain::update() {
         } else {
           chargeUpdateTrit();
         }
-        if (recordActivity) {
-          SaveBrainState(recordActivityFileName);
+        if (recordActivityPL->get(PT)) {
+          SaveBrainState("wireBrainVisualization.txt");
         }
       }
       //////
@@ -1348,8 +1354,8 @@ void WireBrain::update() {
       // allCells[0]=CHARGE;
       /////////////////////////////
     }
-    if (recordActivity) {
-      SaveBrainState("wireBrain.run");
+    if (recordActivityPL->get(PT)) {
+      SaveBrainState("wireBrainVisualization.txt");
     }
     for (int count = 0; count < chargeUpdatesPerUpdate; count++) {
       if (!allowNegativeCharge) {
@@ -1357,8 +1363,8 @@ void WireBrain::update() {
       } else {
         chargeUpdateTrit();
       }
-      if (recordActivity) {
-        SaveBrainState(recordActivityFileName);
+      if (recordActivityPL->get(PT)) {
+        SaveBrainState("wireBrainVisualization.txt");
       }
     }
   }
@@ -1373,6 +1379,7 @@ void WireBrain::update() {
 }
 
 void WireBrain::SaveBrainState(std::string fileName) {
+    //std::cout << "in save brain state: " << fileName << std::endl;
   //		for (int i = 0; i < nrOfNodes; i++) {
   //			int l = nodesAddresses[i];
   //			int cellX = (l % (width * height)) % width;  // find this cells
@@ -1403,10 +1410,8 @@ void WireBrain::SaveBrainState(std::string fileName) {
       stateNow += "D";
     }
   }
-  FileManager::writeToFile(
-      fileName, stateNow,
-      std::to_string(width) + ',' + std::to_string(height) + ',' +
-          std::to_string(depth)); // fileName, data, header - used when you want
+  FileManager::openAndWriteToFile(fileName, stateNow,
+      std::to_string(width) + ',' + std::to_string(height) + ',' + std::to_string(depth)); // fileName, data, header - used when you want
                                   // to output formatted data (i.e. genomes)
   //		for (int i = 0; i < nrOfNodes; i++) {
   //			int l = nodesNextAddresses[i];

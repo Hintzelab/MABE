@@ -194,7 +194,7 @@ void DefaultArchivist::writeRealTimeFiles(
       PopMap.setOutputBehavior(kv.first, kv.second);
     }
     PopMap.set("update", Global::update);
-    PopMap.writeToFile(
+    PopMap.openAndWriteToFile(
         PopFileName, {}); // write the PopMap to file with empty list (save all)
   }
 
@@ -219,7 +219,7 @@ void DefaultArchivist::writeRealTimeFiles(
       exit(1);
     }
     best_org->dataMap.set("update", Global::update);
-    best_org->dataMap.writeToFile(MaxFileName);
+    best_org->dataMap.openAndWriteToFile(MaxFileName);
     best_org->dataMap.clear("update");
   }
 }
@@ -277,7 +277,7 @@ void DefaultArchivist::saveOrgToFile(const std::shared_ptr<Organism> &org, const
 
   org->dataMap.set("update", Global::update);
   org->dataMap.setOutputBehavior("update", DataMap::FIRST);
-  org->dataMap.writeToFile(data_file_name, files_["snapshotData"]); // append new data to the file
+  org->dataMap.openAndWriteToFile(data_file_name, files_["snapshotData"]); // append new data to the file
   org->dataMap.clear("snapshotAncestors");
   org->dataMap.clear("update");
 }
@@ -368,7 +368,7 @@ void DefaultArchivist::saveSnapshotOrganisms(
         tempName = "BRAIN_" + brain.first;
         OrgMap.merge(brain.second->serialize(tempName));
       }
-      OrgMap.writeToFile(organismFileName); // append new data to the file
+      OrgMap.openAndWriteToFile(organismFileName); // append new data to the file
     }
   }
   FileManager::closeFile(organismFileName); // since this is a snapshot, we will

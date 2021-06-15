@@ -64,6 +64,8 @@ class WireBrain : public AbstractBrain {
 
   static std::shared_ptr<ParameterLink<int>> hiddenValuesPL;
 
+  static std::shared_ptr<ParameterLink<bool>> recordActivityPL;
+
   bool allowNegativeCharge;
   int defaultWidth;
   int defaultHeight;

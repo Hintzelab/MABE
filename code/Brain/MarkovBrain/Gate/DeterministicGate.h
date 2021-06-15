@@ -12,25 +12,23 @@
 
 #include "AbstractGate.h"
 
-using namespace std;
-
 class DeterministicGate: public AbstractGate {
 public:
 	
-	static shared_ptr<ParameterLink<string>> IO_RangesPL;
+	static std::shared_ptr<ParameterLink<std::string>> IO_RangesPL;
 
-	vector<vector<int>> table;
+    std::vector<std::vector<int>> table;
 	DeterministicGate() = delete;
-	DeterministicGate(shared_ptr<ParametersTable> _PT = nullptr) :
+	DeterministicGate(std::shared_ptr<ParametersTable> _PT = nullptr) :
 		AbstractGate(_PT) {
 		table = {}; 
 	}
-	DeterministicGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> _table, int _ID, shared_ptr<ParametersTable> _PT = nullptr);
+	DeterministicGate(std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<int>> _table, int _ID, std::shared_ptr<ParametersTable> _PT = nullptr);
 	virtual ~DeterministicGate() = default;
-	virtual void update(vector<double> & states, vector<double> & nextStates) override;
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual void update(std::vector<double> & states, std::vector<double> & nextStates) override;
+	virtual std::shared_ptr<AbstractGate> makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr) override;
 	//void setupForBits(int* Ins, int nrOfIns, int Out, int logic);
-	virtual string gateType() override{
+	virtual std::string gateType() override{
 		return "Deterministic";
 	}
         virtual std::string getTPMdescription() override{
@@ -39,13 +37,13 @@ public:
           for(int i=0;i<inputs.size();i++){
             if(i!=0)
               S+=",";
-            S+=to_string(inputs[i]);
+            S+= std::to_string(inputs[i]);
           }
           S+="],\"outs\":[";
           for(int o=0;o<outputs.size();o++){
             if(o!=0)
               S+=",";
-            S+=to_string(outputs[o]);
+            S+= std::to_string(outputs[o]);
           }
           S+="],\"logic\":[";
           for(int i=0;i<(int)table.size();i++){
@@ -55,7 +53,7 @@ public:
             for(int o=0;o<(int)table[i].size();o++){
               if(o!=0)
                 S+=",";
-              S+=to_string(table[i][o]);
+              S+= std::to_string(table[i][o]);
             }
             S+="]";
           }

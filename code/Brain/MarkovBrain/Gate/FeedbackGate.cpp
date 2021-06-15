@@ -14,18 +14,18 @@
 #include <Utilities/Utilities.h>
 
 bool FeedbackGate::feedbackON = true;
-shared_ptr<ParameterLink<string>> FeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<std::string>> FeedbackGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_FEEDBACK-IO_Ranges", (std::string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
-FeedbackGate::FeedbackGate(pair<vector<int>, vector<int>> addresses, 
-        vector<vector<int>> rawTable, 
+FeedbackGate::FeedbackGate(std::pair<std::vector<int>, std::vector<int>> addresses,
+    std::vector<std::vector<int>> rawTable,
         unsigned int _posFBNode, 
         unsigned int _negFBNode, 
         unsigned char _nrPos, 
         unsigned char _nrNeg, 
-        vector<double> _posLevelOfFB, 
-        vector<double> _negLevelOfFB, 
+    std::vector<double> _posLevelOfFB,
+    std::vector<double> _negLevelOfFB,
         int _ID, 
-        shared_ptr<ParametersTable> _PT) :
+    std::shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT) {
 
   ID = _ID;
@@ -69,7 +69,7 @@ FeedbackGate::FeedbackGate(pair<vector<int>, vector<int>> addresses,
   chosenOutNeg.clear();
 }
 
-void FeedbackGate::update(vector<double> & states, vector<double> & nextStates) {
+void FeedbackGate::update(std::vector<double> & states, std::vector<double> & nextStates) {
   size_t i;
   double mod;
 
@@ -137,25 +137,25 @@ void FeedbackGate::update(vector<double> & states, vector<double> & nextStates) 
   }
 }
 
-string FeedbackGate::description() {
-    string S = "pos node:" + to_string((int) posFBNode) + "\n neg node:" + to_string((int) negFBNode);
+std::string FeedbackGate::description() {
+    std::string S = "pos node:" + std::to_string((int) posFBNode) + "\n neg node:" + std::to_string((int) negFBNode);
     S=S+"\n#\nI:\t";
     for(int i=0;i<inputs.size();i++)
-        S=S+" "+to_string(inputs[i]);
+        S=S+" "+ std::to_string(inputs[i]);
     S=S+"\nO:\t";
     for(int i=0;i<outputs.size();i++)
-        S=S+" "+to_string(outputs[i]);
+        S=S+" "+ std::to_string(outputs[i]);
     S=S+"\n";
     for(int i=0;i<table.size();i++){
         for(int j=0;j<table[i].size();j++)
-            S=S+"\t"+to_string(table[i][j]);
+            S=S+"\t"+ std::to_string(table[i][j]);
         S=S+"\n";
     }
     S=S+"#\n";
     return "Feedback Gate\n " + S + "\n";
 }
 
-void FeedbackGate::applyNodeMap(vector<int> nodeMap, int maxNodes) {
+void FeedbackGate::applyNodeMap(std::vector<int> nodeMap, int maxNodes) {
   AbstractGate::applyNodeMap(nodeMap, maxNodes);
   posFBNode = nodeMap[posFBNode % maxNodes];
   negFBNode = nodeMap[negFBNode % maxNodes];
@@ -171,11 +171,11 @@ void FeedbackGate::resetGate() {
   for (size_t i = 0; i < table.size(); i++)
     for (size_t j = 0; j < table[i].size(); j++)
       table[i][j] = originalTable[i][j];
-    string temp;
+  std::string temp;
 }
 
-vector<int> FeedbackGate::getIns() {
-  vector<int> R;
+std::vector<int> FeedbackGate::getIns() {
+    std::vector<int> R;
   R.insert(R.begin(), inputs.begin(), inputs.end());
   R.push_back(posFBNode);
   R.push_back(negFBNode);
@@ -224,32 +224,32 @@ vector<int> FeedbackGate::getIns() {
 //    return mutualInfo;
 //}
 
-string FeedbackGate::getAppliedPosFeedback(){
+std::string FeedbackGate::getAppliedPosFeedback(){
 
     //save all positive feedback the gate has used
-    string temp="";
+    std::string temp="";
     for(int i = 0; i<appliedPosFB.size(); i++)
-        temp+=','+to_string(appliedPosFB[i]);
+        temp+=','+ std::to_string(appliedPosFB[i]);
     appliedPosFB.clear();
     return temp;
 }
 
-string FeedbackGate::getAppliedNegFeedback(){
+std::string FeedbackGate::getAppliedNegFeedback(){
     
     //save all negative feedback the gate has used
-    string temp="";
+    std::string temp="";
     for(int i = 0; i<appliedNegFB.size(); i++)
-        temp+=','+to_string(appliedNegFB[i]);
+        temp+=','+ std::to_string(appliedNegFB[i]);
     appliedNegFB.clear();
     return temp;
 }
 
-shared_ptr<AbstractGate> FeedbackGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> FeedbackGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<FeedbackGate>(_PT);
+	auto newGate = std::make_shared<FeedbackGate>(_PT);
 	newGate->table = originalTable; // non-Lamarkian
     originalTable = originalTable;
     feedbackON = feedbackON;

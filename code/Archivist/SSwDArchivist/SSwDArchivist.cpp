@@ -431,7 +431,7 @@ bool SSwDArchivist::archive(std::vector<std::shared_ptr<Organism>> &population,
             tempName = "BRAIN_" + brain.first;
             OrgMap.merge(brain.second->serialize(tempName));
           }
-          OrgMap.writeToFile(organismFileName); // append new data to the file
+          OrgMap.openAndWriteToFile(organismFileName); // append new data to the file
           index++;
         } else { // this ptr is expired - cut it out of the vector
           swap(checkpoints[nextOrganismWrite][index],
@@ -511,7 +511,7 @@ bool SSwDArchivist::archive(std::vector<std::shared_ptr<Organism>> &population,
           org->snapShotDataMaps[nextDataWrite].set("update", nextDataWrite);
           org->snapShotDataMaps[nextDataWrite].setOutputBehavior(
               "update", DataMap::FIRST);
-          org->snapShotDataMaps[nextDataWrite].writeToFile(
+          org->snapShotDataMaps[nextDataWrite].openAndWriteToFile(
               dataFileName, files_["data"]); // append new data to the file
           index++;                           // advance to nex element
         } else { // this ptr is expired - cut it out of the vector

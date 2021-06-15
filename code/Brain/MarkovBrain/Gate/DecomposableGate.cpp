@@ -10,9 +10,9 @@
 
 #include "DecomposableGate.h"
 
-shared_ptr<ParameterLink<string>> DecomposableGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<std::string>> DecomposableGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_DECOMPOSABLE-IO_Ranges", (std::string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
-DecomposableGate::DecomposableGate(pair<vector<int>, vector<int>> addresses, vector<vector<int>> rawTable, int _ID,vector<vector<double>> factorsListHandover, shared_ptr<ParametersTable> _PT) :
+DecomposableGate::DecomposableGate(std::pair<std::vector<int>, std::vector<int>> addresses, std::vector<std::vector<int>> rawTable, int _ID, std::vector<std::vector<double>> factorsListHandover, std::shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT) {
 	ID = _ID;
 	int i, j;
@@ -43,7 +43,7 @@ DecomposableGate::DecomposableGate(pair<vector<int>, vector<int>> addresses, vec
 
 }
 
-void DecomposableGate::update(vector<double> & nodes, vector<double> & nextNodes) {  //this translates the input bits of the current states to the output bits of the next states
+void DecomposableGate::update(std::vector<double> & nodes, std::vector<double> & nextNodes) {  //this translates the input bits of the current states to the output bits of the next states
 	int input = vectorToBitToInt(nodes,inputs,true); // converts the input values into an index (true indicates to reverse order)
 	int outputColumn = 0;
 	double r = Random::getDouble(1);  // r will determine with set of outputs will be chosen
@@ -57,12 +57,12 @@ void DecomposableGate::update(vector<double> & nodes, vector<double> & nextNodes
 																						   // but always put the last bit in the first input (to maintain consistancy)
 }
 
-shared_ptr<AbstractGate> DecomposableGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> DecomposableGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<DecomposableGate>(_PT);
+	auto newGate = std::make_shared<DecomposableGate>(_PT);
 	newGate->table = table;
 	newGate->ID = ID;
 	newGate->inputs = inputs;

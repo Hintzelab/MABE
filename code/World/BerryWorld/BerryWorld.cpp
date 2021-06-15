@@ -93,7 +93,7 @@ std::shared_ptr<ParameterLink<bool>> BerryWorld::usePerfectSensorPL =
 std::shared_ptr<ParameterLink<std::string>> BerryWorld::perfectSensorFilePL =
     Parameters::register_parameter(
         "WORLD_BERRY_SENSORS_PERFECT-perfectSensorFile",
-        (std::string) "perfectSensors/smallFront.txt",
+        (std::string) "../code/World/BerryWorld/perfectSensors/smallFront.txt",
         "file which defines perfect sensor?");
 
 std::shared_ptr<ParameterLink<bool>> BerryWorld::perfectDetectsFoodPL =
@@ -1491,7 +1491,7 @@ void BerryWorld::evaluate(std::map<std::string, std::shared_ptr<Group>> &groups,
     runWorld(groups, analyse, visualize, debug);
   }
   if (visualize) { // save state of world before we get started.
-    FileManager::writeToFile("HarvestWorldData.txt", "EOF");
+    FileManager::openAndWriteToFile("HarvestWorldData.txt", "EOF");
   }
 }
 
@@ -1968,7 +1968,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
                            std::to_string(harvester->cloneID) + "\n";
         }
         visualizeData += "-";
-        FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+        FileManager::openAndWriteToFile("HarvestWorldData.txt", visualizeData);
       }
 
       // init generatorEvents
@@ -2463,7 +2463,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
         }       // end evaluate this harvester
         // save map to visualize file
         if (visualize) { // save state of world on this update.
-          FileManager::writeToFile("HarvestWorldData.txt", visualizeData);
+          FileManager::openAndWriteToFile("HarvestWorldData.txt", visualizeData);
         }
 
         // Determine if a food related event occured
@@ -2554,7 +2554,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
                           visualizeData = "R," + std::to_string((int)loc.x) + "," +
                                           std::to_string((int)loc.y) + "," +
                                           std::to_string(foodMap(loc)) + "\n";
-                          FileManager::writeToFile("HarvestWorldData.txt",
+                          FileManager::openAndWriteToFile("HarvestWorldData.txt",
                                                    visualizeData);
                         }
                       }
@@ -2587,7 +2587,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
                       visualizeData = "R," + std::to_string((int)loc.x) + "," +
                                       std::to_string((int)loc.y) + "," +
                                       std::to_string(foodMap(loc)) + "\n";
-                      FileManager::writeToFile("HarvestWorldData.txt",
+                      FileManager::openAndWriteToFile("HarvestWorldData.txt",
                                                visualizeData);
                     }
                   }
@@ -2623,7 +2623,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
                                      std::to_string(harvester->cloneID) + "\n";
                   }
                   visualizeData += "-";
-                  FileManager::writeToFile("HarvestWorldData.txt",
+                  FileManager::openAndWriteToFile("HarvestWorldData.txt",
                                            visualizeData);
                 }
 
@@ -2718,7 +2718,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
                                      std::to_string(harvester->cloneID) + "\n";
                   }
                   visualizeData += "-";
-                  FileManager::writeToFile("HarvestWorldData.txt",
+                  FileManager::openAndWriteToFile("HarvestWorldData.txt",
                                            visualizeData);
                 }
               } else if (rule[0] == 'Q') { // quit now!
@@ -2793,7 +2793,7 @@ void BerryWorld::runWorld(std::map<std::string, std::shared_ptr<Group>> &groups,
           tempDM.setOutputBehavior("groupID", DataMap::FIRST);
           tempDM.set("whichGroup", evalGroupCount);
           tempDM.setOutputBehavior("whichGroup", DataMap::FIRST);
-          tempDM.writeToFile("HarvestWorldGroupReport.csv");
+          tempDM.openAndWriteToFile("HarvestWorldGroupReport.csv");
         }
         evalGroupCount++;
       }

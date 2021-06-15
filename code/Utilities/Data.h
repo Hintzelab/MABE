@@ -23,6 +23,8 @@
 #include "Utilities.h"
 
 class FileManager {
+private:
+  static void openFile(const std::string &fileName, const std::string &header = ""); // open file and write header to file if file is new and header is provided
 public:
   static std::map<std::string, std::vector<std::string>>
       fileColumns;                     // list of files (NAME,LIST OF COLUMNS)
@@ -33,15 +35,9 @@ public:
 
   static const char separator = ',';
 
-  static void writeToFile(const std::string &fileName, const std::string &data,
-                          const std::string &header = ""); // fileName, data, header
-                                                      // - used when you want to
-                                                      // output formatted data
-                                                      // (i.e. genomes)
-  static void openFile(const std::string &fileName,
-                       const std::string &header = ""); // open file and write header
-                                                   // to file if file is new and
-                                                   // header is provided
+  /* opens file if not open, writes header if first file access, writes data if present, does not close file */
+  static void openAndWriteToFile(const std::string &fileName, const std::string &data, const std::string &header = ""); // fileName, data, header - used when you want to output formatted data (i.e. genomes)
+  static void writeToFile(const std::string &fileName, const std::string &data, const std::string &header = ""); // fileName, data, header - used when you want to output formatted data (i.e. genomes)
   static void closeFile(const std::string &fileName);   // close file
 };
 
@@ -780,6 +776,7 @@ public:
                                      const std::vector<std::string> &keys,
                                      bool aveOnly = false);
 
+  [[deprecated("Use openAndWriteToFile() instead.")]]
   inline void writeToFile(const std::string &fileName,
                           const std::vector<std::string> &keys = {},
                           bool aveOnly = false) {
@@ -801,7 +798,30 @@ public:
                                   FileManager::fileColumns[fileName],
                                   aveOnly); // if a list is given, use that.
 
-    FileManager::writeToFile(fileName, dataStr,
+    FileManager::openAndWriteToFile(fileName, dataStr, headerStr); // write the data to file!
+  }
+  inline void openAndWriteToFile(const std::string &fileName,
+                          const std::vector<std::string> &keys = {},
+                          bool aveOnly = false) {
+    // Set("score{LIST}",10.0);
+
+    if (FileManager::files.find(fileName) ==
+        FileManager::files
+            .end()) { // first make sure that the dataFile has been set up.
+      if (keys.size() == 0) { // if no keys are given
+        FileManager::fileColumns[fileName] = getKeys();
+      } else {
+        FileManager::fileColumns[fileName] = keys;
+      }
+    }
+    std::string headerStr = "";
+    std::string dataStr = "";
+
+    constructHeaderAndDataStrings(headerStr, dataStr,
+                                  FileManager::fileColumns[fileName],
+                                  aveOnly); // if a list is given, use that.
+
+    FileManager::openAndWriteToFile(fileName, dataStr,
                              headerStr); // write the data to file!
   }
 

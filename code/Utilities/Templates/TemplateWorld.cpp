@@ -13,7 +13,7 @@
 // this is how you setup a parameter in MABE, the function Parameters::register_parameter()takes the
 // name of the parameter (catagory-name), default value (which must conform with the type), a the useage message
 shared_ptr<ParameterLink<int>> {{MODULE_NAME}}World::evaluationsPerGenerationPL =
-    Parameters::register_parameter("WORLD_CLEAN-evaluationsPerGeneration", 30,
+    Parameters::register_parameter("WORLD_{{MODULE_NAME}}-evaluationsPerGeneration", 30,
     "how many times should each organism be tested in each generation?");
 
 // the constructor gets called once when MABE starts up. use this to set things up

@@ -10,14 +10,14 @@
 
 #include "GPGate.h"
 
-shared_ptr<ParameterLink<double>> GPGate::constValueMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMin", -1.0, "for the const values, min value the genome can generate");
-shared_ptr<ParameterLink<double>> GPGate::constValueMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMax", 1.0, "for the const values, max value the genome can generate");
-shared_ptr<ParameterLink<string>> GPGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-IO_Ranges", (string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
+std::shared_ptr<ParameterLink<double>> GPGate::constValueMinPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMin", -1.0, "for the const values, min value the genome can generate");
+std::shared_ptr<ParameterLink<double>> GPGate::constValueMaxPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-constValueMax", 1.0, "for the const values, max value the genome can generate");
+std::shared_ptr<ParameterLink<std::string>> GPGate::IO_RangesPL = Parameters::register_parameter("BRAIN_MARKOV_GATES_GENETICPROGRAMING-IO_Ranges", (std::string)"1-4,1-4", "range of number of inputs and outputs (min inputs-max inputs,min outputs-max outputs)");
 
 /* *** GP Gate implementation *** */
 
 //GPGate::GPGate(shared_ptr<AbstractGenome> genome, shared_ptr<AbstractGenome::Handler> genomeHandler, int gateID) {
-GPGate::GPGate(pair<vector<int>, vector<int>> _addresses, int _operation, vector<double> _constValues, int gateID, shared_ptr<ParametersTable> _PT) :
+GPGate::GPGate(std::pair<std::vector<int>, std::vector<int>> _addresses, int _operation, std::vector<double> _constValues, int gateID, std::shared_ptr<ParametersTable> _PT) :
 	AbstractGate(_PT) {
 
 	ID = gateID;
@@ -29,7 +29,7 @@ GPGate::GPGate(pair<vector<int>, vector<int>> _addresses, int _operation, vector
 	constValues = _constValues;
 }
 
-void GPGate::update(vector<double> & states, vector<double> & nextStates) {
+void GPGate::update(std::vector<double> & states, std::vector<double> & nextStates) {
 	double retValue = states[inputs[0]];
 	int index = 0;
 	size_t i, o;
@@ -100,20 +100,20 @@ void GPGate::update(vector<double> & states, vector<double> & nextStates) {
 	}
 }
 
-string GPGate::description() {
-	cout << "in GP description" << endl;
-	string gateTypeName[9] = { "fixed constants", "+", "-", "*", "/", "Sin", "Cos", "Log", "Exp" };
-	string constString = " constants: " + to_string(constValues[0]) + " " + to_string(constValues[1]) + " "+ to_string(constValues[2]) + " " + to_string(constValues[3]) + "\n";
-	return "Gate " + to_string(ID) + " is a (" + gateTypeName[operation] + ") " + gateType() + "Gate\n" + AbstractGate::descriptionIO() + constString;
+std::string GPGate::description() {
+	std::cout << "in GP description" << std::endl;
+	std::string gateTypeName[9] = { "fixed constants", "+", "-", "*", "/", "Sin", "Cos", "Log", "Exp" };
+	std::string constString = " constants: " + std::to_string(constValues[0]) + " " + std::to_string(constValues[1]) + " "+ std::to_string(constValues[2]) + " " + std::to_string(constValues[3]) + "\n";
+	return "Gate " + std::to_string(ID) + " is a (" + gateTypeName[operation] + ") " + gateType() + "Gate\n" + AbstractGate::descriptionIO() + constString;
 }
 
 
-shared_ptr<AbstractGate> GPGate::makeCopy(shared_ptr<ParametersTable> _PT)
+std::shared_ptr<AbstractGate> GPGate::makeCopy(std::shared_ptr<ParametersTable> _PT)
 {
 	if (_PT == nullptr) {
 		_PT = PT;
 	}
-	auto newGate = make_shared<GPGate>(_PT);
+	auto newGate = std::make_shared<GPGate>(_PT);
 	newGate->ID = ID;
 	newGate->inputs = inputs;
 	newGate->outputs = outputs;
