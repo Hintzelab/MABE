@@ -18,4 +18,4 @@ Extra code can be found at the MABE_extras repository.
 Contributors to this project include<br>
 Initial Design and Managment: Arend Hintze<br>
 Development and Maintenance: Cliff Bohm<br>
-Other: Brian Goldman (parameter configuration, advice)<br>
+Development and Maintenance: Jory Schossau<br>
