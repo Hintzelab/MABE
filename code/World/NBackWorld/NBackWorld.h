@@ -38,6 +38,21 @@ public:
     static std::shared_ptr<ParameterLink<int>> RMultPL;
     static std::shared_ptr<ParameterLink<bool>> tritInputsPL;
 
+    static std::shared_ptr<ParameterLink<bool>> saveFragOverTimePL;
+    static std::shared_ptr<ParameterLink<bool>> saveBrainStructureAndConnectomePL;
+    static std::shared_ptr<ParameterLink<bool>> saveStateToStatePL;
+    static std::shared_ptr<ParameterLink<bool>> save_R_FragMatrixPL;
+    static std::shared_ptr<ParameterLink<bool>> saveFlowMatrixPL;
+    static std::shared_ptr<ParameterLink<bool>> saveStatesPL;
+    
+    bool saveFragOverTime;
+    bool saveBrainStructureAndConnectome;
+    bool saveStateToState;
+    bool save_R_FragMatrix;
+    bool saveFlowMatrix;
+    bool saveStates;
+
+
     bool tritInputs = false;
     int testMutants = 0;
     std::vector<int> NListSwitchTimes; // when to switch from one List to the next

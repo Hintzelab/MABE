@@ -6,10 +6,12 @@
 # dark yellow = area seen by paddle sensors
 
 # enter name of visualization file here.
-fileName = 'c:/Users/cliff/WORK/NBack8_IT/data/CatchPassVisualize_0.txt'
+fileName = 'c:/Users/cliff/MABE_FOR_MITCH/data/CatchPassVisualize_0.txt'
+#fileName = 'c:/Users/cliff/WORK/INFO_A_NEW_START/RNN_sparse_discrete/CatchPassVisualize_0.txt'
+#fileName = 'c:/Users/cliff/WORK/NBack8_IT/data/CatchPassVisualize_0.txt'
 
 # enter size of window here (block size will be fit to window)
-windowX = 1000
+windowX = 600
 windowY = 600
 
 fontSize = 30
@@ -100,8 +102,9 @@ def setup():
     maxY = int(splitLine[1])
     update = splitLine[2]
     orgID = splitLine[3]
-    gridWidth = int(windowX/maxX) * .8
+    gridWidth = int(windowX/maxX) * 1
     gridHeight = int((windowY - (fontSize * 3))/(maxY+1))
+    gridHeight = int((windowY - 0)/(maxY+1))
 
     size(windowX, windowY)
 
@@ -146,19 +149,25 @@ def draw():
         
         for y in range(maxY+1):
             for x in range(worldX):
-                fill(255,255,255,25)
-                strokeWeight(0)
+                fill(30,30,30,255)
+                strokeWeight(2)
+                stroke(0,0,0,255)
+                rect(x * gridWidth, y * int(gridHeight),gridWidth-2,int(gridHeight)-2)
+
                 if x in converted_sensors:
-                    fill(255,255,0,50)
+                    fill(150,150,255,60)
+                    strokeWeight(2)
+                    stroke(0,0,0,255)
+
                     if y == (maxY):
-                        fill(255,255,0,255)
+                        fill(150,150,255,255)
                     rect(x * gridWidth, y * int(gridHeight),gridWidth-2,int(gridHeight)-2)
     
                 if x in converted_gap:
                     if y == (maxY):
-                        fill(0, 0, 0, 0)
+                        fill(255,255,255,90)
                         strokeWeight(2)
-                        stroke(255,255,0,255)
+                        stroke(0,0,0,255)
                         rect(x * gridWidth, y * int(gridHeight),gridWidth-2,int(gridHeight)-2)
     
                 if y == (maxY - int(time)) and x in converted_pattern:
@@ -172,15 +181,15 @@ def draw():
                     if cORm[0] == 'c':
                         fill(0, 0, 0, 0)
                         strokeWeight(2)
-                        stroke(255,255,0,255)
+                        stroke(0,0,0,255)
                     else:
                         fill(0, 0, 0, 0)
                         strokeWeight(2)
-                        stroke(255,255,0,255)
+                        stroke(0,0,0,255)
                     rect(x * gridWidth, y * int(gridHeight),gridWidth-2,int(gridHeight)-2)
     
         fill(255,255,255,255)
         textSize(fontSize)
     
-        text("time: " + str(time) + "  correct: " + str(correct) + "  incorrect: " + str(incorrect), 20, (maxY)* int(gridHeight) + fontSize * 1.5)
-        text("fps: " + str(fps) + "   (use left and right arrows to change)", 20, (maxY)* int(gridHeight) + fontSize * 2.5)
+        #text("time: " + str(time) + "  correct: " + str(correct) + "  incorrect: " + str(incorrect), 20, (maxY)* int(gridHeight) + fontSize * 2.5)
+        #text("fps: " + str(fps) + "   (use left and right arrows to change)", 20, (maxY)* int(gridHeight) + fontSize * 2.5)

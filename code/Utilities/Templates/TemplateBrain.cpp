@@ -15,7 +15,6 @@
     : AbstractBrain(ins, outs, PT) {
     nrInputValues = ins;
     nrOutputValues = outs;
-    recordActivity = false;
 
     inputValues.resize(nrInputValues);
     outputValues.resize(nrOutputValues);

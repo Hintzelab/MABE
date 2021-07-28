@@ -48,6 +48,22 @@ std::shared_ptr<ParameterLink<std::string>> BlockCatchWorld::patternStartPositio
 std::shared_ptr<ParameterLink<std::string>> BlockCatchWorld::groupNamePL = Parameters::register_parameter("WORLD_BLOCKCATCH_NAMES-groupName", (std::string)"root::", "name of group to be evaluated");
 std::shared_ptr<ParameterLink<std::string>> BlockCatchWorld::brainNamePL = Parameters::register_parameter("WORLD_BLOCKCATCH_NAMES-brainName", (std::string)"root::", "name of brains used to control organisms");
 
+std::shared_ptr<ParameterLink<bool>> BlockCatchWorld::saveFragOverTimePL =
+Parameters::register_parameter("WORLD_BLOCKCATCH_ANALYZE-saveFragOverTime", false,
+	"");
+std::shared_ptr<ParameterLink<bool>> BlockCatchWorld::saveBrainStructureAndConnectomePL =
+Parameters::register_parameter("WORLD_BLOCKCATCH_ANALYZE-saveBrainStructureAndConnectome", true,
+	"");
+std::shared_ptr<ParameterLink<bool>> BlockCatchWorld::saveStateToStatePL =
+Parameters::register_parameter("WORLD_BLOCKCATCH_ANALYZE-saveStateToState", true,
+	"");
+std::shared_ptr<ParameterLink<bool>> BlockCatchWorld::save_R_FragMatrixPL =
+Parameters::register_parameter("WORLD_BLOCKCATCH_ANALYZE-save_R_FragMatrix", false,
+	"");
+std::shared_ptr<ParameterLink<bool>> BlockCatchWorld::saveFlowMatrixPL =
+Parameters::register_parameter("WORLD_BLOCKCATCH_ANALYZE-saveFlowMatrix", false,
+	"");
+
 
 void BlockCatchWorld::debugDisplay(int worldX, int time, std::vector<std::vector<int>> patternBuffer, int frameIndex, std::vector<int> sensorArray, std::vector<int> gapArray){
 	for (int ii = 0; ii < worldX; ii++) { // the first line has the pattern
@@ -220,6 +236,12 @@ BlockCatchWorld::BlockCatchWorld(std::shared_ptr<ParametersTable> _PT) : Abstrac
 	worldXMin = worldXMinPL->get(PT);
 	startYMax = startYMaxPL->get(PT);
 	startYMin = startYMinPL->get(PT);
+
+	saveFragOverTime = saveFragOverTimePL->get(PT);
+	saveBrainStructureAndConnectome = saveBrainStructureAndConnectomePL->get(PT);
+	saveStateToState = saveStateToStatePL->get(PT);
+	save_R_FragMatrix = save_R_FragMatrixPL->get(PT);
+	saveFlowMatrix = saveFlowMatrixPL->get(PT);
 
 	visualizeBest = visualizeBestPL->get(PT);
 
@@ -731,6 +753,9 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, i
 	}
 
 	if (analyze) {
+		int thisID = org->ID;
+
+		std::cout << "\nAlalyze Mode:  organism with ID " << thisID << " scored " << org->dataMap.getAverage("score") << std::endl;
 
 		//auto remapRule = TS::RemapRules::UNIQUE;
 		auto remapRule = TS::RemapRules::BIT;
@@ -741,9 +766,37 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, i
 		auto outputStateSet = TS::remapToIntTimeSeries(brain->getOutputStates(), TS::RemapRules::BIT);
 		auto brainBeforeStateSet = TS::trimTimeSeries(TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule), TS::Position::LAST, lifeTimes);
 
-		brain->saveConnectome();
-		brain->saveStructure();
+		FileManager::writeToFile("score.txt", std::to_string(org->dataMap.getAverage("score")));
 
+		if (saveFragOverTime) { // change to 1 to save frag over time
+			std::cout << "  saving frag over time..." << std::endl;
+			std::vector<std::string> featureNames = { "catch", "movingLeft", "size1", "size2", "size3", "size4", "catch&left", "!catch&left", "catch&!left", "!catch&!left" };
+			std::string header = "LOD_order, score,";
+			std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
+			std::vector<int> save_levelsThresholds = { 50,75,100 };
+			for (auto th : save_levelsThresholds) {
+				//std::cout << "B" << std::endl;
+
+				auto frag = FRAG::getFragmentationSet(worldStateSet, brainAfterStateSet, ((double)th) / 100.0, "feature");
+				//std::cout << "C" << std::endl;
+
+				for (int f = 0; f < frag.size(); f++) {
+					//header += "Threshold_" + std::to_string(th) + "__feature_" + std::to_string(f) + ",";
+					header += "Threshold_" + std::to_string(th) + "__" + featureNames[f] + ",";
+					outStr += std::to_string(frag[f]) + ",";
+				}
+			}
+			FileManager::writeToFile("fragOverTime.csv", outStr.substr(0, outStr.size() - 1), header.substr(0, header.size() - 1));
+		}
+
+		if (saveBrainStructureAndConnectome) {
+			std::cout << "  saving brain connectome and structrue..." << std::endl;
+
+			brain->saveConnectome("brainConnectome_id_" + std::to_string(thisID) + ".py");
+			brain->saveStructure("brainStructure_id_" + std::to_string(thisID) + ".dot");
+		}
+
+		/*
 		std::cout << "rawR for worldStateSet { i,j }, brainStateSet, { i,j } " << std::endl;
 		for (double i = 0; i <= 1; i += .1) {
 			std::cout << i << " : ";
@@ -752,35 +805,43 @@ void BlockCatchWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, i
 			}
 			std::cout << std::endl;
 		}
-
+	
 		auto smearPair = SMR::getSmearednessConceptsNodesPair(inputStateSet, worldStateSet, brainAfterStateSet);
 		std::cout << "smearedness of consepts: " << smearPair.first << "   smearedness of nodes: " << smearPair.second << std::endl;
                 FileManager::writeToFile("smear.txt", std::to_string(smearPair.second));
                 FileManager::writeToFile("smear.txt", std::to_string(smearPair.first));
-
+		*/
 		//BRAINTOOLS::saveStateToState(brain, "StateToState.txt", TS::RemapRules::UNIQUE);
-		std::string fileName = "StateToState.txt";
-		auto fullHiddenStatesSet = TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule);
-		S2S::saveStateToState({ fullHiddenStatesSet, TS::extendTimeSeries(outputStateSet, lifeTimes, {0}, TS::Position::FIRST) }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
-		S2S::saveStateToState({ fullHiddenStatesSet }, { outputStateSet, inputStateSet }, lifeTimes, "H__O_I_" + fileName);
-		S2S::saveStateToState({ fullHiddenStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
+		if (saveStateToState) {
+			std::cout << "  saving state to state..." << std::endl;
+			std::string fileName = "StateToState_id_" + std::to_string(thisID) + ".txt";
+			auto fullHiddenStatesSet = TS::remapToIntTimeSeries(brain->getHiddenStates(), remapRule);
+			S2S::saveStateToState({ fullHiddenStatesSet, TS::extendTimeSeries(outputStateSet, lifeTimes, {0}, TS::Position::FIRST) }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
+			S2S::saveStateToState({ fullHiddenStatesSet }, { outputStateSet, inputStateSet }, lifeTimes, "H__O_I_" + fileName);
+			S2S::saveStateToState({ fullHiddenStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
 
-
+		}
 		//std::cout << "worldEnt: " << ENT::Entropy(worldStateSet) << "  brainEnt: " << ENT::Entropy(brainAfterStateSet) << "  worldBrainEnt: " << ENT::Entropy(TS::Join(worldStateSet, brainAfterStateSet)) << "  rawR: " << rawR << std::endl;
 		//std::cout << "earlyRawR20: " << earlyRawR20 << "  earlyRawR50: " << earlyRawR50 << "  lateRawR50: " << lateRawR50 << "  lateRawR20: " << lateRawR20 << std::endl;
 
-		std::cout << "organism with ID " << org->ID << " scored " << org->dataMap.getAverage("score") << std::endl;
 
-		FileManager::writeToFile("score.txt", std::to_string(org->dataMap.getAverage("score")));
+		if (save_R_FragMatrix) {
+			std::cout << "  saving R frag matrix..." << std::endl;
+			// save fragmentation matrix of brain(hidden) predictions of world features
+			std::vector<std::string> RNames = { "catch", "movingLeft", "size1", "size2", "size3", "size4", "catch&left", "!catch&left", "catch&!left", "!catch&!left" };
+			FRAG::saveFragMatrix(worldStateSet, brainAfterStateSet, "R_FragmentationMatrix_id_" + std::to_string(thisID) + ".py", "feature", RNames);
+		}
 
-		// save fragmentation matrix of brain(hidden) predictions of world features
-		std::vector<std::string> RNames = { "catch", "left", "1", "2", "3", "4", "catch & left", "!catch & left", "catch & !left", "!catch & !left" };
-		FRAG::saveFragMatrix(worldStateSet, brainAfterStateSet, "R_FragmentationMatrix.py","feature",RNames);
+		if (saveFlowMatrix) {
+			std::cout << "  saving flow matix..." << std::endl;
 
+			// save data flow information - 
+			std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
+			FRAG::saveFragMatrixSet(TS::Join(brainAfterStateSet, outputStateSet), TS::Join(brainBeforeStateSet, inputStateSet), lifeTimes, flowRanges, "flowMap_id_" + std::to_string(thisID) + ".py", "shared", -1);
 
-		// save data flow information - 
-		std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
-		FRAG::saveFragMatrixSet(TS::Join(brainAfterStateSet, outputStateSet), TS::Join(brainBeforeStateSet, inputStateSet), lifeTimes, flowRanges, "flowMap.py", "shared", -1);
+		}
+
+		std::cout << "  ... analyze done" << std::endl;
 
 	}
 }

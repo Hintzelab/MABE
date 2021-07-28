@@ -53,16 +53,6 @@ public:
 
     virtual void resetBrain();
 
-    // setRecordActivity and setRecordFileName provide a standard way to set up brain
-    // activity recoding. How and when the brain records activity is up to the brain developer
-    virtual void inline setRecordActivity(bool _recordActivity) {
-        recordActivity = _recordActivity;
-    }
-
-    virtual void inline setRecordFileName(std::string _recordActivityFileName) {
-        recordActivityFileName = _recordActivityFileName;
-    }
-
     ///////////////////////////////////////////////////////////////////////////////////////////
     // these functions need to be filled in if genomes are being used in this brain
     ///////////////////////////////////////////////////////////////////////////////////////////
