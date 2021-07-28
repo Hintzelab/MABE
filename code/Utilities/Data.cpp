@@ -30,42 +30,34 @@ std::map<std::string, int> DataMap::knownOutputBehaviors = {
     {"LIST", LIST},     {"AVE", AVE},     {"SUM", SUM}, {"PROD", PROD},
     {"STDERR", STDERR}, {"FIRST", FIRST}, {"VAR", VAR}};
 
-void FileManager::writeToFile(const std::string &fileName,
-                              const std::string &data,
-                              const std::string &header) {
-  openFile(
-      fileName,
-      header); // make sure that the file is open and ready to be written to
-  files[fileName] << data << "\n" << std::flush;
+void FileManager::openAndWriteToFile(const std::string &fileName, const std::string &data, const std::string &header) {
+  openFile( fileName, header); // make sure that the file is open and ready to be written to
+  if (!data.empty()) {files[fileName] << data << "\n" << std::flush;}
+}
+
+[[deprecated("Use openAndWriteToFile() instead.")]]
+void FileManager::writeToFile(const std::string &fileName, const std::string &data, const std::string &header) {
+  openFile( fileName, header); // make sure that the file is open and ready to be written to
+  if (!data.empty()) {files[fileName] << data << "\n" << std::flush;}
 }
 
 void FileManager::openFile(const std::string &fileName, const std::string &header) {
-  if (files.find(fileName) ==
-      files.end()) { // if file has not be initialized yet
-    files.emplace(make_pair(fileName, std::ofstream())); // make an ofstream for the
-                                                    // new file and place in
-                                                    // FileManager::files
-    files[fileName].open(
-        std::string(outputPrefix) +
-        fileName);               // clear file contents and open in write mode
+  if (files.find(fileName) == files.end()) { // if file has not be initialized yet
+    files.emplace(make_pair(fileName, std::ofstream())); // make an ofstream for the new file and place in FileManager::files
+    files[fileName].open(std::string(outputPrefix) + fileName); // clear file contents and open in write mode
     fileStates[fileName] = true; // this file is now open
-    if (!header.empty()) { // if there is a header string, write this to the new
-                           // file
+    if (!header.empty()) { // if there is a header string, write this to the new file
       files[fileName] << header << "\n";
     }
   }
   if (fileStates[fileName] == false) { // if file is closed ...
-    files[fileName].open(std::string(outputPrefix) + fileName,
-                         std::ios::out |
-                             std::ios::app); // open file in append mode
+    files[fileName].open(std::string(outputPrefix) + fileName, std::ios::out | std::ios::app); // open file in append mode
   }
 }
 
 void FileManager::closeFile(const std::string &fileName) {
   if (files.find(fileName) == files.end()) {
-    std::cout << "  In FileManager::closeFile :: ERROR, attempt to close file '"
-         << fileName
-         << "' but this file has not been opened or created! Exiting." << std::endl;
+    std::cout << "  In FileManager::closeFile :: ERROR, attempt to close file '" << fileName << "' but this file has not been opened or created! Exiting." << std::endl;
     exit(1);
   }
   files[fileName].close();

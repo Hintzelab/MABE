@@ -23,7 +23,6 @@ AbstractBrain::AbstractBrain(int ins, int outs, std::shared_ptr<ParametersTable>
     : PT(PT_) {
     nrInputValues = ins;
     nrOutputValues = outs;
-    recordActivity = false;
 
     inputValues.resize(nrInputValues);
     outputValues.resize(nrOutputValues);
@@ -128,6 +127,11 @@ void AbstractBrain::resetInputs() {
 void AbstractBrain::resetBrain() {
     resetInputs();
     resetOutputs();
+    if (recordActivity) {
+        if (lifeTimes.back() != 0) {
+            lifeTimes.push_back(0);
+        }
+    }
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////

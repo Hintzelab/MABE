@@ -15,26 +15,26 @@
 class NeuronGate: public AbstractGate {
 public:
 
-	static shared_ptr<ParameterLink<int>> defaultNumInputsMinPL;
-	static shared_ptr<ParameterLink<int>> defaultNumInputsMaxPL;
-	static shared_ptr<ParameterLink<int>> defaultDischargeBehaviorPL;
-	static shared_ptr<ParameterLink<double>> defaultThresholdMinPL;
-	static shared_ptr<ParameterLink<double>> defaultThresholdMaxPL;
-	static shared_ptr<ParameterLink<int>> defaultThresholdFromNodePL;
+	static std::shared_ptr<ParameterLink<int>> defaultNumInputsMinPL;
+	static std::shared_ptr<ParameterLink<int>> defaultNumInputsMaxPL;
+	static std::shared_ptr<ParameterLink<int>> defaultDischargeBehaviorPL;
+	static std::shared_ptr<ParameterLink<double>> defaultThresholdMinPL;
+	static std::shared_ptr<ParameterLink<double>> defaultThresholdMaxPL;
+	static std::shared_ptr<ParameterLink<int>> defaultThresholdFromNodePL;
 
-	static shared_ptr<ParameterLink<bool>> defaultAllowRepressionPL;
-	static shared_ptr<ParameterLink<double>> defaultDecayRateMinPL;
-	static shared_ptr<ParameterLink<double>> defaultDecayRateMaxPL;
-	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMinPL;
-	static shared_ptr<ParameterLink<double>> defaultDeliveryChargeMaxPL;
-	static shared_ptr<ParameterLink<int>> defaultDeliveryChargeFromNodePL;
-	static shared_ptr<ParameterLink<double>> defaultDeliveryErrorPL;
+	static std::shared_ptr<ParameterLink<bool>> defaultAllowRepressionPL;
+	static std::shared_ptr<ParameterLink<double>> defaultDecayRateMinPL;
+	static std::shared_ptr<ParameterLink<double>> defaultDecayRateMaxPL;
+	static std::shared_ptr<ParameterLink<double>> defaultDeliveryChargeMinPL;
+	static std::shared_ptr<ParameterLink<double>> defaultDeliveryChargeMaxPL;
+	static std::shared_ptr<ParameterLink<int>> defaultDeliveryChargeFromNodePL;
+	static std::shared_ptr<ParameterLink<double>> defaultDeliveryErrorPL;
 
-	static shared_ptr<ParameterLink<bool>> record_behaviorPL;
-	static shared_ptr<ParameterLink<string>> record_behavior_file_namePL;
+	static std::shared_ptr<ParameterLink<bool>> record_behaviorPL;
+	static std::shared_ptr<ParameterLink<std::string>> record_behavior_file_namePL;
 
 	bool record_behavior;
-	string record_behavior_file_name;
+	std::string record_behavior_file_name;
 
 	int dischargeBehavior;  // what to do when the gate delivers a charge
 	double thresholdValue;  // threshold when this gate will fire (if negative, then fire when currentCharge < threshold)
@@ -56,7 +56,7 @@ public:
 	//double costOfDelivery;
 
 	NeuronGate() = delete;
-	NeuronGate(shared_ptr<ParametersTable> _PT) :
+	NeuronGate(std::shared_ptr<ParametersTable> _PT) :
 		AbstractGate(_PT) {
 		dischargeBehavior = 0; 
 		thresholdValue = 0;
@@ -76,7 +76,7 @@ public:
 		record_behavior = record_behaviorPL->get(PT);
 		record_behavior_file_name = record_behavior_file_namePL->get(PT);
 	}
-	NeuronGate(vector<int> ins, int out, int _dischargeBehavior, double _thresholdValue, bool _thresholdActivates, double _decayRate, double _deliveryCharge, double _deliveryError, int _thresholdFromNode, int _deliveryChargeFromNode, int _ID, shared_ptr<ParametersTable> _PT = nullptr) :
+	NeuronGate(std::vector<int> ins, int out, int _dischargeBehavior, double _thresholdValue, bool _thresholdActivates, double _decayRate, double _deliveryCharge, double _deliveryError, int _thresholdFromNode, int _deliveryChargeFromNode, int _ID, std::shared_ptr<ParametersTable> _PT = nullptr) :
 		AbstractGate(_PT) {
 		ID = _ID;
 		inputs = ins;
@@ -104,30 +104,30 @@ public:
 
 	virtual ~NeuronGate() = default;
 
-	virtual void update(vector<double> & nodes, vector<double> & nextnodes) override;
+	virtual void update(std::vector<double> & nodes, std::vector<double> & nextnodes) override;
 
-	virtual string description() override {
-		string s = "Gate " + to_string(ID) + " is a Neuron Gate with " + to_string(inputs.size()) + " inputs (";
+	virtual std::string description() override {
+		std::string s = "Gate " + std::to_string(ID) + " is a Neuron Gate with " + std::to_string(inputs.size()) + " inputs (";
 		for (auto a : inputs) {
-			s += to_string(a) + ",";
+			s += std::to_string(a) + ",";
 		}
 		s.pop_back();
-		s += ") and output " + to_string(outputs[0]) + "\n";
-		s += "currentCharge: " + to_string(currentCharge) + "\n";
-		s += "thresholdValue: " + to_string(thresholdValue) + "\n";
-		s += "thresholdActivates: " + to_string(thresholdActivates) + "\n";
-		s += "dischargeBehavior: " + to_string(dischargeBehavior) + "\n";
-		s += "decayRate: " + to_string(decayRate) + "\n";
-		s += "deliveryCharge: " + to_string(deliveryCharge) + "\n";
-		s += "deliveryError: " + to_string(deliveryError) + "\n";
+		s += ") and output " + std::to_string(outputs[0]) + "\n";
+		s += "currentCharge: " + std::to_string(currentCharge) + "\n";
+		s += "thresholdValue: " + std::to_string(thresholdValue) + "\n";
+		s += "thresholdActivates: " + std::to_string(thresholdActivates) + "\n";
+		s += "dischargeBehavior: " + std::to_string(dischargeBehavior) + "\n";
+		s += "decayRate: " + std::to_string(decayRate) + "\n";
+		s += "deliveryCharge: " + std::to_string(deliveryCharge) + "\n";
+		s += "deliveryError: " + std::to_string(deliveryError) + "\n";
 		return s;
 	}
 
-	virtual string gateType() override{
+	virtual std::string gateType() override{
 		return "Neuron";
 	}
 
-	void applyNodeMap(vector<int> nodeMap, int maxNodes) override {
+	void applyNodeMap(std::vector<int> nodeMap, int maxNodes) override {
 		AbstractGate::applyNodeMap(nodeMap, maxNodes);
 		if (thresholdFromNode != -1) {
 			thresholdFromNode = nodeMap[thresholdFromNode] % maxNodes;
@@ -141,8 +141,8 @@ public:
 		currentCharge = 0;
 	}
 
-	virtual pair<vector<int>,vector<int>> getConnectionsLists() override{
-		pair<vector<int>,vector<int>> connectionsLists;
+	virtual std::pair<std::vector<int>, std::vector<int>> getConnectionsLists() override{
+		std::pair<std::vector<int>, std::vector<int>> connectionsLists;
 		connectionsLists.first = inputs;
 		if (thresholdFromNode != -1) {
 			connectionsLists.first.push_back(thresholdFromNode);
@@ -154,7 +154,7 @@ public:
 		return connectionsLists;
 	}
 
-	virtual shared_ptr<AbstractGate> makeCopy(shared_ptr<ParametersTable> _PT = nullptr) override;
+	virtual std::shared_ptr<AbstractGate> makeCopy(std::shared_ptr<ParametersTable> _PT = nullptr) override;
 
 
 };

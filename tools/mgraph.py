@@ -31,8 +31,8 @@ parser.add_argument('-lastOnly', action='store_true', default = False, help='sho
 #data display parameters (change how data is displayed)
 parser.add_argument('-xAxis', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used on x axis - default : update', required=False)
 parser.add_argument('-dataIndex', type=str, metavar='COLUMN_NAME', default = 'update',  help='column name of data to be used as index when generating averages - default : update', required=False)
-parser.add_argument('-yRange', type=int, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
-parser.add_argument('-xRange', type=int, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
+parser.add_argument('-yRange', type=float, default = [], help='if set, determines the range on the y axis; expects 2 values - default : none', nargs='+', required=False)
+parser.add_argument('-xRange', type=float, default = [], help='if set, determines the range on the x axis; expects 2 values - default : none', nargs='+', required=False)
 parser.add_argument('-pltWhat', type=str, metavar='{ave,std,sem,95conf,99conf,reps}',choices=('ave','std','sem','95conf','99conf','reps'), default = ['ave','95conf'], help='what should be ploted. ave (averages), std (Standard Deviation), sem (Standard Error from the Mean), 95conf (95 percent confidence intervals), 99conf (99 percent confidence intervals), reps (show data for all reps) - default : ave 95conf', nargs='+', required=False)
 parser.add_argument('-integrate', type=str, default = [], metavar='_DATA', help='attempt to integrate associated data with _AVE data of same name (e.g. if "_VAR", plot "_VAR" with "_AVE" so "score_VAR" plots with "score_AVE"). Integrated data will not appear in its own plot. This will only work on single reps. -integrate will work with combine conditions (two or more reps can be loaded as conditions).', nargs='+', required=False)
 parser.add_argument('-combineConditions', action='store_true', default = False, help='if ploting multiple conditions, adding this flag will combine data from files with same name - default (if not set) : OFF', required=False)
@@ -155,7 +155,6 @@ def MultiPlot(data, NamesList, ConditionsList, dataIndex, CombineData = False, P
     for integrateName in integrateNames: # remove all integrateName columns
         NamesList = [x for x in NamesList if not integrateName in x]
 
-    print(Columns)
     if len(NamesList) == 1:
         Columns = 1
     if (len(NamesList) == 2) and (int(Columns) > 2):
@@ -435,7 +434,6 @@ def main(args):
     conFolderNames, conUserNames = get_con_names(args) #new
     dataColumnNames = get_data_names(args, conFolderNames, reps) #new
     godFrames, updateMin = load_data(args, conFolderNames, conUserNames, reps, files, dataColumnNames) #new
-    print(godFrames)
     # --------------------------------------
 
     if len(args.whereRange) == 0 and args.whereRangeLimitToData:
@@ -459,7 +457,6 @@ def main(args):
 
     allGraphs = {}
 
-    print(args.dataIndex)
     if args.combineConditions:
         for file in files:
             if args.verbose: print ("generating plot for: " + file,flush=True)
