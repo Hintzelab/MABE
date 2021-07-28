@@ -712,10 +712,11 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
             auto hiddenAfterStateSet = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
             auto hiddenBeforeStateSet = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
 
-            std::vector<std::string> featureNames = { "onEmpty", "onFoward", "onLeft", "onRight", "leftSig", "rightSig", "lastTurn"};
+            FileManager::writeToFile("score.txt", std::to_string(org->dataMap.getAverage("score")));
 
             if (saveFragOverTime) { // change to 1 to save frag over time
                 std::cout << "  saving frag over time..." << std::endl;
+                std::vector<std::string> featureNames = { "onEmpty", "onFoward", "onLeft", "onRight", "leftSig", "rightSig", "lastTurn"};
                 std::string header = "LOD_order, score,";
                 std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
                 std::vector<int> save_levelsThresholds = { 50,75,100 };
