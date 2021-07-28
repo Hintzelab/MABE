@@ -47,9 +47,36 @@ Parameters::register_parameter("WORLD_NBACK-groupNameSpace", (std::string) "root
 std::shared_ptr<ParameterLink<std::string>> NBackWorld::brainNamePL =
 Parameters::register_parameter("WORLD_NBACK-brainNameSpace", (std::string) "root::", "namespace for parameters used to define brain");
 
+std::shared_ptr<ParameterLink<bool>> NBackWorld::saveFragOverTimePL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-saveFragOverTime", false,
+	"");
+std::shared_ptr<ParameterLink<bool>> NBackWorld::saveBrainStructureAndConnectomePL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-saveBrainStructureAndConnectome", true,
+	"");
+std::shared_ptr<ParameterLink<bool>> NBackWorld::saveStateToStatePL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-saveStateToState", true,
+	"");
+std::shared_ptr<ParameterLink<bool>> NBackWorld::save_R_FragMatrixPL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-save_R_FragMatrix", false,
+	"");
+std::shared_ptr<ParameterLink<bool>> NBackWorld::saveFlowMatrixPL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-saveFlowMatrix", false,
+	"");
+std::shared_ptr<ParameterLink<bool>> NBackWorld::saveStatesPL =
+Parameters::register_parameter("WORLD_NBACK_ANALYZE-saveStates", true,
+	"");
+
+
 #include "../../Utilities/PowerSet.h"
 
 NBackWorld::NBackWorld(std::shared_ptr<ParametersTable> PT_) : AbstractWorld(PT_) {
+
+	saveFragOverTime = saveFragOverTimePL->get(PT);
+	saveBrainStructureAndConnectome = saveBrainStructureAndConnectomePL->get(PT);
+	saveStateToState = saveStateToStatePL->get(PT);
+	save_R_FragMatrix = save_R_FragMatrixPL->get(PT);
+	saveFlowMatrix = saveFlowMatrixPL->get(PT);
+	saveStates = saveStatesPL->get(PT);
 
 	std::vector<std::string> NListsBreakDown1; // used to parse nLists
 	std::vector<std::string> NListsBreakDown2; // used to parse nLists
@@ -297,128 +324,141 @@ void NBackWorld::evaluateSolo(std::shared_ptr<Organism> org, int analyze, int vi
 
 	if (analyze) {
 		std::cout << "NBack World analyze... organism with ID " << org->ID << " scored " << org->dataMap.getAverage("score") << std::endl;
-
-
-		std::cout << "saving frag over time..." << std::endl;
-		std::string header = "LOD_order, score,";
-		std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
-		std::vector<int> save_levelsThresholds = { 50,75,100 };
-		for (auto th : save_levelsThresholds) {
-			auto frag = FRAG::getFragmentationSet(worldStates, shortBrainStatesAfter, ((double)th) / 100.0, "feature");
-			for (int f = 0; f < frag.size(); f++) {
-				header += "Threshold_" + std::to_string(th) + "__feature_" + std::to_string(f) + ",";
-				outStr += std::to_string(frag[f]) + ",";
-			}
-		}
-		FileManager::writeToFile("fragOverTime.csv", outStr.substr(0, outStr.size() - 1), header.substr(0, header.size() - 1));
-
-		std::cout << "saving brain connectome and structrue..." << std::endl;
-
-		brain->saveConnectome("brainConnectome_id_" + std::to_string(org->ID) + ".py");
-		brain->saveStructure("brainStructure_id_" + std::to_string(org->ID) + ".dot");
-
 		FileManager::writeToFile("score_id_" + std::to_string(org->ID) + ".txt", std::to_string(org->dataMap.getAverage("score")));
 
-		//if (1) {
-		//	auto smearPair = SMR::getSmearednessConceptsNodesPair(shortInputStates, worldStates, shortBrainStatesAfter);
-		//	FileManager::writeToFile("smear.txt", std::to_string(smearPair.second));
-		//	FileManager::writeToFile("smear.txt", std::to_string(smearPair.first));
-		//
-		//	std::cout << "rawR for worldStateSet { i,j }, brainStateSet, { i,j } " << std::endl;
-		//
-		//	for (double i = 0; i <= 1; i += .1) {
-		//		std::cout << i << " : ";
-		//		for (double j = i + .1; j <= 1; j += .1) {
-		//			std::cout << ENT::MutualEntropy(TS::trimTimeSeries(worldStates, { i,j }, shortLifeTimes), TS::trimTimeSeries(shortBrainStatesAfter, { i,j }, shortLifeTimes)) / ENT::Entropy(TS::trimTimeSeries(shortBrainStatesAfter, { i,j }, shortLifeTimes)) << " , ";
-		//		}
-		//		std::cout << std::endl;
-		//	}
-		//}
 
 
-		std::cout << "saving state to state..." << std::endl;
-		std::string fileName = "StateToState_id_" + std::to_string(org->ID) + ".txt";
-		if (brain->recurrentOutput) {
-			S2S::saveStateToState({ brainStates, outputStates }, { inputStates }, lifeTimes, "H_O__I_" + fileName);
-			S2S::saveStateToState({ brainStates }, { inputStates }, lifeTimes, "H_I_" + fileName);
+		if (saveFragOverTime) { // change to 1 to save frag over time
+			std::cout << "  saving frag over time..." << std::endl;
+			std::string header = "LOD_order, score,";
+			std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
+			std::vector<int> save_levelsThresholds = { 50,75,100 };
+			for (auto th : save_levelsThresholds) {
+				auto frag = FRAG::getFragmentationSet(worldStates, shortBrainStatesAfter, ((double)th) / 100.0, "feature");
+				for (int f = 0; f < frag.size(); f++) {
+					header += "Threshold_" + std::to_string(th) + "__feature_" + std::to_string(f) + ",";
+					outStr += std::to_string(frag[f]) + ",";
+				}
+			}
+			FileManager::writeToFile("fragOverTime.csv", outStr.substr(0, outStr.size() - 1), header.substr(0, header.size() - 1));
 		}
-		else {
-			S2S::saveStateToState({ brainStates, TS::extendTimeSeries(outputStates, lifeTimes, {0}, TS::Position::FIRST) }, { inputStates }, lifeTimes, "H_O__I_" + fileName);
-			S2S::saveStateToState({ brainStates }, { outputStates, inputStates }, lifeTimes, "H__O_I_" + fileName);
-			S2S::saveStateToState({ brainStates }, { inputStates }, lifeTimes, "H_I_" + fileName);
+
+		if (saveBrainStructureAndConnectome) {
+			std::cout << "saving brain connectome and structrue..." << std::endl;
+
+			brain->saveConnectome("brainConnectome_id_" + std::to_string(org->ID) + ".py");
+			brain->saveStructure("brainStructure_id_" + std::to_string(org->ID) + ".dot");
 		}
-		
+
+			//if (1) {
+			//	auto smearPair = SMR::getSmearednessConceptsNodesPair(shortInputStates, worldStates, shortBrainStatesAfter);
+			//	FileManager::writeToFile("smear.txt", std::to_string(smearPair.second));
+			//	FileManager::writeToFile("smear.txt", std::to_string(smearPair.first));
+			//
+			//	std::cout << "rawR for worldStateSet { i,j }, brainStateSet, { i,j } " << std::endl;
+			//
+			//	for (double i = 0; i <= 1; i += .1) {
+			//		std::cout << i << " : ";
+			//		for (double j = i + .1; j <= 1; j += .1) {
+			//			std::cout << ENT::MutualEntropy(TS::trimTimeSeries(worldStates, { i,j }, shortLifeTimes), TS::trimTimeSeries(shortBrainStatesAfter, { i,j }, shortLifeTimes)) / ENT::Entropy(TS::trimTimeSeries(shortBrainStatesAfter, { i,j }, shortLifeTimes)) << " , ";
+			//		}
+			//		std::cout << std::endl;
+			//	}
+			//}
 
 
-
-		//std::cout << "worldEnt: " << ENT::Entropy(worldStates) << "  brainEnt: " << ENT::Entropy(shortBrainStatesAfter) << "  worldBrainEnt: " << ENT::Entropy(TS::Join(worldStates, shortBrainStatesAfter)) << "  rawR: " << rawR << std::endl;
-		//std::cout << "earlyRawR20: " << earlyRawR20 << "  earlyRawR50: " << earlyRawR50 << "  lateRawR50: " << lateRawR50 << "  lateRawR20: " << lateRawR20 << std::endl;
-
-		// save fragmentation matrix of brain(hidden) predictions of world features
-		std::cout << "saving frag matrix..." << std::endl;
-		FRAG::saveFragMatrix(worldStates, shortBrainStatesAfter, "R_FragmentationMatrix_id_" + std::to_string(org->ID) + ".py", "feature");
-
-		// save data flow information - 
-		//std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.333},{.333,.666},{.666,1},{0,.5},{.5,1} };
-		////std::vector<std::pair<double, double>> flowRanges = { {0,1},{.5,1} };///, { 0,.1 }, { .9,1 }};
-        std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
-
-		//std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), ",",",") << std::endl;
-		//std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), ",",",") << std::endl;
-		if (brain->recurrentOutput) {
-			FRAG::saveFragMatrixSet(
-				TS::Join({ TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), TS::trimTimeSeries(outputStates, TS::Position::FIRST, lifeTimes) }),
-				TS::Join({ TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates, TS::trimTimeSeries(outputStates, TS::Position::LAST, lifeTimes) }),
-				lifeTimes, flowRanges, "flowMap_id_" + std::to_string(org->ID) + ".py", "shared", -1);
-		}
-		else {
-			FRAG::saveFragMatrixSet(
-				TS::Join(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), outputStates), 
-				TS::Join(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates),
-				lifeTimes, flowRanges, "flowMap_id_" + std::to_string(org->ID) + ".py", "shared", -1);
-		}
-		//auto flowMatrix = FRAG::getFragmentationMatrix(TS::Join(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), outputStates), TS::Join(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates), "feature");
-
-
-
-
-		std::cout << "saving brain states information..." << std::endl;
-		std::string fileStr = "";
-		if (brain->recurrentOutput) {
-
-			auto discreetInput = inputStates;
-			auto discreetOutputBefore = TS::trimTimeSeries(outputStates, TS::Position::LAST, lifeTimes);;
-			auto discreetOutputAfter = TS::trimTimeSeries(outputStates, TS::Position::FIRST, lifeTimes);
-			auto discreetHiddenBefore = TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes);
-			auto discreetHiddenAfter = TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes);
-
-			fileStr += "input,outputBefore,outputAfter,hiddenBefore,hiddenAfter\n";
-			for (int i = 0; i < discreetInput.size(); i++) {
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputBefore[i], ",") + "\","; // every other
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputAfter[i], ",") + "\","; // the other ones
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\","; // every other
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\"\n"; // the other ones
+		if (saveStateToState) {
+			std::cout << "  saving state to state..." << std::endl;
+			std::string fileName = "StateToState_id_" + std::to_string(org->ID) + ".txt";
+			if (brain->recurrentOutput) {
+				S2S::saveStateToState({ brainStates, outputStates }, { inputStates }, lifeTimes, "H_O__I_" + fileName);
+				S2S::saveStateToState({ brainStates }, { inputStates }, lifeTimes, "H_I_" + fileName);
+			}
+			else {
+				S2S::saveStateToState({ brainStates, TS::extendTimeSeries(outputStates, lifeTimes, {0}, TS::Position::FIRST) }, { inputStates }, lifeTimes, "H_O__I_" + fileName);
+				S2S::saveStateToState({ brainStates }, { outputStates, inputStates }, lifeTimes, "H__O_I_" + fileName);
+				S2S::saveStateToState({ brainStates }, { inputStates }, lifeTimes, "H_I_" + fileName);
 			}
 		}
-		else {
+			//std::cout << "worldEnt: " << ENT::Entropy(worldStates) << "  brainEnt: " << ENT::Entropy(shortBrainStatesAfter) << "  worldBrainEnt: " << ENT::Entropy(TS::Join(worldStates, shortBrainStatesAfter)) << "  rawR: " << rawR << std::endl;
+			//std::cout << "earlyRawR20: " << earlyRawR20 << "  earlyRawR50: " << earlyRawR50 << "  lateRawR50: " << lateRawR50 << "  lateRawR20: " << lateRawR20 << std::endl;
 
-			auto discreetInput = inputStates;
-			auto discreetOutput = outputStates;
-			auto discreetHiddenBefore = TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes);
-			auto discreetHiddenAfter = TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes);
+			// save fragmentation matrix of brain(hidden) predictions of world features
+		if (save_R_FragMatrix) {
+			std::cout << "  saving R frag matrix..." << std::endl;
 
-			fileStr += "input,output,hiddenBefore,hiddenAfter\n";
-			for (int i = 0; i < discreetInput.size(); i++) {
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutput[i], ",") + "\",";
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\","; // every other
-				fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\"\n"; // the other ones
+			FRAG::saveFragMatrix(worldStates, shortBrainStatesAfter, "R_FragmentationMatrix_id_" + std::to_string(org->ID) + ".py", "feature");
+		}
+			// save data flow information - 
+			//std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.333},{.333,.666},{.666,1},{0,.5},{.5,1} };
+			////std::vector<std::pair<double, double>> flowRanges = { {0,1},{.5,1} };///, { 0,.1 }, { .9,1 }};
+
+
+		if (saveFlowMatrix) {
+			std::cout << "  saving flow matix..." << std::endl;
+			std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
+
+			//std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), ",",",") << std::endl;
+			//std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), ",",",") << std::endl;
+			if (brain->recurrentOutput) {
+				FRAG::saveFragMatrixSet(
+					TS::Join({ TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), TS::trimTimeSeries(outputStates, TS::Position::FIRST, lifeTimes) }),
+					TS::Join({ TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates, TS::trimTimeSeries(outputStates, TS::Position::LAST, lifeTimes) }),
+					lifeTimes, flowRanges, "flowMap_id_" + std::to_string(org->ID) + ".py", "shared", -1);
+			}
+			else {
+				FRAG::saveFragMatrixSet(
+					TS::Join(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), outputStates),
+					TS::Join(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates),
+					lifeTimes, flowRanges, "flowMap_id_" + std::to_string(org->ID) + ".py", "shared", -1);
 			}
 		}
+			//auto flowMatrix = FRAG::getFragmentationMatrix(TS::Join(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), outputStates), TS::Join(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), inputStates), "feature");
 
-		FileManager::writeToFile("NBack_BrainActivity_id_" + std::to_string(org->ID) + ".csv", fileStr);
-		std::cout << "   done." << std::endl;
+
+
+
+		if (saveStates) {
+			std::cout << "  saving brain states information..." << std::endl;
+			std::string fileStr = "";
+			if (brain->recurrentOutput) {
+
+				auto discreetInput = inputStates;
+				auto discreetOutputBefore = TS::trimTimeSeries(outputStates, TS::Position::LAST, lifeTimes);;
+				auto discreetOutputAfter = TS::trimTimeSeries(outputStates, TS::Position::FIRST, lifeTimes);
+				auto discreetHiddenBefore = TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes);
+				auto discreetHiddenAfter = TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes);
+
+				fileStr += "input,outputBefore,outputAfter,hiddenBefore,hiddenAfter\n";
+				for (int i = 0; i < discreetInput.size(); i++) {
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputBefore[i], ",") + "\","; // every other
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputAfter[i], ",") + "\","; // the other ones
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\","; // every other
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\"\n"; // the other ones
+				}
+			}
+			else {
+
+				auto discreetInput = inputStates;
+				auto discreetOutput = outputStates;
+				auto discreetHiddenBefore = TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes);
+				auto discreetHiddenAfter = TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes);
+
+				fileStr += "input,output,hiddenBefore,hiddenAfter\n";
+				for (int i = 0; i < discreetInput.size(); i++) {
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutput[i], ",") + "\",";
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\","; // every other
+					fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\"\n"; // the other ones
+				}
+			}
+
+			FileManager::writeToFile("NBack_BrainActivity_id_" + std::to_string(org->ID) + ".csv", fileStr);
+
+
+		}
+		std::cout << "  ... analyze done" << std::endl;
 	} // end analyze
 
 	

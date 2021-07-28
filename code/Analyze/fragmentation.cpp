@@ -74,7 +74,7 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<double>>> FRAG:
 		}
 	}
 
-	std::cout << "   maxPartitionSize before correction : " << maxPartitionSize;
+	std::cout << "  in getFragmentationMatrix: maxPartitionSize before correction : " << maxPartitionSize;
 
 	// get power set for all combinations of predictor (partitions)
 	if (maxPartitionSize == -1 || maxPartitionSize > predictor[0].size()) {
@@ -85,7 +85,7 @@ std::pair<std::vector<std::vector<int>>, std::vector<std::vector<double>>> FRAG:
 	PowerSet ps;
 	auto indexSets = ps.getPowerSet(predictor[0].size(), maxPartitionSize, reflectPartitions);
 
-	std::cout << "   " << indexSets.size() << " partitions need to be evaluated for each feature..." << std::endl;
+	std::cout << "    " << indexSets.size() << " partitions need to be evaluated for each feature..." << std::endl;
 
 	//std::cout << TS::TimeSeriesToString(indexSets) << std::endl;
 
@@ -168,7 +168,7 @@ void FRAG::saveFragMatrixSet(const TS::intTimeSeries& features, const TS::intTim
 		double i = lifeTimeRanges[r].first;
 		double j = lifeTimeRanges[r].second;
 
-		std::cout << std::to_string(int(i * 100)) + "_" + std::to_string(int(j * 100)) << std::endl;
+		std::cout << "\n    Frag Matrix range: " << std::to_string(int(i * 100)) + "_" + std::to_string(int(j * 100)) << std::endl;
 		auto fm = getFragmentationMatrix(TS::trimTimeSeries(flowStatesAfter, { i,j }, lifeTimes), TS::trimTimeSeries(flowStatesBefore, { i,j }, lifeTimes), "shared", maxPartitionSize, reflectPartitions);
 		outStr = "";
 		if (r == 0) {
