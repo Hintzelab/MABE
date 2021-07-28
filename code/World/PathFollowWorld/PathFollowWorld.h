@@ -43,7 +43,7 @@ public:
     static shared_ptr<ParameterLink<bool>> clearVistedPL; // are location input values altered when visited
 
     static shared_ptr<ParameterLink<int>> turnSymbolsCountPL; // turn symbols will be values from 1 to signValueMax
-    static shared_ptr<ParameterLink<bool>> useRandomTurnSymbolsPL; // if false, alway use 1 for left and 2 for right
+    static shared_ptr<ParameterLink<int>> randomTurnSymbolsPL; // if false, alway use 1 for left and 2 for right
 
     static shared_ptr<ParameterLink<std::string>> inputModePL; // single : 1 input: -1 (off), 0(forward), or [1,signValueMax](turn)
                                                                // mixed:   4 inputs: offPathBit,onPathBit,(0(not turn), or [1,signValueMax](turn))
@@ -55,6 +55,15 @@ public:
     static shared_ptr<ParameterLink<bool>> addFlippedMapsPL; // add a flipped version of each map
 
 
+    static shared_ptr<ParameterLink<bool>> saveFragOverTimePL;
+    static shared_ptr<ParameterLink<bool>> saveBrainStructureAndConnectomePL;
+    static shared_ptr<ParameterLink<bool>> saveStateToStatePL;
+    static shared_ptr<ParameterLink<bool>> save_R_FragMatrixPL;
+    static shared_ptr<ParameterLink<bool>> saveFlowMatrixPL;
+    static shared_ptr<ParameterLink<bool>> saveStatesPL;
+    static shared_ptr<ParameterLink<bool>> saveVisualPL;
+
+
     // a local variable used for faster access to the ParameterLink values
     int evaluationsPerGeneration;
 
@@ -63,7 +72,8 @@ public:
     bool clearVisted;
 
     int turnSymbolsCount;
-    bool useRandomTurnSymbols;
+    int randomTurnSymbols;
+    int signalListCount;
 
     std::string inputMode;
 
@@ -72,6 +82,14 @@ public:
     std::vector<string> mapNames;
     bool addFlippedMaps;
     
+    bool saveFragOverTime;
+    bool saveBrainStructureAndConnectome;
+    bool saveStateToState;
+    bool save_R_FragMatrix;
+    bool saveFlowMatrix;
+    bool saveStates;
+    bool saveVisual;
+
     // point2d defines a 2d vector with addtion, subtraction, dot/scalar product(*)
     // and cross product
     // also included are distance functions and functions which return the signed
@@ -291,7 +309,7 @@ public:
     std::vector<int> forwardCounts;
     std::vector<int> turnCounts;
     std::vector<int> initalDirections;
-    std::vector<std::pair<int, int>> randomValues;
+    std::vector<std::pair<int, int>> turnSignalPairs;
 
     PathFollowWorld(shared_ptr<ParametersTable> PT_);
 	virtual ~PathFollowWorld() = default;

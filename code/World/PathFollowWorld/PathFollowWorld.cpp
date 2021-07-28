@@ -33,8 +33,8 @@
 #include "PathFollowWorld.h"
 
 shared_ptr<ParameterLink<int>> PathFollowWorld::evaluationsPerGenerationPL =
-    Parameters::register_parameter("WORLD_PATHFOLLOW-evaluationsPerGeneration", 3,
-    "how many times should each organism be tested in each generation?");
+    Parameters::register_parameter("WORLD_PATHFOLLOW-evaluationsPerGeneration", 1,
+    "how many times should each organism be tested in each generation? (useful for non-deterministic brains)");
 
 shared_ptr<ParameterLink<int>> PathFollowWorld::extraStepsPL =
 Parameters::register_parameter("WORLD_PATHFOLLOW-extraSteps", 50,
@@ -50,15 +50,16 @@ Parameters::register_parameter("WORLD_PATHFOLLOW-clearVisted", true,
     "note that map values > 1, i.e. turn signals and end of map signal are set to 1 (forward signal) when visted to provide time to take a turn action.");
 
 shared_ptr<ParameterLink<int>> PathFollowWorld::turnSymbolsCountPL =
-Parameters::register_parameter("WORLD_PATHFOLLOW-turnSymbolsCount", 4,
+Parameters::register_parameter("WORLD_PATHFOLLOW-turnSymbolsCount", 2,
     "number of symbols that will be used when generating turn symbols.\n"
     "if inputMode is binary it is best if this value is a power of 2");
 
-shared_ptr<ParameterLink<bool>> PathFollowWorld::useRandomTurnSymbolsPL =
-Parameters::register_parameter("WORLD_PATHFOLLOW-useRandomTurnSymbols", true,
-    "if true, random symbols will be determined per map (and per eval) for left and right.\n"
+shared_ptr<ParameterLink<int>> PathFollowWorld::randomTurnSymbolsPL =
+Parameters::register_parameter("WORLD_PATHFOLLOW-randomTurnSymbols", -1,
+    "if 1, random symbols pairs will be determined per map (and per eval) for left and right.\n"
     "symbols will be the same for all agents in a generation.\n"
-    "if false, symbolValueMax is ignored and 1 and 2  (or 01 and 10) are always used");
+    "if 0, symbolValueMax is ignored and 1 and 2  (or 01 and 10) are always used\n"
+    "if -1 all possible symbols pairs will be used per map (and per eval) for left and right");
 
 shared_ptr<ParameterLink<std::string>> PathFollowWorld::inputModePL =
 Parameters::register_parameter("WORLD_PATHFOLLOW-inputMode", (std::string)"single",
@@ -80,6 +81,29 @@ shared_ptr<ParameterLink<bool>> PathFollowWorld::addFlippedMapsPL =
 Parameters::register_parameter("WORLD_PATHFOLLOW-addFlippedMaps", true,
     "if addFlippedMaps, than a copy of each loaded map flipped horizontaly will be added to the maps list");
 
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveFragOverTimePL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveFragOverTime", false,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveBrainStructureAndConnectomePL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveBrainStructureAndConnectome", true,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveStateToStatePL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveStateToState", true,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::save_R_FragMatrixPL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-save_R_FragMatrix", false,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveFlowMatrixPL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveFlowMatrix", false,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveStatesPL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveStates", true,
+    "");
+shared_ptr<ParameterLink<bool>> PathFollowWorld::saveVisualPL =
+Parameters::register_parameter("WORLD_PATHFOLLOW_ANALYZE-saveVisual", true,
+    "save visualization, even though we are in analyze mode");
+
+
 // load single line from file, lines that are empty or start with # are skipped
 inline bool loadLineFromFile(std::ifstream& file, std::string& rawLine, std::stringstream& ss) {
     rawLine.clear();
@@ -93,7 +117,7 @@ inline bool loadLineFromFile(std::ifstream& file, std::string& rawLine, std::str
         ss << rawLine;
     }
     else if (!file.eof()) {
-    std::cout << "in loadSS, file is not open!\n  Exiting." << std::endl;
+    std::cout << "  in loadSS, file is not open!\n  Exiting." << std::endl;
     exit(1);
     }
     return file.eof(); // ss contains the current line, this return tells us if we are at end of file
@@ -102,7 +126,7 @@ inline bool loadLineFromFile(std::ifstream& file, std::string& rawLine, std::str
 
 void PathFollowWorld::loadMaps(std::vector<string>& mapNames, std::vector<Vector2d<int>>& maps, std::vector<std::pair<int, int>>& mapSizes, std::vector<int>& initalDirections, std::vector<std::pair<int, int>>& startLocations) {
     for (auto mapName : mapNames) {
-
+        std::cout << "  loading maps: " << mapName << std::endl;
         std::string rawLine; // raw line and ss are used to hold file info file making maps
         std::stringstream ss;
 
@@ -120,6 +144,7 @@ void PathFollowWorld::loadMaps(std::vector<string>& mapNames, std::vector<Vector
         initalDirections.push_back(std::stoi(rawLine)); // ... contails initial facing direction
 
         atEOF = loadLineFromFile(FILE, rawLine, ss); // get the next line, from here we are loading the actual map
+        
 
         size_t y = 0;
         while (!atEOF) { // while not at end of file, read lines from file and add them to map
@@ -152,18 +177,26 @@ PathFollowWorld::PathFollowWorld(shared_ptr<ParametersTable> PT_) : AbstractWorl
     clearVisted = clearVistedPL->get(PT);
 
     turnSymbolsCount = turnSymbolsCountPL->get(PT);
-    useRandomTurnSymbols = useRandomTurnSymbolsPL->get(PT);
-    if (!useRandomTurnSymbols) {
-        turnSymbolsCount = 2;
-    }
+    randomTurnSymbols = randomTurnSymbolsPL->get(PT);
+
     inputMode = inputModePL->get(PT);
 
     swapSymbolsAfter = swapSymbolsAfterPL->get(PT);
 
+    saveFragOverTime = saveFragOverTimePL->get(PT);
+    saveBrainStructureAndConnectome = saveBrainStructureAndConnectomePL->get(PT);
+    saveStateToState = saveStateToStatePL->get(PT);
+    save_R_FragMatrix = save_R_FragMatrixPL->get(PT);
+    saveFlowMatrix = saveFlowMatrixPL->get(PT);
+    saveStates = saveStatesPL->get(PT);
+    saveVisual = saveVisualPL->get(PT);
+
     convertCSVListToVector(mapNamesPL->get(PT), mapNames);
 
-    std::cout << "In pathFollowWorld, loading maps:" << std::endl;
+    std::cout << "In pathFollowWorld, loading maps (if 'done loading maps' does not appear, there is an issue in the map files)..." << std::endl;
     loadMaps(mapNames, maps, mapSizes, initalDirections, startLocations);
+    std::cout << "  done loading maps." << std::endl;
+
     addFlippedMaps = addFlippedMapsPL->get(PT);
 
     int mapsCount = maps.size();
@@ -243,36 +276,66 @@ PathFollowWorld::PathFollowWorld(shared_ptr<ParametersTable> PT_) : AbstractWorl
         }
     }
 
-    // we will fill randomValues (i.e. the turn symbols every generation, here we just make sure we have enough space
-    randomValues.resize(evaluationsPerGeneration*maps.size());
+    // if randomizeTurnSigns and , all possible pairs of signals
+    if (randomTurnSymbols == -1) {
+        turnSignalPairs.resize(turnSymbolsCount * (turnSymbolsCount - 1));
+        int signalListCount = 0;
+        for (int t1 = 0; t1 < turnSymbolsCount; t1++) {
+            for (int t2 = 0; t2 < turnSymbolsCount; t2++) {
+                if (t1 != t2) {
+                    turnSignalPairs[signalListCount].first = t1;
+                    turnSignalPairs[signalListCount].second = t2;
+                    signalListCount++;
+                }
+            }
+        }
+        // if all pairs are seen, then eval per gen (i.e. number of times each map is seen) is number of pairs
+        evaluationsPerGeneration = turnSignalPairs.size();
+
+        // give a report
+        std::cout << "  randomTurnSymbols set to -1, so all maps will see the following turn pairs:" << std::endl;
+        for (auto p : turnSignalPairs) {
+            std::cout << "    " << p.first << "," << p.second << std::endl;
+        }
+    }
+    else if (randomTurnSymbols == 1) { // if randomTurnSymbols then each map will be visted evaluationsPerGeneration times
+        turnSignalPairs.resize(evaluationsPerGeneration * maps.size());
+        std::cout << "randomTurnSymbols set to 1, turn pairs will be determined ever generaion." << std::endl;
+    }
+    else { // randomTurnSymbols == 0, fixed signals
+        turnSignalPairs = { {0,1} };
+        std::cout << "randomTurnSymbols set to 0, turn pairs will be fixed." << std::endl;
+    }
 
     // determin the number of inputs based on the input mode
     if (inputMode == "single") { // input will be a single number (effectivly, the map value)
         inputCount = 1;
     }
+    else if (inputMode == "mixed") {
+        inputCount = 4; // location is empty + location is forward + location is turn + turn symbol
+    }
+    else if (inputMode == "binary") { // turn symbol will be in bits, we need to know the number of bits
+        outputsNeededForTurnSign = 0;
+        int temp = turnSymbolsCount - 1; // e.g. if symbolValueMax is 2, this will be 1, or 0 and 1 (1 bit) will be needed
+        while (temp > 0) {
+            outputsNeededForTurnSign++;
+            temp = temp >> 1;
+        }
+        inputCount = 3 + outputsNeededForTurnSign; // location is empty + location is forward + location is turn + bittized turn symbol
+    }
     else {
-        inputCount = 3; // location is empty + location is forward + location is turn
-        if (inputMode == "mixed") {
-            inputCount += 1; // + turn symbol. turn symbol is an int
-        }
-        else if (inputMode == "binary") { // turn symbol will be in bits, we need to know the number of bits
-            outputsNeededForTurnSign = 0;
-            int temp = turnSymbolsCount - 1; // e.g. if symbolValueMax is 2, this will be 1, or 0 and 1 (1 bit) will be needed
-            while (temp > 0) {
-                outputsNeededForTurnSign++;
-                temp = temp >> 1;
-            }
-            inputCount += outputsNeededForTurnSign;
-        }
+        std::cout << "\nWORLD_PATHFOLLOW-inputMode parameter, not valid. Was given: " << inputMode << ", please correct and try again." << std::endl;
+        exit(1);
     }
     
-    outputCount = 3; // ??1 = reverse, 000 = no action, 010 = right, 100 = left, 110 = forward
+    outputCount = 3; // 001 = reverse, 010 = right, 100 = left, 110 = forward, remaining = no action
 
     // popFileColumns tell MABE what data should be saved to pop.csv files
     popFileColumns.clear();
     popFileColumns.push_back("score");      // (score/maxScore)/mapCount
     popFileColumns.push_back("reachGoal");  // did the agent reach the goal Y/N
     popFileColumns.push_back("completion"); // (how much of the path did the agent visit) / (entire path length)
+    popFileColumns.push_back("correctTurnRate"); // rate at which agents make correct turns
 }
 
 // the evaluate function gets called every generation. evaluate should set values on organisms datamaps
@@ -280,25 +343,30 @@ PathFollowWorld::PathFollowWorld(shared_ptr<ParametersTable> PT_) : AbstractWorl
 // here we pick turn symbols once and these are used for all agents (to make sure we are doing a fair evaluation)
 // then agents are tested (one-at-a-time) on each map and given a normalized score.
 auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analyze, int visualize, int debug) -> void {
+    
+    if (analyze && saveVisual) {
+        visualize = true;
+    }
 
-    int sign2; // remapping for 2s in the map
-    int sign3; // remapping for 3s in the map
+    int sign2; // remapping for 2s in the map (left)
+    int sign3; // remapping for 3s in the map (right)
 
+    
     // if randomizeTurnSigns, create a pair of random signals for each map
-    if (useRandomTurnSymbols) {
+    if (randomTurnSymbols == 1) {
         for (int t = 0; t < evaluationsPerGeneration * maps.size(); t++) {
-            randomValues[t].first = Random::getInt(1, turnSymbolsCount);
-            randomValues[t].second = Random::getInt(1, turnSymbolsCount - 1); // one less, so, if the same values are picked, we have somewhere to go
-            if (randomValues[t].first == randomValues[t].second) {
-                randomValues[t].second = turnSymbolsCount; // if values match, then set to max value - this is the only way the second symbol can be max
+            turnSignalPairs[t].first = Random::getIndex(turnSymbolsCount);
+            turnSignalPairs[t].second = Random::getIndex(turnSymbolsCount - 1); // one less, so, if the same values are picked, we have somewhere to go
+            if (turnSignalPairs[t].first == turnSignalPairs[t].second) {
+                turnSignalPairs[t].second = turnSymbolsCount; // if values match, then set to max value - this is the only way the second symbol can be max
                                                            // i.e. in the case of a match, the max values "replaces" the chosen value
             }
             if (debug) {
-                std::cout << "\non update: " << Global::update << " map: " << t << " has random values: " << randomValues[t].first << " " << randomValues[t].second << std::endl;
+                std::cout << "\non update: " << Global::update << " map: " << t << " has random values: " << turnSignalPairs[t].first << " " << turnSignalPairs[t].second << std::endl;
             }
         }
     }
-
+    
     int popSize = groups["root::"]->population.size();
     
     // in this world, organisms do not interact, so we can just iterate over the population
@@ -320,11 +388,16 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
         double score, reachGoal;
         int thisForwardCount;
 
+        int turnsIndex = 0; // used to itterate over turnSignalPairs
+
+        int correctTurns = 0; // count of number of times agent turns correctly
+        int totalTurns = 0; // count of number of turns seen by agent
+
         // evaluate this organism on each map evaluationsPerGeneration times
-        // a trial consists of one test on each map
-        for (int trial = 0; trial < evaluationsPerGeneration; trial++) {
-            for (size_t mapID = 0; mapID < maps.size(); mapID++) { // for each map
-                
+        // turnSignalPairs[turnsIndex] will provide the correct turn pair and is updated automaticly
+        for (size_t mapID = 0; mapID < maps.size(); mapID++) { // for each map
+            for (int evaluation = 0; evaluation < evaluationsPerGeneration; evaluation++) {
+                //std::cout << randomValues.size() << "  trial: " << trial << "  mapID:" << mapID << "  trial * mapID: " << trial * maps.size() + mapID << "   " << randomValues[trial * maps.size() + mapID].first << "," << randomValues[trial * maps.size() + mapID].second << std::endl;
                 // new map! reset some stuff
                 score = 0;
                 reachGoal = 0;
@@ -337,20 +410,15 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
 
                 // make a copy of the map so we have a local copy we can make notes on
                 auto mapCopy = maps[mapID];
-                
-                // if useRandomTurnSymbols, pull values for turn symbol values from randomValues for this evaluation (trial) and map
-                if (useRandomTurnSymbols) {
-                    sign2 = randomValues[(trial * maps.size()) + mapID].first;
-                    sign3 = randomValues[(trial * maps.size()) + mapID].second;
-                }
-                else { // use fixed values
-                    sign2 = 1;
-                    sign3 = 2;
+
+                sign2 = turnSignalPairs[turnsIndex].first;
+                sign3 = turnSignalPairs[turnsIndex++].second;
+                if (turnsIndex >= turnSignalPairs.size()) { // we are at the end of turnSignalPairs, reset to start
+                    turnsIndex = 0;
                 }
 
                 if (debug) {
-                    // show current map
-                    mapCopy.showGrid();
+                    mapCopy.showGrid(); // show current map
                     std::cout << "at location: " << xPos << "," << yPos << "  direction: " << direction << std::endl;
                 }
 
@@ -363,12 +431,13 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                 brain->resetBrain();
 
 
-                int firstTurn = -1; // the agent has not stepped on a turn, so we don't know what the first turn is yet
+                int firstTurn = -1; // the agent has not stepped on a turn yet, so we don't know what the first seen turn is yet
+                int lastTrun = -1; // the agent has not stepped on a turn yet, so we don't know what the last seen turn is yet
                 bool swapped = false; // have he symbols been swapped?
 
                 for (int step = 0; step < (minSteps[mapID] + extraSteps); step++) { // this is how much time the agent has on this map
 
-                    if ((swapSymbolsAfter < 1.0) && (swapped == false) && (step > ((double)minSteps[mapID] * swapSymbolsAfter)) ) {
+                    if ((swapSymbolsAfter < 1.0) && (swapped == false) && (step > ((double)minSteps[mapID] * swapSymbolsAfter))) {
                         // if we get far enough into the map, then swap the turn symbols
                         swapped = true;
                         auto temp = sign3;
@@ -383,12 +452,18 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                         os += std::to_string(mapSizes[mapID].first) + "\n";
                         os += std::to_string(mapSizes[mapID].second) + "\n";
 
-                        os += std::to_string(sign2) + "\n";
-                        os += std::to_string(sign3) + "\n";
+                        if (inputMode == "single" || inputMode == "mixed") {
+                            os += std::to_string(sign2 + 1) + "\n";
+                            os += std::to_string(sign3 + 1) + "\n";
+                        }
+                        else { // inputMode is binary
+                            os += std::to_string(sign2) + "\n";
+                            os += std::to_string(sign3) + "\n";
+                        }
 
-                        auto mapSource = mapCopy;
+                        auto mapSource = mapCopy; // only used in visualize
                         if (!clearVisted) {
-                            mapSource = maps[mapID];;
+                            mapSource = maps[mapID];
                         }
                         // show grid, and other stats
                         for (int y = 0; y < mapSizes[mapID].second; y++) {
@@ -403,11 +478,11 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                                     os += "0";
                                 }
                                 else if (mapSource(x, y) == 2) {
-                                    if (debug) { std::cout << "R "; }
+                                    if (debug) { std::cout << "L "; }
                                     os += "2";
                                 }
                                 else if (mapSource(x, y) == 3) {
-                                    if (debug) { std::cout << "L ";; }
+                                    if (debug) { std::cout << "R ";; }
                                     os += "3";
                                 }
                                 else {
@@ -423,7 +498,12 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                     }
 
                     if (debug) {
-                        mapCopy.showGrid();
+                        if (clearVisted) {
+                            mapCopy.showGrid();
+                        }
+                        else {
+                            maps[mapID].showGrid();
+                        }
                         std::cout << "at location: " << xPos << "," << yPos << "  direction: " << direction << std::endl;
                         std::cout << "forward steps taken: " << thisForwardCount << "  current score: " << score << std::endl;
                         std::cout << "value @ this location: " << mapCopy(xPos, yPos) << std::endl;
@@ -441,34 +521,34 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                         // map values are 0 = empty, 1 = forward, 2 = left, 3 = right,
                         // but output is -1 = empty, 0 = forward, 1 or more = turn, so we need to do some conversion...
                         inputValue--;
-                        if (inputValue == 1) { // value in map was 2
-                            inputValue = sign2;
+                        if (inputValue == 1) { // value in map was 2 (left)
+                            inputValue = sign2 + 1;
                         }
-                        else if (inputValue == 2) { // value in map was 3
-                            inputValue = sign3;
+                        else if (inputValue == 2) { // value in map was 3 (right)
+                            inputValue = sign3 + 1;
                         }
-                        else if (inputValue == 3) { // value in map was 4
-                            inputValue = 0; // location is end, appears as forward (but this never happens)
-                        }
+                        //else if (inputValue == 3) { // value in map was 4
+                        //    inputValue = 0; // location is end, appears as forward (but this never happens)
+                        //}
                         brain->setInput(0, inputValue);
                     }
                     else { // inputMode == "mixed" || "binary"
-                        
+
                         brain->setInput(0, inputValue == 0); // is location empty?
                         brain->setInput(1, inputValue == 1 || inputValue == 4); // is location path?   foraward and end look the same (but this never happens)
-                        
+
                         if (inputMode == "mixed") {
                             if (inputValue == 2) {
                                 brain->setInput(2, 1); // this location is a turn
-                                brain->setInput(3, sign2);
+                                brain->setInput(3, sign2 + 1); // sign associated with left turn, add one so that 0 is unique for no turn
                             }
                             else if (inputValue == 3) {
-                                brain->setInput(2, 1); // this location is a turn?
-                                brain->setInput(3, sign3);
+                                brain->setInput(2, 1); // this location is a turn
+                                brain->setInput(3, sign3 + 1); // sign associated with left turn, add one so that 0 is unique for no turn
                             }
                             else { // if not a turn
-                                brain->setInput(2, 0); // this location is not a turn?
-                                brain->setInput(3, 0);
+                                brain->setInput(2, 0); // this location is not a turn
+                                brain->setInput(3, 0); // blank
                             }
                         } // end inputMode = "mixed"
                         else { // inputMode == "binary"
@@ -476,28 +556,29 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                             int val;
                             bool isTurn;
 
-                            if (inputValue == 2) { // is turn
-                                val = sign2 - 1; // signs are 1 to symbolValueMax, so subtract 1 now
+                            if (inputValue == 2) { // is left turn
+                                val = sign2;
                                 isTurn = true;
                             }
-                            else if (inputValue == 3) { // is turn
-                                val = sign3 - 1; // signs are 1 to symbolValueMax, so subtract 1 now
+                            else if (inputValue == 3) { // is right turn
+                                val = sign3;
                                 isTurn = true;
                             }
                             else { // is not a turn
                                 val = 0;
                                 isTurn = false;
                             }
+
                             if (isTurn == false) { // set "outputsNeededForTurnSign" bits to 0 (this is not a turn)
                                 brain->setInput(2, 0); // set input turn
                                 for (int xx = 0; xx < outputsNeededForTurnSign; xx++) {
-                                    brain->setInput(3 + xx, 0); // set turn symbol inputs to 0
+                                    brain->setInput(3 + xx, 0); // set inputs 3+ to 0s
                                 }
                             }
                             if (isTurn == true) { // convert turn symbol "val" in to "outputsNeededForTurnSign" bits
                                 brain->setInput(2, 1); // set input turn
                                 for (int xx = 0; xx < outputsNeededForTurnSign; xx++) {
-                                    brain->setInput(3 + xx, val & 1); // set turn symbol inputs
+                                    brain->setInput(3 + xx, val & 1); // set inputs 3+ to turn symbol bits
                                     val = val >> 1;
                                 }
                             }
@@ -514,7 +595,12 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                     //    also add any remaning steps to score, if all path locations were visited
                     // if map location > 1, set location value to 1 (i.e. turn markers become 1s),
                     //    the value will be 1 next update if this agent turns, which will provide +1 score
+                    // if map location is 1, set to 0, no more points.
+                    
+                    int mapValueHere = mapCopy(xPos, yPos); // used to check correct turn
+
                     if (mapCopy(xPos, yPos) > 1) {
+                        lastTrun = mapCopy(xPos, yPos); // this is now the last turn seen
                         if (firstTurn == -1) { // if this is the first turn the agent has seen in this map, record map value
                             firstTurn = mapCopy(xPos, yPos);
                         }
@@ -525,35 +611,28 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                             }
                             step = minSteps[mapID] + extraSteps; // ... either way, end this map now - set step to force an exit from the step for loop
                         }
-                        mapCopy(xPos, yPos) = 1; // set this location value to on mapCopy 1 so that on the next update agents do not pay emptySpaceCost
+                        else { // this is a turn
+                            totalTurns++;
+                            mapCopy(xPos, yPos) = 1; // set this location value to on mapCopy 1 so that on the next update agents do not pay emptySpaceCost
+                        }
                     }
                     else if (mapCopy(xPos, yPos) == 1) { // if symbol on map copy is forward
                         score += 1;
                         thisForwardCount += 1;
                         mapCopy(xPos, yPos) = 0; // revisting will cost agent emptySpaceCost
-
-
-                        // I don't this this is needed. in both cases agents should pay for revisting as though it were empty all the time
-                        /*if (clearVisted) {
-                            mapCopy(xPos, yPos) = 0; // revisting will cost agent emptySpaceCost
-                        }
-                        else { // clear visted is off, 1s on map (move forward) will be changed to -2, agents will still see marker on original map
-                            // agents will not get extra points or lose points for revisting this location
-                            mapCopy(xPos, yPos) = 0; // -2 value will remain unchanged so that this location will not score (positive or negitive) in the future
-                        }
-                        */
                     }
-                    else if (mapCopy(xPos, yPos) == 0){
+                    // if current location is empty, pay emptySpaceCost
+                    else if (maps[mapID](xPos, yPos) == 0 || (mapCopy(xPos, yPos) == 0 && clearVisted)) {
                         // if current location is empty, pay emptySpaceCost
                         score -= emptySpaceCost;
                     }
 
                     if (step < minSteps[mapID] + extraSteps) { // if there is still time (which also means agent has not arrived at end of map)
                         // collect world state
-                        // worldStates are "on empty", "on foward" (or end), "on turn2", "on turn3", "what is sign2", "what is sign3"
+                        // worldStates are "on empty", "on foward" (or end), "on left turn", "on right", "what is left signal", "what is right signal", "what was last turn signal"
                         // because of turn symbols, world states are NOT binary, but are finite int
                         if (analyze) {
-                            worldStates.push_back({ inputValue == 0, inputValue == 1 || inputValue == 4, inputValue == 2, inputValue == 3, sign2,sign3 });
+                            worldStates.push_back({ inputValue == 0, inputValue == 1 || inputValue == 4, inputValue == 2, inputValue == 3, sign2, sign3, lastTrun});
                         }
 
                         brain->update();
@@ -565,22 +644,30 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                             std::cout << "outputs: " << out0 << "," << out1 << "," << out2 << std::endl;
                         }
 
-                        if (out2 == 1) { // step backwards, note world has a wall
+                        if (out2 == 1) { // step backwards
                             xPos = std::max(0, std::min(xPos - dx[direction], mapSizes[mapID].first - 1));
                             yPos = std::max(0, std::min(yPos - dy[direction], mapSizes[mapID].second - 1));
                         }
-                        else if (out0 == 1 && out1 == 1) { // step forwards, note world has a wall
+                        else if (out0 == 1 && out1 == 1 && out2 == 0) { // step forwards
                             xPos = std::max(0, std::min(xPos + dx[direction], mapSizes[mapID].first - 1));
                             yPos = std::max(0, std::min(yPos + dy[direction], mapSizes[mapID].second - 1));
                         }
-                        else if (out0 == 1 && out1 == 0) { // turn left
+                        else if (out0 == 1 && out1 == 0 && out2 == 0) { // turn left
                             direction = loopMod(direction - 1, 8);
+                            if (mapValueHere == 2) {
+                                correctTurns++;
+                            }
                         }
-                        else if (out0 == 0 && out1 == 1) { // turn right
+                        else if (out0 == 0 && out1 == 1 && out2 == 0) { // turn right
                             direction = loopMod(direction + 1, 8);
+                            if (mapValueHere == 3) {
+                                correctTurns++;
+                            }
                         }
+                        // else (0,0,0) do nothing
                     }
-                }
+
+                } // current path finished
                 org->dataMap.append("completion", (double)thisForwardCount / (double)forwardCounts[mapID]); // ratio of forwards visited / all forwards
                 if (reachGoal) {
                     org->dataMap.append("score", score / maxScores[mapID]);
@@ -589,6 +676,7 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
                     org->dataMap.append("score", (.5 * score) / maxScores[mapID]); // agents only get 1/2 value for points if they don't get to the goal!
                 }
                 org->dataMap.append("reachGoal", reachGoal);
+                org->dataMap.append("correctTurnRate", (double)correctTurns/(double)totalTurns);
                 if (debug || visualize) { // generate a report of this path
                     std::cout << "completion: " << (double)thisForwardCount / (double)forwardCounts[mapID] << std::endl;
                     std::cout << "score: " << score / maxScores[mapID] << std::endl;
@@ -612,7 +700,7 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
         if (analyze) {
             int thisID = org->ID;
 
-            std::cout << "organism with ID " << thisID << " scored " << org->dataMap.getAverage("score") << std::endl;
+            std::cout << "\nAlalyze Mode:  organism with ID " << thisID << " scored " << org->dataMap.getAverage("score") << std::endl;
             
             auto lifeTimes = brain->getLifeTimes();
             
@@ -620,131 +708,143 @@ auto PathFollowWorld::evaluate(map<string, shared_ptr<Group>>& groups, int analy
 
             auto outputStateSet = TS::remapToIntTimeSeries(brain->getOutputStates(), TS::RemapRules::TRIT);
 
-            auto hiddenFullStatesSet = TS::remapToIntTimeSeries(brain->getHiddenStates(), TS::RemapRules::TRIT);
+            auto hiddenFullStatesSet = TS::remapToIntTimeSeries(brain->getHiddenStates(), TS::RemapRules::UNIQUE);
             auto hiddenAfterStateSet = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
             auto hiddenBeforeStateSet = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
 
-            std::vector<std::string> featureNames = { "onEmpty", "onFoward", "onTurn2", "onTurn3", "sign2", "sign3" };
+            std::vector<std::string> featureNames = { "onEmpty", "onFoward", "onLeft", "onRight", "leftSig", "rightSig", "lastTurn"};
 
-            std::cout << "saving frag over time..." << std::endl;
-            std::string header = "LOD_order, score,";
-            std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
-            std::vector<int> save_levelsThresholds = { 50,75,100 };
-            for (auto th : save_levelsThresholds) {
-                auto frag = FRAG::getFragmentationSet(worldStates, hiddenAfterStateSet, ((double)th) / 100.0, "feature");
-                for (int f = 0; f < frag.size(); f++) {
-                    //header += "Threshold_" + std::to_string(th) + "__feature_" + std::to_string(f) + ",";
-                    header += "Threshold_" + std::to_string(th) + "__" + featureNames[f] + ",";
-                    outStr += std::to_string(frag[f]) + ",";
-                }
-            }
-            FileManager::writeToFile("fragOverTime.csv", outStr.substr(0, outStr.size() - 1), header.substr(0, header.size() - 1));
-
-            std::cout << "saving brain connectome and structrue..." << std::endl;
-
-            brain->saveConnectome("brainConnectome_id_" + std::to_string(thisID) + ".py");
-            brain->saveStructure("brainStructure_id_" + std::to_string(thisID) + ".dot");
-
-            std::string fileName = "StateToState_id_" + std::to_string(thisID) + ".txt";
-            if (brain->recurrentOutput) {
-                S2S::saveStateToState({ hiddenFullStatesSet, outputStateSet }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
-                S2S::saveStateToState({ hiddenFullStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
-            }
-            else {
-                S2S::saveStateToState({ hiddenFullStatesSet, TS::extendTimeSeries(outputStateSet, lifeTimes, {0}, TS::Position::FIRST) }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
-                S2S::saveStateToState({ hiddenFullStatesSet }, { outputStateSet, inputStateSet }, lifeTimes, "H__O_I_" + fileName);
-                S2S::saveStateToState({ hiddenFullStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
-            }
-
-            FRAG::saveFragMatrix(worldStates, hiddenAfterStateSet, "R_FragmentationMatrix_id_" + std::to_string(thisID) + ".py", "feature", { "onEmpty", "onFoward", "onTurn2", "onTurn3", "sign2", "sign3" });
-
-            FileManager::writeToFile("score_id_" + std::to_string(thisID) + ".txt", std::to_string(org->dataMap.getAverage("score")));
-
-            // save data flow information - 
-            //std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.333},{.333,.666},{.666,1},{0,.5},{.5,1} };
-            //std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.1},{.9,1} };
-            std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
-
-            //std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), ",",",") << std::endl;
-            //std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), ",",",") << std::endl;
-            if (brain->recurrentOutput) {
-                FRAG::saveFragMatrixSet(
-                    TS::Join({ TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes), TS::trimTimeSeries(outputStateSet, TS::Position::FIRST, lifeTimes) }),
-                    TS::Join({ TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes), inputStateSet, TS::trimTimeSeries(outputStateSet, TS::Position::LAST, lifeTimes) }),
-                    lifeTimes, flowRanges, "flowMap_id_" + std::to_string(thisID) + ".py", "shared", -1);
-            }
-            else {
-                FRAG::saveFragMatrixSet(
-                    TS::Join(TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes), outputStateSet),
-                    TS::Join(TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes), inputStateSet),
-                    lifeTimes, flowRanges, "flowMap_id_" + std::to_string(thisID) + ".py", "shared", -1);
-            }
-
-            std::cout << "saving brain states information..." << std::endl;
-            std::string fileStr = "";
-            if (brain->recurrentOutput) {
-
-                auto discreetInput = inputStateSet;
-                auto discreetOutputBefore = TS::trimTimeSeries(outputStateSet, TS::Position::LAST, lifeTimes);;
-                auto discreetOutputAfter = TS::trimTimeSeries(outputStateSet, TS::Position::FIRST, lifeTimes);
-                auto discreetHiddenBefore = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
-                auto discreetHiddenAfter = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
-                int timeCounter = 0;
-                int lifeCounter = 0;
-                int lifeTimeCounter = 0;
-
-                fileStr += "input,outputBefore,outputAfter,hiddenBefore,hiddenAfter,time,life,lifeTime\n";
-                for (int i = 0; i < discreetInput.size(); i++) {
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputBefore[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputAfter[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\",";
-
-                    fileStr += std::to_string(timeCounter) + ",";
-                    fileStr += std::to_string(lifeCounter) + ",";
-                    fileStr += std::to_string(lifeTimeCounter) + "\n";
-
-                    timeCounter++;
-                    lifeTimeCounter++;
-                    if (lifeTimes[lifeCounter] == lifeTimeCounter) { // if we are at the end of the current lifetime
-                        lifeCounter++;
-                        lifeTimeCounter = 0;
+            if (saveFragOverTime) { // change to 1 to save frag over time
+                std::cout << "  saving frag over time..." << std::endl;
+                std::string header = "LOD_order, score,";
+                std::string outStr = std::to_string(org->dataMap.getIntVector("ID")[0]) + "," + std::to_string(org->dataMap.getAverage("score")) + ",";
+                std::vector<int> save_levelsThresholds = { 50,75,100 };
+                for (auto th : save_levelsThresholds) {
+                    auto frag = FRAG::getFragmentationSet(worldStates, hiddenAfterStateSet, ((double)th) / 100.0, "feature");
+                    for (int f = 0; f < frag.size(); f++) {
+                        //header += "Threshold_" + std::to_string(th) + "__feature_" + std::to_string(f) + ",";
+                        header += "Threshold_" + std::to_string(th) + "__" + featureNames[f] + ",";
+                        outStr += std::to_string(frag[f]) + ",";
                     }
                 }
+                FileManager::writeToFile("fragOverTime.csv", outStr.substr(0, outStr.size() - 1), header.substr(0, header.size() - 1));
             }
-            else {
 
-                auto discreetInput = inputStateSet;
-                auto discreetOutput = outputStateSet;
-                auto discreetHiddenBefore = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
-                auto discreetHiddenAfter = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
-                int timeCounter = 0;
-                int lifeCounter = 0;
-                int lifeTimeCounter = 0;
-                fileStr += "input,output,hiddenBefore,hiddenAfter,time,life,lifeTime\n";
-                for (int i = 0; i < discreetInput.size(); i++) {
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutput[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\",";
-                    fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\",";
+            if (saveBrainStructureAndConnectome) {
+                std::cout << "  saving brain connectome and structrue..." << std::endl;
 
-                    fileStr += std::to_string(timeCounter) + ",";
-                    fileStr += std::to_string(lifeCounter) + ",";
-                    fileStr += std::to_string(lifeTimeCounter) + "\n";
-
-                    timeCounter++;
-                    lifeTimeCounter++;
-                    if (lifeTimes[lifeCounter]== lifeTimeCounter){ // if we are at the end of the current lifetime
-                        lifeCounter++;
-                        lifeTimeCounter = 0;
-                    }
+                brain->saveConnectome("brainConnectome_id_" + std::to_string(thisID) + ".py");
+                brain->saveStructure("brainStructure_id_" + std::to_string(thisID) + ".dot");
+            }
+            if (saveStateToState) {
+                std::cout << "  saving state to state..." << std::endl;
+                std::string fileName = "StateToState_id_" + std::to_string(thisID) + ".txt";
+                if (brain->recurrentOutput) {
+                    S2S::saveStateToState({ hiddenFullStatesSet, outputStateSet }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
+                    S2S::saveStateToState({ hiddenFullStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
+                }
+                else {
+                    S2S::saveStateToState({ hiddenFullStatesSet, TS::extendTimeSeries(outputStateSet, lifeTimes, {0}, TS::Position::FIRST) }, { inputStateSet }, lifeTimes, "H_O__I_" + fileName);
+                    S2S::saveStateToState({ hiddenFullStatesSet }, { outputStateSet, inputStateSet }, lifeTimes, "H__O_I_" + fileName);
+                    S2S::saveStateToState({ hiddenFullStatesSet }, { inputStateSet }, lifeTimes, "H_I_" + fileName);
                 }
             }
+            if (save_R_FragMatrix) {
+                std::cout << "  saving R frag matrix..." << std::endl;
 
-            FileManager::writeToFile("PathFollow_BrainActivity_id_" + std::to_string(thisID) + ".csv", fileStr);
-            std::cout << "   done." << std::endl;
+                FRAG::saveFragMatrix(worldStates, hiddenAfterStateSet, "R_FragmentationMatrix_id_" + std::to_string(thisID) + ".py", "feature", { "on Empty", "on Foward", "on Left", "on Right", "left Sig", "right Sig", "last Turn" });
 
+                FileManager::writeToFile("score_id_" + std::to_string(thisID) + ".txt", std::to_string(org->dataMap.getAverage("score")));
+            }
+            if (saveFlowMatrix) {
+                std::cout << "  saving flow matix..." << std::endl;
+
+                // save data flow information - 
+                //std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.333},{.333,.666},{.666,1},{0,.5},{.5,1} };
+                //std::vector<std::pair<double, double>> flowRanges = { {0,1},{0,.1},{.9,1} };
+                std::vector<std::pair<double, double>> flowRanges = { {0,.25}, {.75,1}, {0,1} };//, { 0,.1 }, { .9,1 }};
+
+                //std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::LAST, lifeTimes), ",",",") << std::endl;
+                //std::cout << TS::TimeSeriesToString(TS::trimTimeSeries(brainStates, TS::Position::FIRST, lifeTimes), ",",",") << std::endl;
+                if (brain->recurrentOutput) {
+                    FRAG::saveFragMatrixSet(
+                        TS::Join({ TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes), TS::trimTimeSeries(outputStateSet, TS::Position::FIRST, lifeTimes) }),
+                        TS::Join({ TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes), inputStateSet, TS::trimTimeSeries(outputStateSet, TS::Position::LAST, lifeTimes) }),
+                        lifeTimes, flowRanges, "flowMap_id_" + std::to_string(thisID) + ".py", "shared", -1);
+                }
+                else {
+                    FRAG::saveFragMatrixSet(
+                        TS::Join(TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes), outputStateSet),
+                        TS::Join(TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes), inputStateSet),
+                        lifeTimes, flowRanges, "flowMap_id_" + std::to_string(thisID) + ".py", "shared", -1);
+                }
+            }
+            if (saveStates) {
+                std::cout << "  saving brain states information..." << std::endl;
+                std::string fileStr = "";
+                if (brain->recurrentOutput) {
+
+                    auto discreetInput = inputStateSet;
+                    auto discreetOutputBefore = TS::trimTimeSeries(outputStateSet, TS::Position::LAST, lifeTimes);;
+                    auto discreetOutputAfter = TS::trimTimeSeries(outputStateSet, TS::Position::FIRST, lifeTimes);
+                    auto discreetHiddenBefore = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
+                    auto discreetHiddenAfter = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
+                    int timeCounter = 0;
+                    int lifeCounter = 0;
+                    int lifeTimeCounter = 0;
+
+                    fileStr += "input,outputBefore,outputAfter,hiddenBefore,hiddenAfter,time,life,lifeTime\n";
+                    for (int i = 0; i < discreetInput.size(); i++) {
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputBefore[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutputAfter[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\",";
+
+                        fileStr += std::to_string(timeCounter) + ",";
+                        fileStr += std::to_string(lifeCounter) + ",";
+                        fileStr += std::to_string(lifeTimeCounter) + "\n";
+
+                        timeCounter++;
+                        lifeTimeCounter++;
+                        if (lifeTimes[lifeCounter] == lifeTimeCounter) { // if we are at the end of the current lifetime
+                            lifeCounter++;
+                            lifeTimeCounter = 0;
+                        }
+                    }
+                }
+                else {
+
+                    auto discreetInput = inputStateSet;
+                    auto discreetOutput = outputStateSet;
+                    auto discreetHiddenBefore = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::LAST, lifeTimes);
+                    auto discreetHiddenAfter = TS::trimTimeSeries(hiddenFullStatesSet, TS::Position::FIRST, lifeTimes);
+                    int timeCounter = 0;
+                    int lifeCounter = 0;
+                    int lifeTimeCounter = 0;
+                    fileStr += "input,output,hiddenBefore,hiddenAfter,time,life,lifeTime\n";
+                    for (int i = 0; i < discreetInput.size(); i++) {
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetInput[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetOutput[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenBefore[i], ",") + "\",";
+                        fileStr += "\"" + TS::TimeSeriesSampleToString(discreetHiddenAfter[i], ",") + "\",";
+
+                        fileStr += std::to_string(timeCounter) + ",";
+                        fileStr += std::to_string(lifeCounter) + ",";
+                        fileStr += std::to_string(lifeTimeCounter) + "\n";
+
+                        timeCounter++;
+                        lifeTimeCounter++;
+                        if (lifeTimes[lifeCounter] == lifeTimeCounter) { // if we are at the end of the current lifetime
+                            lifeCounter++;
+                            lifeTimeCounter = 0;
+                        }
+                    }
+                }
+
+                FileManager::writeToFile("PathFollow_BrainActivity_id_" + std::to_string(thisID) + ".csv", fileStr);
+            } 
+            std::cout << "  ... analyze done" << std::endl;
         } // end analyze
     } // end of population loop
 }

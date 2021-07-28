@@ -6,15 +6,21 @@
 # left mouse pauses and restarts
 
 ### replace path ###
-fileName = 'c:/Users/cliff//WORK/MABE_DEV_4_25_2021_FRAG/work/pathVisualization.txt'
+fileName = 'c:/Users/cliff//MABE_FOR_MITCH/work/pathVisualization.txt'
 #fileName = 'c:/Users/cliff//WORK/MABE_DEV_3_26_2021_FRAG/PathFollow_TEST_2_extra_out/pathVisualization.txt'
 #fileName = 'c:/Users/cliff//fragWork2/Jan_31_path/C00_161_pathVisualization.txt'
 #fileName = 'c:/Users/cliff//fragWork2/Jan_31_path/C05_170_pathVisualization.txt'
 #fileName = 'c:/Users/cliff//fragWork2/Jan_31_path/C05_159_pathVisualization.txt'
 #fileName = 'c:/Users/cliff//fragWork2/Jan_31_path/pathVisualization.txt'
 
-windowSizeX = 2000  # change the height of the window
-windowSizeY = 1000  # change the width of the window
+
+showSignals = True   # dispay turn signals on each map
+windowSizeX = 800  # change the height of the window
+windowSizeY = 900  # change the width of the window
+
+#small map size
+#windowSizeX = 500  # change the height of the window
+#windowSizeY = 600  # change the width of the window
 gridSize = 25       # change scale
 
 fps = 4 # Frames Per Second, can also be adjusted with left and right arrows
@@ -74,7 +80,7 @@ def setup():
     global windowSizeY
         
     background(0)
-    stroke(255)
+    stroke(0)
     frameRate(fps)
     size(windowSizeX, windowSizeY)
     smooth(30)
@@ -85,6 +91,7 @@ def draw():
     global fps
     global mode
     global gridSize
+    global showSignals
     
     global worldTime
     global mapTime
@@ -112,7 +119,8 @@ def draw():
     rs = str(splitLine[0])
     splitLine = readNextLineFromFile() #read turn left signal
     ls = str(splitLine[0])
-    text("Left Signal: "+ls+"  Right Signal: " + rs,0,gridSize*3)
+    if showSignals:
+        text("Left Signal: "+ls+"  Right Signal: " + rs,0,gridSize*3)
 
     splitLine = readNextLineFromFile() #read first line of map
     
@@ -144,7 +152,7 @@ def draw():
                     rect(xOffset * gridSize + gridSize * .0, yOffset * gridSize + gridSize * 0, gridSize * .4, gridSize * .4)
 
             elif ch == '1':
-                fill(127)
+                fill(128,255,128)
                 rect(xOffset * gridSize, yOffset * gridSize, gridSize, gridSize)
             #elif ch == 's':
             #    newValue = 0;
@@ -155,20 +163,20 @@ def draw():
             #    xOffset+=1
                     
             elif ch == '4':
-                fill(0,0,255)
+                fill(128,128,255)
                 rect(xOffset * gridSize, yOffset * gridSize, gridSize, gridSize)
                 fill(0)
-                text(ch,xOffset * gridSize + gridSize * .3, yOffset * gridSize + gridSize * .9)
+                text('E',xOffset * gridSize + gridSize * .3, yOffset * gridSize + gridSize * .9)
             elif ch == '2':
-                fill(127)
+                fill(210)
                 ellipse((xOffset+.5) * gridSize, (yOffset+.5) * gridSize, gridSize, gridSize)
                 fill(0)
-                text('R',xOffset * gridSize + gridSize * .3, yOffset * gridSize + gridSize * .9)
+                text(rs,xOffset * gridSize + gridSize * .2, yOffset * gridSize + gridSize * .9)
             elif ch == '3':
-                fill(127)
+                fill(210)
                 ellipse((xOffset+.5) * gridSize, (yOffset+.5) * gridSize, gridSize, gridSize)
                 fill(0)
-                text('L',xOffset * gridSize + gridSize * .3, yOffset * gridSize + gridSize * .9)
+                text(ls,xOffset * gridSize + gridSize * .2, yOffset * gridSize + gridSize * .9)
             xOffset += 1
         #text(splitLine[0], 0, (gridSize * yOffset))
         yOffset += 1
