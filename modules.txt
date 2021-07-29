@@ -4,6 +4,7 @@
   * Test
   - Berry
   - PathFollow
+  - NBack
 
 % Genome
   * Circular
@@ -20,6 +21,7 @@
   - LSTM
   - BiLog
   - ANN
+  - RNN
   - Human
   - ConstantValues
 
