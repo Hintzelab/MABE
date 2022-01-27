@@ -102,7 +102,12 @@ export DMTCP_CHECKPOINT_DIR="./" # save ckpt files into unique locations
 ####################### BODY of the JOB ######################
 # prepare work environment of the job
 # if first time launch, use "dmtcp_launch" otherwise use "dmtcp_restart"
+
+
 export CKPT_WAIT_SEC=$(( 4 * 60 * 60 - 10 * 60 )) # when to ckpt, in seconds (just under 4 hrs)
+#export CKPT_WAIT_SEC=$(( 600 )) # when to ckpt, in seconds (just under 4 hrs)
+
+
 # Launch or restart the execution
 if [ ! -f ${{DMTCP_CHECKPOINT_DIR}}/ckpt_*.dmtcp ] # if no ckpt file exists, it is first time run, use dmtcp_launch
 then
@@ -110,12 +115,19 @@ then
   dmtcp_launch -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --rm --ckpt-open-files {MABE_CALL} &
   #wait for an inverval of checkpoint seconds to start checkpointing
   sleep $CKPT_WAIT_SEC
-  # start checkpointing
-  dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files --bcheckpoint
-  # kill the running job after checkpointing
-  dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
-  # resubmit the job
-  sbatch $SLURM_JOBSCRIPT
+
+  # if program is still running, do the checkpoint and resubmit
+  if dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT -s 1>/dev/null 2>&1
+  then
+    # start checkpointing
+    dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --ckpt-open-files --bcheckpoint
+    # kill the running job after checkpointing
+    dmtcp_command -h $DMTCP_COORD_HOST -p $DMTCP_COORD_PORT --quit
+    # resubmit the job
+    sbatch $SLURM_JOBSCRIPT
+  else
+    echo "job finished"
+  fi
 else            # it is a restart run
   # clean up artifacts (resulting files that could be in the middle of being written to)
   # clean up any generated mabe files that have been checkpointed
