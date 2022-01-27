@@ -361,6 +361,13 @@ constructAllGroupsFrom(const std::shared_ptr<AbstractWorld> &world,
     std::vector<std::shared_ptr<Organism>> population;
 
     auto file_to_load = Global::initPopPL->get(PT);
+    // start of initPop fix :: adding support so that a number can be given for initPop
+    if (std::isdigit(file_to_load[0])) {
+        //std::cout << "  updataing initPop parameter to \"defaut " << file_to_load << "\"" << std::endl;
+        file_to_load = "default " + file_to_load;
+    }
+    // end of initPop fix
+
     Loader loader;
     auto orgs_to_load = loader.loadPopulation(file_to_load);
     int population_size = orgs_to_load.size();
