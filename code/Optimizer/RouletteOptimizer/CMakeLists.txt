@@ -1,4 +1,4 @@
-option(enable_Optimizer_Roulette "Enable Module RouletteOptimizer" ON)
+option(enable_Optimizer_Roulette "Enable Module RouletteOptimizer" OFF)
 if (enable_Optimizer_Roulette)
   register_module(Optimizer Roulette)
   target_sources(${EXE} PRIVATE ${CMAKE_CURRENT_LIST_DIR}/RouletteOptimizer.cpp)
