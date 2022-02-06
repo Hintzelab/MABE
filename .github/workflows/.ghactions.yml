@@ -10,6 +10,7 @@ on:
       - development
       - 'feature*'
       - 'hotfix*'
+  workflow_dispatch:
 
 # unfortunately, without a paid GithubActions account,
 # then we are limited to 1 thread per build. The mbuild
@@ -23,7 +24,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+        os: [windows-latest, macos-latest, ubuntu-latest]
 
     steps:
       - name: Get latest CMake
@@ -42,16 +43,14 @@ jobs:
         run: |
           which cmake
           cmake --version
-          sh tools/setup.cmd
-          ./mbuild -d
-          #./mbuild gen make -d
-          #cd build
-          #make
+          mkdir build
+          cd build
+          cmake ..
+          make
       - if: startsWith(matrix.os, 'ubuntu')
         name: build on linux
         run: |
           sh tools/setup.cmd
-          ./mbuild -d
-          #./mbuild gen make -d # produce a debug project
-          #cd build
-          #make
+          ./mbuild gen make -d
+          cd build
+          make
