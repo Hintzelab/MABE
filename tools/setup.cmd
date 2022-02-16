@@ -7,13 +7,13 @@
 :;   # OSX
 :;   cp "${SCRIPT_DIR}/osx_build" "${SCRIPT_DIR}/../mbuild"
 :;   chmod +x "${SCRIPT_DIR}/../mbuild"
-:; elif grep -q Microsoft /proc/version; then
-:;   # windows (WSL/WSL2)
-:;   cp "${SCRIPT_DIR}/win_build.exe" "${SCRIPT_DIR}/../mbuild.exe"
 :; elif [ "$(expr substr $(uname -s) 1 5)" = 'Linux' ]; then
 :;   # linux
 :;   cp "${SCRIPT_DIR}/lin_build" "${SCRIPT_DIR}/../mbuild"
 :;   chmod +x "${SCRIPT_DIR}/../mbuild"
+:; elif grep -q Microsoft /proc/version; then
+:;   # windows (WSL/WSL2)
+:;   cp "${SCRIPT_DIR}/win_build.exe" "${SCRIPT_DIR}/../mbuild.exe"
 :; elif [ "$(expr substr $(uname -s) 1 10)" = 'MINGW32_NT' ]; then
 :;   # windows (MSYS/MinGW)
 :;   cp "${SCRIPT_DIR}/win_build.exe" "${SCRIPT_DIR}/../mbuild.exe"
