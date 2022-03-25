@@ -44,7 +44,7 @@ parser.add_argument('-conditionNames', type=str, metavar=('CONDITION_NAME'), def
 parser.add_argument('-imageSize', type=float, default = [10,10], help='size of image to be created - default : 10 10', nargs=2, required=False)
 parser.add_argument('-pltStyle', type=str, choices=('line','point','randomLine','randomPoint'), default = 'line', help='plot style. Random is useful if plotting multiple data on the same plot - default : line', required=False)
 parser.add_argument('-errorStyle', type=str, choices=('region','bar','barX','barXY'), default = 'region', help='how error is ploted - default : region', required=False)
-parser.add_argument('-numCol', type=str, metavar='#', default = '3', help='if ploting a multi plot (default), how many columns in plot - default : 3', required=False)
+parser.add_argument('-numCol', type=int, metavar='#', default = 3, help='if ploting a multi plot (default), how many columns in plot - default : 3', required=False)
 parser.add_argument('-legendLocation', type=str, choices=('ur','ul','lr','ll','cr','cl','lc','uc','c','off'), default = 'lr', help='if legends are needed this is determins placement (first letter u = upper, c = center, l = lower. second letter l = left, c = center, r = right, off = off) - default : lr (lower right)', required=False)
 parser.add_argument('-legendLineWeight', type=int, default = -1, help='changes line thickness in legend - default : lineWeight', required=False)
 parser.add_argument('-lineWeight', type=int, default = 1, help='changes line thickness of lines in plots - default : 1', required=False)
