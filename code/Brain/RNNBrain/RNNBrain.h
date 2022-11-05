@@ -37,6 +37,9 @@ public:
     static std::shared_ptr<ParameterLink<std::string>> biasRangePL;
     static std::shared_ptr<ParameterLink<std::string>> activationFunctionPL;
 
+    static std::shared_ptr<ParameterLink<bool>> summationLayerPL;
+    bool summationLayer;
+
 
     int nrRecurrentValues;
     std::vector<int> hiddenLayerSizes;
@@ -57,6 +60,8 @@ public:
     std::vector<std::vector<int>> activationFunctions; // activation function for each node
     int activationFunction;
     std::vector<std::string> activationFunctionNames = { "none","linear","tanh","tanh0_1","bit","triangle","invtriangle","sin" };
+
+    std::vector<std::vector<int>> summationLayerAddresses; // {{out1 reads from},{out2 reads from},...,{hiddenN reads from}}
 
 	RNNBrain() = delete;
 

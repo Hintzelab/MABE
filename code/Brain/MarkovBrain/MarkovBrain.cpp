@@ -90,6 +90,17 @@ std::shared_ptr<ParameterLink<std::string>> MarkovBrain::genomeNamePL =
                                    "namespace used to set parameters for "
                                    "genome used to encode this brain");
 
+std::shared_ptr<ParameterLink<int>> MarkovBrain::discretizeRecurrentPL = Parameters::register_parameter(
+    "BRAIN_MARKOV-discretizeRecurrent", 0, "should recurrent nodes be discretized when being copied?\n"
+    "if 0, no, leave them be.\n"
+    "if 1 then map <= 0 to 0, and > 0 to 1\n"
+    "if > then 1, values are mapped to new equally spaced values in range [discretizeRecurrentRange[0]..[1]] such that each bin has the same sized range\n"
+    "    i.e. if 3 and discretizeRecurrentRange = [-1,1], bin bounderies will be (-1.0,-.333-,.333-,1.0) and resulting values will be (-1.0,0.0,1.0)\n"
+    "Note that this process ends up in a skewed mapping. mappings will always include -1.0 and 1.0. even values > 1 will result in remappings that do not have 0");
+
+std::shared_ptr<ParameterLink<std::string>> MarkovBrain::discretizeRecurrentRangePL = Parameters::register_parameter(
+    "BRAIN_MARKOV-discretizeRecurrentRange", (std::string)"-1,1", "value range for discretizeRecurrent if discretizeRecurrent > 1");
+
 void MarkovBrain::readParameters() {
     recurrentOutput = recurrentOutputPL->get(PT);
     useGateRegulation = useGateRegulationPL->get(PT);
@@ -157,12 +168,12 @@ MarkovBrain::MarkovBrain(std::shared_ptr<AbstractGateListBuilder> GLB_,
 
 MarkovBrain::MarkovBrain(
     std::shared_ptr<AbstractGateListBuilder> GLB_,
-    std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes, int _nrInNodes,
+    std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>& _genomes, int _nrInNodes,
     int _nrOutNodes, std::shared_ptr<ParametersTable> PT_)
     : MarkovBrain(GLB_, _nrInNodes, _nrOutNodes, PT_) {
-  // cout << "in MarkovBrain::MarkovBrain(std::shared_ptr<Base_GateListBuilder> GLB_,
-  // std::shared_ptr<AbstractGenome> genome, int _nrOfBrainStates)\n\tabout to -
-  // gates = GLB->buildGateList(genome, nrOfBrainStates);" << endl;
+    // cout << "in MarkovBrain::MarkovBrain(std::shared_ptr<Base_GateListBuilder> GLB_,
+    // std::shared_ptr<AbstractGenome> genome, int _nrOfBrainStates)\n\tabout to -
+    // gates = GLB->buildGateList(genome, nrOfBrainStates);" << endl;
 
     if (!useGateRegulation) {
         gates = GLB->buildGateList(_genomes[genomeName], nrNodes, PT_);
@@ -170,7 +181,7 @@ MarkovBrain::MarkovBrain(
     else { // useGateRegulation
         std::vector<std::vector<int>> genomePerGateValues;
         int genomePerGateValuesCount = 2; // first value: is gate on, off or regulated? second value: address if regulated
-        
+
         gates = GLB->buildGateListAndGetPerGateValues(_genomes[genomeName],
             nrNodes, _genomes[genomeName]->getAlphabetSize(),
             genomePerGateValues, genomePerGateValuesCount,
@@ -179,7 +190,7 @@ MarkovBrain::MarkovBrain(
         // now that gates are constructed, determin which will be off, on, and regulated
         gateRegulationAdresses.clear();
         for (auto v : genomePerGateValues) {
-            if (v[0] % 3 == 0){ // gate is always off 
+            if (v[0] % 3 == 0) { // gate is always off 
                 gateRegulationAdresses.push_back(-2);
                 //std::cout << "found:-2 ";
             }
@@ -188,14 +199,18 @@ MarkovBrain::MarkovBrain(
                 //std::cout << "found:-1 ";
             }
             else { // v[0] % 3 == 2; this is a regulated gate, pushback an address from inputs
-                gateRegulationAdresses.push_back(v[1]%nrNodes);
+                gateRegulationAdresses.push_back(v[1] % nrNodes);
                 //std::cout << "node:"<< v[1] % nrNodes << " ";
             }
         }
         //std::cout << std::endl;
     }
-  inOutReMap(); // map ins and outs from genome values to brain states
-  fillInConnectionsLists();
+
+    discretizeRecurrent = discretizeRecurrentPL->get(PT);
+    convertCSVListToVector(discretizeRecurrentRangePL->get(PT), discretizeRecurrentRange);
+
+    inOutReMap(); // map ins and outs from genome values to brain states
+    fillInConnectionsLists();
 }
 
 // Make a brain like the brain that called this function, using genomes and
@@ -345,6 +360,29 @@ void MarkovBrain::update() {
             for (int i = 0; i < hiddenNodes; i++) {
                 if (currentNextNodesConnections[nrInputValues + nrOutputValues + i] > 0) {
                     nextNodes[nrInputValues + nrOutputValues + i] = (nextNodes[nrInputValues + nrOutputValues + i] / currentNextNodesConnections[nrInputValues + nrOutputValues + i]) >= hiddenThreshold;
+                }
+            }
+        }
+        if (discretizeRecurrent > 0) {
+            for (int i = 0; i < nrOutputValues + hiddenNodes; i++) {
+                if (discretizeRecurrent == 1) {
+                    //std::cout << " - ";
+                    nextNodes[nrInputValues + i] = Bit(nextNodes[nrInputValues + i]);
+                }
+                else {
+                    //std::cout << " + ";
+                    double drr = discretizeRecurrentRange[1] - discretizeRecurrentRange[0];
+                    // move value to steps
+                    nextNodes[nrInputValues + i] = std::max(discretizeRecurrentRange[0], std::min(discretizeRecurrentRange[1], nextNodes[nrInputValues + i]));
+                    nextNodes[nrInputValues + i] = ((nextNodes[nrInputValues + i] - discretizeRecurrentRange[0]) / drr) * discretizeRecurrent;
+                    // use int to discretize
+                    nextNodes[nrInputValues + i] = (double)(int)(nextNodes[nrInputValues + i]);
+
+                    if (nextNodes[nrInputValues + i] == discretizeRecurrent) { // if node value was exactly max value, slid to next lower value
+                        nextNodes[nrInputValues + i]--;
+                    }
+                    // move back to [0..1] (with / steps-1) and then to [-1...1] (with * 2 - 1)
+                    nextNodes[nrInputValues + i] = (nextNodes[nrInputValues + i] / (double)(discretizeRecurrent - 1) * drr) + discretizeRecurrentRange[0];
                 }
             }
         }

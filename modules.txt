@@ -1,10 +1,11 @@
 % World
   - Logic16
-  - BlockCatch
-  * Test
-  - Berry
-  - PathFollow
   - NBack
+  - BlockCatch
+  + Test
+  - PathFollow
+  - TPM_GENERATOR
+  - Berry
 
 % Genome
   * Circular

@@ -41,18 +41,31 @@ public:
   // makeNextGeneration(vector<shared_ptr<Organism>> &population) = 0;
   virtual void optimize(std::vector<std::shared_ptr<Organism>> &population) = 0;
 
-  virtual void cleanup(std::vector<std::shared_ptr<Organism>> &population) {
-    std::vector<std::shared_ptr<Organism>> newPopulation;
-    for (auto org : population) {
-      if (killList.find(org) == killList.end()) { // if not in kill list
-        newPopulation.push_back(org);             // move into new population
-      } else {
-        org->kill(); // if in kill list, call kill
+  virtual void cleanup(std::vector<std::shared_ptr<Organism>>& population) {
+      
+      // this block is pretty ineffecient, but will fixes a problem, so good enough for now...
+      for (auto org : population) { // update snapshot ancestors
+          if (killList.find(org) == killList.end()) { // if not in kill list
+              org->snapshotAncestors.clear();
+              for (auto p : org->parents) {
+                  org->snapshotAncestors.insert(p->snapshotAncestors.begin(), p->snapshotAncestors.end());
+              }
+          }
       }
-    }
 
-    population = newPopulation;
-    killList.clear();
+      std::vector<std::shared_ptr<Organism>> newPopulation;
+      
+      for (auto org : population) {
+          if (killList.find(org) == killList.end()) { // if not in kill list
+              newPopulation.push_back(org);  // move into new population
+          }
+          else {
+              org->kill(); // if in kill list, call kill
+          }
+      }
+
+      population = newPopulation;
+      killList.clear();
   }
 
   // virtual string maxValueName() {

@@ -586,10 +586,17 @@ public:
         }
       }
     }
-    if (returnString.size() > 2) { // if vector was not empty
-      returnString.pop_back();     // remove trailing ","
+    if (returnString[returnString.size() - 1] == ','){ // if vector was not empty there will be a trailing ","
+        returnString.pop_back();     // remove trailing ","
     }
-    returnString += "";
+
+    // old way, was wrong if entry was 1 char long!
+    //if (returnString.size() > 2) { // if vector was not empty
+    //  returnString.pop_back();     // remove trailing ","
+    //}
+    
+    //returnString += ""; // why was this here?!
+    
     return returnString;
   }
 

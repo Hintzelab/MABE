@@ -10,7 +10,6 @@
 
 #include "../RNNBrain/RNNBrain.h"
 
-
 std::shared_ptr<ParameterLink<std::string>> RNNBrain::genomeNamePL = Parameters::register_parameter(
     "BRAIN_RNN_NAMES-genomeName", (std::string)"root::", "namespace of genome used to encode this brain");
 
@@ -41,12 +40,17 @@ std::shared_ptr<ParameterLink<std::string>> RNNBrain::activationFunctionPL = Par
     "choose from \"linear\"(or \"none\"),\"tanh\",\"tanh(0-1)\",\"bit\",\"triangle\",\"invtriangle\",\"sin\",\n"
     "or, \"genome\" to allow evolution to pick");
 
+std::shared_ptr<ParameterLink<bool>> RNNBrain::summationLayerPL = Parameters::register_parameter("BRAIN_RNN-summationLayer", false,
+    "if true, an extra layer will be added between the final nodes layer and output. This layer will sum connected nodes. Wires to this layer will be determined genetically using last layer * t+1 layer sites from the genome as binary toggle switches");
+
 
 
 RNNBrain::RNNBrain(int _nrInNodes, int _nrOutNodes, std::shared_ptr<ParametersTable> _PT) : AbstractBrain(_nrInNodes, _nrOutNodes, _PT) {
     genomeName = genomeNamePL->get(_PT);
     nrRecurrentValues = nrOfRecurrentNodesPL->get(_PT);
     discretizeRecurrent = discretizeRecurrentPL->get(_PT);
+    summationLayer = summationLayerPL->get(PT);
+
     if (activationFunctionPL->get(_PT) == "none" || activationFunctionPL->get(_PT) == "linear") {
         activationFunction = 1;
     }
@@ -153,8 +157,8 @@ std::shared_ptr<AbstractBrain> RNNBrain::makeBrain(std::unordered_map<std::strin
         }
     }
 
-    newBrain->activationFunctions.push_back({}); // first row empty because it's inputs
     newBrain->initialValues.push_back({}); // first row empty because it's inputs
+    newBrain->activationFunctions.push_back({}); // first row empty because it's inputs
     for (size_t i = 1; i < newBrain->nodes.size(); i++) {
         newBrain->initialValues.push_back(std::vector<double>(newBrain->nodes[i].size()));
         newBrain->activationFunctions.push_back(std::vector<int>(newBrain->nodes[i].size()));
@@ -164,9 +168,49 @@ std::shared_ptr<AbstractBrain> RNNBrain::makeBrain(std::unordered_map<std::strin
         }
     }
 
+    if (summationLayer) { // get some inputs for the summation layer if we need to
+        for (int i = 0; i < newBrain->weights.back().back().size(); i++) {
+            newBrain->summationLayerAddresses.push_back({});
+            for (int j = 0; j < newBrain->nrOutputValues + newBrain->nrRecurrentValues; j++) {
+                if (genomeHandler->readInt(0, 1)) {
+                    newBrain->summationLayerAddresses.back().push_back(j); // connect this summation node to the jth node in the last layer
+                }
+            }
+        }
+    }
+    
+
     //newBrain->showBrain();
     //exit(0);
 
+    if (0) { // give a report...
+        newBrain->showBrain();
+        int neededWeights = 0;
+        int neededFunctions = 0;
+        int neededSummationAddresses = 0;
+        for (size_t i = 0; i < newBrain->weights.size(); i++) {
+            for (size_t j = 0; j < newBrain->weights[i].size(); j++) {
+                neededWeights += 1;
+                for (size_t k = 0; k < newBrain->weights[i][j].size(); k++) {
+                    neededWeights += 1;
+                }
+            }
+        }
+        if (activationFunction == 8) {
+            for (size_t i = 1; i < newBrain->nodes.size(); i++) {
+                for (size_t j = 0; j < newBrain->nodes[i].size(); j++) {
+                    neededFunctions += 1;
+                }
+            }
+        }
+        if (summationLayer) {
+            neededSummationAddresses += newBrain->weights.back().back().size() * newBrain->weights.back().back().size();
+        }
+        std::cout << "  in RNN constructor:: genomes need to provide " << neededWeights + neededFunctions + neededSummationAddresses << " values." << std::endl;
+        std::cout << "       for weights and biases: " << neededWeights << std::endl;
+        std::cout << "       for functions: " << neededFunctions << std::endl;
+        std::cout << "       for summation layer: " << neededSummationAddresses << std::endl;
+    }
  	return newBrain;
 }
 
@@ -247,9 +291,8 @@ void RNNBrain::update() {
                 // add the node value from the prior layer * that nodes weight for this node to this node
                 nodes[layer][j] += weights[(size_t)(layer) - 1][i][j] * nodes[(size_t)(layer) - 1][i];
             }
-            applyActivation(nodes[layer][j], activationFunctions[layer][j]);
+            applyActivation(nodes[layer][j], activationFunctions[layer][j]); // apply apply Activation Function
         }
-        // apply apply Activation Function to this layer
     }
     int lastLayer = nodes.size() - 1;
     for (size_t i = 0; i < nrRecurrentValues; i++) {
@@ -274,6 +317,28 @@ void RNNBrain::update() {
         }
     }
 
+    if (summationLayer) { // this should do nothing if summationLayer is false...
+        //std::cout << "A: ";
+        //for (auto v : nodes[lastLayer]) {
+        //    std::cout << v << " ";
+        //}
+        //std::cout << std::endl;
+        std::vector<double> summedValues(summationLayerAddresses.size(), 0.0); // a place to put summed values
+        for (int i = 0; i < summationLayerAddresses.size(); i++) { // for each element in out+hidden (also the size of the last layer)
+            //std::cout << "    " << i << ":";
+            for (auto j : summationLayerAddresses[i]) { // for each address in this list (there may be none.. then the value will be 0.
+                summedValues[i] += nodes[lastLayer][j]; // add to the current total for this node.
+                //std::cout << j << "  ";
+            }
+            //std::cout << std::endl;
+        }
+        //std::cout << "B: ";
+        for (int i = 0; i < summationLayerAddresses.size(); i++) {
+            //std::cout << summedValues[i] << "  ";
+            nodes[lastLayer][i] = summedValues[i]; // overwrite last layer values with summed values - a bit of a hack, but this will keep everything else the same
+        }
+        //std::cout << std::endl;
+    }
     // output and hidden+1 have been set so it's time to record state...
     if (recordActivity) {
         OutputStates.push_back(std::vector<double>(nrOutputValues));
