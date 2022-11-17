@@ -19,9 +19,9 @@ parser.add_argument('-data_1_name', type=str, default = 'NONE', help='if set, wi
 parser.add_argument('-data_2_name', type=str, default = 'NONE', help='if set, will determine the green value of the nodes', required=False)
 parser.add_argument('-data_3_name', type=str, default = 'NONE', help='if set, will determine the blue value of the nodes', required=False)
 
-parser.add_argument('-data_1_range', type=int, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is red', nargs=2, required=False)
-parser.add_argument('-data_2_range', type=int, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is green', nargs=2, required=False)
-parser.add_argument('-data_3_range', type=int, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is blue', nargs=2, required=False)
+parser.add_argument('-data_1_range', type=float, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is red', nargs=2, required=False)
+parser.add_argument('-data_2_range', type=float, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is green', nargs=2, required=False)
+parser.add_argument('-data_3_range', type=float, metavar=('MIN','MAX'), default = [0,1],  help='data will be scaled so that <= MIN is black and >= MAX is blue', nargs=2, required=False)
 
 args = parser.parse_args()
 
