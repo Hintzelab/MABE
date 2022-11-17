@@ -54,6 +54,11 @@ public:
     static std::shared_ptr<ParameterLink<int>> hiddenNodesPL;
     static std::shared_ptr<ParameterLink<std::string>> genomeNamePL;
 
+    static std::shared_ptr<ParameterLink<int>> discretizeRecurrentPL;
+    static std::shared_ptr<ParameterLink<std::string>> discretizeRecurrentRangePL;
+    int discretizeRecurrent;
+    std::vector<double> discretizeRecurrentRange;
+
     bool useGateRegulation;
     std::vector<int> gateRegulationAdresses; // values are -2 off, -1 on, 0 and up, on if (nodes[value] > 0)
 

@@ -16,6 +16,7 @@
 #include <Brain/MarkovBrain/Gate/EpsilonGate.h>
 #include <Brain/MarkovBrain/Gate/FeedbackGate.h>
 #include <Brain/MarkovBrain/Gate/GPGate.h>
+#include <Brain/MarkovBrain/Gate/CGPGate.h>
 #include <Brain/MarkovBrain/Gate/NeuronGate.h>
 #include <Brain/MarkovBrain/Gate/ProbabilisticGate.h>
 #include <Brain/MarkovBrain/Gate/TritDeterministicGate.h>
@@ -50,6 +51,8 @@ public:
 	static std::shared_ptr<ParameterLink<int>> decoGateInitialCountPL;
 	static std::shared_ptr<ParameterLink<bool>> usingGPGatePL;
 	static std::shared_ptr<ParameterLink<int>> gPGateInitialCountPL;
+	static std::shared_ptr<ParameterLink<bool>> usingCGPGatePL;
+	static std::shared_ptr<ParameterLink<int>> cGPGateInitialCountPL;
 	static std::shared_ptr<ParameterLink<int>> thGateInitialCountPL;
 
 	static std::shared_ptr<ParameterLink<bool>> usingDecoDirectGatePL;

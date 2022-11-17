@@ -12,544 +12,530 @@
 
 #include "CGPBrain.h"
 
-std::shared_ptr<ParameterLink<int>> CGPBrain::hiddenNodesPL =
-    Parameters::register_parameter("BRAIN_CGP-hiddenNodes", 3,
-                                   "number of hidden nodes");
+std::shared_ptr<ParameterLink<int>> CGPBrain::nrRecurrentNodesPL =
+Parameters::register_parameter("BRAIN_CGP-nrRecurrentNodes", 3,
+	"number of recurrent nodes");
 
 std::shared_ptr<ParameterLink<std::string>> CGPBrain::availableOperatorsPL =
-    Parameters::register_parameter(
-        "BRAIN_CGP-availableOperators", (std::string) "all",
-        "which opperators are allowed? all indicates, allow all opperators or, "
-        "choose from: SUM,MULT,SUBTRACT,DIVIDE,SIN,COS,THRESH,RAND,IF,INV");
+Parameters::register_parameter(
+	"BRAIN_CGP-availableOperators", (std::string) "all",
+	"which opperators are allowed? all indicates, allow all opperators or, "
+	"choose from:\n"
+	"  ADD (a+b), MULT (a*b), SUBTRACT (a-b), DIVIDE(a/b)\n"
+	"  SIN (sin(a)), COS (sin(a)), GREATER (1 if a > b, else 0), RAND (double[a..b))\n"
+	"  IF (b is a > 0, else 0), INV (-a), CONST (const)\n" 
+	"  RNN (8 inputs sumed -> tanh) DETGATE (4 in, 1 out, logic lookup)\n"
+	"if a list (| seperated) is provided, then each column has it's own availableOperators");
 std::shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMaxPL =
-    Parameters::register_parameter(
-        "BRAIN_CGP-magnitudeMax", 1000000000.0,
-        "values generated which are larger then this will by clipped");
+Parameters::register_parameter(
+	"BRAIN_CGP-magnitudeMax", 100.0,
+	"values generated which are larger then this will by clipped");
 std::shared_ptr<ParameterLink<double>> CGPBrain::magnitudeMinPL =
-    Parameters::register_parameter(
-        "BRAIN_CGP-magnitudeMin", -1000000000.0,
-        "values generated which are smaller then this will by clipped");
-std::shared_ptr<ParameterLink<int>> CGPBrain::numOpsPreVectorPL =
-    Parameters::register_parameter("BRAIN_CGP-operatorsPreFormula", 8,
-                                   "number of instructions per formula. "
-                                   "Ignored if buildMode is \"genes\"");
+Parameters::register_parameter(
+	"BRAIN_CGP-magnitudeMin", -100.0,
+	"values generated which are smaller then this will by clipped");
 
-std::shared_ptr<ParameterLink<std::string>> CGPBrain::genomeNamePL =
-    Parameters::register_parameter("BRAIN_CGP_NAMES-genomeNameSpace",
-                                   (std::string) "root::",
-                                   "namespace used to set parameters for "
-                                   "genome used to encode this brain");
+std::shared_ptr<ParameterLink<int>> CGPBrain::opSpaceColumnsPL =
+Parameters::register_parameter("BRAIN_CGP-opsMatixColumns", 4,
+	"width of the operations matrtix");
 
-std::shared_ptr<ParameterLink<std::string>> CGPBrain::buildModePL =
-    Parameters::register_parameter(
-        "BRAIN_CGP-buildMode", (std::string) "linear",
-        "How is the genome converted, \"linear\" : linear conversion starting "
-        "at begining of genome, \"codon\" : start codons locate "
-        "operator+in1+in2 along with the formula/output index and a location "
-        "in formula");
-std::shared_ptr<ParameterLink<int>> CGPBrain::codonMaxPL =
-    Parameters::register_parameter("BRAIN_CGP-codonMax", 100,
-                                   "if using \"genes\" buildMode, values will "
-                                   "be extracted from genome as integers "
-                                   "[0..codonMax] and two sites that add to "
-                                   "codonMax defines a start codon");
+std::shared_ptr<ParameterLink<int>> CGPBrain::opSpaceRowsPL =
+Parameters::register_parameter("BRAIN_CGP-opsMatixRows", 4,
+	"height of the operations matrtix");
 
 std::shared_ptr<ParameterLink<bool>> CGPBrain::readFromOutputsPL =
-    Parameters::register_parameter(
-        "BRAIN_CGP-readFromOutputs", true,
-        "if true, previous updates outputs will be available as inputs.");
+Parameters::register_parameter(
+	"BRAIN_CGP-readFromOutputs", true,
+	"if true, previous updates outputs will be available as inputs.");
 
-CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
-                   std::shared_ptr<ParametersTable> PT_)
-    : AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
-  convertCSVListToVector(availableOperatorsPL->get(PT), availableOperators);
-  // nrHiddenValues = (PT == nullptr) ? hiddenNodesPL->lookup() :
-  // PT->lookupInt("BRAIN_CGP-hiddenNodes");
-  // magnitudeMax = (PT == nullptr) ? magnitudeMaxPL->lookup() :
-  // PT->lookupDouble("BRAIN_CGP-magnitudeMax");
-  // magnitudeMin = (PT == nullptr) ? magnitudeMinPL->lookup() :
-  // PT->lookupDouble("BRAIN_CGP-magnitudeMin");
-  // numOpsPreVector = (PT == nullptr) ? numOpsPreVectorPL->lookup() :
-  // PT->lookupInt("BRAIN_CGP-operatorsPreFormula");
+std::shared_ptr<ParameterLink<int>> CGPBrain::discretizeRecurrentPL = Parameters::register_parameter(
+	"BRAIN_CGP-discretizeRecurrent", 0, "should recurrent nodes be discretized when being copied?\n"
+	"if 0, no, leave them be.\n"
+	"if 1 then map <= 0 to 0, and > 0 to 1\n"
+	"if > then 1, values are mapped to new equally spaced values in range [discretizeRecurrentRange[0]..[1]] such that each bin has the same sized range\n"
+	"    i.e. if 3 and discretizeRecurrentRange = [-1,1], bin bounderies will be (-1.0,-.333-,.333-,1.0) and resulting values will be (-1.0,0.0,1.0)\n"
+	"Note that this process ends up in a skewed mapping. mappings will always include -1.0 and 1.0. even values > 1 will result in remappings that do not have 0");
 
-  // buildMode = (PT == nullptr) ? buildModePL->lookup() :
-  // PT->lookupString("BRAIN_CGP-buildMode");
-  // codonMax = (PT == nullptr) ? codonMaxPL->lookup() :
-  // PT->lookupInt("BRAIN_CGP-codonMax");
+std::shared_ptr<ParameterLink<std::string>> CGPBrain::discretizeRecurrentRangePL = Parameters::register_parameter(
+	"BRAIN_CGP-discretizeRecurrentRange", (std::string)"-1,1", "value range for discretizeRecurrent if discretizeRecurrent > 1");
 
-  // readFromOutputs = (PT == nullptr) ? readFromOutputsPL->lookup() :
-  // PT->lookupBool("BRAIN_CGP-readFromOutputs");
+std::shared_ptr<ParameterLink<double>> CGPBrain::inputMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_INPUTS", .01, "mutation rate for operation inputs (per input)");
 
-  allOps = {{"SUM", 0}, {"MULT", 1}, {"SUBTRACT", 2}, {"DIVIDE", 3},
-            {"SIN", 4}, {"COS", 5},  {"THRESH", 6},   {"RAND", 7},
-            {"IF", 8},  {"INV", 9}};
+std::shared_ptr<ParameterLink<double>> CGPBrain::constMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_CONST_value", .01, "mutation rate const operator value (per op)");
 
-  if (availableOperators.size() == 0 || availableOperators[0] == "all") {
-    availableOps = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9};
-  } else {
-    for (auto o : availableOperators) {
-      if (allOps.count(o)) {
-        availableOps.push_back(allOps[o]);
-      } else {
-        std::cout << "In CGP brain inititialization, found unknown operator \""
-                  << o << "\" in list of allowed operators.\n  exiting."
-                  << std::endl;
-        exit(1);
-      }
-    }
-  }
+std::shared_ptr<ParameterLink<double>> CGPBrain::operatorMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_OPERATION", .002, "mutation rate (per gate) to change an operation (includes inputs)");
 
-  availableOpsCount = availableOps.size();
+std::shared_ptr<ParameterLink<double>> CGPBrain::outputMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_OUTPUT", .002, "mutation rate (per output) to change where an output (or memory) is wired");
 
-  nrInputTotal = nrInputValues +
-                 ((readFromOutputsPL->get(PT)) ? nrOutputValues : 0) +
-                 hiddenNodesPL->get(PT);
-  nrOutputTotal = nrOutputValues + hiddenNodesPL->get(PT);
+std::shared_ptr<ParameterLink<double>> CGPBrain::RNN_weightsMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_RNN_weights", .01, "mutation rate (per weight) for RNN operator weights");
 
-  readFromValues.resize(nrInputTotal, 0);
-  writeToValues.resize(nrOutputTotal, 0);
+std::shared_ptr<ParameterLink<double>> CGPBrain::RNN_biasMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_RNN_bias", .01, "mutation rate (per RNN op) for RNN operator bias");
 
-  brainVectors.clear();
+std::shared_ptr<ParameterLink<double>> CGPBrain::RNN_biasMinPL = Parameters::register_parameter(
+	"BRAIN_CGP-RNN_biasMinValue", -1.0, "mutation rate for operation inputs");
 
-  // columns to be added to ave file
-  popFileColumns.clear();
-  if (buildModePL->get(PT) == "codon") {
-    popFileColumns.push_back("cgpBrainAveFormulaLength");
-  }
+std::shared_ptr<ParameterLink<double>> CGPBrain::RNN_biasMaxPL = Parameters::register_parameter(
+	"BRAIN_CGP-RNN_biasMaxValue", 1.0, "mutation rate for operation inputs");
+
+std::shared_ptr<ParameterLink<double>> CGPBrain::DETGATE_logicMutationRatePL = Parameters::register_parameter(
+	"BRAIN_CGP-MutationRate_DETGATE_logic", .01, "mutation rate for operation inputs");
+
+void CGPBrain::graphBrain() {
+	std::vector<bool> checkMatrix(opsMatrixSize, false);
+	std::vector<std::string> graphOutput;
+
+	std::string source;
+	std::string dest;
+
+	for (int i = 0; i < nrOutputTotal; i++) { // where are the output layer nodes reading from?
+		if (i < nrOutputValues) {
+			dest = "o_" + std::to_string(i);
+		}
+		else {
+			dest = "r_" + std::to_string(i-nrOutputValues);
+
+		}
+		if (outputLayerAddresses[i] >= nrInputTotal) { // if the matrix cell input is not an input
+			checkMatrix[outputLayerAddresses[i] - nrInputTotal] = true;
+			source = "c_" + std::to_string(outputLayerAddresses[i] - nrInputTotal);
+		}
+		else {
+			if (outputLayerAddresses[i] < nrInputValues) {
+				source = "i_" + std::to_string(outputLayerAddresses[i]);
+			}
+			else if (outputLayerAddresses[i] < nrInputValues + nrRecurrentValues) {
+				source = "r_" + std::to_string(outputLayerAddresses[i] - nrInputValues);
+			}
+			else {
+				source = "o_" + std::to_string(outputLayerAddresses[i] - (nrInputValues + nrRecurrentValues));
+			}
+		}
+		graphOutput.push_back(source + "->" + dest);
+	}
+	for (int i = opsMatrixSize - 1; i >= 0; i--) { // for each cell in the matrix
+		if (checkMatrix[i]) { // if this cell is being used ...
+			dest = "c_" + std::to_string(i);
+			for (auto v : opsMatrix[i]->inputs) { // for each input to this cell in the matrix
+				if (v >= nrInputTotal) { // if the matrix cell input is not an input
+					checkMatrix[v - nrInputTotal] = true;
+					source = "c_" + std::to_string(v - nrInputTotal);
+				}
+				else {
+					if (v < nrInputValues) {
+						source = "i_" + std::to_string(v);
+					}
+					else if (v < nrInputValues + nrRecurrentValues) {
+						source = "r_" + std::to_string(v - nrInputValues);
+					}
+					else {
+						source = "o_" + std::to_string(v - (nrInputValues + nrRecurrentValues));
+					}
+				}
+				graphOutput.push_back(source + "->" + dest);
+			}
+		}
+	}
+
+	std::cout << std::endl;
+	for (auto s : graphOutput) {
+		std::cout << s << std::endl;
+	}
+	std::cout << std::endl;
+
+	// trace execution
+	for (int i = 0; i < opsMatrixSize; i++) {
+		std::string shortname = "c_" + std::to_string(i);
+		std::string name = shortname + "\\n" + opsMatrix[i]->name;
+		std::cout << shortname + "[label=\"" + name;
+		std::cout << "(" << opsMatrix[i]->row << "," << opsMatrix[i]->column << ")";
+		std::cout << opsMatrix[i]->inputs.size() << "(" << opsMatrix[i]->numInputs << ")";
+		if (checkMatrix[i]) {
+			std::cout << "*\" style = filled color = lightblue ]" << std::endl;
+		}
+		else {
+			std::cout << "\"]" << std::endl;
+		}
+	}
+}
+void CGPBrain::updateExecuteOrder() {
+	std::vector<bool> checkMatrix(opsMatrixSize, false);
+
+	for (int i = 0; i < nrOutputTotal; i++) { // where are the output layer nodes reading from?
+		if (outputLayerAddresses[i] >= nrInputTotal) { // if the matrix cell input is not an input
+			//std::cout << i << " " << outputLayerAddresses[i] << " this is a gate?!" << std::endl;
+			checkMatrix[outputLayerAddresses[i] - nrInputTotal] = true;
+		}
+	}
+	for (int i = opsMatrixSize - 1; i >= 0; i--) { // for each cell in the matrix
+		if (checkMatrix[i]) { // if this cell is being used ...
+			for (auto v : opsMatrix[i]->inputs) { // for each input to this cell in the matrix
+				if (v >= nrInputTotal) { // if the matrix cell input is not an input
+					checkMatrix[v - nrInputTotal] = true;
+				}
+			}
+		}
+	}
+	
+	executeOrder.clear();
+	for (int i = 0; i < opsMatrixSize; i++) {
+		if (checkMatrix[i]) {
+			executeOrder.push_back(i);
+		}
+	}
 }
 
-CGPBrain::CGPBrain(
-    int _nrInNodes, int _nrOutNodes,
-    std::unordered_map<std::string, std::shared_ptr<AbstractGenome>> &_genomes,
-    std::shared_ptr<ParametersTable> PT_)
-    : CGPBrain(_nrInNodes, _nrOutNodes, PT_) {
+CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes,
+	std::shared_ptr<ParametersTable> PT_)
+	: AbstractBrain(_nrInNodes, _nrOutNodes, PT_) {
 
-  brainVectors.resize(nrOutputTotal);
-  auto handler = _genomes[genomeNamePL->get(PT)]->newHandler(
-      _genomes[genomeNamePL->get(PT)]);
+	operatorMutationRate = operatorMutationRatePL->get(PT);
+	outputMutationRate = outputMutationRatePL->get(PT);
 
-  if (buildModePL->get(PT) == "linear") {
-    for (int f = 0; f < (nrOutputTotal); f++) {
-      for (int i = 0; i < numOpsPreVectorPL->get(PT); i++) {
-        brainVectors[f].push_back(
-            availableOps[handler->readInt(0, availableOpsCount - 1)]);
-        brainVectors[f].push_back(handler->readInt(
-            0, nrInputTotal + (i)-1)); // num inputs + num new values - 1 since
-                                       // first is 0 -1 more to correct for 0
-                                       // indexing
-        brainVectors[f].push_back(handler->readInt(0, nrInputTotal + (i)-1));
-      }
-    }
-  } else if (buildModePL->get(PT) == "codon") {
-#if CGPBRAIN_DEBUG == 1
-    std::cout << "building with genes\n";
-#endif
-    // maps locations of ops in that formulas (index1 is formula, index2 is op,
-    // double is location
-    std::vector<std::vector<double>> locations;
-    // size locations to the number of formulas needed
-    locations.resize(nrOutputTotal);
+	readFromOutputs = readFromOutputsPL->get(PT);
+	nrRecurrentValues = nrRecurrentNodesPL->get(PT);
 
-    bool translation_Complete = false;
+	nrInputTotal = nrInputValues + nrRecurrentValues + ((readFromOutputs) ? nrOutputValues : 0);
+	nrOutputTotal = nrOutputValues + nrRecurrentValues;
 
-    if (_genomes[genomeNamePL->get(PT)]->isEmpty()) {
-      translation_Complete = true;
-    } else {
+	if (nrInputTotal == 0) {
+		std::cout << "in CGP brain :: there must be atleast 1 input or recurrent! exiting..." << std::endl;
+		exit(1);
+	}
 
-      bool readForward = true;
-      auto genomeHandler = _genomes[genomeNamePL->get(PT)]->newHandler(
-          _genomes[genomeNamePL->get(PT)], readForward);
-      auto placeHolderGenomeHandler =
-          _genomes[genomeNamePL->get(PT)]->newHandler(
-              _genomes[genomeNamePL->get(PT)], readForward);
-      auto gateGenomeHandler = _genomes[genomeNamePL->get(PT)]->newHandler(
-          _genomes[genomeNamePL->get(PT)], readForward);
+	magnitudeMax = magnitudeMaxPL->get(PT);
+	magnitudeMin = magnitudeMinPL->get(PT);
+	opSpaceColumns = opSpaceColumnsPL->get(PT);
+	opSpaceRows = opSpaceRowsPL->get(PT);
 
-      // save start of genome info
-      int i = 0;
+	opsMatrixSize = opSpaceColumns * opSpaceRows;
+	if (opsMatrixSize == 0) {
+		opSpaceColumns = 0;
+		opSpaceRows = 0;
+	}
+	opsMatrix.resize(opsMatrixSize);
+	outputLayerAddresses.resize(nrOutputTotal);
+	currentMatrixValuesSize = nrInputTotal + opsMatrixSize;
+	currentMatrixValues.resize(currentMatrixValuesSize);
+	nextValues.resize(nrOutputTotal);
 
-      int testSite1Value, testSite2Value;
-      testSite1Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
-      testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
-      while (!translation_Complete) {
-        if (genomeHandler->atEOC()) { // if genomeIndex > testIndex, testIndex
-                                      // has wrapped and we are done translating
-          if (genomeHandler->atEOG()) {
-            translation_Complete = true;
-          }
-          genomeHandler
-              ->resetHandlerOnChromosome(); // reset to start of this chromosome
-          genomeHandler->copyTo(placeHolderGenomeHandler); // move placeholder
-                                                           // to the next
-                                                           // chromosome aswell
-                                                           // so mustReadAll
-                                                           // method works
-          testSite2Value = genomeHandler->readInt(
-              0, codonMaxPL->get(PT)); // place first value in new chromosome in
-                                       // testSite2 so !mustReadAll method works
-        } else if (testSite1Value + testSite2Value ==
-                   codonMaxPL->get(PT)) { // if we found a start codon
-#if CGPBRAIN_DEBUG == 1
-          std::cout << "\nstart codon found: " << testSite1Value << "   "
-                    << testSite2Value << "\n";
-#endif
-          genomeHandler->copyTo(gateGenomeHandler);
-          gateGenomeHandler->toggleReadDirection();
-          gateGenomeHandler->readInt(
-              0, codonMaxPL->get(PT)); // move back 2 start codon values
-          gateGenomeHandler->readInt(0, codonMaxPL->get(PT));
-          gateGenomeHandler
-              ->toggleReadDirection(); // reverse the read direction again
-          gateGenomeHandler->readInt(
-              0, codonMaxPL->get(PT), 1,
-              0); // mark start codon in genomes coding region
-          gateGenomeHandler->readInt(0, codonMaxPL->get(PT), 1, 0);
+	std::vector<std::string> tempOpLists;
+	std::vector<std::string> tempOpList;
+	convertCSVListToVector(availableOperatorsPL->get(PT), tempOpLists, '|');
 
-          // Which formula is this op in?
+	if (tempOpLists[0] == "all" || tempOpLists.size() == 0) {
+		availableOperators = { {OPTYPES::ADD, OPTYPES::MULT, OPTYPES::SUBTRACT, OPTYPES::DIVIDE, OPTYPES::SIN, OPTYPES::COS, OPTYPES::GREATER, OPTYPES::RAND, OPTYPES::IF, OPTYPES::INV, OPTYPES::CONST, OPTYPES::RNN, OPTYPES::DETGATE} };
+	}
+	else {
+		if (tempOpLists.size() != 1 && tempOpLists.size() != opSpaceColumns){
+			std::cout << "while setting up CGP brain, availableOperators parameter is invalid." << std::endl;
+			std::cout << "  must be all, one list or exatly columns lists. exiting..." << std::endl;
+			exit(1);
+		}
+		for (auto& ol : tempOpLists) {
+			availableOperators.push_back({});
+			convertCSVListToVector(ol, tempOpList);
+			for (auto& o : tempOpList) {
+				availableOperators.back().push_back(OPTYPES_MAP[o]);
+			}
+		}
+	}
 
-          int f = gateGenomeHandler->readInt(0, nrOutputTotal - 1);
-          // Now read the opperator and inputs
-          int op = availableOps[gateGenomeHandler->readInt(
-              0, availableOpsCount - 1, 2)];
-          int in1 = gateGenomeHandler->readInt(
-              0, (int)(_genomes[genomeNamePL->get(PT)]->getAlphabetSize() - 1),
-              2);
-          int in2 = gateGenomeHandler->readInt(
-              0, (int)(_genomes[genomeNamePL->get(PT)]->getAlphabetSize() - 1),
-              2);
-#if CGPBRAIN_DEBUG == 1
-          std::cout << "got values:   f: " << f << "  op : " << op
-                    << "  in1: " << in1 << "  in2: " << in2 << "\n";
-#endif
-          // Now find the location in the formula
-          double location = gateGenomeHandler->readDouble(0.0, 1.0);
-#if CGPBRAIN_DEBUG == 1
-          std::cout << "   @ location: " << location << "\n";
-          std::cout << "   formula " << f << "  size = " << locations[f].size()
-                    << "\n";
-#endif
-          if (locations[f].size() == 0 ||
-              locations[f][locations[f].size() - 1] <= location) {
-#if CGPBRAIN_DEBUG == 1
-            if (locations[f].size() == 0) {
-              std::cout << "      first"
-                        << "\n";
-            } else {
-              std::cout << "      Last in formula... last location: "
-                        << locations[f][locations[f].size() - 1] << "\n";
-            }
-#endif
-            // if this formula is empty, or the new op is last push back new op
-            brainVectors[f].push_back(op);
-            brainVectors[f].push_back(in1);
-            brainVectors[f].push_back(in2);
-            locations[f].push_back(location);
-          } else {
-#if CGPBRAIN_DEBUG == 1
-            std::cout << "      Not Last in formula... last location: "
-                      << locations[f][locations[f].size() - 1] << "\n";
-#endif
-            // new op is not last
-            int index = locations[f].size() - 1;
-#if CGPBRAIN_DEBUG == 1
-            std::cout << "index: " << index << "\n";
-#endif
-            // copy current last op to back of formula
-            brainVectors[f].push_back(
-                brainVectors[f][brainVectors[f].size() - 3]);
-            brainVectors[f].push_back(
-                brainVectors[f][brainVectors[f].size() - 2]);
-            brainVectors[f].push_back(
-                brainVectors[f][brainVectors[f].size() - 1]);
-            locations[f].push_back(locations[f][locations[f].size() - 1]);
+	discretizeRecurrent = discretizeRecurrentPL->get(PT);
+	convertCSVListToVector(discretizeRecurrentRangePL->get(PT), discretizeRecurrentRange);
 
-            // starting at the back, find the location, push each op forward
-            // until we find it.
-            while (index > 0 && locations[f][index] > location) {
-              brainVectors[f][((index + 1) * 3) + 2] =
-                  brainVectors[f][(index * 3) + 2];
-              brainVectors[f][((index + 1) * 3) + 1] =
-                  brainVectors[f][(index * 3) + 1];
-              brainVectors[f][((index + 1) * 3) + 0] =
-                  brainVectors[f][(index * 3) + 0];
-              locations[f][index + 1] = locations[f][index];
-#if CGPBRAIN_DEBUG == 1
-              std::cout << index << " <<>> ";
-#endif
-              index--;
-#if CGPBRAIN_DEBUG == 1
-              std::cout << index << "\n";
-#endif
-            }
+	//std::cout << "discretizeRecurrent: " << discretizeRecurrent << std::endl;
+	//for (auto d : discretizeRecurrentRange) {
+	//	std::cout << d << " ";
+	//}
+	//std::cout << std::endl;
 
-            // now index is set to where we need to insert the new instruction
-            brainVectors[f][(index * 3)] = op;
-            brainVectors[f][(index * 3) + 1] = in1;
-            brainVectors[f][(index * 3) + 2] = in2;
-            locations[f][index] = location;
-          }
-        }
-        if (0) { // mustReadAll) {  // if start codon values are bigger then the
-                 // alphabetSize of the genome, we must step forward one genome
-                 // site at a time (slow)
-          placeHolderGenomeHandler->advanceIndex();
-          placeHolderGenomeHandler->copyTo(genomeHandler);
-          testSite1Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
-          testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
-        } else { // we know that start codon values fit in a single site, so we
-                 // can be clever
-          testSite1Value = testSite2Value;
-          testSite2Value = genomeHandler->readInt(0, codonMaxPL->get(PT));
-        }
-        // cout << testSite1Value << " + " << testSite2Value << " = " <<
-        // testSite1Value + testSite2Value << endl;
-      }
-      // translation compete - now fix the input values
-      for (int f = 0; f < (nrOutputTotal); f++) {
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "f: " << f << "  :: ";
-#endif
-        for (int i = 0; i < (int)brainVectors[f].size(); i += 3) {
-#if CGPBRAIN_DEBUG == 1
-          std::cout << brainVectors[f][i] << "  ";
-          std::cout << " (" << brainVectors[f][i + 1] << "%"
-                    << nrInputTotal + (i / 3) << ") ";
-#endif
-          brainVectors[f][i + 1] =
-              brainVectors[f][i + 1] %
-              (nrInputTotal + (i / 3)); // num inputs + num new values - 1 since
-                                        // first is 0 -1 more to correct for 0
-                                        // indexing
-#if CGPBRAIN_DEBUG == 1
-          std::cout << brainVectors[f][i + 1] << "  ";
-          std::cout << " (" << brainVectors[f][i + 2] << "%"
-                    << nrInputTotal + (i / 3) << ") ";
-#endif
-          brainVectors[f][i + 2] =
-              brainVectors[f][i + 2] %
-              (nrInputTotal + (i / 3)); // num inputs + num new values - 1 since
-                                        // first is 0 -1 more to correct for 0
-                                        // indexing
-#if CGPBRAIN_DEBUG == 1
-          std::cout << brainVectors[f][i + 2] << " , ";
-#endif
-        }
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "\n";
-#endif
-      }
-      // input values are now correct
-    }
-  } else {
-    std::cout << "\n\nIn CGP constructor, found unknown buildMode \""
-              << buildModePL->get(PT) << "\".\n exiting." << std::endl;
-    exit(1);
-  }
+	// uncomment to test ops
+	//testOps();
+
+	// columns to be added to ave file
+	popFileColumns.clear();
+
+}
+
+CGPBrain::CGPBrain(int _nrInNodes, int _nrOutNodes, std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>& _genomes,
+	std::shared_ptr<ParametersTable> PT_) : CGPBrain(_nrInNodes, _nrOutNodes, PT_) {
+	
+	bool report = false;
+	if (report) {
+		std::cout << std::endl << std::endl;
+		std::cout << "numInputs: " << nrInputValues << "  numRecurrent: " << nrRecurrentValues << "  total in: " << nrInputTotal << std::endl;
+		std::cout << "numOutputs: " << nrOutputValues << "  total out: " << nrOutputTotal << std::endl;
+		std::cout << "W x H: " << opSpaceColumns << " x " << opSpaceRows << std::endl;
+		std::cout << "opsMatrixSize: " << opsMatrixSize << std::endl;
+		std::cout << "currentMatrixValuesSize: " << currentMatrixValuesSize << std::endl;
+	}
+	// make a matrix
+	int availableInputs = nrInputTotal;
+	if (report) {
+		std::cout << "\nstarting construction...    availableInputs : " << availableInputs << std::endl;
+	}
+
+	int row = 0;
+	int column = 0;
+	for (int i = 0; i < opsMatrixSize; i++) {
+		if (i != 0 && (i % opSpaceRows) == 0) { // if we get to the end of a column, there are new inputs avalible
+			row = 0;
+			column += 1;
+			availableInputs += opSpaceRows;
+			if (report) {
+				std::cout << i << "        new availableInputs : " << availableInputs << std::endl;
+			}
+		}
+		opsMatrix[i] = getNewOp(availableInputs, row, column);
+		if (report) {
+			std::cout << "cell id: " << i << "(" << row << "," << column << ") " << opsMatrix[i]->name << std::endl;
+		}
+		row += 1;
+	}
+	availableInputs += opSpaceRows; // output column can read from last column in opsMatrix
+	for (int i = 0; i < nrOutputTotal; i++) {
+		outputLayerAddresses[i] = Random::getIndex(availableInputs);
+	}
+
+	updateExecuteOrder();
+	//testOps();
+	//exit(1);
+
+	if (report) { // generate a report
+		int count = 0;
+		int h = 0;
+		int w = 0;
+		for (auto& cell : opsMatrix) {
+			std::cout << count++ << "  " << cell->row << "," << cell->column << "  " << cell->name << "  available: " << cell->availableInputs << std::endl;
+			std::cout << "  ins: " << std::flush;
+			for (auto& in : cell->inputs) {
+				std::cout << in << " ";
+			}
+			std::cout << std::endl;
+			h += 1;
+			if (h == opSpaceRows) {
+				h = 0;
+				w += 1;
+			}
+		}
+		std::cout << "  outputLayerAddress: " << std::endl;
+		for (auto& out : outputLayerAddresses) {
+			std::cout << out << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "  execute order: " << std::endl;
+		for (auto& e : executeOrder) {
+			std::cout << e << " ";
+		}
+		std::cout << std::endl;
+		std::cout << std::endl << std::endl;
+
+	}
+
+	//graphBrain();
+	//mutate();
+	//std::cout << "mutated ---------------------------" << std::endl;
+	//graphBrain();
+	//std::cout << "mutated ---------------------------" << std::endl;
+	//graphBrain();
+	//std::cout << "mutated ---------------------------" << std::endl;
+	//graphBrain();
+
+	//exit(1);
+
 }
 
 void CGPBrain::resetBrain() {
-  // std::cout << "in reset Brain" << endl;
-  fill(inputValues.begin(), inputValues.end(), 0);
-  fill(outputValues.begin(), outputValues.end(), 0);
-  fill(readFromValues.begin(), readFromValues.end(), 0);
-  fill(writeToValues.begin(), writeToValues.end(), 0);
+	//std::cout << "in reset Brain" << std::endl;
+	fill(inputValues.begin(), inputValues.end(), 0);
+	fill(outputValues.begin(), outputValues.end(), 0);
+	fill(nextValues.begin(), nextValues.end(), 0);
 }
 
 void CGPBrain::update() {
-  for (int index = 0; index < nrInputValues;
-       index++) { // copy input values into readFromValues
-    readFromValues[index] = inputValues[index];
-  }
-  if (readFromOutputsPL->get(PT)) { // if readFromOutputs, then add last outputs
-    for (int index = 0; index < nrOutputValues; index++) {
-      readFromValues[index + nrInputValues] = writeToValues[index];
-    }
-  }
-  for (int index = nrOutputValues;
-       index < nrOutputValues + hiddenNodesPL->get(PT);
-       index++) { // add hidden values from writeToValues
-    readFromValues[index + nrInputValues -
-                   ((!readFromOutputsPL->get(PT)) ? nrOutputValues : 0)] =
-        writeToValues[(index)];
-  }
+	bool report = false;
 
-  DataMap dataMap;
-  std::vector<double> values;
+	if (discretizeRecurrent > 0) {
+		discretizeVector(nextValues, discretizeRecurrent, discretizeRecurrentRange);
+	}
 
-#if CGPBRAIN_DEBUG == 1
-  std::cout << "***********************************\nSTART"
-            << "\n";
-#endif
-  auto magnitudeMax = magnitudeMaxPL->get(PT);
-  auto magnitudeMin = magnitudeMinPL->get(PT);
-  for (int vec = 0; vec < (int)brainVectors.size(); vec++) {
-#if CGPBRAIN_DEBUG == 1
-    std::cout << "vec: " << vec << "\n";
-#endif
-    values.clear();
-    values = readFromValues;
-    for (int site = 0; site < (int)brainVectors[vec].size(); site += 3) {
-      double op1 = values[brainVectors[vec][site + 1]];
-      double op2 = values[brainVectors[vec][site + 2]];
-      switch (brainVectors[vec][site]) {
+	//std::cout << "discretizeRecurrent: " << discretizeRecurrent << "   " << discretizeRecurrentRange[0] << " " << discretizeRecurrentRange[1] << std::endl;
+	//for (int i = 0; i < nextValues.size(); i++) {
+	//	std::cout << tnv[i] << " -> " << nextValues[i] << std::endl;
+	//}
+	//exit(1);
 
-      case 0: // SUM
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "SUM(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, op1 + op2)));
-        break;
-      case 1: // MULT
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "MULT(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, op1 * op2)));
-        break;
-      case 2: // SUBTRACT
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "SUBTRACT(" << brainVectors[vec][site + 1] << "=" << op1
-                  << "," << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, op1 - op2)));
-        break;
-      case 3: // DIVIDE
-        if (op2 == 0) {
-#if CGPBRAIN_DEBUG == 1
-          std::cout << "DIVIDE**0**(" << brainVectors[vec][site + 1] << "="
-                    << op1 << "," << brainVectors[vec][site + 2] << "=" << op2
-                    << ")"
-                    << "\n";
-#endif
-          values.push_back(0);
-        } else {
-#if CGPBRAIN_DEBUG == 1
-          std::cout << "DIVIDE(" << brainVectors[vec][site + 1] << "=" << op1
-                    << "," << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                    << "\n";
-#endif
-          values.push_back(
-              std::min(magnitudeMax, std::max(magnitudeMin, op1 / op2)));
-        }
-        break;
-      case 4: // SIN
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "SIN(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, sin(op1))));
-        break;
-      case 5: // COS
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "COS(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, cos(op1))));
-        break;
 
-      case 6: // THRESH
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "THRESH(" << brainVectors[vec][site + 1] << "=" << op1
-                  << "," << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(std::min(
-            magnitudeMax, std::max(magnitudeMin, (op1 > op2) ? op2 : op1)));
-        break;
-      case 7: // RAND
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "RAND(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(std::min(
-            magnitudeMax, std::max(magnitudeMin, Random::getDouble(op1, op2))));
-        break;
-      case 8: // IF
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "IF(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(std::min(magnitudeMax,
-                                  std::max(magnitudeMin, (op1 > 0) ? op2 : 0)));
-        break;
-      case 9: // INV
-#if CGPBRAIN_DEBUG == 1
-        std::cout << "INV(" << brainVectors[vec][site + 1] << "=" << op1 << ","
-                  << brainVectors[vec][site + 2] << "=" << op2 << ")"
-                  << "\n";
-#endif
-        values.push_back(
-            std::min(magnitudeMax, std::max(magnitudeMin, -1.0 * op1)));
-        break;
-      }
-#if CGPBRAIN_DEBUG == 1
-      std::cout << "values: ";
-      for (auto v : values) {
-        std::cout << v << " ";
-      }
-      std::cout << "\n";
-      std::cout << "outputValues: ";
-      for (auto v : outputValues) {
-        std::cout << v << " ";
-      }
-      std::cout << "\n";
-#endif
-    }
-    writeToValues[vec] = values.back();
-    if (vec < nrOutputValues) {
-      outputValues[vec] = values.back();
-    }
-  }
+	if (report) {
+		std::cout << "in update..." << std::endl;
+		std::cout <<   "inputs: ";
+		for (auto v : inputValues) {
+			std::cout << v << " ";
+		}
+		std::cout << "\nhidden: ";
+		for (int index = 0; index < nrRecurrentValues; index++) { // copy input values into currentValues
+			std::cout << nextValues[index + nrOutputValues] << " ";
+		}
+		std::cout << std::endl;
+		int count = 0;
+		int h = 0;
+		int w = 0;
+		for (auto& cell : opsMatrix) {
+			std::cout << count++ << "  " << w << "," << h << "  " << cell->name << "  available: " << cell->availableInputs << std::endl;
+			std::cout << "  ins: " << std::flush;
+			for (auto& in : cell->inputs) {
+				std::cout << in << " ";
+			}
+			std::cout << std::endl;
+			h += 1;
+			if (h == opSpaceRows) {
+				h = 0;
+				w += 1;
+			}
+		}
+		std::cout << "  outputLayerAddress: " << std::endl;
+		for (auto& out : outputLayerAddresses) {
+			std::cout << out << " ";
+		}
+		std::cout << std::endl;
+		std::cout << "  execute order: " << std::endl;
+		for (auto& e : executeOrder) {
+			std::cout << e << " ";
+		}
+		std::cout << std::endl << std::endl;
+	}
+	// copy inputs into current Values
+	for (int index = 0; index < nrInputValues; index++) { // copy input values into currentValues
+		currentMatrixValues[index] = inputValues[index];
+		if (report) {
+			std::cout << "currentMatrixValues[" << index << "]<-" <<
+				"inputValues[" << index << "] = " << currentMatrixValues[index] <<
+				std::endl;
+		}
+	}
+
+	if (report) {
+		std::cout << "currValues(post copy inputs)   : ";
+		for (auto cv : currentMatrixValues) {
+			std::cout << cv << " ";
+		}
+		std::cout << std::endl;
+	}
+	// copy recurrent (from t+1) into current Values
+	for (int index = 0; index < nrRecurrentValues; index++) { // copy input values into currentValues
+		currentMatrixValues[index + nrInputValues] = nextValues[index + nrOutputValues];
+		if (report) {
+			std::cout << "currentMatrixValues[" << index + nrInputValues << "]<-" <<
+				"nextValues[" << index + nrOutputValues << "] = " << currentMatrixValues[index + nrInputValues] <<
+				std::endl;
+		}
+	}
+
+	if (report) {
+		std::cout << "currValues(post copy recurrent): ";
+		for (auto cv : currentMatrixValues) {
+			std::cout << cv << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	// copy outputs (from t+1) into current Values
+	if (readFromOutputs) { // if readFromOutputs, then add last outputs
+		for (int index = 0; index < nrOutputValues; index++) {
+			currentMatrixValues[index + nrInputValues + nrRecurrentValues] = nextValues[index];
+			if (report) {
+				std::cout << "currentMatrixValues[" << index + nrInputValues + nrRecurrentValues << "] <-" <<
+					"nextValues[" << index << "] = " << currentMatrixValues[index + nrInputValues + nrRecurrentValues] <<
+					std::endl;
+			}
+		}
+	}
+
+	if (report) {
+		std::cout << "currValues(post copy outputs)  : ";
+		for (auto cv : currentMatrixValues) {
+			std::cout << cv << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	for (auto cell : executeOrder) {
+		currentMatrixValues[cell + nrInputTotal] = 
+			std::min(magnitudeMax, std::max(magnitudeMin, opsMatrix[cell]->update(currentMatrixValues)));
+		
+		if (report) {
+			std::cout << "running cell: " << cell << " : " << opsMatrix[cell]->row << "," << opsMatrix[cell]->column << " = " << currentMatrixValues[cell + nrInputTotal] << std::endl;
+			std::cout << "   currValues(new)     : ";
+			for (auto cv : currentMatrixValues) {
+				std::cout << cv << " ";
+			}
+			std::cout << std::endl;
+		}
+	}
+
+	if (report) {
+		std::cout << "cvs(post)     : ";
+		for (auto cv : currentMatrixValues) {
+			std::cout << cv << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	for (int i = 0; i < nrOutputTotal; i++) {
+		nextValues[i] = currentMatrixValues[outputLayerAddresses[i]];
+	}
+	if (report) {
+		std::cout << "cvs(t+1)      : ";
+		for (auto nv : nextValues) {
+			std::cout << nv << " ";
+		}
+		std::cout << std::endl;
+	}
+
+	for (int i = 0; i < nrOutputValues; i++) {
+		outputValues[i] = nextValues[i];
+	}
+
+
 }
 
 std::string CGPBrain::description() {
-  std::string S = "CGPBrain\n";
-  return S;
+	std::string S = "CGPBrain\n";
+	return S;
 }
 
-DataMap CGPBrain::getStats(std::string &prefix) {
-  DataMap dataMap;
-
-  double aveFormulaLength = 0.0;
-  if (buildModePL->get(PT) == "codon") {
-    for (auto vec : brainVectors) {
-      aveFormulaLength += (double)(vec.size());
-    }
-    aveFormulaLength /= double(brainVectors.size());
-    dataMap.set(prefix + "cgpBrainAveFormulaLength", aveFormulaLength);
-  }
-  // get stats
-  // cout << "warning:: getStats for CGPBrain needs to be written." << endl;
-  return (dataMap);
+DataMap CGPBrain::getStats(std::string& prefix) {
+	DataMap dataMap;
+	// get stats
+	// cout << "warning:: getStats for CGPBrain needs to be written." << endl;
+	return (dataMap);
 }
 
-void CGPBrain::initializeGenomes(
-    std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>
-        &_genomes) {
-  _genomes[genomeNamePL->get(PT)]->fillRandom();
-}
+void CGPBrain::initializeGenomes(std::unordered_map<std::string, std::shared_ptr<AbstractGenome>>& _genomes) {}
 
-std::shared_ptr<AbstractBrain>
-CGPBrain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
-  if (PT_ == nullptr) {
-    PT_ = PT;
-  }
-  auto newBrain =
-      std::make_shared<CGPBrain>(nrInputValues, nrOutputValues, PT_);
-  newBrain->brainVectors = brainVectors;
-  return newBrain;
+std::shared_ptr<AbstractBrain> CGPBrain::makeCopy(std::shared_ptr<ParametersTable> PT_) {
+	//std::cout << "in makeCopy..." << std::endl;
+	if (PT_ == nullptr) {
+		PT_ = PT;
+	}
+	auto newBrain = std::make_shared<CGPBrain>(nrInputValues, nrOutputValues, PT_);
+
+	newBrain->availableOperators = availableOperators;
+
+	newBrain->nrInputTotal = nrInputTotal;
+	newBrain->nrOutputTotal = nrOutputTotal;
+
+	newBrain->opsMatrix = copyOpMatrix();
+	newBrain->outputLayerAddresses = outputLayerAddresses;
+
+	newBrain->executeOrder = executeOrder;
+
+	return newBrain;
 }
