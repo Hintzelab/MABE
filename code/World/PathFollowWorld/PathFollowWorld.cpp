@@ -144,11 +144,19 @@ void PathFollowWorld::loadMaps(std::vector<string>& mapNames, std::vector<Vector
         initalDirections.push_back(std::stoi(rawLine)); // ... contails initial facing direction
 
         atEOF = loadLineFromFile(FILE, rawLine, ss); // get the next line, from here we are loading the actual map
-        
+
 
         size_t y = 0;
         while (!atEOF) { // while not at end of file, read lines from file and add them to map
             for (size_t x = 0; x < rawLine.size(); x++) { // for all positions (x values) in the current line ...
+                if (x >= mapSizes.back().first) {
+                    std::cout << "  while loading " << mapName << " the map data has data outside the x range. Exiting!" << std::endl;
+                    exit(1);
+                }
+                if (y >= mapSizes.back().second) {
+                    std::cout << "  while loading " << mapName << " the map data has data outside the y range. Exiting!" << std::endl;
+                    exit(1);
+                }
                 if (rawLine[x] == 'X') { // if character in file is "X", this is the start location, X was used to make the map more human readable
                     maps.back()((int)x, (int)y) = 1;
                     startLocations.push_back({ x,y }); // make a note of this location in startLocations
@@ -160,6 +168,8 @@ void PathFollowWorld::loadMaps(std::vector<string>& mapNames, std::vector<Vector
             y += 1; // done with the current line, advance the y counter
             atEOF = loadLineFromFile(FILE, rawLine, ss); // get the next line
         }
+        std::cout << mapName << " loaded" << std::endl;
+
     }
 }
 
