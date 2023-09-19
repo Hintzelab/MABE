@@ -3,6 +3,7 @@
 #include "Filesystem.h"
 #include <vector>
 #include <regex>
+#include <cstring>
 #include <string>
 
 // given a path or filename, return T or F if it exists already
