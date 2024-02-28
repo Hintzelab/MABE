@@ -398,9 +398,9 @@ DataMap RNNBrain::getStats(std::string& prefix) {
             }
         }
     }
-    dataMap.set("RNN_weights_pos", posCount);
-    dataMap.set("RNN_weights_neg", negCount);
-    dataMap.set("RNN_weights_zero", zeroCount);
+    dataMap.set(prefix + "RNN_weights_pos", posCount);
+    dataMap.set(prefix + "RNN_weights_neg", negCount);
+    dataMap.set(prefix + "RNN_weights_zero", zeroCount);
 
     std::vector<int> activationFunctionCounts(activationFunctionNames.size(), 0);
     for (auto L : activationFunctions) {
@@ -409,7 +409,7 @@ DataMap RNNBrain::getStats(std::string& prefix) {
         }
     }
     for (int i = 0; i < activationFunctionNames.size(); i++) {
-        dataMap.set("RNN_" + activationFunctionNames[i] + "_count", activationFunctionCounts[i]);
+        dataMap.set(prefix + "RNN_" + activationFunctionNames[i] + "_count", activationFunctionCounts[i]);
     }
 
 
@@ -463,6 +463,7 @@ std::shared_ptr<AbstractBrain> RNNBrain::makeCopy(std::shared_ptr<ParametersTabl
     newBrain->nodes = nodes;
     newBrain->weights = weights;
     newBrain->initialValues = initialValues;
+    newBrain->activationFunctions = activationFunctions;
     
     return newBrain;
 }

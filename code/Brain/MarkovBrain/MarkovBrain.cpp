@@ -122,6 +122,9 @@ void MarkovBrain::readParameters() {
   nrNodes = nrInputValues + nrOutputValues + hiddenNodes;
   nodes.resize(nrNodes, 0);
   nextNodes.resize(nrNodes, 0);
+
+  discretizeRecurrent = discretizeRecurrentPL->get(PT);
+  convertCSVListToVector(discretizeRecurrentRangePL->get(PT), discretizeRecurrentRange);
 }
 
 MarkovBrain::MarkovBrain(std::vector<std::shared_ptr<AbstractGate>> _gates,
@@ -205,9 +208,6 @@ MarkovBrain::MarkovBrain(
         }
         //std::cout << std::endl;
     }
-
-    discretizeRecurrent = discretizeRecurrentPL->get(PT);
-    convertCSVListToVector(discretizeRecurrentRangePL->get(PT), discretizeRecurrentRange);
 
     inOutReMap(); // map ins and outs from genome values to brain states
     fillInConnectionsLists();
